@@ -77,7 +77,7 @@ const int Vrml97Scanner::FIELDTYPE_MFTIME       (45);
 const int Vrml97Scanner::FIELDTYPE_MFVEC2F      (46);
 const int Vrml97Scanner::FIELDTYPE_MFVEC3F      (47);
 
-Vrml97Scanner::Vrml97Scanner(std::istream & in):
+Vrml97Scanner::Vrml97Scanner(std::istream & in, progress_callback *pcb):
     in_(in),
     line_(1),
     col_(0),
@@ -85,7 +85,8 @@ Vrml97Scanner::Vrml97Scanner(std::istream & in):
     prev_char_('\0'),
     prev_token_type_(0),
     read_too_much_(false),
-    expecting_field_type_(false)
+    expecting_field_type_(false),
+    progress( pcb ) 
 {}
 
 antlr::RefToken Vrml97Scanner::nextToken()
@@ -339,6 +340,10 @@ inline void Vrml97Scanner::getNextChar()
             this->col_ = 0;
         }
     }
+
+    if( this->progress != NULL ) {
+       progress->operator()( this->line_, this->col_ );
+    }       
 }
 
 inline void Vrml97Scanner::identifyKeyword(antlr::Token & token)

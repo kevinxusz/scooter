@@ -1019,7 +1019,8 @@ namespace {
  * @todo Make this asynchronous.
  */
 void browser::load_url(const std::vector<std::string> & url,
-                       const std::vector<std::string> & parameter)
+                       const std::vector<std::string> & parameter,
+                       load_progress_callback_t* progress )
     throw (std::bad_alloc)
 {
     using std::for_each;
@@ -1051,7 +1052,7 @@ void browser::load_url(const std::vector<std::string> & url,
     // Create the new scene.
     //
     this->init_node_class_map();
-    this->scene_ = new scene(*this, url);
+    this->scene_ = new scene(*this, url, NULL, progress);
     this->scene_->initialize(now);
 
     //
@@ -2069,7 +2070,8 @@ namespace {
  */
 scene::scene(openvrml::browser & browser,
              const std::vector<std::string> & url,
-             scene * parent)
+             scene * parent,
+             load_progress_callback_t *progress)
     throw (invalid_vrml, std::bad_alloc):
     browser(browser),
     parent(parent)
@@ -2108,7 +2110,7 @@ scene::scene(openvrml::browser & browser,
             istream & in = doc.input_stream();
             if (!in) { throw unreachable_url(); }
             try {
-                Vrml97Scanner scanner(in);
+                Vrml97Scanner scanner(in, progress);
                 Vrml97Parser parser(scanner, this->url());
                 parser.vrmlScene(browser, this->nodes_);
             } catch (antlr::RecognitionException &) {
@@ -2232,7 +2234,8 @@ void scene::render(openvrml::viewer & viewer, rendering_context context) {
  *      invalid. Should this throw invalid_url?
  */
 void scene::load_url(const std::vector<std::string> & url,
-                     const std::vector<std::string> & parameter)
+                     const std::vector<std::string> & parameter,
+                     load_progress_callback_t *progress )
     throw (std::bad_alloc)
 {
     using std::string;
@@ -2260,7 +2263,7 @@ void scene::load_url(const std::vector<std::string> & url,
                     OPENVRML_PRINT_EXCEPTION_(ex);
                 }
             }
-            this->browser.load_url(absoluteURIs, parameter);
+            this->browser.load_url(absoluteURIs, parameter, progress);
         }
     }
 }

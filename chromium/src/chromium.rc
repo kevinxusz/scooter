@@ -1,0 +1,5 @@
+chromium                 ICON    "cromium-gray.ico"
+debug                    ICON    "debug.ico"
+
+#include "wx/msw/wx.rc"
+

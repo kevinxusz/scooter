@@ -21,65 +21,41 @@
 # Copyright (c) 2004. Dimitry Kloper <dimka@cs.technion.ac.il> . 
 # Technion, Israel Institute of Technology. Computer Science Department.
 #
-# Conscript -- Conscript for wxwin/src/html
+# Conscript -- conscript file for calculus test
 #
 
-Import qw(BLIB toolset options platform defines);
+Import qw(BLIB toolset options);
 
 my $ruleset  = $toolset->env();
-
 die if( !defined( $ruleset ) );
 
 our $BUILD      = $toolset->option( 'build' );
-our $INCLUDE    = [ "%STLPORT_INCLUDE",
-		    "%ZLIB_INCLUDE",
-		    "%JPEG_INCLUDE",
-		    "%LIBPNG_INCLUDE",
+our $INCLUDE    = [ "%STLPORT_INCLUDE", 
+		    "%BOOST_INCLUDE",
 		    "$BLIB/include",
-		    "../regex",
 		    "." ];
 
-for my $define (keys( %$defines )) {
-    $ruleset->{'CXXFLAGS'} .= " -D$define";
-    $ruleset->{'CXXFLAGS'} .= "=" . $defines->{$define} 
-      if( defined( $defines->{$define} ) );
-}
+our $DEFINE     = [ "%STLPORT_DEFINE", "%BOOST_DEFINE", "-D_TRACE" ];
+our $LIBPATH    = [ "$BLIB/lib", "%STLPORT_LIB", "%BOOST_LIB" ];
+our $LIBS       = qw( -ldgd );
 
-Link $BUILD => '.';
+map { $ruleset->{'CXXFLAGS'} .= " $_" } @$DEFINE;
+
+Link $BUILD => 'src';
+
 
 our $buildenv   = new cons( %{$ruleset},
-			   'CPPPATH' => $INCLUDE );
+			   'CPPPATH' => $INCLUDE,
+			   'LIBPATH' => $LIBPATH,
+			   'LIBS'    => $LIBS );
 
-my $TARGET = "$BUILD/%{PREFLIB}wxhtml%{SUFLIB}";
+my $TARGET = "$BUILD/calculus%{SUFEXE}";
 
 KeepPrecious $buildenv $TARGET;
+Program $buildenv $TARGET, 
+  map( "$BUILD/$_", qw( calculus.cpp  ) );
 
-Library $buildenv $TARGET, 
-  map( "$BUILD/$_", 
-       qw( 
-helpctrl.cpp
-helpdata.cpp
-helpfrm.cpp
-htmlcell.cpp
-htmlfilt.cpp
-htmlpars.cpp
-htmltag.cpp
-htmlwin.cpp
-htmprint.cpp
-m_dflist.cpp
-m_fonts.cpp
-m_hline.cpp
-m_image.cpp
-m_layout.cpp
-m_links.cpp
-m_list.cpp
-m_pre.cpp
-m_style.cpp
-m_tables.cpp
-winpars.cpp
- ) );
-
-Install $buildenv "$BLIB/lib", $TARGET;
+Install $buildenv "$BLIB/test", $TARGET;
 
 #
 # Conscript -- end of file

@@ -1084,11 +1084,17 @@ bool doc2::filename(char * fn, const size_t nfn) {
             free(const_cast<char *>(s));        // assumes tempnam or equiv...
             s = tmpfile_;
         }
+    } else {
+        s = this->url_.c_str();
     }
-    // Unrecognized protocol (need ftp here...)
-    else {
-        s = 0;
-    }
+
+#ifdef _WIN32
+    // Does not like "//C:" skip "// "
+    int nslashes = 0;
+    while( s && *(s+nslashes) == '/' ) nslashes++;
+    if(nslashes >= 2) 
+        s += nslashes;
+#endif
 
     if (s) {
         strncpy( fn, s, nfn-1 );

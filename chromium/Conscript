@@ -1,0 +1,111 @@
+# -*- CPerl -*-
+#
+# $Id$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# This file is a part of the Scooter project. 
+#
+# Copyright (c) 2004. Dimitry Kloper <dimka@cs.technion.ac.il> . 
+# Technion, Israel Institute of Technology. Computer Science Department.
+#
+# Conscript -- conscript file for Chromium
+#
+
+Import qw(BLIB toolset options);
+
+my $ruleset  = $toolset->env();
+die if( !defined( $ruleset ) );
+
+$ruleset->{'LDFLAGS'} .= " -subsystem:windows";
+
+our $BUILD      = $toolset->option( 'build' );
+our $INCLUDE    = [ "%STLPORT_INCLUDE", 
+		    "%BOOST_INCLUDE",
+		    "$BLIB/include",
+		    "." ];
+
+our $DEFINE     = [ "%STLPORT_DEFINE", "%BOOST_DEFINE", "-D_TRACE" ];
+our $LIBPATH    = [ "$BLIB/lib", "%STLPORT_LIB", "%BOOST_LIB", 
+		    "%ZLIB_LIB", "%JPEG_LIB", "%LIBPNG_LIB" ];
+our $LIBS       = join( ' ' , qw( -ldgd
+				  -lwxcommon
+				  -lwxgeneric 
+				  -lwxregex
+				  -lwxhtml
+				  -lwxmsw
+				  -lantlr 
+				  -lopenvrml 
+				  -lopenvrml-gl
+				  -lzlib 
+				  -llibjpeg 
+				  -llibpng
+				  -lkernel32 
+				  -luser32
+				  -lgdi32
+				  -lcomdlg32
+				  -lwinspool
+				  -lwinmm
+				  -lshell32
+				  -loldnames
+				  -lcomctl32
+				  -lodbc32
+				  -lole32
+				  -loleaut32
+				  -luuid
+				  -lrpcrt4
+				  -ladvapi32
+				  -lwsock32 
+				  -lopengl32
+				  -lglu32 ) );
+
+map { $ruleset->{'CXXFLAGS'} .= " $_" } @$DEFINE;
+
+Link $BUILD => 'src';
+
+
+our $buildenv   = new cons( %{$ruleset},
+			   'CPPPATH' => $INCLUDE,
+			   'LIBPATH' => $LIBPATH,
+			   'LIBS'    => $LIBS );
+
+my $TARGET = "$BUILD/cr%{SUFEXE}";
+
+Command $buildenv "$BUILD/chromiumres.obj", "src/chromium.rc",
+  qq(%RC -r -Iblib/include -Ichromium/icons -fo%> %<);
+
+KeepPrecious $buildenv $TARGET;
+Program $buildenv $TARGET, 
+  map( "$BUILD/$_", qw( crApp.cpp 
+			crEvent.cpp
+			crMainWindow.cpp 
+			crVRMLControl.cpp
+			crVRMLCanvas.cpp
+			crVRMLLoader.cpp
+			crVRMLDocument.cpp
+			crVRMLDocView.cpp
+			crDebugConsole.cpp
+			crStreamToText.cpp
+			crMainStatusBar.cpp
+			chromiumres.obj ) );
+
+Install $buildenv "$BLIB/bin", $TARGET;
+
+
+
+#
+# Conscript -- end of file
+#
+

@@ -43,11 +43,15 @@ our $version = Cons::VersionControl->open();
 our $BLIB    = "#blib";
 
 die if( !defined( $toolset ) );
+
+my @liblist = qw(cons/config dgd chromium common) ;
+
     
 map { 
-    if( /^-/ ) {
-	say( "error: unknown option $_", 'verbose' => 1 );
-	die;
+    if( /^--full$/ ) {
+	@liblist = ( @liblist,  qw(openvrml wxwin) );
+    } elsif( /^--test$/ ) {
+	@liblist = qw(cons/config dgd common test);
     } elsif( /^clean$/ ) {
 	clean( cwd() );
 	return 1;
@@ -59,7 +63,7 @@ map {
 
 Default $BLIB;
 
-Build map( "$_/Conscript", qw(openvrml wxwin) );
+Build map( "$_/Conscript", @liblist );
 
 sub clean {
     my ($root) = @_;

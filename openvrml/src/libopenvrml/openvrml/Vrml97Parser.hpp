@@ -28,6 +28,9 @@ namespace openvrml {
 namespace {
     class Vrml97Scanner : public antlr::TokenStream {
     public:
+	  typedef openvrml::browser::load_progress_callback_t
+	  progress_callback;
+    public:
         static const int EOF_;
         //
         // The following identifiers for constants must match those in the file
@@ -78,7 +81,7 @@ namespace {
         static const int FIELDTYPE_MFVEC2F;
         static const int FIELDTYPE_MFVEC3F;
 
-        Vrml97Scanner(std::istream &);
+        Vrml97Scanner(std::istream &, progress_callback *pcb = NULL);
 
         virtual antlr::RefToken nextToken();
 
@@ -96,6 +99,7 @@ namespace {
         int         prev_token_type_;
         bool        read_too_much_;
         bool        expecting_field_type_;
+	progress_callback *progress;
     };
 }
 

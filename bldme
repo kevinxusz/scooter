@@ -12,7 +12,7 @@ perl -I cons ./cons/cons.pl $2 -- --toolset=gcc,cygwin,boost,stlport,clo,zlib,jp
 (clean)
 /d/perl/bin/perl -I cons ./cons/cons.pl $2 -- clean ;;
 (win|win-debug|*)
-/d/perl/bin/perl -I cons ./cons/cons.pl $2 -- --toolset=msvc70,cygwin,boost,stlport,clo,zlib,jpeg,libpng --nostlport-debug -v3 ;;
+/d/perl/bin/perl -I cons ./cons/cons.pl $2 -- --toolset=msvc70,cygwin,boost,stlport,clo,zlib,jpeg,libpng --nostlport-debug -v3 $3 $4 $5 $6;;
 esac
 
 # 

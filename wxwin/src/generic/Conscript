@@ -31,7 +31,8 @@ my $ruleset  = $toolset->env();
 die if( !defined( $ruleset ) );
 
 our $BUILD      = $toolset->option( 'build' );
-our $INCLUDE    = [ "%ZLIB_INCLUDE",
+our $INCLUDE    = [ "%STLPORT_INCLUDE",
+		    "%ZLIB_INCLUDE",
 		    "%JPEG_INCLUDE",
 		    "%LIBPNG_INCLUDE",
 		    "$BLIB/include",

@@ -31,24 +31,24 @@
 
 namespace openvrml {
 
-    class invalid_vrml : public std::runtime_error {
+class invalid_vrml : public std::runtime_error {
     public:
         invalid_vrml();
         virtual ~invalid_vrml() throw ();
-    };
+};
 
-    class viewer;
-    class ProtoNode;
-    class scene;
-    class Vrml97RootScope;
-    class null_node_class;
-    class null_node_type;
+class viewer;
+class ProtoNode;
+class scene;
+class Vrml97RootScope;
+class null_node_class;
+class null_node_type;
 
-    class browser {
+class browser {
         friend class Vrml97Parser;
         friend class ProtoNodeClass;
         friend class Vrml97RootScope;
-
+        
     public:
         enum cb_reason {
             destroy_world_id,
@@ -56,6 +56,12 @@ namespace openvrml {
         };
 
         typedef void (*scene_cb)(cb_reason reason);
+
+
+        struct load_progress_callback_t {
+		virtual void operator () ( unsigned long l, 
+                                           unsigned long c ) = 0;
+        };
 
     private:
         std::auto_ptr<null_node_class> null_node_class_;
@@ -131,7 +137,8 @@ namespace openvrml {
         const std::string world_url() const throw (std::bad_alloc);
         void replace_world(const std::vector<node_ptr> & nodes);
         virtual void load_url(const std::vector<std::string> & url,
-                              const std::vector<std::string> & parameter)
+                              const std::vector<std::string> & parameter,
+                              load_progress_callback_t* callback = NULL)
             throw (std::bad_alloc);
         virtual void description(const std::string & description);
         const std::vector<node_ptr> create_vrml_from_stream(std::istream & in);
@@ -232,12 +239,17 @@ namespace openvrml {
         std::string url_;
 
     public:
+            typedef openvrml::browser::load_progress_callback_t 
+            load_progress_callback_t;
+
+    public:
         openvrml::browser & browser;
         scene * const parent;
 
         scene(openvrml::browser & browser,
               const std::vector<std::string> & url,
-              scene * parent = 0)
+              scene * parent = 0,
+              load_progress_callback_t *progress = NULL )
             throw (invalid_vrml, std::bad_alloc);
 
         void initialize(double timestamp) throw (std::bad_alloc);
@@ -245,7 +257,8 @@ namespace openvrml {
         const std::string url() const throw (std::bad_alloc);
         void render(openvrml::viewer & viewer, rendering_context context);
         void load_url(const std::vector<std::string> & url,
-                      const std::vector<std::string> & parameter)
+                      const std::vector<std::string> & parameter,
+                      load_progress_callback_t *progress = NULL )
                 throw (std::bad_alloc);
         void shutdown(double timestamp) throw ();
 
