@@ -920,7 +920,36 @@ CrVRMLControl::insert_line_set(
 CrVRMLControl::object_t 
 CrVRMLControl::insert_point_set(const std::vector<openvrml::vec3f>& coord,
 		 const std::vector<openvrml::color>& color) {
-   return NULL;
+   dgd_start_scope( canvas, "CrVRMLControl::insert_point_set()" );
+   
+   apply_local_transform();
+
+   GLuint glid = 0;
+
+   if( this->m_select_mode == draw_mode ) {
+      glid = glGenLists(1);
+      glNewList(glid, GL_COMPILE_AND_EXECUTE);
+   }
+
+   std::vector<openvrml::vec3f>::const_iterator coord_iter;
+   std::vector<openvrml::color>::const_iterator color_iter;
+
+   glBegin( GL_POINTS );
+   for( coord_iter = coord.begin(), color_iter = color.begin();
+	coord_iter != coord.end();
+	++coord_iter ) {
+      if( color_iter != color.end() ) 
+	 glColor3fv( &(*color_iter++)[0] );
+      glVertex3fv( &(*coord_iter)[0] );
+   }
+   glEnd();
+
+   if (glid) { glEndList(); }
+
+   undo_local_transform();
+      
+   dgd_end_scope( canvas );
+   return object_t(glid);
 }
 
 
@@ -1424,8 +1453,8 @@ void CrVRMLControl::set_viewpoint(const openvrml::vec3f&    position,
 	 dgd_echo( dgd_expand(aspect) << std::endl );
 
 	 float tg_fov = (float)tan( fow * Math::PI / 180.0 / 2 );
-	 znear = 0.01f;
-	 zfar  = 3000000.0f;
+	 znear = scene_max_size / 10.0;
+	 zfar  = scene_max_size * 100.0;
 	 dgd_echo( dgd_expand(znear) << std::endl 
 		   << dgd_expand(zfar) << std::endl
 		   << dgd_expand(tg_fov) << std::endl );
@@ -1450,8 +1479,8 @@ void CrVRMLControl::set_viewpoint(const openvrml::vec3f&    position,
    if( !scene_centering ) {
       fow = field_of_view * 180.0f / (float)Math::PI;
       aspect = ((float) m_width) / m_height;
-      znear = (avatar_size > 0.0) ? (0.5f * avatar_size) : 0.01f;
-      zfar = (visibility_limit > 0.0) ? visibility_limit : 3000000.0f;
+      znear = (avatar_size > 0.0) ? (0.5f * avatar_size) : 1.0f;
+      zfar = (visibility_limit > 0.0) ? visibility_limit : 30000.0f;
       d = 10.0f * avatar_size;
       // Guess some distance along the sight line to use as a target...
       if (d < znear || d > zfar) d = 0.2f * (avatar_size + zfar);
@@ -1529,9 +1558,12 @@ void CrVRMLControl::initialize() {
       
       glEnable(GL_DEPTH_TEST);
       glDepthFunc(GL_LESS);
-      
-      glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+      glEnable(GL_LINE_SMOOTH);
+      glPointSize( 3.0 );
+      glEnable(GL_POINT_SMOOTH);
       glEnable(GL_NORMALIZE);
+
+      glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
       glGetIntegerv( GL_MAX_LIGHTS, &m_max_lights );

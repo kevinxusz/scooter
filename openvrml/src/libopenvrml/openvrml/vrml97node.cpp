@@ -11806,7 +11806,7 @@ point_set_node::~point_set_node() throw ()
  */
 bool point_set_node::modified() const
 {
-    return (modified()
+    return (this->node::modified()
             || (this->color.value && this->color.value->modified())
             || (this->coord.value && this->coord.value->modified()));
 }
@@ -12825,7 +12825,7 @@ shape_node::~shape_node() throw ()
  */
 bool shape_node::modified() const
 {
-    return (modified()
+    return (this->node::modified()
             || (this->geometry.value && this->geometry.value->modified())
             || (this->appearance.value && this->appearance.value->modified()));
 }
