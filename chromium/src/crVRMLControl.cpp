@@ -57,7 +57,7 @@ CrVRMLControl::CrVRMLControl( openvrml::browser & b ):
    m_permanent_rotation(false),
    m_cone_precision(32),
    m_cylinder_precision(32),
-   m_sphere_precision(32) {   
+   m_sphere_precision(12) {   
    m_clear_color[0] = m_clear_color[1] = m_clear_color[2] = 0;
 }
 
@@ -418,8 +418,126 @@ CrVRMLControl::insert_cylinder( float height, float radius,
    return rc;
 }
 
+void 
+CrVRMLControl::generate_spheric_arrays( 
+   const float                    radius, 
+   const unsigned                 precision,
+   boost::shared_array<Vector>&   vertexes,
+   boost::shared_array<Vector>&   normals,
+   boost::shared_array<Vector>&   texture,
+   boost::shared_array<unsigned>& indices ) {
+   dgd_start_scope( canvas, "CrVRMLControl::generate_spheric_arrays()" );
+
+   unsigned nvertexes = (precision + 1) * (precision + 1);
+
+   vertexes.reset( new Vector[nvertexes] );
+   normals.reset( new Vector[nvertexes] );
+   texture.reset( new Vector[nvertexes] );
+   indices.reset( new unsigned[ 4 * precision * precision ] );
+
+   FT alpha = FT(Math::PI * 2.0 / precision);
+   
+   dgd_echo( dgd_expand(alpha) << std::endl );
+   
+   unsigned i, j, index, facet;
+   FT u_angle,v_angle,x,y,z;
+
+   for( j = 0; j <= precision; ++j ) {
+      v_angle = j * alpha - FT(Math::PI / 2.0f);
+      
+      for( i = 0; i <= precision; ++i ) {
+	 u_angle = i * alpha - FT(Math::PI / 2.0);
+	 x = radius * (FT)cos(v_angle) * (FT)cos( u_angle );
+	 y = radius * (FT)sin(v_angle);
+	 z = radius * (FT)cos(v_angle) * (FT)sin( u_angle );
+	 index = (precision+1)*j + i;
+
+	 vertexes[index]( x, y, z );
+
+	 normals[index]( x, y, z ).normalize().cartesian();
+
+	 /**
+	  * @note Texture mapping is a little bit tricky. We map
+	  * i [0,precision] to u [0,1], but j [0,precision/2] to
+	  * v [0,1]. This gives cylinder-like mapping.
+	  */
+	 texture[index]( 1.0f - FT(i) / FT(precision), 
+			 2.0f * FT(j) / FT(precision),
+			 0 );
+
+	 facet = j * precision + i;
+	 if( i < precision &&
+	     j < precision )  indices[ 4 * facet               + 0 ] = index;
+	 if( i < precision &&
+	     j > 0 )          indices[ 4 * (facet-precision)   + 1 ] = index;
+	 if( i > 0 &&
+	     j < precision)   indices[ 4 * (facet-1)           + 3 ] = index;
+	 if( i > 0 && 
+	     j > 0 )          indices[ 4 * (facet-precision-1) + 2 ] = index;
+
+	 dgd_echo( dgd_expand(j) << " " << DGD::dgd
+		   << dgd_expand(i) << " " << std::endl
+		   << dgd_expand(u_angle) << " " << DGD::dgd
+		   << dgd_expand(v_angle) << std::endl
+		   << dgd_expand(index) << std::endl
+		   << dgd_expand(vertexes[index]) << std::endl
+		   << dgd_expand(normals[index]) << std::endl
+		   << dgd_expand(texture[index]) << std::endl );
+      }
+   }
+   
+   for( i = 0; i < 4 * precision * precision; ++i ) {
+      if( i % 4 == 0 ) 
+	 dgd_echo( std::endl );
+      dgd_echo( indices[i] << " " );
+   }
+   dgd_echo( std::endl );
+
+   dgd_end_scope( canvas );
+}
 
 CrVRMLControl::object_t CrVRMLControl::insert_sphere(float radius) {
+   dgd_start_scope( canvas, "CrVRMLControl::insert_sphere()" );
+   
+   apply_local_transform();
+
+
+   boost::shared_array<Vector> vertexes;
+   boost::shared_array<Vector> normals;
+   boost::shared_array<Vector> texture;
+   boost::shared_array<unsigned> indices;
+
+   generate_spheric_arrays( radius, m_sphere_precision, 
+			    vertexes,
+			    normals,
+			    texture,
+			    indices );
+
+   glEnableClientState( GL_VERTEX_ARRAY );
+   glEnableClientState( GL_NORMAL_ARRAY );
+   glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+
+   /**
+    * @note Passing pointer to array of objects to glVertexPointer() 
+    * is potentially dangerous and compiler-dependent. More over,
+    * it wouldn't work if Vector have virtual methods. 
+    */
+   glVertexPointer( 3, GL_FLOAT, sizeof(Vector), vertexes.get() );
+   glNormalPointer( GL_FLOAT, sizeof(Vector), normals.get() );
+   glTexCoordPointer( 2, GL_FLOAT, sizeof(Vector), texture.get() );
+
+   glDrawElements( GL_QUADS, 
+		   4 * m_sphere_precision * m_sphere_precision,
+		   GL_UNSIGNED_INT, 
+		   indices.get() );
+
+   glDisableClientState( GL_VERTEX_ARRAY );
+   glDisableClientState( GL_NORMAL_ARRAY );
+   glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+
+   undo_local_transform();
+      
+   dgd_end_scope( canvas );
    return NULL;
 }
 

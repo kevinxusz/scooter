@@ -306,6 +306,12 @@ class CrVRMLControl:  public openvrml::viewer {
 					bool  bottom,
 					bool  side,
 					bool  is_cone );
+      void generate_spheric_arrays( const float                    radius, 
+				    const unsigned                 precision,
+				    boost::shared_array<Vector>&   vertexes,
+				    boost::shared_array<Vector>&   normals,
+				    boost::shared_array<Vector>&   texture,
+				    boost::shared_array<unsigned>& indices );
    private:
       bool m_initialized;
       bool m_enable_face_culling;
