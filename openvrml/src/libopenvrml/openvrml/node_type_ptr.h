@@ -69,7 +69,7 @@ namespace openvrml {
 
     inline node_type_ptr::operator bool() const throw ()
     {
-        return this->type;
+        return (this->type != 0);
     }
 
     inline node_type & node_type_ptr::operator*() const throw ()

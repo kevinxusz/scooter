@@ -71,7 +71,7 @@ namespace openvrml {
 
     inline node_ptr::operator bool() const throw ()
     {
-        return this->count_ptr;
+        return (this->count_ptr != 0);
     }
 
     inline node_ptr & node_ptr::operator=(const node_ptr & ptr) throw ()

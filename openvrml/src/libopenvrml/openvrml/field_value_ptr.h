@@ -72,7 +72,7 @@ namespace openvrml {
 
     inline field_value_ptr::operator bool() const throw ()
     {
-        return this->value;
+        return (this->value != 0);
     }
 
     inline field_value & field_value_ptr::operator*() const throw ()

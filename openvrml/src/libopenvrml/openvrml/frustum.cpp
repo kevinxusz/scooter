@@ -123,11 +123,11 @@ frustum::frustum():
  * @param far       distance to far clip plane.
  *
  */
-frustum::frustum(float fovy, float aspect, double near, double far):
+frustum::frustum(float fovy, float aspect, double n, double f):
     fovy(float((fovy / 360.0) * 2.0 * pi)),
     fovx(float(2.0 * atan(float(tan(this->fovy / 2.0)) * aspect))),
-    z_near(near),
-    z_far(far)
+    z_near(n),
+    z_far(f)
 {
     update();
 }

@@ -83,11 +83,18 @@ namespace openvrml {
     protected:
         typedef std::list<scene_cb> scene_cb_list_t;
 
-        struct event {
+        class event {
+          public:
             double timestamp;
             field_value * value;
             node_ptr to_node;
             std::string to_eventin;
+
+                event() : 
+                    timestamp(0),
+                    value(NULL),
+                    to_node(NULL),
+                    to_eventin("none") {}
         };
 
         scene_cb_list_t scene_callbacks;

@@ -68,7 +68,7 @@ namespace openvrml {
 
     inline scope_ptr::operator bool() const throw ()
     {
-        return this->scope_;
+        return (this->scope_ != 0);
     }
 
     inline scope & scope_ptr::operator*() const throw ()

@@ -70,7 +70,7 @@ namespace openvrml {
 
     inline node_class_ptr::operator bool() const throw ()
     {
-        return this->class_;
+        return (this->class_ != 0);
     }
 
     inline node_class & node_class_ptr::operator*() const throw ()

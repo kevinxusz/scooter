@@ -38,7 +38,7 @@ namespace openvrml {
         float bot_plane[4];
 
         frustum();
-        frustum(float fovy, float aspect, double near, double far);
+        frustum(float fovy, float aspect, double x_near, double x_far);
 
     private:
         void update();

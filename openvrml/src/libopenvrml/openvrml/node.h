@@ -108,7 +108,7 @@ namespace openvrml {
         typedef std::set<node_interface, id_less>::const_iterator
             const_iterator;
 
-        void add(const node_interface & interface)
+        void add(const node_interface & )
             throw (std::invalid_argument, std::bad_alloc);
         const_iterator begin() const throw ();
         const_iterator end() const throw ();

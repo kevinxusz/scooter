@@ -41,6 +41,8 @@ extern "C" {
     typedef void (*GlutMenu)(int);
 }
 
+using namespace std;
+
 namespace {
     openvrml::browser * browser = 0;
     ViewerGlut * viewer = 0;
@@ -53,11 +55,6 @@ namespace {
 }
 
 int main(int argc, char * argv[]) {
-    using std::cerr;
-    using std::cout;
-    using std::endl;
-    using std::string;
-    using std::vector;
 
     atexit(onExit);
 
@@ -108,6 +105,7 @@ int main(int argc, char * argv[]) {
 
     browser = new openvrml::browser(cout, cerr);
 
+    browser->load_url(std::vector<std::string>(), std::vector<std::string>());
     vector<string> uri(1, inputUrl);
     vector<string> parameter;
     browser->load_url(uri, parameter);

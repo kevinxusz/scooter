@@ -23,8 +23,19 @@
 # include <cctype>
 # include <cstring>
 # include <fstream>
+#if defined(OPENVRML_ENABLE_GNU_REGEX)
 # include <regex.h>
-
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX)
+#ifdef _DEBUG
+#define _TMP_DBG _DEBUG
+#undef _DEBUG
+#endif
+#include <boost/regex.hpp>
+#ifdef _TMP_DBG
+#define _DEBUG _TMP_DBG
+#endif
+#endif
 # include "private.h"
 # include "doc.h"
 # include "system.h"
@@ -660,10 +671,14 @@ namespace {
         // ifstream
         //
 
-        ifstream::ifstream(): std::basic_istream<char>(&fbuf) {}
+        ifstream::ifstream(): 
+            std::basic_istream<char>(NULL) { 
+            std::basic_istream<char>::rdbuf(&fbuf); 
+        }
 
         ifstream::ifstream(const char * path, level lev, strategy strat):
-                std::basic_istream<char>(&fbuf) {
+                std::basic_istream<char>(NULL) {
+            std::basic_istream<char>::rdbuf(&fbuf); 
             this->open(path, lev, strat);
         }
 
@@ -676,8 +691,10 @@ namespace {
         bool ifstream::is_open() const { return this->fbuf.is_open(); }
 
         void ifstream::open(const char * path, level lev, strategy strat) {
-            using std::ios;
-            if (!this->fbuf.open(path, ios::binary | ios::in, lev, strat)) {
+            if (!this->fbuf.open(path, 
+                                 std::ios::binary | 
+                                 std::ios::in, 
+                                 lev, strat)) {
 #   ifdef _WIN32
                 this->clear(failbit);
 #   else
@@ -698,7 +715,12 @@ namespace {
     class URI {
         std::string str;
         enum { nmatch = 11 };
+#if defined(OPENVRML_ENABLE_GNU_REGEX)
         regmatch_t regmatch[nmatch];
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX)
+        boost::cmatch regmatch;
+#endif
 
     public:
         explicit URI(const std::string & str)
@@ -1079,6 +1101,9 @@ namespace {
     const char * const expression =
             "^(([^:/?#]+):)?((//([^/?#]*))?([^?#]*)([?]([^#]*))?(#(.*))?)";
         //    12            34  5          6       7   8        9 10
+
+#if defined( OPENVRML_ENABLE_GNU_REGEX )
+
     class URIRegex {
         regex_t regex;
 
@@ -1105,10 +1130,21 @@ namespace {
 
     URIRegex uriRegex;
 
+#endif
+
     URI::URI(const std::string & str) throw (invalid_url, std::bad_alloc):
             str(str) {
+#if defined( OPENVRML_ENABLE_GNU_REGEX )
         int err = uriRegex.exec(str.c_str(), URI::nmatch, this->regmatch, 0);
         if (err != 0) { throw invalid_url(); }
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX) 
+        boost::regex expr( expression );
+        bool res = boost::regex_match( str.c_str(), 
+                                       regmatch,
+                                       expr );
+        if( !res )  { throw invalid_url(); }
+#endif
     }
 
     URI::operator std::string() const throw (std::bad_alloc) {
@@ -1116,25 +1152,51 @@ namespace {
     }
 
     const std::string URI::getScheme() const throw (std::bad_alloc) {
+#if defined( OPENVRML_ENABLE_GNU_REGEX )
         return (this->regmatch[2].rm_so > -1)
                 ? this->str.substr(this->regmatch[2].rm_so,
                                    this->regmatch[2].rm_eo - this->regmatch[2].rm_so)
                 : std::string();
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX) 
+        return (this->regmatch.position(2) > -1 ) 
+            ? this->str.substr(this->regmatch.position(2),
+                               this->regmatch.length(2))
+            : std::string();
+#endif
     }
 
     const std::string URI::getSchemeSpecificPart() const
             throw (std::bad_alloc) {
+#if defined( OPENVRML_ENABLE_GNU_REGEX )
         return (this->regmatch[3].rm_so > -1)
                 ? this->str.substr(this->regmatch[3].rm_so,
                                    this->regmatch[3].rm_eo - this->regmatch[3].rm_so)
                 : std::string();
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX) 
+        return (this->regmatch.position(3) > -1 ) 
+            ? this->str.substr(this->regmatch.position(3),
+                               this->regmatch.length(3))
+            : std::string();
+#endif
+
     }
 
     const std::string URI::getAuthority() const throw (std::bad_alloc) {
+#if defined( OPENVRML_ENABLE_GNU_REGEX )
         return (this->regmatch[4].rm_so > -1)
                 ? this->str.substr(this->regmatch[4].rm_so,
                                    this->regmatch[4].rm_eo - this->regmatch[4].rm_so)
                 : std::string();
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX) 
+        return (this->regmatch.position(4) > -1 ) 
+            ? this->str.substr(this->regmatch.position(4),
+                               this->regmatch.length(4))
+            : std::string();
+#endif
+
     }
 
     const std::string URI::getUserinfo() const throw (std::bad_alloc) {
@@ -1150,24 +1212,51 @@ namespace {
     }
 
     const std::string URI::getPath() const throw (std::bad_alloc) {
+#if defined( OPENVRML_ENABLE_GNU_REGEX )
         return (this->regmatch[6].rm_so > -1)
                 ? this->str.substr(this->regmatch[6].rm_so,
                                    this->regmatch[6].rm_eo - this->regmatch[6].rm_so)
                 : std::string();
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX) 
+        return (this->regmatch.position(6) > -1 ) 
+            ? this->str.substr(this->regmatch.position(6),
+                               this->regmatch.length(6))
+            : std::string();
+#endif
+
     }
 
     const std::string URI::getQuery() const throw (std::bad_alloc) {
+#if defined( OPENVRML_ENABLE_GNU_REGEX )
         return (this->regmatch[7].rm_so > -1)
                 ? this->str.substr(this->regmatch[7].rm_so,
                                    this->regmatch[7].rm_eo - this->regmatch[7].rm_so)
                 : std::string();
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX) 
+        return (this->regmatch.position(7) > -1 ) 
+            ? this->str.substr(this->regmatch.position(7),
+                               this->regmatch.length(7))
+            : std::string();
+#endif
+
     }
 
     const std::string URI::getFragment() const throw (std::bad_alloc) {
+#if defined( OPENVRML_ENABLE_GNU_REGEX )
         return (this->regmatch[10].rm_so > -1)
                 ? this->str.substr(this->regmatch[10].rm_so,
                                    this->regmatch[10].rm_eo - this->regmatch[10].rm_so)
                 : std::string();
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX) 
+        return (this->regmatch.position(10) > -1 ) 
+            ? this->str.substr(this->regmatch.position(10),
+                               this->regmatch.length(10))
+            : std::string();
+#endif
+
     }
 
     const URI URI::resolveAgainst(const URI & absoluteURI) const

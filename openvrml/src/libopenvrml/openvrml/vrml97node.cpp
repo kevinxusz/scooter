@@ -2056,7 +2056,7 @@ void background_class::set_first(background_node & background) throw ()
  */
 bool background_class::has_first() const throw ()
 {
-    return this->first;
+    return (this->first != 0);
 }
 
 /**
@@ -6093,7 +6093,7 @@ void fog_class::set_first(fog_node & fog) throw ()
  */
 bool fog_class::has_first() const throw ()
 {
-    return this->first;
+    return (this->first != 0);
 }
 
 /**
@@ -12767,6 +12767,7 @@ void shape_node::render(openvrml::viewer & viewer, const rendering_context conte
             }
 
             // hack for opengl material mode
+
             viewer.set_material_mode(nTexComponents, g->color());
         }
 
@@ -17617,7 +17618,7 @@ void viewpoint_class::set_first(viewpoint_node & viewpoint) throw ()
  */
 bool viewpoint_class::has_first() const throw ()
 {
-    return this->first;
+    return (this->first != 0);
 }
 
 /**

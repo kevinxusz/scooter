@@ -23,7 +23,7 @@
 #   include <config.h>
 # endif
 
-# if HAVE_WINDOWS_H && defined(_WIN32)
+# if defined(_WIN32)
 #   include <windows.h>
 # endif
 # ifdef interface

@@ -8,17 +8,19 @@
 #include "Vrml97ParserTokenTypes.hpp"
 #include <antlr/LLkParser.hpp>
 
-#line 22 "Vrml97Parser.g"
+// #line 22 "Vrml97Parser.g"
 
 # include <memory>
 # include "field.h"
 # include "node_ptr.h"
 # include "field_value_ptr.h"
+
 # define ANTLR_LBRACE {
 # define ANTLR_RBRACE }
 
 namespace openvrml {
     class scope;
+    class scope_ptr;
     class script_node;
     class node_type;
 }
@@ -99,10 +101,10 @@ namespace {
 
 namespace openvrml ANTLR_LBRACE
 
-#line 103 "Vrml97Parser.hpp"
+// #line 103 "Vrml97Parser.hpp"
 class Vrml97Parser : public ANTLR_USE_NAMESPACE(antlr)LLkParser, public Vrml97ParserTokenTypes
 {
-#line 599 "Vrml97Parser.g"
+// #line 599 "Vrml97Parser.g"
 
 public:
     Vrml97Parser(antlr::TokenStream & lexer, const std::string & uri):
@@ -112,7 +114,7 @@ public:
 
 private:
     const std::string uri;
-#line 107 "Vrml97Parser.hpp"
+// #line 107 "Vrml97Parser.hpp"
 public:
 	void initializeASTFactory( ANTLR_USE_NAMESPACE(antlr)ASTFactory& factory );
 protected:

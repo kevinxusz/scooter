@@ -78,7 +78,7 @@ namespace openvrml {
             script_node_type(script_node_class & class_);
             virtual ~script_node_type() throw ();
 
-            void add_interface(const node_interface & interface)
+            void add_interface(const node_interface & )
                 throw (std::invalid_argument);
 
             virtual const node_interface_set & interfaces() const throw ();

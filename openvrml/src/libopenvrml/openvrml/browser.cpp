@@ -26,7 +26,21 @@
 # include <algorithm>
 # include <sstream>
 # include <stack>
+
+#if defined(OPENVRML_ENABLE_GNU_REGEX)
 # include <regex.h>
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX)
+#ifdef _DEBUG
+#define _TMP_DBG _DEBUG
+#undef _DEBUG
+#endif
+#include <boost/regex.hpp>
+#ifdef _TMP_DBG
+#define _DEBUG _TMP_DBG
+#endif
+#endif
+
 # ifdef _WIN32
 #   include <sys/timeb.h>
 #   include <time.h>
@@ -179,7 +193,7 @@ namespace openvrml {
             virtual const node_ptr create_node(const scope_ptr & scope) const
                 throw (std::bad_alloc);
 
-            void addInterface(const node_interface & interface)
+            void addInterface(const node_interface & )
                 throw (std::invalid_argument, std::bad_alloc);
         };
 
@@ -878,7 +892,11 @@ const char * browser::name() const throw ()
  */
 const char * browser::version() const throw ()
 {
+#if defined(PACKAGE_VERSION)
     return PACKAGE_VERSION;
+#else
+    return "Undefined";
+#endif
 }
 
 /**
@@ -955,9 +973,15 @@ namespace {
 
 
     class URI {
+         
         std::string str;
         enum { nmatch = 11 };
+#if defined(OPENVRML_ENABLE_GNU_REGEX)
         regmatch_t regmatch[nmatch];
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX)
+        boost::cmatch regmatch;
+#endif
 
     public:
         URI(const std::string & str) throw (invalid_url, std::bad_alloc);
@@ -1007,9 +1031,11 @@ void browser::load_url(const std::vector<std::string> & url,
     //
     // Clear out the current scene.
     //
-    if (this->scene_) { this->scene_->shutdown(now); }
-    delete this->scene_;
-    this->scene_ = 0;
+    if (this->scene_) { 
+        this->scene_->shutdown(now); 
+        delete this->scene_;
+        this->scene_ = 0;
+    }
     this->navigation_info_stack.clear();
     assert(this->viewpoint_list.empty());
     assert(this->navigation_infos.empty());
@@ -2336,25 +2362,25 @@ namespace {
             eventOutValueMap(&eventOutValueMap)
         {}
 
-        void operator()(const node_interface & interface) const
+        void operator()(const node_interface & ifc) const
         {
-            if (interface.type == node_interface::eventout_id) {
+            if (ifc.type == node_interface::eventout_id) {
                 std::auto_ptr<field_value> value =
-                    field_value::create(interface.field_type);
+                    field_value::create(ifc.field_type);
                 const node::polled_eventout_value eventOutValue =
                     node::polled_eventout_value(field_value_ptr(value), 0.0);
                 const ProtoNode::EventOutValueMap::value_type
-                    entry(interface.id, eventOutValue);
+                    entry(ifc.id, eventOutValue);
                 const bool succeeded =
                     this->eventOutValueMap->insert(entry).second;
                 assert(succeeded);
-            } else if (interface.type == node_interface::exposedfield_id) {
+            } else if (ifc.type == node_interface::exposedfield_id) {
                 std::auto_ptr<field_value> value =
-                    field_value::create(interface.field_type);
+                    field_value::create(ifc.field_type);
                 const node::polled_eventout_value eventOutValue =
                     node::polled_eventout_value(field_value_ptr(value), 0.0);
                 const ProtoNode::EventOutValueMap::value_type
-                    entry(interface.id + "_changed", eventOutValue);
+                    entry(ifc.id + "_changed", eventOutValue);
                 const bool succeeded =
                     this->eventOutValueMap->insert(entry).second;
                 assert(succeeded);
@@ -2510,33 +2536,33 @@ ProtoNode::ProtoNode(const node_type & nodeType,
                 }
 
                 const node_interface_set & interfaces = n->type.interfaces();
-                for (node_interface_set::const_iterator interface =
+                for (node_interface_set::const_iterator ifc =
                         interfaces.begin();
-                        interface != interfaces.end();
-                        ++interface) {
+                        ifc != interfaces.end();
+                        ++ifc) {
                     try {
-                        if (interface->type == node_interface::exposedfield_id
-                                || interface->type
+                        if (ifc->type == node_interface::exposedfield_id
+                                || ifc->type
                                     == node_interface::field_id) {
-                            if (interface->field_type
+                            if (ifc->field_type
                                     == field_value::sfnode_id) {
                                 const sfnode & value =
                                         static_cast<const sfnode &>
-                                            (n->field(interface->id));
-                                result->field(interface->id,
+                                            (n->field(ifc->id));
+                                result->field(ifc->id,
                                               this->cloneFieldValue(value,
                                                                  targetScope));
-                            } else if (interface->field_type
+                            } else if (ifc->field_type
                                     == field_value::mfnode_id) {
                                 const mfnode & value =
                                     static_cast<const mfnode &>
-                                        (n->field(interface->id));
-                                result->field(interface->id,
+                                        (n->field(ifc->id));
+                                result->field(ifc->id,
                                               this->cloneFieldValue(value,
                                                                  targetScope));
                             } else {
-                                result->field(interface->id,
-                                              n->field(interface->id));
+                                result->field(ifc->id,
+                                              n->field(ifc->id));
                             }
                         }
                     } catch (std::bad_alloc) {
@@ -2658,33 +2684,33 @@ ProtoNode::ProtoNode(const node_type & nodeType,
 
                 const node_interface_set & interfaces =
                     node->type.interfaces();
-                for (node_interface_set::const_iterator interface =
+                for (node_interface_set::const_iterator ifc =
                         interfaces.begin();
-                        interface != interfaces.end();
-                        ++interface) {
+                        ifc != interfaces.end();
+                        ++ifc) {
                     try {
-                        if (interface->type == node_interface::exposedfield_id
-                                || interface->type
+                        if (ifc->type == node_interface::exposedfield_id
+                                || ifc->type
                                     == node_interface::field_id) {
-                            if (interface->field_type
+                            if (ifc->field_type
                                     == field_value::sfnode_id) {
                                 const sfnode & value =
                                     static_cast<const sfnode &>
-                                        (node->field(interface->id));
-                                result->field(interface->id,
+                                        (node->field(ifc->id));
+                                result->field(ifc->id,
                                               this->cloneFieldValue(value,
                                                                  targetScope));
-                            } else if (interface->field_type
+                            } else if (ifc->field_type
                                     == field_value::mfnode_id) {
                                 const mfnode & value =
                                     static_cast<const mfnode &>
-                                        (node->field(interface->id));
-                                result->field(interface->id,
+                                        (node->field(ifc->id));
+                                result->field(ifc->id,
                                               this->cloneFieldValue(value,
                                                                  targetScope));
                             } else {
-                                result->field(interface->id,
-                                              node->field(interface->id));
+                                result->field(ifc->id,
+                                              node->field(ifc->id));
                             }
                         }
                     } catch (std::bad_alloc) {
@@ -3294,18 +3320,18 @@ void ProtoNode::do_field(const std::string & id, const field_value & value)
         // unISdFieldValueMap.
         //
         const node_interface_set & interfaces = this->type.interfaces();
-        const node_interface_set::const_iterator interface =
+        const node_interface_set::const_iterator ifc =
             interfaces.find(id);
-        if (interface == interfaces.end()) {
+        if (ifc == interfaces.end()) {
             throw unsupported_interface(this->type,
                                         node_interface::field_id,
                                         id);
         }
-        if (interface->type == node_interface::exposedfield_id) {
+        if (ifc->type == node_interface::exposedfield_id) {
             assert(this->eventOutValueMap.find(id + "_changed")
                     != this->eventOutValueMap.end());
             this->eventOutValueMap[id + "_changed"].value->assign(value);
-        } else if (interface->type == node_interface::field_id) {
+        } else if (ifc->type == node_interface::field_id) {
             assert(this->unISdFieldValueMap.find(id)
                     != this->unISdFieldValueMap.end());
             this->unISdFieldValueMap[id]->assign(value);
@@ -3596,10 +3622,10 @@ ProtoNodeClass::ProtoNodeType::create_node(const scope_ptr & scope) const
  * @brief Add an interface.
  */
 void
-ProtoNodeClass::ProtoNodeType::addInterface(const node_interface & interface)
+ProtoNodeClass::ProtoNodeType::addInterface(const node_interface & ifc)
     throw (std::invalid_argument, std::bad_alloc)
 {
-    this->nodeInterfaces.add(interface);
+    this->nodeInterfaces.add(ifc);
 }
 
 /**
@@ -3656,8 +3682,8 @@ ProtoNodeClass::~ProtoNodeClass() throw ()
 void ProtoNodeClass::addEventIn(const field_value::type_id type,
                                 const std::string & id)
         throw (std::invalid_argument, std::bad_alloc) {
-    const node_interface interface(node_interface::eventin_id, type, id);
-    this->protoNodeType.addInterface(interface);
+    const node_interface ifc(node_interface::eventin_id, type, id);
+    this->protoNodeType.addInterface(ifc);
 }
 
 /**
@@ -3673,18 +3699,18 @@ void ProtoNodeClass::addEventIn(const field_value::type_id type,
 void ProtoNodeClass::addEventOut(const field_value::type_id type,
                                  const std::string & id)
         throw (std::invalid_argument, std::bad_alloc) {
-    const node_interface interface(node_interface::eventout_id, type, id);
-    this->protoNodeType.addInterface(interface);
+    const node_interface ifc(node_interface::eventout_id, type, id);
+    this->protoNodeType.addInterface(ifc);
 
     //
     // Add a value to the ProtoNode's eventOutValueMap.
     //
     std::auto_ptr<field_value> value =
-        field_value::create(interface.field_type);
+        field_value::create(ifc.field_type);
     const node::polled_eventout_value eventOutValue =
         node::polled_eventout_value(field_value_ptr(value), false);
     const ProtoNode::EventOutValueMap::value_type
-        entry(interface.id, eventOutValue);
+        entry(ifc.id, eventOutValue);
     const bool succeeded =
         this->protoNode.eventOutValueMap.insert(entry).second;
     assert(succeeded);
@@ -3705,8 +3731,8 @@ void ProtoNodeClass::addExposedField(const std::string & id,
     throw (std::invalid_argument, std::bad_alloc)
 {
     const node_interface
-        interface(node_interface::exposedfield_id, defaultValue->type(), id);
-    this->protoNodeType.addInterface(interface);
+        ifc(node_interface::exposedfield_id, defaultValue->type(), id);
+    this->protoNodeType.addInterface(ifc);
     {
         const DefaultValueMap::value_type value(id, defaultValue);
         const bool succeeded = this->defaultValueMap.insert(value).second;
@@ -3718,11 +3744,11 @@ void ProtoNodeClass::addExposedField(const std::string & id,
     //
     {
         std::auto_ptr<field_value> value =
-            field_value::create(interface.field_type);
+            field_value::create(ifc.field_type);
         const node::polled_eventout_value eventOutValue =
             node::polled_eventout_value(field_value_ptr(value), 0.0);
         const ProtoNode::EventOutValueMap::value_type
-            entry(interface.id + "_changed", eventOutValue);
+            entry(ifc.id + "_changed", eventOutValue);
         const bool succeeded =
             this->protoNode.eventOutValueMap.insert(entry).second;
         assert(succeeded);
@@ -3744,8 +3770,8 @@ void ProtoNodeClass::addField(const std::string & id,
     throw (std::invalid_argument, std::bad_alloc)
 {
     const node_interface
-            interface(node_interface::field_id, defaultValue->type(), id);
-    this->protoNodeType.addInterface(interface);
+            ifc(node_interface::field_id, defaultValue->type(), id);
+    this->protoNodeType.addInterface(ifc);
     const DefaultValueMap::value_type value(id, defaultValue);
     const bool succeeded = this->defaultValueMap.insert(value).second;
     assert(succeeded);
@@ -3794,8 +3820,8 @@ namespace {
         AddInterface_(ProtoNodeClass::ProtoNodeType & protoNodeType):
                 protoNodeType(&protoNodeType) {}
 
-        void operator()(const node_interface & interface) const {
-            protoNodeType->addInterface(interface);
+        void operator()(const node_interface & ifc) const {
+            protoNodeType->addInterface(ifc);
         }
 
     private:
@@ -5484,6 +5510,8 @@ namespace {
     //                      |+- "//" authority
     //                      +- scheme-specific-part
 
+#if defined(OPENVRML_ENABLE_GNU_REGEX) 
+
     class URIRegex {
         regex_t regex;
 
@@ -5510,10 +5538,21 @@ namespace {
 
     URIRegex uriRegex;
 
+#endif
+
     URI::URI(const std::string & str) throw (invalid_url, std::bad_alloc):
             str(str) {
+#if defined(OPENVRML_ENABLE_GNU_REGEX)
         int err = uriRegex.exec(str.c_str(), URI::nmatch, this->regmatch, 0);
         if (err != 0) { throw invalid_url(); }
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX) 
+        boost::regex expr( expression );
+        bool res = boost::regex_match( str.c_str(), 
+                                              regmatch,
+                                              expr );
+        if( !res )  { throw invalid_url(); }
+#endif
     }
 
     URI::operator std::string() const throw (std::bad_alloc) {
@@ -5521,25 +5560,52 @@ namespace {
     }
 
     const std::string URI::getScheme() const throw (std::bad_alloc) {
+#if defined(OPENVRML_ENABLE_GNU_REGEX) 
         return (this->regmatch[2].rm_so > -1)
                 ? this->str.substr(this->regmatch[2].rm_so,
-                                   this->regmatch[2].rm_eo - this->regmatch[2].rm_so)
+                                   this->regmatch[2].rm_eo - 
+                                       this->regmatch[2].rm_so)
                 : std::string();
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX) 
+        return (this->regmatch.position(2) > -1 ) 
+            ? this->str.substr(this->regmatch.position(2),
+                               this->regmatch.length(2))
+            : std::string();
+#endif
     }
 
     const std::string URI::getSchemeSpecificPart() const
             throw (std::bad_alloc) {
+#if defined(OPENVRML_ENABLE_GNU_REGEX) 
         return (this->regmatch[3].rm_so > -1)
                 ? this->str.substr(this->regmatch[3].rm_so,
                                    this->regmatch[3].rm_eo - this->regmatch[3].rm_so)
                 : std::string();
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX) 
+        return (this->regmatch.position(3) > -1 ) 
+            ? this->str.substr(this->regmatch.position(3),
+                               this->regmatch.length(3))
+            : std::string();
+#endif
+
     }
 
     const std::string URI::getAuthority() const throw (std::bad_alloc) {
+#if defined(OPENVRML_ENABLE_GNU_REGEX) 
         return (this->regmatch[5].rm_so > -1)
                 ? this->str.substr(this->regmatch[5].rm_so,
                                    this->regmatch[5].rm_eo - this->regmatch[5].rm_so)
                 : std::string();
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX) 
+        return (this->regmatch.position(3) > -1 ) 
+            ? this->str.substr(this->regmatch.position(3),
+                               this->regmatch.length(3))
+            : std::string();
+#endif
+
     }
 
     const std::string URI::getUserinfo() const throw (std::bad_alloc) {
@@ -5555,24 +5621,50 @@ namespace {
     }
 
     const std::string URI::getPath() const throw (std::bad_alloc) {
+#if defined(OPENVRML_ENABLE_GNU_REGEX) 
         return (this->regmatch[6].rm_so > -1)
                 ? this->str.substr(this->regmatch[6].rm_so,
                                    this->regmatch[6].rm_eo - this->regmatch[6].rm_so)
                 : std::string();
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX) 
+        return (this->regmatch.position(6) > -1 ) 
+            ? this->str.substr(this->regmatch.position(6),
+                               this->regmatch.length(6))
+            : std::string();
+#endif
+
     }
 
     const std::string URI::getQuery() const throw (std::bad_alloc) {
+#if defined(OPENVRML_ENABLE_GNU_REGEX) 
         return (this->regmatch[7].rm_so > -1)
                 ? this->str.substr(this->regmatch[7].rm_so,
                                    this->regmatch[7].rm_eo - this->regmatch[7].rm_so)
                 : std::string();
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX) 
+        return (this->regmatch.position(7) > -1 ) 
+            ? this->str.substr(this->regmatch.position(7),
+                               this->regmatch.length(7))
+            : std::string();
+#endif
+
     }
 
     const std::string URI::getFragment() const throw (std::bad_alloc) {
+#if defined(OPENVRML_ENABLE_GNU_REGEX) 
         return (this->regmatch[10].rm_so > -1)
                 ? this->str.substr(this->regmatch[10].rm_so,
                                    this->regmatch[10].rm_eo - this->regmatch[10].rm_so)
                 : std::string();
+#endif
+#if defined(OPENVRML_ENABLE_BOOST_REGEX) 
+        return (this->regmatch.position(10) > -1 ) 
+            ? this->str.substr(this->regmatch.position(10),
+                               this->regmatch.length(10))
+            : std::string();
+#endif
     }
 
     const URI URI::resolveAgainst(const URI & absoluteURI) const

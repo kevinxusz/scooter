@@ -213,7 +213,12 @@ protected:
 		{
 #ifdef ANTLR_CXX_SUPPORTS_UNCAUGHT_EXCEPTION
 			// Only give trace if there's no uncaught exception..
+#if !defined(_STLPORT_VERSION)
 			if(!ANTLR_USE_NAMESPACE(std)uncaught_exception())
+#else 
+			if(!ANTLR_USE_NAMESPACE(_STLP_VENDOR_EXCEPT_STD)uncaught_exception())
+#endif
+
 #endif				
 				parser->traceOut(text);
 		}
