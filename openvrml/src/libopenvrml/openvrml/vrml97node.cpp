@@ -3988,7 +3988,9 @@ cone_node::cone_node(const node_type & type,
     bottomRadius(1.0),
     height(2.0),
     side(true)
-{}
+{
+    this->bounding_volume_dirty(true); // lazy calc of bvolume
+}
 
 /**
  * @brief Destroy.
@@ -4011,6 +4013,17 @@ viewer::object_t cone_node::insert_geometry(openvrml::viewer & viewer,
                               this->side.value);
 }
 
+const openvrml::bounding_volume& cone_node::bounding_volume() const {
+    if (this->bounding_volume_dirty()) {        
+        float r = (float)sqrt( this->height.value * 
+                               this->height.value / 4.0f + 
+                               this->bottomRadius.value *
+                               this->bottomRadius.value );
+        const_cast<cone_node *>(this)->bsphere.radius(r);
+        const_cast<cone_node *>(this)->bounding_volume_dirty(false); // logical const
+    }
+    return this->bsphere;
+}
 
 /**
  * @class coordinate_class
@@ -4545,7 +4558,9 @@ cylinder_node::cylinder_node(const node_type & type,
     radius(1.0),
     side(true),
     top(true)
-{}
+{
+    this->bounding_volume_dirty(true);
+}
 
 /**
  * @brief Destroy.
@@ -4570,6 +4585,18 @@ cylinder_node::insert_geometry(openvrml::viewer & viewer,
                                   this->bottom.value,
                                   this->side.value,
                                   this->top.value);
+}
+
+const openvrml::bounding_volume& cylinder_node::bounding_volume() const {
+    if (this->bounding_volume_dirty()) {
+        float r = (float)sqrt( this->height.value * 
+                               this->height.value / 4.0f + 
+                               this->radius.value * 
+                               this->radius.value );
+        const_cast<cylinder_node *>(this)->bsphere.radius(r);
+        const_cast<cylinder_node *>(this)->bounding_volume_dirty(false); // logical const
+    }
+    return this->bsphere;
 }
 
 
@@ -5508,7 +5535,9 @@ elevation_grid_node::elevation_grid_node(const node_type & type,
     xSpacing(1.0f),
     zDimension(0),
     zSpacing(1.0f)
-{}
+{
+    this->bounding_volume_dirty(true);
+}
 
 /**
  * @brief Destroy.
@@ -5604,6 +5633,39 @@ elevation_grid_node::insert_geometry(openvrml::viewer & viewer,
     return obj;
 }
 
+const openvrml::bounding_volume& 
+elevation_grid_node::bounding_volume() const {
+    if (this->bounding_volume_dirty()) {
+        vec3f top;
+        vec3f bottom;
+
+        bottom[0] = 0;
+        bottom[2] = 0;
+        top[0] = this->xSpacing.value * this->xDimension.value;
+        top[2] = this->zSpacing.value * this->zDimension.value;
+
+        if( this->height.value.size() > 0 ) {
+            bottom[1] = this->height.value[0];
+            top[1] = this->height.value[0];
+        }
+
+        for( unsigned i = 1; i < this->height.value.size(); ++i ) {
+            if( bottom[1] > this->height.value[i] )
+                bottom[1] = this->height.value[i];
+            if( top[1] < this->height.value[i] )
+                top[1] = this->height.value[i];
+        }
+
+        float r = (top - bottom).length() / 2.0f;
+        vec3f c = top + bottom;
+        c *= 0.5f;
+        const_cast<elevation_grid_node *>(this)->bsphere.radius(r);
+        const_cast<elevation_grid_node *>(this)->bsphere.center(c);
+        const_cast<elevation_grid_node *>(this)->bounding_volume_dirty(false); // logical const
+    }
+    return this->bsphere;
+}
+
 /**
  * @brief set_color eventIn handler.
  *
@@ -5620,6 +5682,7 @@ void elevation_grid_node::process_set_color(const field_value & value,
     this->node::modified(true);
     this->emit_event("color_changed", this->color, timestamp);
 }
+
 
 /**
  * @brief set_height eventIn handler.
@@ -5925,7 +5988,9 @@ extrusion_node::extrusion_node(const node_type & type,
     scale(extrusionDefaultScale_, extrusionDefaultScale_ + 1),
     solid(true),
     spine(extrusionDefaultSpine_, extrusionDefaultSpine_ + 2)
-{}
+{
+    this->bounding_volume_dirty(true);
+}
 
 /**
  * @brief Destroy.
@@ -5960,6 +6025,16 @@ extrusion_node::insert_geometry(openvrml::viewer & viewer,
     }
 
     return obj;
+}
+
+const openvrml::bounding_volume& 
+extrusion_node::bounding_volume() const {
+    if (this->bounding_volume_dirty()) {
+        float r = 1.0f; // TODO Implement this
+        const_cast<extrusion_node *>(this)->bsphere.radius(r);
+        const_cast<extrusion_node *>(this)->bounding_volume_dirty(false); // logical const
+    }
+    return this->bsphere;
 }
 
 /**
@@ -7339,7 +7414,7 @@ void image_texture_node::render(openvrml::viewer & viewer,
     // loaded just once... of course world authors should just DEF/USE
     // them...
     if (!this->image && this->url.value.size() > 0) {
-        doc2 baseDoc(this->scene()->url());
+        doc2 baseDoc( doc(this->scene()->url()).url_path() );
         this->image = new img;
         if (!this->image->try_urls(this->url.value, &baseDoc)) {
             OPENVRML_PRINT_MESSAGE_("Couldn't read ImageTexture from URL "
@@ -15023,7 +15098,9 @@ text_node::text_node(const node_type & type,
     node(type, scope),
     abstract_geometry_node(type, scope),
     face(0)
-{}
+{
+    this->bounding_volume_dirty(true);    
+}
 
 /**
  * @brief Destroy.
@@ -15065,6 +15142,16 @@ viewer::object_t text_node::insert_geometry(openvrml::viewer & viewer,
     if (this->fontStyle.value) { this->fontStyle.value->modified(false); }
     return retval;
 }
+
+const openvrml::bounding_volume& text_node::bounding_volume() const {
+    if (this->bounding_volume_dirty()) {
+        float r = 1.0f; // TODO Implement this
+        const_cast<text_node *>(this)->bsphere.radius(r);
+        const_cast<text_node *>(this)->bounding_volume_dirty(false); // logical const
+    }
+    return this->bsphere;
+}
+
 
 /**
  * @brief Initialize.

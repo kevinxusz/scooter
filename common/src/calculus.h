@@ -246,7 +246,7 @@ template <class FloatValue, class ComparableValue>
 Vector<FloatValue,ComparableValue> median( 
    const Vector<FloatValue,ComparableValue>& a, 
    const Vector<FloatValue,ComparableValue>& b,  
-   const Vector<FloatValue,ComparableValue>::FT& scale );
+   const Vector<FloatValue,ComparableValue>::FT& scale = 0.5f);
 
 template <class FloatValue, class ComparableValue>
 Vector<FloatValue,ComparableValue>::FT dot( 

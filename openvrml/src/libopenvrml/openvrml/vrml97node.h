@@ -690,6 +690,8 @@ namespace openvrml {
             sffloat height;
             sfbool side;
 
+            bounding_sphere bsphere;
+
         public:
             cone_node(const node_type & type,
                       const scope_ptr & scope);
@@ -698,6 +700,7 @@ namespace openvrml {
             virtual viewer::object_t
             insert_geometry(openvrml::viewer & viewer,
                             rendering_context context);
+            virtual const openvrml::bounding_volume & bounding_volume() const;
         };
 
 
@@ -798,6 +801,8 @@ namespace openvrml {
             sfbool side;
             sfbool top;
 
+            bounding_sphere bsphere;
+
         public:
             cylinder_node(const node_type & type,
                           const scope_ptr & scope);
@@ -806,6 +811,7 @@ namespace openvrml {
             virtual viewer::object_t
             insert_geometry(openvrml::viewer & viewer,
                             rendering_context context);
+            virtual const openvrml::bounding_volume & bounding_volume() const;
         };
 
 
@@ -940,6 +946,7 @@ namespace openvrml {
             sfint32 zDimension;
             sffloat zSpacing;
 
+            bounding_sphere bsphere;
         public:
             elevation_grid_node(const node_type & type,
                                 const scope_ptr & scope);
@@ -950,6 +957,7 @@ namespace openvrml {
             insert_geometry(openvrml::viewer & viewer,
                             rendering_context context);
 
+            virtual const openvrml::bounding_volume & bounding_volume() const;
         private:
             //
             // eventIn handlers
@@ -993,6 +1001,8 @@ namespace openvrml {
             sfbool solid;
             mfvec3f spine;
 
+            bounding_sphere bsphere;
+
         public:
             extrusion_node(const node_type & type,
                            const scope_ptr & scope);
@@ -1002,6 +1012,7 @@ namespace openvrml {
             insert_geometry(openvrml::viewer & viewer,
                             rendering_context context);
 
+            virtual const openvrml::bounding_volume & bounding_volume() const;
         private:
             //
             // eventIn handlers
@@ -2311,6 +2322,8 @@ namespace openvrml {
             glyph_geometry_map_t glyph_geometry_map;
             text_geometry text_geometry_;
 
+            bounding_sphere bsphere;
+
         public:
             text_node(const node_type & type,
                       const scope_ptr & scope);
@@ -2321,6 +2334,7 @@ namespace openvrml {
             insert_geometry(openvrml::viewer & viewer,
                             rendering_context context);
 
+            virtual const openvrml::bounding_volume & bounding_volume() const;
         private:
             virtual void do_initialize(double timestamp)
                 throw (std::bad_alloc);

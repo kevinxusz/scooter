@@ -24,6 +24,8 @@
 // crVRMLControl.cpp -- implementation of crVRMLControl.h
 //
 
+#include <boost/smart_ptr.hpp>
+
 #include <wx/timer.h>
 
 #include <dgDebug.h>
@@ -52,7 +54,8 @@ CrVRMLControl::CrVRMLControl( openvrml::browser & b ):
    m_enable_interaction(true),
    m_mouse_sensitivity(3.0f),
    m_enable_permanent_rotation(true),
-   m_permanent_rotation(false)
+   m_permanent_rotation(false),
+   m_cone_precision(32)
 {   
    m_clear_color[0] = m_clear_color[1] = m_clear_color[2] = 0;
 }
@@ -100,6 +103,13 @@ CrVRMLControl::begin_object( const char* id, bool retain ) {
 
 CrVRMLControl::object_t 
 CrVRMLControl::insert_reference( object_t existing_object ) {
+   dgd_start_scope( canvas, "CrVRMLControl::insert_reference" );
+   apply_local_transform();
+
+   glCallList(GLuint(existing_object));
+
+   undo_local_transform();
+   dgd_end_scope( canvas );
    return existing_object;
 }
 
@@ -109,7 +119,7 @@ void CrVRMLControl::remove_object( object_t ref ) {
 
 
 void CrVRMLControl::end_object() {
-   dgd_start_scope( canvas, "CrVRMLControl::endObject()" );
+   dgd_start_scope( canvas, "CrVRMLControl::end_object()" );
 
    for( int i = 0; i < m_max_lights; ++i ) {
       if( m_light_info[i].m_type == LightInfo::LIGHT_DIRECTIONAL ) {
@@ -143,6 +153,13 @@ CrVRMLControl::object_t CrVRMLControl::insert_box(const openvrml::vec3f & size) 
    dgd_start_scope( canvas, "CrVRMLControl::insert_box()" );
 
    apply_local_transform();
+
+   GLuint glid = 0;
+
+   if( this->m_select_mode == draw_mode ) {
+      glid = glGenLists(1);
+      glNewList(glid, GL_COMPILE_AND_EXECUTE);
+   }
 
    static GLint faces[6][4] =
    {
@@ -182,38 +199,120 @@ CrVRMLControl::object_t CrVRMLControl::insert_box(const openvrml::vec3f & size) 
    {
       glNormal3fv(&n[i][0]);
 
-      //glTexCoord2f( 0.0, 1.0 );
       glTexCoord2f( 0.0, 0.0 );
       glVertex3fv(&v[faces[i][0]][0]);
 
-      //glTexCoord2f( 1.0, 1.0 );
       glTexCoord2f( 1.0, 0.0 );
       glVertex3fv(&v[faces[i][1]][0]);
 
-      //glTexCoord2f( 1.0, 0.0 );
       glTexCoord2f( 1.0, 1.0 );
       glVertex3fv(&v[faces[i][2]][0]);
 
-      //glTexCoord2f( 0.0, 0.0 );
       glTexCoord2f( 0.0, 1.0 );
       glVertex3fv(&v[faces[i][3]][0]);
    }
    glEnd();
    glPopAttrib();
 
+   if (glid) { glEndList(); }
+
    undo_local_transform();
 
    dgd_end_scope( canvas );
-   return NULL;
+   return object_t(glid);
 }
-
 
 CrVRMLControl::object_t 
 CrVRMLControl::insert_cone(float height, 
-			  float radius, 
-			  bool bottom,
-			  bool side) {
+			   float radius, 
+			   bool  bottom,
+			   bool  side    ) {
    dgd_start_scope( canvas, "CrVRMLControl::insert_cone()" );
+
+
+   apply_local_transform();
+
+   boost::scoped_array<Vector> cone_vertexes;
+   boost::scoped_array<Vector> cone_normals;
+   boost::scoped_array<Vector> cone_texture;
+
+   unsigned nvertexes;
+   if( side || bottom ) {
+      nvertexes = 1 + m_cone_precision;
+
+      cone_vertexes.reset( new Vector[nvertexes] );
+      cone_normals.reset( new Vector[m_cone_precision + 1] );
+      cone_texture.reset( new Vector[m_cone_precision + 1] );
+
+      cone_vertexes[0]( 0, height/2.0f, 0 );
+
+      FT alpha = FT(Math::PI * 2.0 / m_cone_precision);
+
+      dgd_echo( dgd_expand(alpha) << std::endl );
+
+      for( unsigned i = 1; i < nvertexes; ++i ) {
+	 FT angle = (i-1) * alpha - FT(Math::PI / 2.0);
+	 
+	 cone_vertexes[i]( radius * (FT)cos( angle ), 
+			   -height / 2.0, 
+			   radius * (FT)sin( angle ) );
+
+	 cone_normals[i]( cone_vertexes[i].x(), 
+			  radius * radius / height, 
+			  cone_vertexes[i].z() ).normalize().cartesian();
+
+	 dgd_echo( dgd_expand(i) << std::endl
+		   << dgd_expand(angle) << std::endl
+		   << dgd_expand(cone_vertexes[i]) << std::endl
+		   << dgd_expand(cone_normals[i]) << std::endl );
+      }
+
+      for( unsigned i = 0; i < m_cone_precision+1; ++i ) {
+	 cone_texture[i]( 1 - FT(i) / FT(m_cone_precision), 0, 0 );
+	 dgd_echo( dgd_expand(cone_texture[i]) << std::endl );
+      }
+   }
+
+   glPushAttrib( GL_ENABLE_BIT | GL_POLYGON_BIT );
+   if( !bottom || !side ) glDisable( GL_CULL_FACE );
+
+   if( side ) {
+      glBegin( GL_TRIANGLES );
+      for( unsigned i = 1; i < nvertexes; ++i ) {
+	 unsigned next = 1 + i%(nvertexes-1);
+	 glNormal3fv( (cone_normals[next] + 
+		       cone_normals[i]).normalize().cartesian()  );
+	 glTexCoord2fv( Math::median( cone_texture[i], cone_texture[i-1] ) + 
+			Vector( 0, 1, 0 ) );
+	 glVertex3fv( cone_vertexes[0] );
+
+	 glNormal3fv( cone_normals[next] );
+	 glTexCoord2fv( cone_texture[i] );
+	 glVertex3fv( cone_vertexes[next] );
+
+	 glNormal3fv( cone_normals[i] );
+	 glTexCoord2fv( cone_texture[i-1] );
+	 glVertex3fv( cone_vertexes[i] );
+      }
+      glEnd();
+   }
+
+   if( bottom ) {
+      glBegin( GL_TRIANGLE_FAN );
+      glNormal3f( 0, -1, 0 );
+      for( unsigned i = 1; i < nvertexes; ++i ) {
+	 Vector tex_coord = 
+	    (cone_vertexes[i] + Vector( radius, radius, radius )) *
+	    ( 0.5f/radius );
+	 glTexCoord2f( tex_coord.x(), tex_coord.z() );
+	 glVertex3fv( cone_vertexes[i] );
+      }
+      glEnd();
+   }
+
+   glPopAttrib();
+
+   undo_local_transform();
 
    dgd_end_scope( canvas );
    return NULL;

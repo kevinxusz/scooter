@@ -325,9 +325,11 @@ class CrVRMLControl:  public openvrml::viewer {
       Matrix      m_permanent_rotation_delta;
       wxTimerPtr  m_permanent_rotation_timer;
       
-      float m_clear_color[3];
+      float       m_clear_color[3];
 
       TransformStack m_transform_stack;
+
+      unsigned    m_cone_precision;
 };
 
 #endif /* _crVRMLControl_h_ */
