@@ -341,6 +341,24 @@ class CrVRMLControl:  public openvrml::viewer {
 	 boost::shared_array<Vector>&        colors,
 	 boost::shared_array<unsigned int>&  indexes );
 
+      void generate_ifs_arrays(
+	 const unsigned int                          mask,	      
+	 const std::vector<openvrml::vec3f>&         coord,	      
+	 const std::vector<openvrml::int32>& 	     coord_index,     
+	 const std::vector<openvrml::color>& 	     color,	      
+	 const std::vector<openvrml::int32>& 	     color_index,     
+	 const std::vector<openvrml::vec3f>& 	     normal,	      
+	 const std::vector<openvrml::int32>& 	     normal_index,    
+	 const std::vector<openvrml::vec2f>& 	     tex_coord,	      
+	 const std::vector<openvrml::int32>& 	     tex_coord_index, 
+	 unsigned int&                       	     nvertexes,	      
+	 unsigned int&                       	     nfacets,	      
+	 boost::shared_array<Vector>&        	     vertexes,	      
+	 boost::shared_array<Vector>&        	     normals,	      
+	 boost::shared_array<Vector>&        	     colors, 
+	 boost::shared_array<Vector>&                texture,
+	 std::vector< std::pair<unsigned, unsigned> >& indexes );
+
    private:
       bool m_initialized;
       bool m_enable_face_culling;

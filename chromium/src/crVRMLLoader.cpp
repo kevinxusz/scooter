@@ -156,17 +156,18 @@ void CrVRMLLoader::set_state_notify(  const State& state,
 
 void CrVRMLLoader::operator () ( unsigned long l, unsigned long c ) {
    m_count++;
-	 
-   if( this->TestDestroy() ) {
-      m_state = State_Killed;
-      dgd_trace( gui, "Got Destroy signal on LoaderThread of: " 
-		      << m_document->GetFilename()
-		      << std::endl );
-      throw std::runtime_error( "Got Delete on Loader Thread" );
-   }
 
    int val = m_count * 100.0 / m_file_size;
-   if( val == 0 || val == 100 || val > m_prev ) {
+   if( m_count == 1 || m_count >= m_file_size || val >= m_prev + 10 ) {
+	 
+      if( this->TestDestroy() ) {
+	 m_state = State_Killed;
+	 dgd_trace( gui, "Got Destroy signal on LoaderThread of: " 
+			 << m_document->GetFilename()
+			 << std::endl );
+	 throw std::runtime_error( "Got Delete on Loader Thread" );
+      }
+
       m_prev = val;
       wxCommandEvent command(crEVT_STATUS_PROGRESS,-1);
       command.SetInt( val );

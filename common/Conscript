@@ -37,7 +37,8 @@ Link $BUILD => 'src';
 Install $buildenv "$BLIB/include", map( "$BUILD/$_", 
 					qw( calculus.h
 					    calculus_impl.h
-					    calculus_dgd.h ) );    
+					    calculus_dgd.h 
+					    iterators.h ) );    
 
 
 

@@ -2108,16 +2108,23 @@ scene::scene(openvrml::browser & browser,
 
             doc2 doc(absoluteURI);
             istream & in = doc.input_stream();
+            char *iobuf = NULL;
             if (!in) { throw unreachable_url(); }
             try {
+                char *iobuf = new char[ 1024 * 1024 ];
+                in.rdbuf()->pubsetbuf( iobuf, 1024 * 1024 );
                 Vrml97Scanner scanner(in, progress);
                 Vrml97Parser parser(scanner, this->url());
                 parser.vrmlScene(browser, this->nodes_);
+                delete iobuf;
             } catch (antlr::RecognitionException &) {
+                if( iobuf ) delete iobuf;
                 throw invalid_vrml();
             } catch (std::bad_alloc &) {
+                if( iobuf ) delete iobuf;
                 throw;
             } catch (...) {
+                if( iobuf ) delete iobuf;
                 throw unreachable_url();
             }
         } catch (bad_url & ex) {

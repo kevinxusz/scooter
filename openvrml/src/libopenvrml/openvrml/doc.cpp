@@ -23,6 +23,7 @@
 # include <cctype>
 # include <cstring>
 # include <fstream>
+# include <string>
 #if defined(OPENVRML_ENABLE_GNU_REGEX)
 # include <regex.h>
 #endif
@@ -1022,10 +1023,16 @@ std::istream & doc2::input_stream() {
             this->istm_ = &std::cin;
         } else {
 # ifdef OPENVRML_ENABLE_GZIP
-            this->istm_ = new z::ifstream(fn);
-# else
-            this->istm_ = new std::ifstream(fn);
+            std::string name( fn );
+            if( name.rfind( "gz" ) != std::string::npos ||
+                name.rfind( "GZ" ) != std::string::npos ||
+                name.rfind( "gZ" ) != std::string::npos ||
+                name.rfind( "Gz" ) != std::string::npos ) 
+                this->istm_ = new z::ifstream(fn);
+            else 
 # endif
+                this->istm_ = new std::ifstream(fn);
+
         }
     }
 

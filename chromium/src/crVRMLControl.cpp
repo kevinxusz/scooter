@@ -24,6 +24,9 @@
 // crVRMLControl.cpp -- implementation of crVRMLControl.h
 //
 
+#include <set>
+#include <map>
+
 #include <boost/smart_ptr.hpp>
 
 #include <wx/timer.h>
@@ -35,6 +38,7 @@
 
 #include "calculus.h"
 #include "calculus_dgd.h"
+#include "iterators.h"
 
 #include "crVRMLControl.h"
 
@@ -952,6 +956,211 @@ CrVRMLControl::insert_point_set(const std::vector<openvrml::vec3f>& coord,
    return object_t(glid);
 }
 
+void CrVRMLControl::generate_ifs_arrays(
+   const unsigned int                              mask,		 
+   const std::vector<openvrml::vec3f>& 		   coord,		 
+   const std::vector<openvrml::int32>& 		   coord_index,	 
+   const std::vector<openvrml::color>& 		   color,		 
+   const std::vector<openvrml::int32>& 		   color_index,	 
+   const std::vector<openvrml::vec3f>& 		   normal,		 
+   const std::vector<openvrml::int32>& 		   normal_index,	 
+   const std::vector<openvrml::vec2f>& 		   tex_coord,	 
+   const std::vector<openvrml::int32>& 		   tex_coord_index,	 
+   unsigned int&                       		   nvertexes,	 
+   unsigned int&                       		   nfacets,		 
+   boost::shared_array<Vector>&        		   vertexes,	 
+   boost::shared_array<Vector>&        		   normals,		 
+   boost::shared_array<Vector>&        		   colors,		 
+   boost::shared_array<Vector>&        		   texture, 
+   std::vector< std::pair< unsigned, unsigned > >& indexes ) {
+   dgd_start_scope( canvas, "CrVRMLControl::generate_ifs_arrays()" );
+
+   typedef std::vector<openvrml::int32>::const_iterator index_const_iterator;
+   typedef scooter::circulator<index_const_iterator> index_const_circulator;
+   typedef std::map<unsigned, Vector> normal_map_type;
+   typedef std::pair<normal_map_type::iterator, bool> normal_map_insert_result;
+
+   unsigned int i,facet,size;
+   index_const_iterator iter, next;
+   index_const_circulator facet_turnover;
+
+   nvertexes = 0;
+   nfacets = 0;
+
+   normal_map_type normal_map;
+   Vector top, bottom;
+   bool bbox_initialized = false;
+
+   for( iter = coord_index.begin(); iter != coord_index.end(); ++iter) {
+      next = std::find( iter, coord_index.end(), -1 );
+      size = std::distance( iter, next );
+
+      if( size == 0 ) continue;
+
+      nvertexes += size;
+      ++nfacets;
+
+      if( !indexes.empty() && indexes.back().first == size )
+	 ++indexes.back().second;
+      else
+	 indexes.push_back( std::make_pair( size, 1 ) );
+
+      facet_turnover = index_const_circulator( iter, next );
+      if( normal.empty() && (mask & mask_normal_per_vertex) != 0 ) {
+	 do {
+	    unsigned curr = *facet_turnover,
+		     next = *(facet_turnover+1),
+		     prev = *(facet_turnover-1);
+	    Vector c( coord[curr].x(), coord[curr].y(), coord[curr].z() ); 
+	    Vector n( coord[next].x(), coord[next].y(), coord[next].z() );
+	    Vector p( coord[prev].x(), coord[prev].y(), coord[prev].z() );
+	    
+	    normal_map_insert_result rc = 
+	       normal_map.insert( std::make_pair(curr, Vector()) );
+
+	    rc.first->second +=
+	       Math::cross(c-n, c-p).normalize().cartesian();
+	 } while( ++facet_turnover != facet_turnover.begin() );
+      }
+      
+      do {
+	 unsigned curr = *facet_turnover;
+	 if( !bbox_initialized ) {
+	    bbox_initialized = true;
+	    top( coord[curr].x(), coord[curr].y(), coord[curr].z() );
+	    bottom = top;
+	 } else {
+	    bottom( std::min( coord[curr].x(), bottom.x() ),
+		    std::min( coord[curr].y(), bottom.y() ),
+		    std::min( coord[curr].z(), bottom.z() ) );
+	    top( std::max( coord[curr].x(), top.x() ),
+		 std::max( coord[curr].y(), top.y() ),
+		 std::max( coord[curr].z(), top.z() ) );
+	 }
+      } while( ++facet_turnover != facet_turnover.begin() );
+      iter = next;
+   }
+
+   dgd_echo( dgd_expand(nvertexes) << std::endl
+	     << dgd_expand(nfacets) << std::endl );
+
+   vertexes.reset( new Vector[nvertexes] );
+   normals.reset( new Vector[nvertexes] );
+   if( !color.empty() )
+      colors.reset( new Vector[nvertexes] );
+   texture.reset( new Vector[nvertexes] );
+
+   i = 0;
+   facet = 0;
+   
+   for( iter = coord_index.begin(); iter != coord_index.end(); ++iter ) {
+      next = std::find( iter, coord_index.end(), -1 );
+
+      facet_turnover = index_const_circulator( iter, next );
+
+      if( facet_turnover.size() == 0 ) continue;
+      
+      do {
+	 unsigned int index = std::distance( coord_index.begin(), 
+					     facet_turnover.base() );
+	 unsigned int idx;
+
+	 dgd_echo( dgd_expand(index) << std::endl 
+		   << dgd_expand(*facet_turnover) << std::endl 
+		   << dgd_expand(i) << std::endl );
+
+	 vertexes[i]( coord[*facet_turnover].x(), 
+		      coord[*facet_turnover].y(), 
+		      coord[*facet_turnover].z() );	 
+
+	 dgd_echo( dgd_expand(vertexes[i]) << std::endl );
+
+	 if( !color.empty() ) {
+	    if( mask & mask_color_per_vertex ) 
+	       idx = (!color_index.empty()) ? 
+		     color_index[index] : *facet_turnover;
+	    else 
+	       idx = (!color_index.empty()) ? 
+		     color_index[facet] : index;
+
+	    colors[i]( color[idx].r(), color[idx].g(), color[idx].b() );
+
+	    dgd_echo( dgd_expand(colors[i]) << std::endl
+		      << dgd_expand(idx) << std::endl );
+	 }
+
+	 if( !normal.empty() ) {
+	    if( mask & mask_normal_per_vertex ) 
+	       idx = (!normal_index.empty()) ? 
+		     normal_index[index] :  *facet_turnover;
+	    else 
+	       idx = (!normal_index.empty()) ? 
+		     normal_index[facet] : index;
+	    normals[i]( normal[idx].x(), normal[idx].y(), normal[idx].z() );
+
+	    dgd_echo( dgd_expand(normals[i]) << std::endl
+		      << dgd_expand(idx) << std::endl );
+	 } else {
+	    normal_map_type::const_iterator ninfo =
+	       normal_map.find( *facet_turnover );
+	    if( ninfo != normal_map.end() ) {
+	       normals[i] = ninfo->second;
+	    } else {
+	       unsigned curr = *facet_turnover,
+			next = *(facet_turnover+1),
+			prev = *(facet_turnover-1);
+	       Vector c( coord[curr].x(), coord[curr].y(), coord[curr].z() ); 
+	       Vector n( coord[next].x(), coord[next].y(), coord[next].z() );
+	       Vector p( coord[prev].x(), coord[prev].y(), coord[prev].z() );
+
+	       normals[i] = Math::cross( c-n, c-p );
+	    }
+	 }
+
+	 normals[i].normalize().cartesian();
+
+	 if( (mask & mask_ccw) == 0 )
+	    normals[i] = -normals[i];
+
+	 if( !tex_coord.empty() ) {
+	    idx = (!tex_coord_index.empty()) ? 
+		  tex_coord_index[index] :  *facet_turnover;
+	    texture[i]( tex_coord[idx].x(), tex_coord[idx].y(), 0 );
+	    dgd_echo( dgd_expand(texture[i]) << std::endl
+		      << dgd_expand(idx) << std::endl );
+	 } else {
+	    Vector dim = top - bottom;
+	    Vector rel = vertexes[i] - bottom;
+	    unsigned u_index = 0, v_index = 0, min_index = 0;
+	    Vector::FT mindim = dim.x();
+	    
+	    if( RT(mindim) < RT(dim.y()) ) { mindim = dim.y(); min_index = 1; }
+	    if( RT(mindim) < RT(dim.z()) ) { mindim = dim.z(); min_index = 2; }
+	    u_index = (min_index+1) % 3;
+	    v_index = (min_index+2) % 3;
+	    if( RT(dim[u_index]) < RT(dim[v_index]) ) {
+	       unsigned tmp = u_index;
+	       u_index = v_index;
+	       v_index = tmp;
+	    }
+	       
+	    texture[i]( rel[u_index] / dim[u_index], 
+			rel[v_index] / dim[v_index],
+			0 );
+	 }
+
+	 ++i;
+
+      } while( ++facet_turnover != facet_turnover.begin() );
+
+      ++facet;
+      
+      iter = next;
+   }
+   
+
+   dgd_end_scope( canvas );
+}
 
 CrVRMLControl::object_t CrVRMLControl::insert_shell( 
    unsigned int                        mask,
@@ -964,7 +1173,94 @@ CrVRMLControl::object_t CrVRMLControl::insert_shell(
    const std::vector<openvrml::vec2f>& tex_coord,
    const std::vector<openvrml::int32>& tex_coord_index)
 {
-   return NULL;
+   dgd_start_scope( canvas, "CrVRMLControl::insert_shell()" );
+   
+   typedef std::vector< std::pair<unsigned,unsigned> > index_type;
+   typedef index_type::const_iterator index_const_iterator;
+
+   apply_local_transform();
+
+   GLuint glid = 0;
+
+   if( this->m_select_mode == draw_mode ) {
+      glid = glGenLists(1);
+      glNewList(glid, GL_COMPILE_AND_EXECUTE);
+   }
+
+   boost::shared_array<Vector> vertexes;
+   boost::shared_array<Vector> normals;
+   boost::shared_array<Vector> colors;
+   boost::shared_array<Vector> texture;
+   index_type                  indexes;
+
+   unsigned int nvertexes, nfacets;
+
+   generate_ifs_arrays( mask,
+			coord, coord_index,
+			color, color_index,
+			normal, normal_index,
+			tex_coord, tex_coord_index,
+			nvertexes, nfacets,
+			vertexes, normals, colors, texture, indexes );
+
+   glEnableClientState( GL_VERTEX_ARRAY );
+   glEnableClientState( GL_NORMAL_ARRAY );
+   if( colors.get() ) 
+      glEnableClientState( GL_COLOR_ARRAY );
+   glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+
+   /**
+    * @note Passing pointer to array of objects to glVertexPointer() 
+    * is potentially dangerous and compiler-dependent. More over,
+    * it wouldn't work if Vector have virtual methods. 
+    */
+   glVertexPointer( 3, GL_FLOAT, sizeof(Vector), vertexes.get() );
+   glNormalPointer( GL_FLOAT, sizeof(Vector), normals.get() );
+   if( colors.get() ) 
+      glColorPointer( 3, GL_FLOAT, sizeof(Vector), colors.get() );
+   glTexCoordPointer( 2, GL_FLOAT, sizeof(Vector), texture.get() );
+
+   unsigned index = 0;
+   for( index_const_iterator iter = indexes.begin(); 
+	iter != indexes.end();
+	++iter ) {
+      GLenum mode;
+      switch( iter->first ) {
+	 case 0:
+	    continue;
+	 case 1:
+	    mode = GL_POINTS;
+	    break;
+	 case 2:
+	    mode = GL_LINES;
+	    break;
+	 case 3:
+	    mode = GL_TRIANGLES;
+	    break;
+	 case 4:
+	    mode = GL_QUADS;
+	    break;
+	 default:
+	    mode = GL_POLYGON;
+	    break;
+      }
+	 
+      glDrawArrays( mode, index, iter->second * iter->first );
+      index += iter->second * iter->first;
+   }
+
+   glDisableClientState( GL_VERTEX_ARRAY );
+   glDisableClientState( GL_NORMAL_ARRAY );
+   if( colors.get() ) 
+      glDisableClientState( GL_COLOR_ARRAY );
+   glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+
+   if (glid) { glEndList(); }
+
+   undo_local_transform();
+      
+   dgd_end_scope( canvas );
+   return object_t(glid);
 }
 
 
@@ -1562,6 +1858,7 @@ void CrVRMLControl::initialize() {
       glPointSize( 3.0 );
       glEnable(GL_POINT_SMOOTH);
       glEnable(GL_NORMALIZE);
+      glEnable(GL_BLEND);
 
       glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1748,8 +2045,6 @@ void CrVRMLControl::redraw() {
       m_light_info[i].m_type = LightInfo::LIGHT_UNUSED;
       glDisable( GL_LIGHT0 + i );
    }
-
-   glDisable(GL_BLEND);
 
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();

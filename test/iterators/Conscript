@@ -21,13 +21,41 @@
 # Copyright (c) 2004. Dimitry Kloper <dimka@cs.technion.ac.il> . 
 # Technion, Israel Institute of Technology. Computer Science Department.
 #
-# Conscript -- conscript file for tests
+# Conscript -- conscript file for iterators test
 #
 
 Import qw(BLIB toolset options);
 
-Build map( "$_/Conscript", 
-	   qw( calculus iterators ) );
+my $ruleset  = $toolset->env();
+die if( !defined( $ruleset ) );
+
+our $BUILD      = $toolset->option( 'build' );
+our $INCLUDE    = [ "%STLPORT_INCLUDE", 
+		    "%BOOST_INCLUDE",
+		    "$BLIB/include",
+		    "." ];
+
+our $DEFINE     = [ "%STLPORT_DEFINE", "%BOOST_DEFINE", "-D_TRACE" ];
+our $LIBPATH    = [ "$BLIB/lib", "%STLPORT_LIB", "%BOOST_LIB" ];
+our $LIBS       = qw( -ldgd );
+
+map { $ruleset->{'CXXFLAGS'} .= " $_" } @$DEFINE;
+
+Link $BUILD => 'src';
+
+
+our $buildenv   = new cons( %{$ruleset},
+			   'CPPPATH' => $INCLUDE,
+			   'LIBPATH' => $LIBPATH,
+			   'LIBS'    => $LIBS );
+
+my $TARGET = "$BUILD/iterators%{SUFEXE}";
+
+KeepPrecious $buildenv $TARGET;
+Program $buildenv $TARGET, 
+  map( "$BUILD/$_", qw( iterators.cpp  ) );
+
+Install $buildenv "$BLIB/test", $TARGET;
 
 #
 # Conscript -- end of file
