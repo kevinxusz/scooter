@@ -52,7 +52,7 @@ CrVRMLControl::CrVRMLControl( openvrml::browser & b ):
    m_enable_interaction(true),
    m_mouse_sensitivity(3.0f),
    m_enable_permanent_rotation(true),
-   m_permanent_rotation(false)   
+   m_permanent_rotation(false)
 {   
    m_clear_color[0] = m_clear_color[1] = m_clear_color[2] = 0;
 }
@@ -991,6 +991,18 @@ void CrVRMLControl::disable_notification() {
       m_permanent_rotation_timer->Stop();
       m_permanent_rotation_timer.reset();
    }
+}
+
+void CrVRMLControl::clear_color( const wxColour& color ) {
+   m_clear_color[0] = (double)color.Red() / 255.0;
+   m_clear_color[1] = (double)color.Green() / 255.0;
+   m_clear_color[2] = (double)color.Blue() / 255.0;
+}
+
+wxColour CrVRMLControl::clear_color() const {
+   return wxColour( m_clear_color[0] * 255.0,
+		    m_clear_color[1] * 255.0,
+		    m_clear_color[2] * 255.0 );
 }
 
 void CrVRMLControl::redraw() {

@@ -30,6 +30,7 @@
 #include <boost/smart_ptr.hpp>
 
 #include <wx/glcanvas.h>
+#include <wx/colour.h>
 
 #include <gl/gl.h>
 #include <gl/glu.h>
@@ -266,8 +267,12 @@ class CrVRMLControl:  public openvrml::viewer {
       void redraw();
       void resize( int x, int y, int width, int height );
       void input( wxMouseEvent &mouse_event );
+
       void enable_notification( wxEvtHandler *eh );
       void disable_notification();
+
+      void clear_color( const wxColour& color );
+      wxColour clear_color() const;
 
    protected:
       void initialize();
@@ -315,7 +320,7 @@ class CrVRMLControl:  public openvrml::viewer {
       Interaction m_user_state;
       Matrix      m_permanent_rotation_delta;
       wxTimerPtr  m_permanent_rotation_timer;
-
+      
       float m_clear_color[3];
 };
 

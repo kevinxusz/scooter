@@ -35,10 +35,12 @@
 
 class CrVRMLDocView;
 class CrVRMLControl;
+class CrFrameCounter;
 
 class CrVRMLCanvas: public wxGLCanvas {
    protected:
       typedef boost::shared_ptr<CrVRMLControl> CrVRMLControlPtr;
+      typedef boost::shared_ptr<CrFrameCounter> CrFrameCounterPtr;
 
    public:
       CrVRMLCanvas( CrVRMLDocView *viewer );
@@ -52,9 +54,15 @@ class CrVRMLCanvas: public wxGLCanvas {
       void OnMouse( wxMouseEvent& event );
       void OnTimer( wxTimerEvent& event );
 
+      void ShowFrameRate( bool val );
+      bool ShowFrameRate() const;
+
    private:
-      CrVRMLDocView   *m_viewer;
-      CrVRMLControlPtr m_main_control;
+      bool              m_enable_frame_rate_display;
+      CrFrameCounterPtr m_frame_rate;
+
+      CrVRMLDocView    *m_viewer;
+      CrVRMLControlPtr  m_main_control;
 
    private:
       DECLARE_CLASS(CrVRMLCanvas);

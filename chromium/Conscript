@@ -24,6 +24,8 @@
 # Conscript -- conscript file for Chromium
 #
 
+use Cons::VersionControl;
+
 Import qw(BLIB toolset options);
 
 my $ruleset  = $toolset->env();
@@ -71,6 +73,8 @@ our $LIBS       = join( ' ' , qw( -ldgd
 				  -lopengl32
 				  -lglu32 ) );
 
+our $version    = Cons::VersionControl->open(); 
+
 map { $ruleset->{'CXXFLAGS'} .= " $_" } @$DEFINE;
 
 Link $BUILD => 'src';
@@ -87,6 +91,12 @@ Command $buildenv "$BUILD/chromiumres.obj", "src/chromium.rc",
   qq(%RC -r -Iblib/include -Ichromium/icons -fo%> %<);
 
 KeepPrecious $buildenv $TARGET;
+AfterBuild $buildenv $TARGET, q( 
+  if( $status eq 'built' ) {
+     $version->save();
+     print "AfterBuild: version incremented to " . $version->string() . "...\n"
+  }
+);
 Program $buildenv $TARGET, 
   map( "$BUILD/$_", qw( crApp.cpp 
 			crEvent.cpp

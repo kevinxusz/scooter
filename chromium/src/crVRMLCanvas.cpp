@@ -27,9 +27,11 @@
 #include <wx/defs.h>
 #include <wx/docview.h>
 #include <wx/docmdi.h>
+#include <wx/string.h>
 
 #include <dgDebug.h>
 
+#include "crFrameCounter.h"
 #include "crVRMLDocView.h"
 #include "crVRMLControl.h"
 #include "crVRMLDocument.h"
@@ -40,7 +42,8 @@ CrVRMLCanvas::CrVRMLCanvas( CrVRMLDocView *viewer ) :
 	       wxDefaultPosition, wxDefaultSize,
 	       0,
 	       _T("CrVRMLCanvas") ) , 
-   m_viewer(viewer) {
+   m_viewer(viewer),
+   m_enable_frame_rate_display(true) {
 }
 
 bool CrVRMLCanvas::Create() {
@@ -59,6 +62,9 @@ bool CrVRMLCanvas::Create() {
 
    this->OnSize( wxSizeEvent() );
    this->Refresh(true);
+
+   m_frame_rate.reset( new CrFrameCounter );
+   ShowFrameRate( m_enable_frame_rate_display );
 
    return true;
 }
@@ -93,6 +99,20 @@ void CrVRMLCanvas::OnPaint( wxPaintEvent&  ) {
    }
 
    SwapBuffers();
+   
+   
+   if( m_enable_frame_rate_display && m_frame_rate.get() ) {
+      m_frame_rate->frame();
+
+      double frame_rate = m_frame_rate->rate();
+      wxString text;
+      text = wxString::Format( "%.2f", frame_rate ) + " f/s";
+      wxColour clear = m_main_control->clear_color();
+      dc.SetTextForeground( wxColour( 255-clear.Red(),
+				      255-clear.Green(),
+				      255-clear.Blue() ) );
+      dc.DrawText( text, 2, 2 );
+   }
 }
 
 void CrVRMLCanvas::OnMouse( wxMouseEvent& event ) {
@@ -111,6 +131,20 @@ void CrVRMLCanvas::OnTimer( wxTimerEvent& event ) {
 	 this->Refresh( false );
 	 break;
    }
+}
+
+void CrVRMLCanvas::ShowFrameRate( bool val ) {
+   if( val ) {
+      m_frame_rate->Start( 100 /* miliseconds */, false );
+   } else {
+      m_frame_rate->Stop();
+   }
+
+   m_enable_frame_rate_display = val;   
+}
+
+bool CrVRMLCanvas::ShowFrameRate() const {
+   return m_enable_frame_rate_display;
 }
 
 IMPLEMENT_CLASS(CrVRMLCanvas, wxGLCanvas);
