@@ -1,0 +1,112 @@
+# -*- CPerl -*-
+#
+# $Id$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# This file is a part of the Scooter project. 
+#
+# Copyright (c) 2004. Dimitry Kloper <dimka@cs.technion.ac.il> . 
+# Technion, Israel Institute of Technology. Computer Science Department.
+#
+# Conscript -- construction file for libopenvrml core
+#
+
+Import qw(BLIB toolset options);
+
+my $ruleset  = $toolset->env();
+
+die if( !defined( $ruleset ) );
+
+our $BUILD      = $toolset->option( 'build' );
+our $INCLUDE    = [ "%STLPORT_INCLUDE", 
+		    "%BOOST_INCLUDE",
+		    "%ZLIB_INCLUDE",
+		    "%JPEG_INCLUDE",
+		    "%LIBPNG_INCLUDE",
+		    "$BLIB/include",
+		    "$BLIB/include/openvrml" ];
+our $DEFINE = [ "%STLPORT_DEFINE", "%BOOST_DEFINE" ];
+
+push @$DEFINE, "-DOPENVRML_ENABLE_GZIP=1" if( $ruleset->{'ZLIB_ROOT'} );
+push @$DEFINE, "-DOPENVRML_ENABLE_GIF=1";
+push @$DEFINE, "-DOPENVRML_ENABLE_BOOST_REGEX=1" if($ruleset->{'BOOST_ROOT'});
+push @$DEFINE, "-DOPENVRML_ENABLE_JPEG=1" if( $ruleset->{'JPEG_ROOT'} );
+push @$DEFINE, "-DOPENVRML_ENABLE_PNG=1" if( $ruleset->{'LIBPNG_ROOT'} );
+
+Link $BUILD => 'openvrml';
+
+$ruleset->{'CXXFLAGS'} .= ' ' . join(' ', @$DEFINE) if( $DEFINE );
+
+our $buildenv   = new cons( %{$ruleset},
+			   'CPPPATH' => $INCLUDE );
+
+my $TARGET = "$BUILD/%{PREFLIB}openvrml%{SUFLIB}";
+
+KeepPrecious $buildenv $TARGET;
+Library $buildenv $TARGET, 
+  map( "$BUILD/$_", 
+       qw( ScriptJDK.cpp
+	   basetypes.cpp
+	   bounding_volume.cpp
+	   browser.cpp
+	   doc.cpp
+	   field.cpp
+	   field_value_ptr.cpp
+	   frustum.cpp
+	   img.cpp
+	   node.cpp
+	   node_class_ptr.cpp
+	   node_ptr.cpp
+	   node_type_ptr.cpp
+	   rendering_context.cpp
+	   scope.cpp
+	   scope_ptr.cpp
+	   script.cpp
+	   system.cpp
+	   viewer.cpp
+	   vrml97node.cpp ) );
+
+Install $buildenv "$BLIB/include/openvrml", 
+  map( "openvrml/$_", 
+       qw( ScriptJDK.h
+	   basetypes.h
+	   bounding_volume.h
+	   browser.h
+	   common.h
+	   doc.h
+	   field.h
+	   field_value_ptr.h
+	   frustum.h
+	   img.h
+	   node.h
+	   node_class_ptr.h
+	   node_ptr.h
+	   node_type_ptr.h
+	   private.h
+	   rendering_context.h
+	   scope.h
+	   scope_ptr.h
+	   script.h
+	   system.h
+	   viewer.h
+	   vrml97node.h) );
+
+Install $buildenv "$BLIB/lib", $TARGET;
+
+#
+# Conscript -- end of file
+#
+

@@ -1,0 +1,70 @@
+# -*- CPerl -*-
+#
+# $Id$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# This file is a part of the Scooter project. 
+#
+# Copyright (c) 2004. Dimitry Kloper <dimka@cs.technion.ac.il> . 
+# Technion, Israel Institute of Technology. Computer Science Department.
+#
+# Conscript -- construction file for libopenvrml core
+#
+
+Import qw(BLIB toolset options);
+
+my $ruleset  = $toolset->env();
+
+die if( !defined( $ruleset ) );
+
+our $BUILD      = $toolset->option( 'build' );
+our $INCLUDE    = [ "%STLPORT_INCLUDE", 
+		    "%BOOST_INCLUDE",
+		    "$BLIB/include",
+		    "d:/glut-3.7.6/include",
+		    "." ];
+our $DEFINE     = [ "%STLPORT_DEFINE", "%BOOST_DEFINE" ];
+our $LIBPATH    = [ "$BLIB/lib", "%STLPORT_LIB", "%BOOST_LIB", 
+		    "%ZLIB_LIB", "%JPEG_LIB", "%LIBPNG_LIB" ];
+our $LIBS       = join( ' ' , qw( -lantlr 
+				  -lopenvrml 
+				  -lopenvrml-gl
+				  -lzlib 
+				  -llibjpeg 
+				  -llibpng
+				  -lwsock32 ) );
+
+
+Link $BUILD => '.';
+
+
+our $buildenv   = new cons( %{$ruleset},
+			   'CPPPATH' => $INCLUDE,
+			   'LIBPATH' => $LIBPATH,
+			   'LIBS'    => $LIBS );
+
+my $TARGET = "$BUILD/lookat%{SUFEXE}";
+
+KeepPrecious $buildenv $TARGET;
+Program $buildenv $TARGET, 
+  map( "$BUILD/$_", qw( ViewerGlut.cpp lookat.cpp ) );
+
+Install $buildenv "$BLIB/bin", $TARGET;
+
+#
+# Conscript -- end of file
+#
+

@@ -1,0 +1,181 @@
+# -*- CPerl -*-
+#
+# $Id$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# This file is a part of the Scooter project. 
+#
+# Copyright (c) 2004. Dimitry Kloper <dimka@cs.technion.ac.il> . 
+# Technion, Israel Institute of Technology. Computer Science Department.
+#
+# Conscript -- Conscript for wxwin/src/msw
+#
+
+Import qw(BLIB toolset options platform defines);
+
+my $ruleset  = $toolset->env();
+
+die if( !defined( $ruleset ) );
+
+our $BUILD      = $toolset->option( 'build' );
+our $INCLUDE    = [ "%ZLIB_INCLUDE",
+		    "%JPEG_INCLUDE",
+		    "%LIBPNG_INCLUDE",
+		    "$BLIB/include",
+		    "../regex",
+		    "." ];
+
+for my $define (keys( %$defines )) {
+    $ruleset->{'CXXFLAGS'} .= " -D$define";
+    $ruleset->{'CXXFLAGS'} .= "=" . $defines->{$define} 
+      if( defined( $defines->{$define} ) );
+}
+
+Link $BUILD => '.';
+
+our $buildenv   = new cons( %{$ruleset},
+			   'CPPPATH' => $INCLUDE );
+
+my $TARGET = "$BUILD/%{PREFLIB}wxmsw%{SUFLIB}";
+
+KeepPrecious $buildenv $TARGET;
+
+
+Library $buildenv $TARGET, 
+  map( "$BUILD/$_", 
+       qw( 
+accel.cpp
+app.cpp
+bitmap.cpp
+bmpbuttn.cpp
+brush.cpp
+button.cpp
+caret.cpp
+checkbox.cpp
+checklst.cpp
+choice.cpp
+clipbrd.cpp
+colordlg.cpp
+colour.cpp
+combobox.cpp
+control.cpp
+curico.cpp
+cursor.cpp
+data.cpp
+dc.cpp
+dcclient.cpp
+dcmemory.cpp
+dcprint.cpp
+dcscreen.cpp
+dde.cpp
+dialog.cpp
+dialup.cpp
+dib.cpp
+dibutils.cpp
+dir.cpp
+dirdlg.cpp
+display.cpp
+dragimag.cpp
+dummy.cpp
+dummydll.cpp
+enhmeta.cpp
+evtloop.cpp
+fdrepdlg.cpp
+filedlg.cpp
+font.cpp
+fontdlg.cpp
+fontenum.cpp
+fontutil.cpp
+frame.cpp
+gauge95.cpp
+gaugemsw.cpp
+gdiimage.cpp
+gdiobj.cpp
+glcanvas.cpp
+gsocket.c
+gsockmsw.c
+helpbest.cpp
+helpchm.cpp
+helpwin.cpp
+icon.cpp
+imaglist.cpp
+iniconf.cpp
+joystick.cpp
+listbox.cpp
+listctrl.cpp
+main.cpp
+mdi.cpp
+menu.cpp
+menuitem.cpp
+metafile.cpp
+mimetype.cpp
+minifram.cpp
+msgdlg.cpp
+mslu.cpp
+nativdlg.cpp
+notebook.cpp
+ownerdrw.cpp
+palette.cpp
+pen.cpp
+penwin.cpp
+popupwin.cpp
+printdlg.cpp
+printwin.cpp
+radiobox.cpp
+radiobut.cpp
+regconf.cpp
+region.cpp
+registry.cpp
+scrolbar.cpp
+settings.cpp
+slider95.cpp
+snglinst.cpp
+spinbutt.cpp
+spinctrl.cpp
+statbmp.cpp
+statbox.cpp
+statbr95.cpp
+statline.cpp
+stattext.cpp
+tabctrl.cpp
+taskbar.cpp
+tbar95.cpp
+textctrl.cpp
+tglbtn.cpp
+thread.cpp
+timer.cpp
+tooltip.cpp
+toplevel.cpp
+treectrl.cpp
+utils.cpp
+utilsexc.cpp
+uxtheme.cpp
+volume.cpp
+wave.cpp
+window.cpp
+ole/automtn.cpp
+ole/dataobj.cpp
+ole/dropsrc.cpp
+ole/droptgt.cpp
+ole/oleutils.cpp
+ole/uuid.cpp) );
+
+Install $buildenv "$BLIB/lib", $TARGET;
+
+#
+# Conscript -- end of file
+#
+

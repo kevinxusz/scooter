@@ -1,0 +1,22 @@
+#!/bin/bash
+
+case $1 in
+(cygwin|cygwin-debug)
+perl -I cons ./cons/cons.pl $2 -- --toolset=gcc,cygwin,boost,stlport,clo,zlib,jpeg,libpng -v3 ;;
+(cygwin-release)
+perl -I cons ./cons/cons.pl $2 -- --toolset=gcc,cygwin,boost,stlport,clo,zlib,jpeg,libpng --build=Release -v3 ;;
+(win-release)
+/d/perl/bin/perl -I cons ./cons/cons.pl $2 -- --toolset=msvc70,cygwin,boost,stlport,clo,zlib,jpeg,libpng  --build=Release -v3 ;;
+(doc)
+/d/perl/bin/perl -I cons ./cons/cons.pl $2-- --toolset=doxygen -v3 && cd doc/docsys && ./docsys dgd && ./docsys doxy ;;
+(clean)
+/d/perl/bin/perl -I cons ./cons/cons.pl $2 -- clean ;;
+(win|win-debug|*)
+/d/perl/bin/perl -I cons ./cons/cons.pl $2 -- --toolset=msvc70,cygwin,boost,stlport,clo,zlib,jpeg,libpng --nostlport-debug -v3 ;;
+esac
+
+# 
+# Local Variables:
+# compile-command: "bash -c \"./bldme win\""
+# End:
+#

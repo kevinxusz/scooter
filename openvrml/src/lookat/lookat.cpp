@@ -105,7 +105,6 @@ int main(int argc, char * argv[]) {
 
     browser = new openvrml::browser(cout, cerr);
 
-    browser->load_url(std::vector<std::string>(), std::vector<std::string>());
     vector<string> uri(1, inputUrl);
     vector<string> parameter;
     browser->load_url(uri, parameter);

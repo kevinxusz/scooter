@@ -1,0 +1,90 @@
+# -*- CPerl -*-
+#
+# $Id$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# This file is a part of the Scooter project. 
+#
+# Copyright (c) 2004. Dimitry Kloper <dimka@cs.technion.ac.il> . 
+# Technion, Israel Institute of Technology. Computer Science Department.
+#
+# Construct -- root construction file
+#
+
+use strict;
+use Cwd;
+use Data::Dumper;
+use File::Find;
+use File::Path;
+use Getopt::Long;
+
+use Cons::Common;
+use Cons::Toolset;
+use Cons::VersionControl;
+
+Export qw(BLIB toolset options version);
+
+our $options = { 'verbose' => 1 };
+our $toolset = Cons::Toolset->getopt( %$options );
+our $version = Cons::VersionControl->open(); 
+our $BLIB    = "#blib";
+
+die if( !defined( $toolset ) );
+    
+map { 
+    if( /^-/ ) {
+	say( "error: unknown option $_", 'verbose' => 1 );
+	die;
+    } elsif( /^clean$/ ) {
+	clean( cwd() );
+	return 1;
+    } else {
+	say( "error: unknown command $_", 'verbose' => 1 );
+	die;
+    }
+} @ARGV;
+
+Default $BLIB;
+
+Build map( "$_/Conscript", qw(openvrml wxwin) );
+
+sub clean {
+    my ($root) = @_;
+    find( sub {
+	      if( /\.(o|a|so|obj|exe|lib|pdb|idb|pch|ilk)$/i ) {
+		  print "removing $File::Find::name\n";
+		  unlink;
+	      } 
+	  }, $root );
+
+    my $dirs = [];
+    find( sub {
+	      if( /Debug[\/\\]*$/ and -d ) {
+		  push @$dirs, $File::Find::name;
+	      } elsif( /Release[\/\\]*$/ and -d ) {
+		  push @$dirs, $File::Find::name;
+	      }
+	  }, $root );
+    if( scalar( @$dirs ) ) { 
+	rmtree( $dirs, 1 );
+    }
+}
+
+
+#
+# Construct -- end of file
+#
+

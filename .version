@@ -1,0 +1,6 @@
+my $version = {
+'stable' => '0',
+'major' => '0',
+'build' => '1',
+'compile' => '0',
+}

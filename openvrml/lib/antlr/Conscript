@@ -1,0 +1,130 @@
+# -*- CPerl -*-
+#
+# $Id$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# This file is a part of the Scooter project. 
+#
+# Copyright (c) 2004. Dimitry Kloper <dimka@cs.technion.ac.il> . 
+# Technion, Israel Institute of Technology. Computer Science Department.
+#
+# Conscript -- constructtion file for antlr library for openvrml
+#
+
+Import qw(BLIB toolset options);
+
+my $ruleset  = $toolset->env();
+
+die if( !defined( $ruleset ) );
+
+our $BUILD      = $toolset->option( 'build' );
+our $INCLUDE    = [ "%STLPORT_INCLUDE", "%BOOST_INCLUDE", "." ];
+
+Link $BUILD => 'src';
+
+our $buildenv   = new cons( %{$ruleset},
+			   'CPPPATH' => $INCLUDE );
+
+my @cpp_files = qw( ANTLRUtil.cpp
+		    ASTFactory.cpp
+		    ASTNULLType.cpp
+		    ASTRefCount.cpp
+		    BaseAST.cpp
+		    BitSet.cpp
+		    CharBuffer.cpp
+		    CharScanner.cpp
+		    CommonAST.cpp
+		    CommonASTWithHiddenTokens.cpp
+		    CommonHiddenStreamToken.cpp
+		    CommonToken.cpp
+		    InputBuffer.cpp
+		    LLkParser.cpp
+		    MismatchedCharException.cpp
+		    MismatchedTokenException.cpp
+		    NoViableAltException.cpp
+		    NoViableAltForCharException.cpp
+		    Parser.cpp
+		    RecognitionException.cpp
+		    String.cpp
+		    Token.cpp
+		    TokenBuffer.cpp
+		    TokenStreamBasicFilter.cpp
+		    TokenStreamHiddenTokenFilter.cpp
+		    TokenStreamSelector.cpp
+		    TreeParser.cpp );
+
+my @hpp_files = qw( ANTLRException.hpp
+		    ANTLRUtil.hpp
+		    AST.hpp
+		    ASTArray.hpp
+		    ASTFactory.hpp
+		    ASTNULLType.hpp
+		    ASTPair.hpp
+		    ASTRefCount.hpp
+		    BaseAST.hpp
+		    BitSet.hpp
+		    CharBuffer.hpp
+		    CharInputBuffer.hpp
+		    CharScanner.hpp
+		    CharStreamException.hpp
+		    CharStreamIOException.hpp
+		    CircularQueue.hpp
+		    CommonAST.hpp
+		    CommonASTWithHiddenTokens.hpp
+		    CommonHiddenStreamToken.hpp
+		    CommonToken.hpp
+		    IOException.hpp
+		    InputBuffer.hpp
+		    LLkParser.hpp
+		    LexerSharedInputState.hpp
+		    MismatchedCharException.hpp
+		    MismatchedTokenException.hpp
+		    NoViableAltException.hpp
+		    NoViableAltForCharException.hpp
+		    Parser.hpp
+		    ParserSharedInputState.hpp
+		    RecognitionException.hpp
+		    RefCount.hpp
+		    SemanticException.hpp
+		    String.hpp
+		    Token.hpp
+		    TokenBuffer.hpp
+		    TokenStream.hpp
+		    TokenStreamBasicFilter.hpp
+		    TokenStreamException.hpp
+		    TokenStreamHiddenTokenFilter.hpp
+		    TokenStreamIOException.hpp
+		    TokenStreamRecognitionException.hpp
+		    TokenStreamRetryException.hpp
+		    TokenStreamSelector.hpp
+		    TreeParser.hpp
+		    TreeParserSharedInputState.hpp
+		    config.hpp );
+
+my $TARGET = "$BUILD/%{PREFLIB}antlr%{SUFLIB}";
+
+KeepPrecious $buildenv $TARGET;
+
+Library $buildenv $TARGET,  map( "$BUILD/$_", @cpp_files );
+
+Install $buildenv "$BLIB/include/antlr", map( "antlr/$_", @hpp_files );
+
+Install $buildenv "$BLIB/lib", $TARGET;
+
+#
+# Conscript -- end of file
+#
+

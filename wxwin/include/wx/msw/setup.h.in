@@ -79,7 +79,7 @@
 // Default is 1
 //
 // Recommended setting: 0 (the new calculations are more correct!)
-#define wxDIALOG_UNIT_COMPATIBILITY   1
+#define wxDIALOG_UNIT_COMPATIBILITY   0
 
 // ----------------------------------------------------------------------------
 // debugging settings
@@ -392,7 +392,9 @@
 
 // Set to 1 to compile wxZlibInput/OutputStream classes. Also required by
 // wxUSE_LIBPNG.
-#define wxUSE_ZLIB          1
+#define wxUSE_ZLIB          (* $have_zlib *)
+
+#define wxUSE_ZLIB_H_IN_PATH 1
 
 // If enabled, the code written by Apple will be used to write, in a portable
 // way, float on the disk. See extended.c for the license which is different
@@ -779,7 +781,7 @@
 // Default is 0.
 //
 // Recommended setting: 1 if you intend to use OpenGL, 0 otherwise
-#define wxUSE_GLCANVAS       0
+#define wxUSE_GLCANVAS       1
 
 // wxTreeLayout class
 #define wxUSE_TREELAYOUT     1
@@ -939,13 +941,13 @@
 #define wxUSE_IMAGE         1
 
 // Set to 1 for PNG format support (requires libpng). Also requires wxUSE_ZLIB.
-#define wxUSE_LIBPNG        1
+#define wxUSE_LIBPNG        (* $have_libpng *)
 
 // Set to 1 for JPEG format support (requires libjpeg)
-#define wxUSE_LIBJPEG       1
+#define wxUSE_LIBJPEG       (* $have_libjpeg *)
 
 // Set to 1 for TIFF format support (requires libtiff)
-#define wxUSE_LIBTIFF       1
+#define wxUSE_LIBTIFF       (* $have_libtiff *)
 
 // Set to 1 for GIF format support
 #define wxUSE_GIF           1

@@ -1,0 +1,206 @@
+# -*- CPerl -*-
+#
+# $Id$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# This file is a part of the Scooter project. 
+#
+# Copyright (c) 2004. Dimitry Kloper <dimka@cs.technion.ac.il> . 
+# Technion, Israel Institute of Technology. Computer Science Department.
+#
+# Conscript -- Conscript for wxwin/src/common
+#
+
+Import qw(BLIB toolset options platform defines);
+
+my $ruleset  = $toolset->env();
+
+die if( !defined( $ruleset ) );
+
+our $BUILD      = $toolset->option( 'build' );
+our $INCLUDE    = [ "%ZLIB_INCLUDE",
+		    "%JPEG_INCLUDE",
+		    "%LIBPNG_INCLUDE",
+		    "$BLIB/include",
+		    "../regex",
+		    "." ];
+
+for my $define (keys( %$defines )) {
+    $ruleset->{'CXXFLAGS'} .= " -D$define";
+    $ruleset->{'CXXFLAGS'} .= "=" . $defines->{$define} 
+      if( defined( $defines->{$define} ) );
+}
+
+Link $BUILD => '.';
+
+our $buildenv   = new cons( %{$ruleset},
+			   'CPPPATH' => $INCLUDE );
+
+my $TARGET = "$BUILD/%{PREFLIB}wxcommon%{SUFLIB}";
+
+KeepPrecious $buildenv $TARGET;
+
+if( $platform eq "msw" ) {
+    InstallAs $buildenv "$BUILD/y_tab.c", "dosyacc.c";
+    InstallAs $buildenv "$BUILD/lex_yy.c", "doslex.c";
+    Depends $buildenv "$BUILD/y_tab.c", "$BUILD/lex_yy.c";
+}
+
+Library $buildenv $TARGET, 
+  map( "$BUILD/$_", 
+       qw( 
+	  appcmn.cpp
+	  artprov.cpp
+	  artstd.cpp
+	  bmpbase.cpp
+	  choiccmn.cpp
+	  clipcmn.cpp
+	  clntdata.cpp
+	  cmdline.cpp
+	  cmdproc.cpp
+	  cmndata.cpp
+	  config.cpp
+	  containr.cpp
+	  cshelp.cpp
+	  ctrlcmn.cpp
+	  ctrlsub.cpp
+	  datetime.cpp
+	  datstrm.cpp
+	  db.cpp
+	  dbgrid.cpp
+	  dbtable.cpp
+	  dcbase.cpp
+	  dircmn.cpp
+	  dlgcmn.cpp
+	  dndcmn.cpp
+	  dobjcmn.cpp
+	  docmdi.cpp
+	  docview.cpp
+	  dseldlg.cpp
+	  dynarray.cpp
+	  dynlib.cpp
+	  dynload.cpp
+	  effects.cpp
+	  encconv.cpp
+	  event.cpp
+	  extended.c
+	  fddlgcmn.cpp
+	  ffile.cpp
+	  file.cpp
+	  fileconf.cpp
+	  filefn.cpp
+	  filename.cpp
+	  filesys.cpp
+	  fontcmn.cpp
+	  fontmap.cpp
+	  framecmn.cpp
+	  fs_inet.cpp
+	  fs_mem.cpp
+	  fs_zip.cpp
+	  ftp.cpp
+	  gaugecmn.cpp
+	  gdicmn.cpp
+	  geometry.cpp
+	  gifdecod.cpp
+	  hash.cpp
+	  hashmap.cpp
+	  helpbase.cpp
+	  http.cpp
+	  iconbndl.cpp
+	  imagall.cpp
+	  imagbmp.cpp
+	  image.cpp
+	  imagfill.cpp
+	  imaggif.cpp
+	  imagiff.cpp
+	  imagjpeg.cpp
+	  imagpcx.cpp
+	  imagpng.cpp
+	  imagpnm.cpp
+	  imagtiff.cpp
+	  imagxpm.cpp
+	  intl.cpp
+	  ipcbase.cpp
+	  layout.cpp
+	  lboxcmn.cpp
+	  list.cpp
+	  log.cpp
+	  longlong.cpp
+	  matrix.cpp
+	  memory.cpp
+	  menucmn.cpp
+	  mimecmn.cpp
+	  module.cpp
+	  msgout.cpp
+	  mstream.cpp
+	  nbkbase.cpp
+	  object.cpp
+	  odbc.cpp
+	  paper.cpp
+	  popupcmn.cpp
+	  prntbase.cpp
+	  process.cpp
+	  protocol.cpp
+	  quantize.cpp
+	  radiocmn.cpp
+	  regex.cpp
+	  resourc2.cpp
+	  resource.cpp
+	  rgncmn.cpp
+	  sckaddr.cpp
+	  sckfile.cpp
+	  sckipc.cpp
+	  sckstrm.cpp
+	  settcmn.cpp
+	  sizer.cpp
+	  socket.cpp
+	  statbar.cpp
+	  strconv.cpp
+	  stream.cpp
+	  string.cpp
+	  sysopt.cpp
+	  tbarbase.cpp
+	  textbuf.cpp
+	  textcmn.cpp
+	  textfile.cpp
+	  timercmn.cpp
+	  tokenzr.cpp
+	  toplvcmn.cpp
+	  treebase.cpp
+	  txtstrm.cpp
+	  unzip.c
+	  url.cpp
+	  utilscmn.cpp
+	  valgen.cpp
+	  validate.cpp
+	  valtext.cpp
+	  variant.cpp
+	  wfstream.cpp
+	  wincmn.cpp
+	  wxchar.cpp
+	  wxexpr.cpp
+	  xpmdecod.cpp
+	  y_tab.c
+	  zipstrm.cpp
+	  zstream.cpp
+ ) );
+
+Install $buildenv "$BLIB/lib", $TARGET;
+
+#
+# Conscript -- end of file
+#
+

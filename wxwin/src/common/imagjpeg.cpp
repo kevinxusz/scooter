@@ -40,7 +40,17 @@
 
 extern "C"
 {
+#if defined(WIN32) && !defined(XMD_H) 
+#define XMD_H_DEFINED 1
+#define XMD_H
+#endif
+
     #include "jpeglib.h"
+
+#if defined(XMD_H_DEFINED)
+#undef XMD_H_DEFINED
+#undef XMD_H
+#endif
 }
 
 #include "wx/filefn.h"
