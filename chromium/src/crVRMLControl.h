@@ -292,7 +292,20 @@ class CrVRMLControl:  public openvrml::viewer {
       void finish_user_action(   Interaction::UserAction action, 
 			         long time,
 			         long x, long y );
-
+      void generate_cyllindric_arrays( const float                 height, 
+				       const float                 radius, 
+				       const unsigned              precision,
+				       boost::shared_array<Vector>& vertexes,
+				       boost::shared_array<Vector>& normals,
+				       boost::shared_array<Vector>& texture,
+				       const bool                   is_cone );
+      object_t insert_cyllindric_object(float height, 
+					float radius,
+					unsigned precision,
+					bool  top, 
+					bool  bottom,
+					bool  side,
+					bool  is_cone );
    private:
       bool m_initialized;
       bool m_enable_face_culling;
@@ -330,6 +343,8 @@ class CrVRMLControl:  public openvrml::viewer {
       TransformStack m_transform_stack;
 
       unsigned    m_cone_precision;
+      unsigned    m_cylinder_precision;
+      unsigned    m_sphere_precision;
 };
 
 #endif /* _crVRMLControl_h_ */

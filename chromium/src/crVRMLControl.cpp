@@ -55,8 +55,9 @@ CrVRMLControl::CrVRMLControl( openvrml::browser & b ):
    m_mouse_sensitivity(3.0f),
    m_enable_permanent_rotation(true),
    m_permanent_rotation(false),
-   m_cone_precision(32)
-{   
+   m_cone_precision(32),
+   m_cylinder_precision(32),
+   m_sphere_precision(32) {   
    m_clear_color[0] = m_clear_color[1] = m_clear_color[2] = 0;
 }
 
@@ -222,6 +223,174 @@ CrVRMLControl::object_t CrVRMLControl::insert_box(const openvrml::vec3f & size) 
    return object_t(glid);
 }
 
+void 
+CrVRMLControl::generate_cyllindric_arrays( const float                 height, 
+					   const float                 radius, 
+					   const unsigned              precision,
+					   boost::shared_array<Vector>& vertexes,
+					   boost::shared_array<Vector>& normals,
+					   boost::shared_array<Vector>& texture,
+					   const bool                   is_cone )
+{
+   dgd_start_scope( canvas, "CrVRMLControl::generate_cyllindric_arrays()" );
+   // precision is a number of vertices on the bound
+   // the last vertex on the cone/cylinder bound is virtually split 
+   // this is done to make texture mapping to fit exactly [0,1],
+   // thus precision is incremented by one. Factor of 4 means we are
+   // using separate coordinates for top and bottom vertices, more over
+   // we are using the same vertex set twice for side and for top and bottom 
+   // caps. This looks ugly, but lets us ability to utilize vertex arrays.
+   unsigned nvertexes =  4 * (precision + 1);
+   int cone_factor = is_cone ? 0 : 1;
+
+   vertexes.reset( new Vector[nvertexes] );
+   normals.reset( new Vector[nvertexes] );
+   texture.reset( new Vector[nvertexes] );
+
+   FT alpha = FT(Math::PI * 2.0 / precision);
+   
+   dgd_echo( dgd_expand(alpha) << std::endl );
+   
+   unsigned i, top, bottom;
+   FT angle,x,y,z,ny,tx,tz;
+   
+   y = height / 2.0f;
+   ny = radius * radius / height;
+
+   for( i = 0; i <= precision; ++i ) {
+      angle = i * alpha - FT(Math::PI / 2.0);
+      x = radius * (FT)cos( angle );
+      z = radius * (FT)sin( angle );
+      top = 2 * i + 0;
+      bottom = 2 * i + 1;
+      tx = (x + radius) / (2.0f * radius );
+      tz = (z + radius) / (2.0f * radius );
+
+      // Vertexes for side arrays
+      vertexes[top]( x, -y, z );
+      vertexes[bottom]( x * cone_factor, y, z * cone_factor );
+
+      normals[top]( x, ny * (1-cone_factor), z ).normalize().cartesian();
+      normals[bottom]( x, ny * (1-cone_factor), z ).normalize().cartesian();
+
+      texture[top]( 1 - FT(i) / FT(precision), 0, 0 );
+      texture[bottom]( 1 - FT(i) / FT(precision), 1, 0 );
+
+      // Vertexes for cap arrays
+      top += 2 * (precision+1);
+      bottom += 2 * (precision+1);
+
+      vertexes[top]( x, -y, z );
+      vertexes[bottom]( -x * cone_factor, y, z * cone_factor );
+
+      normals[top]( 0, -1, 0 );
+      normals[bottom]( 0, 1, 0 );
+
+      texture[top]( tx, tz, 0 );
+      texture[bottom]( -tx, tz, 0);
+
+      dgd_echo( dgd_expand(i) << std::endl
+		<< dgd_expand(angle) << std::endl
+		<< dgd_expand(vertexes[2*i]) << " " << DGD::dgd
+		<< dgd_expand(vertexes[2*i+1]) << std::endl
+		<< dgd_expand(normals[2*i]) << " " << DGD::dgd
+		<< dgd_expand(normals[2*i+1]) << std::endl
+		<< dgd_expand(texture[2*i]) << " " << DGD::dgd
+		<< dgd_expand(texture[2*i+1]) << std::endl );
+   }
+   
+   dgd_end_scope( canvas );
+}
+
+CrVRMLControl::object_t 
+CrVRMLControl::insert_cyllindric_object(float height, 
+					float radius,
+					unsigned precision,
+					bool  top, 
+					bool  bottom,
+					bool  side,
+					bool  is_cone ) {
+   dgd_start_scope( canvas, "CrVRMLControl::insert_cyllindric_object()" );
+
+
+   apply_local_transform();
+
+   GLuint glid = 0;
+
+   if( this->m_select_mode == draw_mode ) {
+      glid = glGenLists(1);
+      glNewList(glid, GL_COMPILE_AND_EXECUTE);
+   }
+
+   boost::shared_array<Vector> cone_vertexes;
+   boost::shared_array<Vector> cone_normals;
+   boost::shared_array<Vector> cone_texture;
+
+   if( side || bottom || top ) {
+      generate_cyllindric_arrays( height, radius, precision, 
+				  cone_vertexes,
+				  cone_normals,
+				  cone_texture,
+				  is_cone );
+      glEnableClientState( GL_VERTEX_ARRAY );
+      glEnableClientState( GL_NORMAL_ARRAY );
+      glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+   }
+
+   glPushAttrib( GL_ENABLE_BIT | GL_POLYGON_BIT );
+   if( !bottom || !side || (!top && !is_cone) ) glDisable( GL_CULL_FACE );
+
+   if( side ) {
+      /**
+       * @note Passing pointer to array of objects to glVertexPointer() 
+       * is potentially dangerous and compiler-dependent. More over,
+       * it wouldn't work if Vector have virtual methods. 
+       */
+      glVertexPointer( 3, GL_FLOAT, sizeof(Vector), cone_vertexes.get() );
+      glNormalPointer( GL_FLOAT, sizeof(Vector), cone_normals.get() );
+      glTexCoordPointer( 2, GL_FLOAT, sizeof(Vector), cone_texture.get() );
+
+      glDrawArrays( GL_QUAD_STRIP, 0, 2 * precision + 2 );
+   }
+
+   if( bottom ) {
+      glVertexPointer( 3, GL_FLOAT, 2 * sizeof(Vector), 
+		       cone_vertexes.get() + 2 * ( precision + 1 ) );
+      glNormalPointer( GL_FLOAT, 2 * sizeof(Vector), 
+		       cone_normals.get()  + 2 * ( precision + 1 ) );
+      glTexCoordPointer( 2, GL_FLOAT, 2 * sizeof(Vector), 
+			 cone_texture.get() + 2 * ( precision + 1 ) );
+
+      glDrawArrays( GL_TRIANGLE_FAN, 0, precision );
+   }
+
+   if( top ) {
+      glVertexPointer( 3, GL_FLOAT, 2 * sizeof(Vector), 
+		       cone_vertexes.get() + 2 * ( precision + 1 ) + 1);
+      glNormalPointer( GL_FLOAT, 2 * sizeof(Vector), 
+		       cone_normals.get()  + 2 * ( precision + 1 ) + 1);
+      glTexCoordPointer( 2, GL_FLOAT, 2 * sizeof(Vector), 
+			 cone_texture.get() + 2 * ( precision + 1 ) + 1);
+
+      glDrawArrays( GL_TRIANGLE_FAN, 0, precision );
+   }
+
+   if( side || bottom || top ) {
+      glDisableClientState( GL_VERTEX_ARRAY );
+      glDisableClientState( GL_NORMAL_ARRAY );
+      glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+   }
+
+   glPopAttrib();
+
+   if (glid) { glEndList(); }
+
+   undo_local_transform();
+
+   dgd_end_scope( canvas );
+   return object_t(glid);
+}
+
 CrVRMLControl::object_t 
 CrVRMLControl::insert_cone(float height, 
 			   float radius, 
@@ -229,100 +398,24 @@ CrVRMLControl::insert_cone(float height,
 			   bool  side    ) {
    dgd_start_scope( canvas, "CrVRMLControl::insert_cone()" );
 
-
-   apply_local_transform();
-
-   boost::scoped_array<Vector> cone_vertexes;
-   boost::scoped_array<Vector> cone_normals;
-   boost::scoped_array<Vector> cone_texture;
-
-   unsigned nvertexes;
-   if( side || bottom ) {
-      nvertexes = 1 + m_cone_precision;
-
-      cone_vertexes.reset( new Vector[nvertexes] );
-      cone_normals.reset( new Vector[m_cone_precision + 1] );
-      cone_texture.reset( new Vector[m_cone_precision + 1] );
-
-      cone_vertexes[0]( 0, height/2.0f, 0 );
-
-      FT alpha = FT(Math::PI * 2.0 / m_cone_precision);
-
-      dgd_echo( dgd_expand(alpha) << std::endl );
-
-      for( unsigned i = 1; i < nvertexes; ++i ) {
-	 FT angle = (i-1) * alpha - FT(Math::PI / 2.0);
-	 
-	 cone_vertexes[i]( radius * (FT)cos( angle ), 
-			   -height / 2.0, 
-			   radius * (FT)sin( angle ) );
-
-	 cone_normals[i]( cone_vertexes[i].x(), 
-			  radius * radius / height, 
-			  cone_vertexes[i].z() ).normalize().cartesian();
-
-	 dgd_echo( dgd_expand(i) << std::endl
-		   << dgd_expand(angle) << std::endl
-		   << dgd_expand(cone_vertexes[i]) << std::endl
-		   << dgd_expand(cone_normals[i]) << std::endl );
-      }
-
-      for( unsigned i = 0; i < m_cone_precision+1; ++i ) {
-	 cone_texture[i]( 1 - FT(i) / FT(m_cone_precision), 0, 0 );
-	 dgd_echo( dgd_expand(cone_texture[i]) << std::endl );
-      }
-   }
-
-   glPushAttrib( GL_ENABLE_BIT | GL_POLYGON_BIT );
-   if( !bottom || !side ) glDisable( GL_CULL_FACE );
-
-   if( side ) {
-      glBegin( GL_TRIANGLES );
-      for( unsigned i = 1; i < nvertexes; ++i ) {
-	 unsigned next = 1 + i%(nvertexes-1);
-	 glNormal3fv( (cone_normals[next] + 
-		       cone_normals[i]).normalize().cartesian()  );
-	 glTexCoord2fv( Math::median( cone_texture[i], cone_texture[i-1] ) + 
-			Vector( 0, 1, 0 ) );
-	 glVertex3fv( cone_vertexes[0] );
-
-	 glNormal3fv( cone_normals[next] );
-	 glTexCoord2fv( cone_texture[i] );
-	 glVertex3fv( cone_vertexes[next] );
-
-	 glNormal3fv( cone_normals[i] );
-	 glTexCoord2fv( cone_texture[i-1] );
-	 glVertex3fv( cone_vertexes[i] );
-      }
-      glEnd();
-   }
-
-   if( bottom ) {
-      glBegin( GL_TRIANGLE_FAN );
-      glNormal3f( 0, -1, 0 );
-      for( unsigned i = 1; i < nvertexes; ++i ) {
-	 Vector tex_coord = 
-	    (cone_vertexes[i] + Vector( radius, radius, radius )) *
-	    ( 0.5f/radius );
-	 glTexCoord2f( tex_coord.x(), tex_coord.z() );
-	 glVertex3fv( cone_vertexes[i] );
-      }
-      glEnd();
-   }
-
-   glPopAttrib();
-
-   undo_local_transform();
-
+   object_t rc = insert_cyllindric_object( height, radius, m_cone_precision,
+					   false, bottom, side,
+					   true );
    dgd_end_scope( canvas );
-   return NULL;
+   return rc;
 }
-
 
 CrVRMLControl::object_t 
 CrVRMLControl::insert_cylinder( float height, float radius, 
 			       bool bottom, bool side, bool top) {
-   return NULL;
+   dgd_start_scope( canvas, "CrVRMLControl::insert_cylinder()" );
+
+   object_t rc = insert_cyllindric_object( height, radius, m_cylinder_precision,
+					   top, bottom, side,
+					   false );
+
+   dgd_end_scope( canvas );
+   return rc;
 }
 
 
