@@ -57,7 +57,7 @@ CrVRMLControl::CrVRMLControl( openvrml::browser & b ):
    m_permanent_rotation(false),
    m_cone_precision(32),
    m_cylinder_precision(32),
-   m_sphere_precision(12) {   
+   m_sphere_precision(32) {   
    m_clear_color[0] = m_clear_color[1] = m_clear_color[2] = 0;
 }
 
@@ -224,14 +224,14 @@ CrVRMLControl::object_t CrVRMLControl::insert_box(const openvrml::vec3f & size) 
 }
 
 void 
-CrVRMLControl::generate_cyllindric_arrays( const float                 height, 
-					   const float                 radius, 
-					   const unsigned              precision,
-					   boost::shared_array<Vector>& vertexes,
-					   boost::shared_array<Vector>& normals,
-					   boost::shared_array<Vector>& texture,
-					   const bool                   is_cone )
-{
+CrVRMLControl::generate_cyllindric_arrays( 
+   const float                 height, 
+   const float                 radius, 
+   const unsigned              precision,
+   boost::shared_array<Vector>& vertexes,
+   boost::shared_array<Vector>& normals,
+   boost::shared_array<Vector>& texture,
+   const bool                   is_cone ) {
    dgd_start_scope( canvas, "CrVRMLControl::generate_cyllindric_arrays()" );
    // precision is a number of vertices on the bound
    // the last vertex on the cone/cylinder bound is virtually split 
@@ -501,6 +501,12 @@ CrVRMLControl::object_t CrVRMLControl::insert_sphere(float radius) {
    
    apply_local_transform();
 
+   GLuint glid = 0;
+
+   if( this->m_select_mode == draw_mode ) {
+      glid = glGenLists(1);
+      glNewList(glid, GL_COMPILE_AND_EXECUTE);
+   }
 
    boost::shared_array<Vector> vertexes;
    boost::shared_array<Vector> normals;
@@ -535,12 +541,122 @@ CrVRMLControl::object_t CrVRMLControl::insert_sphere(float radius) {
    glDisableClientState( GL_NORMAL_ARRAY );
    glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 
+   if (glid) { glEndList(); }
+
    undo_local_transform();
       
    dgd_end_scope( canvas );
-   return NULL;
+   return object_t(glid);
 }
 
+
+void 
+CrVRMLControl::generate_elevation_arrays( 
+   unsigned int                        mask,
+   const std::vector<float>&           height,
+   openvrml::int32                     x_dimension, 
+   openvrml::int32                     z_dimension,
+   float                               x_spacing, 
+   float                               z_spacing,
+   const std::vector<openvrml::color>& color,
+   const std::vector<openvrml::vec3f>& normal,
+   const std::vector<openvrml::vec2f>& tc,
+   boost::shared_array<Vector>&        vertexes,
+   boost::shared_array<Vector>&        normals,
+   boost::shared_array<Vector>&        texture,
+   boost::shared_array<Vector>&        colors ) {
+   dgd_start_scope( canvas, "CrVRMLControl::generate_elevation_arrays()" );
+
+   unsigned int nvertexes = x_dimension * z_dimension;
+   unsigned int nfacets   = (x_dimension-1) * (z_dimension-1);
+
+   vertexes.reset( new Vector[4 * nfacets] );
+   normals.reset( new Vector[4 * nfacets] );
+   texture.reset( new Vector[4 * nfacets] );
+   if( color.size() > 0 )
+      colors.reset( new Vector[4 * nfacets] );
+
+   for( unsigned int j = 0; j < (unsigned int)z_dimension-1; ++j ) {
+      for( unsigned int i = 0; i < (unsigned int)x_dimension-1; ++i ) {
+	 unsigned int facet = j * ( x_dimension-1 ) + i;
+	 unsigned int index = 4 * facet;
+	 unsigned int vindex[4] = { facet + j, 
+				    facet + j + x_dimension,
+				    facet + j + x_dimension + 1, 
+				    facet + j + 1 };
+
+	 vertexes[index+0]( i * x_spacing, height[vindex[0]], j*z_spacing);
+	 vertexes[index+1]( i * x_spacing, height[vindex[1]], (j+1)*z_spacing);
+	 vertexes[index+2]((i+1)*x_spacing, height[vindex[2]],(j+1)*z_spacing);
+	 vertexes[index+3]( (i+1)*x_spacing, height[vindex[3]], j*z_spacing);
+	 
+	 dgd_echo( "{" << DGD::dgd 
+		   <<  vertexes[index+0] << " " << DGD::dgd
+		   <<  vertexes[index+1] << " " << DGD::dgd
+		   <<  vertexes[index+2] << " " << DGD::dgd
+		   <<  vertexes[index+3] << "}" << std::endl );
+
+	 if( normal.size() > 0 ) {
+	    for( int k = 0; k < 4; ++k ) {
+	       unsigned int n = 
+		  ( (mask & mask_normal_per_vertex) == 0 ) ? facet : vindex[k];
+	       normals[index+k](normal[n].x(), normal[n].y(), normal[n].z());
+	    }
+	 } else {
+	    for( int k = 0; k < 4; ++k ) {
+	       Vector a = vertexes[index+(k+1)%4] - vertexes[index+k];
+	       Vector b = vertexes[index+(k+3)%4] - vertexes[index+k];
+	       normals[index+k] = Math::cross(a,b).normalize().cartesian();
+		if( (mask & mask_ccw ) == 0 ) 
+		   normals[index+k] = -normals[index+k];
+	    }
+	 }
+
+	 dgd_echo( "{" << DGD::dgd 
+		   <<  normals[index+0] << " " << DGD::dgd
+		   <<  normals[index+1] << " " << DGD::dgd
+		   <<  normals[index+2] << " " << DGD::dgd
+		   <<  normals[index+3] << "}" << std::endl );
+
+
+	 if( tc.size() > 0 ) {
+	    for( int k = 0; k < 4; ++k ) {
+	       unsigned int n = vindex[k];
+	       texture[index+k](tc[n].x(), tc[n].y(), 0);
+	    }
+	 } else {
+	    for( int k = 0; k < 4; ++k ) {
+	       texture[index+k]( FT(vindex[k] % x_dimension) / FT(x_dimension),
+				 FT(vindex[k] / x_dimension) / FT(x_dimension),
+				 0 );
+	    }
+	 }
+
+	 dgd_echo( "{" << DGD::dgd 
+		   <<  texture[index+0] << " " << DGD::dgd
+		   <<  texture[index+1] << " " << DGD::dgd
+		   <<  texture[index+2] << " " << DGD::dgd
+		   <<  texture[index+3] << "}" << std::endl );
+
+	 if( color.size() > 0 ) {
+	    for( int k = 0; k < 4; ++k ) {
+	       unsigned int n = 
+		  ( (mask & mask_color_per_vertex) == 0 ) ? facet : vindex[k];
+	       colors[index+k](color[n].r(), color[n].g(), color[n].b()); 
+	    }	    
+	    dgd_echo( "{" << DGD::dgd 
+		      <<  colors[index+0] << " " << DGD::dgd
+		      <<  colors[index+1] << " " << DGD::dgd
+		      <<  colors[index+2] << " " << DGD::dgd
+		      <<  colors[index+3] << "}" << std::endl );
+
+	 }
+      }
+   }
+
+   dgd_end_scope( canvas );
+}
+   
 
 CrVRMLControl::object_t 
 CrVRMLControl::insert_elevation_grid( 
@@ -553,7 +669,64 @@ CrVRMLControl::insert_elevation_grid(
    const std::vector<openvrml::color>& color,
    const std::vector<openvrml::vec3f>& normal,
    const std::vector<openvrml::vec2f>& tc) {
-   return NULL;
+   dgd_start_scope( canvas, "CrVRMLControl::insert_elevation_grid()" );
+   
+   apply_local_transform();
+
+   GLuint glid = 0;
+
+   if( this->m_select_mode == draw_mode ) {
+      glid = glGenLists(1);
+      glNewList(glid, GL_COMPILE_AND_EXECUTE);
+   }
+
+   boost::shared_array<Vector> vertexes;
+   boost::shared_array<Vector> normals;
+   boost::shared_array<Vector> texture;
+   boost::shared_array<Vector> colors;
+
+   generate_elevation_arrays( mask, height, 
+			      x_dimension, z_dimension,
+			      x_spacing, z_spacing,
+			      color, normal, tc,
+			      vertexes, normals, texture, colors );
+
+   glPushAttrib( GL_ENABLE_BIT | GL_POLYGON_BIT );
+   if( (mask & mask_solid) == 0 ) glDisable( GL_CULL_FACE );
+
+   glEnableClientState( GL_VERTEX_ARRAY );
+   glEnableClientState( GL_NORMAL_ARRAY );
+   glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+   if( colors.get() ) 
+      glEnableClientState( GL_COLOR_ARRAY );
+
+   /**
+    * @note Passing pointer to array of objects to glVertexPointer() 
+    * is potentially dangerous and compiler-dependent. More over,
+    * it wouldn't work if Vector have virtual methods. 
+    */
+   glVertexPointer( 3, GL_FLOAT, sizeof(Vector), vertexes.get() );
+   glNormalPointer( GL_FLOAT, sizeof(Vector), normals.get() );
+   glTexCoordPointer( 2, GL_FLOAT, sizeof(Vector), texture.get() );
+   if( colors.get() ) 
+      glColorPointer( 3, GL_FLOAT, sizeof(Vector), colors.get() );
+
+   glDrawArrays( GL_QUADS, 0, 4 * (x_dimension-1) * (z_dimension-1) );
+
+   glDisableClientState( GL_VERTEX_ARRAY );
+   glDisableClientState( GL_NORMAL_ARRAY );
+   glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+   if( colors.get() ) 
+      glDisableClientState( GL_COLOR_ARRAY );
+
+   glPopAttrib();
+
+   if (glid) { glEndList(); }
+
+   undo_local_transform();
+      
+   dgd_end_scope( canvas );
+   return object_t(glid);
 }
 
 

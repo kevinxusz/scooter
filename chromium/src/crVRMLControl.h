@@ -312,6 +312,23 @@ class CrVRMLControl:  public openvrml::viewer {
 				    boost::shared_array<Vector>&   normals,
 				    boost::shared_array<Vector>&   texture,
 				    boost::shared_array<unsigned>& indices );
+
+      void generate_elevation_arrays( unsigned int                      mask,
+				      const std::vector<float>&         height,
+				      openvrml::int32              x_dimension,
+				      openvrml::int32              z_dimension,
+				      float                        x_spacing, 
+				      float                        z_spacing,
+				      const 
+				      std::vector<openvrml::color>& color,
+				      const 
+				      std::vector<openvrml::vec3f>& normal,
+				      const 
+				      std::vector<openvrml::vec2f>& tc,
+				      boost::shared_array<Vector>&    vertexes,
+				      boost::shared_array<Vector>&    normals,
+				      boost::shared_array<Vector>&    texture,
+				      boost::shared_array<Vector>&    colors );
    private:
       bool m_initialized;
       bool m_enable_face_culling;
