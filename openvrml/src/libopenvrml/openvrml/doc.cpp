@@ -433,8 +433,10 @@ bool doc::filename(char * fn, int nfn)
 
 #ifdef _WIN32
   // Does not like "//C:" skip "// "
-   if(s)
-	   if(strlen(s)>2 && s[0] == '/' && s[1] == '/')s=s+2;
+  int nslashes = 0;
+  while( s && *(s+nslashes) == '/' ) nslashes++;
+  if(nslashes >= 2) 
+      s += nslashes;
 #endif
 
   if (s)
