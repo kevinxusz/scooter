@@ -90,6 +90,9 @@ CrVRMLControl::begin_object( const char* id, bool retain ) {
       if( m_light_info[i].m_type == LightInfo::LIGHT_DIRECTIONAL)
 	 ++m_light_info[i].m_nesting_level;
 
+   m_transform_stack.push_back( Matrix() );
+   glGetFloatv( GL_MODELVIEW_MATRIX, m_transform_stack.back() );
+
    dgd_end_scope( canvas );
    return NULL;
 }
@@ -117,6 +120,9 @@ void CrVRMLControl::end_object() {
       }
    }
 
+   glLoadMatrixf( m_transform_stack.back() );
+   m_transform_stack.pop_back();
+      
    dgd_end_scope( canvas );
 }
 
@@ -756,13 +762,12 @@ void CrVRMLControl::set_viewpoint(const openvrml::vec3f&    position,
 		    orientation[2], orientation[3] );
 
    bool scene_centering = m_enable_scene_centering;
+   Vector scene_center;
+   float scene_max_size = 0;
 
    dgd_echo( dgd_expand(scene_centering) << std::endl );
 
-   if( scene_centering ) {
-      Vector scene_center;
-      float scene_max_size;
-      
+   if( scene_centering ) {      
       if( get_scene_bounds( scene_center, scene_max_size ) ) {
 	 scene_max_size *= 2.0f;
 	 fow = 45; // degrees
@@ -783,7 +788,7 @@ void CrVRMLControl::set_viewpoint(const openvrml::vec3f&    position,
 
 	 v_pos = Vector( scene_center[0], 
 			 scene_center[1], 
-			 scene_center[2] + d );
+			 scene_center[2] + scene_max_size / 2.0 + d );
 
 	 dgd_echo( dgd_expand(v_pos) << std::endl );
 	 
@@ -837,8 +842,6 @@ void CrVRMLControl::set_viewpoint(const openvrml::vec3f&    position,
    glLoadIdentity();
 
    dgd_echo( dgd_expand(m_view_transform) << std::endl );
-
-
    dgd_end_scope( canvas );
 }
 

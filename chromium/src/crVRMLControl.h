@@ -27,6 +27,8 @@
 #ifndef _crVRMLControl_h_
 #define _crVRMLControl_h_
 
+#include <list>
+
 #include <boost/smart_ptr.hpp>
 
 #include <wx/glcanvas.h>
@@ -112,6 +114,8 @@ class CrVRMLControl:  public openvrml::viewer {
       };
 
       typedef boost::shared_ptr<wxTimer> wxTimerPtr;
+
+      typedef std::list<Matrix> TransformStack;
 
    public:
 
@@ -322,6 +326,8 @@ class CrVRMLControl:  public openvrml::viewer {
       wxTimerPtr  m_permanent_rotation_timer;
       
       float m_clear_color[3];
+
+      TransformStack m_transform_stack;
 };
 
 #endif /* _crVRMLControl_h_ */

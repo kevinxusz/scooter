@@ -59,6 +59,8 @@ namespace openvrml {
     class bounding_sphere : public bounding_volume {
         vec3f center_;
         float radius_;
+        vec3f top_;
+        vec3f bottom_;
 
     public:
         bounding_sphere();

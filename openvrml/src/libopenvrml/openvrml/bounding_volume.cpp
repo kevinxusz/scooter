@@ -267,6 +267,7 @@ bounding_sphere::intersect_frustum(const openvrml::frustum & frustum) const
 
     bounding_volume::intersection code = bounding_volume::inside;
 
+    return code;
     //
     // Quick test against near/far planes since we know in the VRML97
     // viewing case they are parallel to the xy-plane. (VRML97 restricts
@@ -342,53 +343,35 @@ void bounding_sphere::extend(const bounding_volume & bv)
 void bounding_sphere::extend(const vec3f & p)
 {
     using openvrml_::fequal;
-
+    
     if (this->maximized()) { return; }
-
+    
     // if this bsphere isn't set yet, then just do an assign. what's it
     // mean to have a zero radius bsphere? is that going to mess
     // anything up (iow, do we ever divide by radius?)
     //
     if (this->radius_ == -1.0f) { // flag, not comparison
-        this->radius_ = 0.0f;
+        this->radius_ = 0.00000001f;
         this->center_ = p;
+        this->top_    = p;
+        this->bottom_ = p;
         return;
     }
+    
+    if( this->top_[0] < p[0] ) this->top_[0] = p[0];
+    if( this->bottom_[0] > p[0] ) this->bottom_[0] = p[0];
 
-    // you know, we could probably just call extend(sphere) with a
-    // radius of zero and it would work out the same.
+    if( this->top_[1] < p[1] ) this->top_[1] = p[1];
+    if( this->bottom_[1] > p[1] ) this->bottom_[1] = p[1];
 
-    float x0 = this->center_.x();
-    float y0 = this->center_.y();
-    float z0 = this->center_.z();
-    float r0 = this->radius_;
+    if( this->top_[2] < p[2] ) this->top_[2] = p[2];
+    if( this->bottom_[2] > p[2] ) this->bottom_[2] = p[2];
+    
+    vec3f sum = this->top_ + this->bottom_;
+    sum *= 0.5f;
+    this->center_ = sum;
 
-    float x1 = p.x();
-    float y1 = p.y();
-    float z1 = p.z();
-
-    float xn = x1 - x0;
-    float yn = y1 - y0;
-    float zn = z1 - z0;
-    float dn = float(sqrt(xn * xn + yn * yn + zn * zn));
-
-    if (fequal<float>()(dn, 0.0f)) { return; }
-
-    if (dn < r0) {
-        // point is inside sphere
-        return;
-    }
-
-    float cr = float((dn + r0) / 2.0);
-    float tmp = (cr - r0) / dn;
-    float cx = x0 + xn * tmp;
-    float cy = y0 + yn * tmp;
-    float cz = z0 + zn * tmp;
-
-    this->radius_ = cr;
-    this->center_.x(cx);
-    this->center_.y(cy);
-    this->center_.z(cz);
+    this->radius_ = (this->top_ - this->bottom_).length() / 2.0f;
 }
 
 /**
@@ -429,42 +412,8 @@ void bounding_sphere::extend(const bounding_sphere & b)
         return;
     }
 
-    // s0 = ((x0,y0,z0),r0)
-    // s1 = ((x1,y1,z1),r1)
-
-    float x0 = this->center_.x();
-    float y0 = this->center_.y();
-    float z0 = this->center_.z();
-    float r0 = this->radius_;
-
-    float x1 = b.center_.x();
-    float y1 = b.center_.y();
-    float z1 = b.center_.z();
-    float r1 = b.radius_;
-
-    float xn = x1 - x0;
-    float yn = y1 - y0;
-    float zn = z1 - z0;
-    float dn = float(sqrt(xn * xn + yn * yn + zn * zn));
-
-    if (fequal<float>()(dn, 0.0f)) { return; }
-
-    if (dn + r1 < r0) { // inside us, so no change
-        return;
-    }
-    if (dn + r0 < r1) { // we're inside them...
-        *this = b;
-        return;
-    }
-
-    float cr = float((dn + r0 + r1) / 2.0);
-    float tmp = (cr - r0) / dn;
-    float cx = x0 + xn * tmp;
-    float cy = y0 + yn * tmp;
-    float cz = z0 + zn * tmp;
-
-    this->radius_ = cr;
-    this->center_ = vec3f(cx, cy, cz);
+    this->extend( b.top_ );
+    this->extend( b.bottom_ );
 }
 
 /**
@@ -476,67 +425,10 @@ void bounding_sphere::extend(const bounding_sphere & b)
  */
 void bounding_sphere::enclose(const std::vector<vec3f> & points)
 {
-    // doing an extend() for each point is ok, but there are
-    // faster algorithms reference "An Efficient Bounding Sphere"
-    // Graphics Gems pg 301. it depends on being able to make multiple
-    // passes over the points, so it isn't appropriate for incremental
-    // updates, but it would be good here...
-    // for(int i=0; i<n; ++i)
-    // this->extend(&p[i]);
-    //
+    this->radius_ = -1;
 
-    *this = bounding_sphere();
-
-    if (points.size() < 1) { return; }
-
-    const vec3f * min_p[3] = { &points[0], &points[0], &points[0] };
-    const vec3f * max_p[3] = { &points[0], &points[0], &points[0] };
-
-    //
-    // Find the 6 points with: minx, maxx, miny, maxy, minz, maxz.
-    //
-    size_t i;
-    for (i = 1; i < points.size(); ++i) {
-        const vec3f & pi = points[i];
-        if (pi.x() < min_p[0]->x()) { min_p[0] = &pi; }
-        if (pi.y() < min_p[1]->y()) { min_p[1] = &pi; }
-        if (pi.z() < min_p[2]->z()) { min_p[2] = &pi; }
-
-        if (pi.x() > max_p[0]->x()) { max_p[0] = &pi; }
-        if (pi.y() > max_p[1]->y()) { max_p[1] = &pi; }
-        if (pi.z() > max_p[2]->z()) { max_p[2] = &pi; }
-    }
-
-    //
-    // Pick the two points most distant from one another.
-    //
-    vec3f span;
-    span = *max_p[0] - *min_p[0];
-    float dx = span.dot(span);
-    span = *max_p[1] - *min_p[1];
-    float dy = span.dot(span);
-    span = *max_p[2] - *min_p[2];
-    float dz = span.dot(span);
-
-    const vec3f * max_span0 = min_p[0];
-    const vec3f * max_span1 = max_p[0];
-    float max_span_dist = dx;
-    if (dy > max_span_dist) {
-        max_span0 = min_p[1];
-        max_span1 = max_p[1];
-        max_span_dist = dy;
-    }
-    if (dz > max_span_dist) {
-        max_span0 = min_p[2];
-        max_span1 = max_p[2];
-        max_span_dist = dz;
-    }
-
-    this->center_ = (*max_span0 + *max_span1) / 2.0;
-
-    this->radius_ = float(sqrt(this->center_.dot(this->center_)));
-
-    for (i = 0; i < points.size(); ++i) { this->extend(points[i]); }
+    for( unsigned int i = 0; i < points.size(); ++i )
+        this->extend( points[i] );
 }
 
 /**
@@ -556,7 +448,10 @@ const vec3f & bounding_sphere::center() const
  */
 void bounding_sphere::center(const vec3f & c)
 {
+    vec3f d = c - this->center_;
     this->center_ = c;
+    this->top_ += d;
+    this->bottom_ += d;
 }
 
 /**
@@ -577,6 +472,10 @@ float bounding_sphere::radius() const
 void bounding_sphere::radius(const float r)
 {
     this->radius_ = r;
+    const double sqrt2 = 1.41421356237309;
+    float d = r / sqrt2;
+    this->top_ = this->center_ + vec3f( d, d, d );
+    this->bottom_ = this->center_ - vec3f( d, d, d );
 }
 
 /**
@@ -612,6 +511,8 @@ void bounding_sphere::ortho_transform(const mat4f & t)
     // ortho is easy: since we know it's uniform scaling, we can just
     // scale the radius and translate the center, and we're done.
     this->center_ *= t;
+    this->top_ *= t;
+    this->bottom_ *= t;
 
     // uniform scale means we can pick any of the scale elements? wait:
     // can we really do this?
@@ -627,21 +528,14 @@ void bounding_sphere::transform(const mat4f & t)
 {
     if (this->maximized()) { return; }
     if (this->radius_ == -1) { return; }
-    this->center_ *= t;
+    this->top_ *= t;
+    this->bottom_ *= t;
 
-    vec3f x_scale_v(t[0][0], t[1][0], t[2][0]);
-    vec3f y_scale_v(t[0][1], t[1][1], t[2][1]);
-    vec3f z_scale_v(t[0][2], t[1][2], t[2][2]);
+    vec3f sum = this->top_ + this->bottom_;
+    sum *= 0.5f;
+    this->center_ = sum;
 
-    float scale_x = x_scale_v.length();
-    float scale_y = y_scale_v.length();
-    float scale_z = z_scale_v.length();
-
-    float max_scale = scale_x;
-    if (scale_y > max_scale) { max_scale = scale_y; }
-    if (scale_z > max_scale) { max_scale = scale_z; }
-
-    this->radius_ *= max_scale;
+    this->radius_ = (this->top_ - this->bottom_).length() / 2.0f;    
 }
 
 
