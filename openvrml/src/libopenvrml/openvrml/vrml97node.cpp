@@ -8190,7 +8190,37 @@ indexed_line_set_node::insert_geometry(openvrml::viewer & viewer,
     return obj;
 }
 
+/**
+ * @brief Recalculate the bounding volume.
+ */
+void indexed_line_set_node::recalcBSphere()
+{
+    this->bsphere = bounding_sphere();
+    openvrml::coordinate_node * const coordinateNode = this->coord.value
+        ? this->coord.value->to_coordinate()
+        : 0;
+    if (coordinateNode) {
+        const std::vector<vec3f> & coord = coordinateNode->point();
+        for(std::vector<vec3f>::const_iterator vec(coord.begin());
+                vec != coord.end(); ++vec) {
+            this->bsphere.extend(*vec);
+        }
+    }
+    this->bounding_volume_dirty(false);
+}
 
+/**
+ * @brief Get the bounding volume.
+ *
+ * @return the bounding volume associated with the node.
+ */
+const bounding_volume & indexed_line_set_node::bounding_volume() const
+{
+    if (this->bounding_volume_dirty()) {
+        const_cast<indexed_line_set_node *>(this)->recalcBSphere();
+    }
+    return this->bsphere;
+}
 /**
  * @class inline_class
  *

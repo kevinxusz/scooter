@@ -1260,6 +1260,10 @@ namespace openvrml {
             virtual viewer::object_t
             insert_geometry(openvrml::viewer & viewer,
                             rendering_context context);
+            virtual const openvrml::bounding_volume & bounding_volume() const;
+          private:
+             void recalcBSphere();
+             bounding_sphere bsphere;
         };
 
 

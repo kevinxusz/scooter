@@ -740,6 +740,117 @@ CrVRMLControl::insert_extrusion(
    return NULL;
 }
 
+void 
+CrVRMLControl::generate_line_arrays( 
+   const std::vector<openvrml::vec3f>& coord,
+   const std::vector<openvrml::int32>& coord_index,
+   bool                                color_per_vertex,
+   const std::vector<openvrml::color>& color,
+   const std::vector<openvrml::int32>& color_index,
+   unsigned int&                       nvertexes,
+   unsigned int&                       nstrips,
+   boost::shared_array<Vector>&        vertexes,
+   boost::shared_array<Vector>&        normals,
+   boost::shared_array<Vector>&        colors,
+   boost::shared_array<unsigned int>&  indexes ) {
+   dgd_start_scope( canvas, "CrVRMLControl::generate_line_arrays()" );
+
+   nvertexes = 0;
+   nstrips = 0;
+   unsigned int i,facet;
+   std::vector<openvrml::int32>::const_iterator iter;
+
+   for( iter = coord_index.begin(); iter != coord_index.end(); ++iter )
+      if( *iter >= 0 )
+	 nvertexes++;
+      else 
+	 nstrips++;
+   if( nvertexes > 0 && nstrips == 0 ) nstrips = 1 ;
+
+   dgd_echo( dgd_expand(nvertexes) << std::endl
+	     << dgd_expand(nstrips) << std::endl );
+
+   vertexes.reset( new Vector[nvertexes] );
+   normals.reset( new Vector[nvertexes] );
+   if( !color.empty() )
+      colors.reset( new Vector[nvertexes] );
+   indexes.reset( new unsigned int[ nstrips ] );
+
+   i = 0;
+   facet = 0;
+   for( iter = coord_index.begin(); iter != coord_index.end(); ++iter ) {
+      unsigned int index = std::distance( coord_index.begin(), iter );
+
+      dgd_echo( dgd_expand(index) << std::endl 
+		<< dgd_expand(*iter) << std::endl 
+		<< dgd_expand(i) << std::endl );
+
+      if( *iter >= 0 ) {	 
+	 vertexes[i]( coord[*iter].x(), coord[*iter].y(), coord[*iter].z() );
+	 dgd_echo( dgd_expand(vertexes[i]) << std::endl );
+	 if( !color.empty() ) {
+	    unsigned int idx;
+	    if( color_per_vertex ) 
+	       idx = (!color_index.empty()) ? color_index[index] : *iter;
+	    else 
+	       idx = (!color_index.empty()) ? color_index[facet] : index;
+
+	    colors[i]( color[ idx ].r(), color[ idx ].g(), color[ idx ].b() );
+	    dgd_echo( dgd_expand(colors[i]) << std::endl
+		      << dgd_expand(idx) << std::endl );
+	 }
+	 i++;
+      } else {
+	 indexes[facet++] = i;
+      }
+   }
+
+   if( i > 0 && facet == 0 ) indexes[facet++] = i;
+
+   unsigned int index = 0;
+   for( facet = 0; facet < nstrips; ++facet ) {
+      unsigned int begin = index;
+      unsigned int end = indexes[facet];
+
+      dgd_echo( dgd_expand(begin) << std::endl
+		<< dgd_expand(end) << std::endl );
+
+      while( index < end ) {
+	 unsigned int i0 = index, 
+		      i1 = index+1, 
+		      i2 = index+2;
+
+	 dgd_echo( dgd_expand(i0) << std::endl
+		   << dgd_expand(i1) << std::endl
+		   << dgd_expand(i2) << std::endl );
+	 
+	 if( i1 >= end || i2 >= end )
+	    break;
+
+	 if( i0 == begin )
+	    normals[i0] = 
+	       ((vertexes[i0]-vertexes[i1])+
+		(vertexes[i0]-vertexes[i2])).normalize().cartesian();
+
+	 normals[i1] = 
+	    ((vertexes[i1]-vertexes[i0])+
+	     (vertexes[i1]-vertexes[i2])).normalize().cartesian();
+	 
+	 if( i2 == end )
+	    normals[i2] = 
+	       ((vertexes[i2]-vertexes[i0])+
+		(vertexes[i2]-vertexes[i2])).normalize().cartesian();
+
+	  dgd_echo( dgd_expand(normals[i0]) << std::endl
+		    << dgd_expand(normals[i1]) << std::endl
+		    << dgd_expand(normals[i2]) << std::endl );
+
+	 index++;
+      }
+   }
+
+   dgd_end_scope( canvas );
+}
 
 CrVRMLControl::object_t 
 CrVRMLControl::insert_line_set( 
@@ -748,7 +859,61 @@ CrVRMLControl::insert_line_set(
    bool                                color_per_vertex,
    const std::vector<openvrml::color>& color,
    const std::vector<openvrml::int32>& color_index) {
-   return NULL;
+   dgd_start_scope( canvas, "CrVRMLControl::insert_line_set()" );
+   
+   apply_local_transform();
+
+   GLuint glid = 0;
+
+   if( this->m_select_mode == draw_mode ) {
+      glid = glGenLists(1);
+      glNewList(glid, GL_COMPILE_AND_EXECUTE);
+   }
+
+   boost::shared_array<Vector> vertexes;
+   boost::shared_array<Vector> normals;
+   boost::shared_array<Vector> colors;
+   boost::shared_array<unsigned int> indexes;
+   unsigned int nvertexes, nstrips;
+
+   generate_line_arrays( coord, coord_index, 
+			 color_per_vertex, 
+			 color, color_index,
+			 nvertexes, nstrips,
+			 vertexes, normals, colors, indexes );
+
+   glEnableClientState( GL_VERTEX_ARRAY );
+   glEnableClientState( GL_NORMAL_ARRAY );
+   if( colors.get() ) 
+      glEnableClientState( GL_COLOR_ARRAY );
+
+   /**
+    * @note Passing pointer to array of objects to glVertexPointer() 
+    * is potentially dangerous and compiler-dependent. More over,
+    * it wouldn't work if Vector have virtual methods. 
+    */
+   glVertexPointer( 3, GL_FLOAT, sizeof(Vector), vertexes.get() );
+   glNormalPointer( GL_FLOAT, sizeof(Vector), normals.get() );
+   if( colors.get() ) 
+      glColorPointer( 3, GL_FLOAT, sizeof(Vector), colors.get() );
+
+   unsigned int index = 0;
+   for( unsigned int facet = 0; facet < nstrips; ++facet ) {
+      glDrawArrays( GL_LINE_STRIP, index, indexes[facet]-index );
+      index = indexes[facet];
+   }
+
+   glDisableClientState( GL_VERTEX_ARRAY );
+   glDisableClientState( GL_NORMAL_ARRAY );
+   if( colors.get() ) 
+      glDisableClientState( GL_COLOR_ARRAY );
+
+   if (glid) { glEndList(); }
+
+   undo_local_transform();
+      
+   dgd_end_scope( canvas );
+   return object_t(glid);
 }
 
 
