@@ -69,7 +69,8 @@ Install $buildenv "$BLIB/include",
 		       dgFunnel.h
 		       dgMultifileLog.h
 		       dgOptionFilter.h
-		       dgStream.h ) );
+		       dgStream.h
+		       dgBoost.h ) );
 
 Install $buildenv "$BLIB/lib", $TARGET;
 
