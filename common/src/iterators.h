@@ -55,7 +55,8 @@ class circulator :
       circulator begin() const { return circulator(m_begin,m_end); }
       circulator end() const   { 
 	 circulator tmp(m_begin,m_end);
-	 tmp.base_reference() = m_end-1; 
+	 tmp.base_reference() = m_end; 
+	 --tmp.base_reference();
 	 return tmp;
       }
 
@@ -66,7 +67,8 @@ class circulator :
       void advance(difference_type n) {
 	 difference_type size = std::distance( m_begin, m_end );
 	 difference_type d = std::distance( m_begin, this->base() );
-	 this->base_reference() = m_begin + (d + n % size + size) % size;
+	 this->base_reference() = m_begin;
+	 std::advance( this->base_reference() , (d + n % size + size) % size );
       }
       
       void increment() { 
@@ -78,9 +80,54 @@ class circulator :
 	 --this->base_reference();
       }
 
+      difference_type  distance_to( circulator const& y) const {
+	 difference_type size = std::distance( m_begin, m_end );
+	 difference_type d = std::distance( this->base(), y.base() );
+	 return( (d + size) % size );
+      }
+
    private:
       Base_iterator m_begin;
       Base_iterator m_end;
+};
+
+template <class Base_iterator, unsigned int count>
+class sampler :  public boost::iterator_adaptor< sampler<Base_iterator,count>,
+						 Base_iterator > {
+   private:
+
+      friend class boost::iterator_core_access;
+      
+      typedef boost::iterator_adaptor< sampler<Base_iterator,count>, 
+				       Base_iterator > parent_type;
+
+   public:
+      sampler() : parent_type() {}
+
+      sampler( const Base_iterator& base) {
+	 this->base_reference() =  base;
+      }
+
+   private:
+
+      void advance(difference_type n) {
+	 std::advance( this->base_reference(), n * (difference_type)count );
+      }
+      
+      void increment() { 
+	 difference_type c = (difference_type)count;
+	 std::advance( this->base_reference(), c );
+      }
+      void decrement() {
+	 difference_type c = (difference_type)count;
+	 std::advance( this->base_reference(), -c );
+      }
+
+      difference_type  distance_to( sampler const& y) const {
+	 return(std::distance(this->base(),y.base()) / (difference_type)count);
+      }
+
+
 };
 
 }; // end of namespace scooter
