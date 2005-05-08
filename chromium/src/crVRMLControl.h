@@ -27,6 +27,8 @@
 #ifndef _crVRMLControl_h_
 #define _crVRMLControl_h_
 
+#include "crConfig.h"
+
 #include <list>
 
 #include <boost/smart_ptr.hpp>

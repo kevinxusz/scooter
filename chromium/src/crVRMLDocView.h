@@ -27,6 +27,8 @@
 #ifndef _crVRMLDocView_h_
 #define _crVRMLDocView_h_
 
+#include "crConfig.h"
+
 #include <wx/docview.h>
 
 class wxDocMDIChildFrame;

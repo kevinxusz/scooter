@@ -27,6 +27,8 @@
 #ifndef _crVRMLDocument_h_
 #define _crVRMLDocument_h_
 
+#include "crConfig.h"
+
 #include <iostream>
 
 #include <wx/docview.h>
@@ -54,8 +56,8 @@ class CrVRMLDocument: public wxDocument {
       CrVRMLLoader *m_loader_thread;
 
    private:
-      DECLARE_DYNAMIC_CLASS(CrVRMLDocument);     
-      DECLARE_EVENT_TABLE();
+      DECLARE_DYNAMIC_CLASS(CrVRMLDocument)
+      DECLARE_EVENT_TABLE()
 };
 
 #endif /* _crVRMLDocument_h_ */

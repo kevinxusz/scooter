@@ -24,6 +24,8 @@
 // crDebugConsole.cpp -- implementation for crDebugConsole.h
 //
 
+#include "crConfig.h"
+
 #include "crDebugConsole.h"
 #include "crStreamToText.h"
 

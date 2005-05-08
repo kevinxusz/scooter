@@ -27,6 +27,8 @@
 #ifndef _crVRMLCanvas_h_
 #define _crVRMLCanvas_h_
 
+#include "crConfig.h"
+
 #include <boost/smart_ptr.hpp>
 
 #include <wx/glcanvas.h>

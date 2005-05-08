@@ -24,6 +24,8 @@
 // crStreamToText.cpp -- implementation for crStreamToText.h
 //
 
+#include "crConfig.h"
+
 #include <wx/string.h>
 
 #include "crStreamToText.h"

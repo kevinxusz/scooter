@@ -27,6 +27,8 @@
 #ifndef _crMainStatusBar_h_
 #define _crMainStatusBar_h_
 
+#include "crConfig.h"
+
 #include <wx/statusbr.h>
 
 class wxGauge;

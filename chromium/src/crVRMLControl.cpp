@@ -24,6 +24,8 @@
 // crVRMLControl.cpp -- implementation of crVRMLControl.h
 //
 
+#include "crConfig.h"
+
 #include <set>
 #include <map>
 
@@ -95,8 +97,11 @@ CrVRMLControl::begin_object( const char* id, bool retain ) {
    dgd_echo( (id?id:"id=null") << std::endl );
 
    for( int i = 0; i < m_max_lights; ++i )
-      if( m_light_info[i].m_type == LightInfo::LIGHT_DIRECTIONAL)
+      if( m_light_info[i].m_type == LightInfo::LIGHT_DIRECTIONAL) {	 
 	 ++m_light_info[i].m_nesting_level;
+	 dgd_echo( "light " << i << " nesting level increased to " 
+		   << m_light_info[i].m_nesting_level << std::endl );
+      }
 
    m_transform_stack.push_back( Matrix() );
    glGetFloatv( GL_MODELVIEW_MATRIX, m_transform_stack.back() );
@@ -120,6 +125,9 @@ CrVRMLControl::insert_reference( object_t existing_object ) {
 
 
 void CrVRMLControl::remove_object( object_t ref ) {
+   dgd_start_scope( canvas, "CrVRMLControl::remove_object()" );
+   glDeleteLists( (GLuint)ref, 1 );
+   dgd_end_scope( canvas );
 }
 
 
@@ -128,10 +136,14 @@ void CrVRMLControl::end_object() {
 
    for( int i = 0; i < m_max_lights; ++i ) {
       if( m_light_info[i].m_type == LightInfo::LIGHT_DIRECTIONAL ) {
-	 if( --m_light_info[i].m_nesting_level < 0 ) {
+	 m_light_info[i].m_nesting_level--;
+	 dgd_echo( "light " << i << " nesting level decreased to " 
+		   << m_light_info[i].m_nesting_level << std::endl );
+	 if( m_light_info[i].m_nesting_level == 0 ) {
+	    dgd_echo( "disabled light " << DGD::dgd << i << std::endl );
 	    glDisable( (GLenum) (GL_LIGHT0 + i) );
 	    m_light_info[i].m_type = LightInfo::LIGHT_UNUSED;
-	 }
+	 } 
       }
    }
 
@@ -973,7 +985,7 @@ void CrVRMLControl::generate_ifs_arrays(
    boost::shared_array<Vector>&        		   colors,		 
    boost::shared_array<Vector>&        		   texture, 
    std::vector< std::pair< unsigned, unsigned > >& indexes ) {
-   dgd_start_scope( canvas, "CrVRMLControl::generate_ifs_arrays()" );
+   dgd_start_scope( canvas-ifs, "CrVRMLControl::generate_ifs_arrays()" );
 
    typedef std::vector<openvrml::int32>::const_iterator index_const_iterator;
    typedef scooter::circulator<index_const_iterator> index_const_circulator;
@@ -1020,6 +1032,7 @@ void CrVRMLControl::generate_ifs_arrays(
 
 	    rc.first->second +=
 	       Math::cross(c-n, c-p).normalize().cartesian();
+	    rc.first->second.cartesian();
 	 } while( ++facet_turnover != facet_turnover.begin() );
       }
       
@@ -1097,9 +1110,6 @@ void CrVRMLControl::generate_ifs_arrays(
 	       idx = (!normal_index.empty()) ? 
 		     normal_index[facet] : index;
 	    normals[i]( normal[idx].x(), normal[idx].y(), normal[idx].z() );
-
-	    dgd_echo( dgd_expand(normals[i]) << std::endl
-		      << dgd_expand(idx) << std::endl );
 	 } else {
 	    normal_map_type::const_iterator ninfo =
 	       normal_map.find( *facet_turnover );
@@ -1119,6 +1129,8 @@ void CrVRMLControl::generate_ifs_arrays(
 
 	 normals[i].normalize().cartesian();
 
+	 dgd_echo( dgd_expand(normals[i]) << std::endl );
+
 	 if( (mask & mask_ccw) == 0 )
 	    normals[i] = -normals[i];
 
@@ -1126,8 +1138,6 @@ void CrVRMLControl::generate_ifs_arrays(
 	    idx = (!tex_coord_index.empty()) ? 
 		  tex_coord_index[index] :  *facet_turnover;
 	    texture[i]( tex_coord[idx].x(), tex_coord[idx].y(), 0 );
-	    dgd_echo( dgd_expand(texture[i]) << std::endl
-		      << dgd_expand(idx) << std::endl );
 	 } else {
 	    Vector dim = top - bottom;
 	    Vector rel = vertexes[i] - bottom;
@@ -1149,6 +1159,8 @@ void CrVRMLControl::generate_ifs_arrays(
 			0 );
 	 }
 
+	 dgd_echo( dgd_expand(texture[i]) << std::endl );
+
 	 ++i;
 
       } while( ++facet_turnover != facet_turnover.begin() );
@@ -1159,7 +1171,7 @@ void CrVRMLControl::generate_ifs_arrays(
    }
    
 
-   dgd_end_scope( canvas );
+   dgd_end_scope( canvas-ifs );
 }
 
 CrVRMLControl::object_t CrVRMLControl::insert_shell( 

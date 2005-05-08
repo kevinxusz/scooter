@@ -18,23 +18,25 @@
 //
 // This file is a part of the Scooter project. 
 //
-// Copyright (c) 2004. Dimitry Kloper <dimka@cs.technion.ac.il> . 
+// Copyright (c) 2005. Dimitry Kloper <dimka@cs.technion.ac.il> . 
 // Technion, Israel Institute of Technology. Computer Science Department.
 //
-// crEvent.cpp -- implementation for crEvent.h
+// crConfig.h -- configuration macros and common stuff
 //
 
-#include "crConfig.h"
+#ifndef _crConfig_h_
+#define _crConfig_h_
 
-#include "crEvent.h"
+#include <wx/defs.h>
 
-DEFINE_EVENT_TYPE(crEVT_STATUS_PROGRESS);
-DEFINE_EVENT_TYPE(crEVT_LOAD_COMPLETED);
-DEFINE_EVENT_TYPE(crEVT_LOAD_FAILED);
-DEFINE_EVENT_TYPE(crEVT_LOAD_CANCEL);
+#if defined(__WXMSW__) 
+    #include <windows.h>
+    #include <wx/msw/winundef.h>
+#endif
 
-// 
-// crEvent.cpp -- end of file
+#endif /* _crConfig_h_ */
+
 //
-
+// crConfig.h -- end of file
+//
 

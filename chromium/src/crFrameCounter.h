@@ -27,6 +27,8 @@
 #ifndef _crFrameCounter_h_
 #define _crFrameCounter_h_
 
+#include "crConfig.h"
+
 #include <wx/timer.h>
 
 class CrFrameCounter: public wxTimer {

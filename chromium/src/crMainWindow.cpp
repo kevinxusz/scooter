@@ -24,6 +24,8 @@
 // crMainWindow.cpp -- implementation for CrMainWindow.h
 //
 
+#include "crConfig.h"
+
 #include <wx/defs.h>
 #include <wx/icon.h>
 #include <wx/menu.h>

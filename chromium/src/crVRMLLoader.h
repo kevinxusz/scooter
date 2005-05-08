@@ -27,7 +27,8 @@
 #ifndef _crVRMLLoader_h_
 #define _crVRMLLoader_h_
 
-#include <wx/defs.h>
+#include "crConfig.h"
+
 #include <wx/thread.h>
 
 #include <openvrml/browser.h>

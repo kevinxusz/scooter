@@ -24,6 +24,8 @@
 // crVRMLDocView.cpp -- implementation of CrVRMLDocView
 //
 
+#include "crConfig.h"
+
 #include <wx/defs.h>
 #include <wx/docview.h>
 #include <wx/docmdi.h>

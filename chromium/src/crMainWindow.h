@@ -27,6 +27,8 @@
 #ifndef _crMainWindow_h_
 #define _crMainWindow_h_
 
+#include "crConfig.h"
+
 #include <wx/docmdi.h>
 
 class wxMenuBar;

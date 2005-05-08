@@ -28,6 +28,8 @@
 #ifndef _crDebugConsole_h_
 #define _crDebugConsole_h_
 
+#include "crConfig.h"
+
 #include <iostream>
 #include <list>
 

@@ -24,6 +24,8 @@
 // crVRMLDocument.cpp -- implementation of CrVRMLDocument
 //
 
+#include "crConfig.h"
+
 #include <vector>
 #include <string>
 

@@ -27,6 +27,8 @@
 #ifndef _crEvent_h_
 #define _crEvent_h_
 
+#include "crConfig.h"
+
 #include <wx/event.h>
 
 BEGIN_DECLARE_EVENT_TYPES()

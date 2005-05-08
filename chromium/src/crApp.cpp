@@ -24,6 +24,9 @@
 // crApp.cpp -- implementation for crApp.h
 //
 
+#include "crConfig.h"
+
+#include <wx/defs.h>
 #include <wx/docview.h>
 
 #include <dgDebug.h>
@@ -78,6 +81,10 @@ int CrApp::OnExit() {
    return 0;
 }
 
+void CrApp::OnFatalException() {
+    m_dout.reset();
+}
+
 wxDocManager* CrApp::GetDocManager() {
    return m_doc_manager;
 }
@@ -109,9 +116,10 @@ bool CrApp::ParseCmdLine() {
       channel& gui      = m_dout->create_channel( "gui" );
       channel& canvas   = m_dout->create_channel( "canvas" );
       channel& openvrml = m_dout->create_channel( "openvrml" );
-
+      channel& ifs      = m_dout->create_channel( "canvas-ifs" );
       assoc( f.get(), gui );
       assoc( f.get(), canvas );
+      assoc( f.get(), ifs );
       assoc( f.get(), openvrml );
    }
 

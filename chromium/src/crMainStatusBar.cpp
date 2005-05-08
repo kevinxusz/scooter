@@ -24,6 +24,8 @@
 // crMainStatusBar.cpp -- implementation for crMainStatusBar.h
 //
 
+#include "crConfig.h"
+
 #include <wx/event.h>
 #include <wx/gauge.h>
 

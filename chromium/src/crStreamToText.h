@@ -27,6 +27,8 @@
 #ifndef _crStreamToText_h_
 #define _crStreamToText_h_
 
+#include "crConfig.h"
+
 #include <iostream>
 
 #include <wx/textctrl.h>

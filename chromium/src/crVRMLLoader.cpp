@@ -24,6 +24,8 @@
 // crVRMLLoader.cpp -- implementation of crVRMLLoader.h
 //
 
+#include "crConfig.h"
+
 #include <wx/defs.h>
 #include <wx/utils.h>
 #include <wx/file.h>

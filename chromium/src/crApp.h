@@ -27,6 +27,8 @@
 #ifndef _crApp_h_
 #define _crApp_h_
 
+#include "crConfig.h"
+
 #include <wx/app.h>
 
 #include <dgDebug.h>
@@ -42,6 +44,7 @@ class CrApp: public wxApp {
       
       bool OnInit(void);
       int OnExit(void);
+      void OnFatalException();
 
       wxDocManager* GetDocManager();
       CrMainWindow* GetMainWindow();
