@@ -21,13 +21,26 @@
 # Copyright (c) 2004. Dimitry Kloper <dimka@cs.technion.ac.il> . 
 # Technion, Israel Institute of Technology. Computer Science Department.
 #
-# Conscript -- conscript file for tests
+# Conscript -- conscript file for scooter/common
 #
 
-Import qw(BLIB toolset options);
+Import qw(BLIB toolset options );
 
-Build map( "$_/Conscript", 
-	   qw( calculus iterators dcel ) );
+my $ruleset  = $toolset->env();
+
+die if( !defined( $ruleset ) );
+
+our $BUILD      = $toolset->option( 'build' );
+our $buildenv   = new cons( %{$ruleset} );
+
+Link $BUILD => 'src';
+Install $buildenv "$BLIB/include", map( "$BUILD/$_", 
+					qw( dcel.h
+					    dcel_impl.cpp
+					    dcel_trace.h 
+					    dcel_iterator.h ) );    
+
+
 
 #
 # Conscript -- end of file

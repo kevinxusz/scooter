@@ -33,6 +33,7 @@
    can autodetect everything we need if _WIN32 is defined
  */
 #if defined(_WIN32) || defined(WIN32) || defined(__NT__)
+
     #ifndef __WXMSW__
         #define __WXMSW__
     #endif

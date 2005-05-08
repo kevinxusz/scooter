@@ -12868,7 +12868,7 @@ void shape_node::render(openvrml::viewer & viewer, const rendering_context conte
                 }
             } else {
                 viewer.set_color(color(1.0, 1.0, 1.0)); // default object color
-                viewer.enable_lighting(false);  // turn lighting off
+//                viewer.enable_lighting(false);  // turn lighting off
             }
 
             // hack for opengl material mode

@@ -162,6 +162,29 @@ void test_vector() {
 
    dgd_echo( dgd_expand(Math::homogeneus(ft)) << std::endl );
 
+   a( 0.2, 0, 0 );
+   b( 0, 0.2, 0 );
+   c( 0, 0, 0.2 );
+   
+   dgd_echo( dgd_expand(Math::homogeneus(a)) << std::endl 
+	     << dgd_expand(Math::homogeneus(b)) << std::endl 
+	     << dgd_expand(Math::homogeneus(c)) << std::endl );
+
+   a.normalize();
+   b.normalize();
+   c.normalize();
+
+   dgd_echo( dgd_expand(Math::homogeneus(a)) << std::endl 
+	     << dgd_expand(a) << std::endl
+	     << dgd_expand(Math::homogeneus(b)) << std::endl 
+	     << dgd_expand(b) << std::endl
+	     << dgd_expand(Math::homogeneus(c)) << std::endl 
+	     << dgd_expand(c) << std::endl );
+
+   Vector sum = a + b + c;
+   dgd_echo( dgd_expand(Math::homogeneus(sum)) << std::endl 
+	     << dgd_expand(sum) << std::endl );
+
    dgd_end_scope( calc );
 }
 
