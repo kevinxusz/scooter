@@ -36,6 +36,7 @@ BEGIN_DECLARE_EVENT_TYPES()
     DECLARE_EVENT_TYPE(crEVT_LOAD_COMPLETED,  wxID_HIGHEST + 2)
     DECLARE_EVENT_TYPE(crEVT_LOAD_FAILED,     wxID_HIGHEST + 3)
     DECLARE_EVENT_TYPE(crEVT_LOAD_CANCEL,     wxID_HIGHEST + 4)
+    DECLARE_EVENT_TYPE(crEVT_TREE_SELECT,     wxID_HIGHEST + 5)
 END_DECLARE_EVENT_TYPES()
 
 #define EVT_STATUS_PROGRESS( fn )                                          \
@@ -62,6 +63,13 @@ END_DECLARE_EVENT_TYPES()
 #define EVT_LOAD_CANCEL(fn)                                                \
    DECLARE_EVENT_TABLE_ENTRY(	                                           \
       crEVT_LOAD_CANCEL, -1, -1,					   \
+      (wxObjectEventFunction)(wxEventFunction)(wxCommandEventFunction)&fn, \
+      (wxObject *) NULL							   \
+   ),
+
+#define EVT_TREE_SELECT(fn)                                                \
+   DECLARE_EVENT_TABLE_ENTRY(	                                           \
+      crEVT_TREE_SELECT, -1, -1,					   \
       (wxObjectEventFunction)(wxEventFunction)(wxCommandEventFunction)&fn, \
       (wxObject *) NULL							   \
    ),

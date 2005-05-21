@@ -38,9 +38,9 @@
 #include <openvrml/node_ptr.h>
 #include <openvrml/browser.h>
 
-#include "calculus.h"
-#include "calculus_dgd.h"
-#include "iterators.h"
+#include "scooter/calculus.h"
+#include "scooter/calculus_dgd.h"
+#include "scooter/iterators.h"
 
 #include "crVRMLControl.h"
 
@@ -63,8 +63,11 @@ CrVRMLControl::CrVRMLControl( openvrml::browser & b ):
    m_permanent_rotation(false),
    m_cone_precision(32),
    m_cylinder_precision(32),
-   m_sphere_precision(32) {   
-   m_clear_color[0] = m_clear_color[1] = m_clear_color[2] = 0;
+   m_sphere_precision(32),
+   m_show_bbox(false),
+   m_clear_color( *wxBLACK ),
+   m_bbox_color( *wxWHITE )
+{   
 }
 
 CrVRMLControl::~CrVRMLControl() {
@@ -1190,6 +1193,7 @@ CrVRMLControl::object_t CrVRMLControl::insert_shell(
    typedef std::vector< std::pair<unsigned,unsigned> > index_type;
    typedef index_type::const_iterator index_const_iterator;
 
+
    apply_local_transform();
 
    GLuint glid = 0;
@@ -1848,6 +1852,73 @@ void CrVRMLControl::draw_bounding_sphere(
 
 }
 
+void CrVRMLControl::draw_bbox() {
+   dgd_start_scope( canvas, "CrVRMLControl::draw_bbox()" );
+   if( m_show_bbox ) {
+      apply_local_transform();
+
+      glPushAttrib( GL_LIGHTING_BIT | GL_ENABLE_BIT );
+      glShadeModel( GL_FLAT );
+      glDisable(GL_LIGHTING);
+      
+      glBegin( GL_LINES );
+      glColor3f( (float)m_bbox_color.Red() / 255.0f,
+		 (float)m_bbox_color.Green() / 255.0f,
+		 (float)m_bbox_color.Blue() / 255.0f );      
+
+      // top 
+      glNormal3f( 0, 1.0f, 0 );
+      glVertex3f( m_bbox_min.x(), m_bbox_max.y(), m_bbox_max.z() );
+      glVertex3f( m_bbox_max.x(), m_bbox_max.y(), m_bbox_max.z() );
+
+      glVertex3f( m_bbox_max.x(), m_bbox_max.y(), m_bbox_max.z() );
+      glVertex3f( m_bbox_max.x(), m_bbox_max.y(), m_bbox_min.z() );
+
+      glVertex3f( m_bbox_max.x(), m_bbox_max.y(), m_bbox_min.z() );
+      glVertex3f( m_bbox_min.x(), m_bbox_max.y(), m_bbox_min.z() );
+
+      glVertex3f( m_bbox_min.x(), m_bbox_max.y(), m_bbox_min.z() );
+      glVertex3f( m_bbox_min.x(), m_bbox_max.y(), m_bbox_max.z() );
+
+      // bottom
+      glNormal3f( 0, -1.0f, 0 );
+      glVertex3f( m_bbox_min.x(), m_bbox_min.y(), m_bbox_max.z() );
+      glVertex3f( m_bbox_max.x(), m_bbox_min.y(), m_bbox_max.z() );
+
+      glVertex3f( m_bbox_max.x(), m_bbox_min.y(), m_bbox_max.z() );
+      glVertex3f( m_bbox_max.x(), m_bbox_min.y(), m_bbox_min.z() );
+
+      glVertex3f( m_bbox_max.x(), m_bbox_min.y(), m_bbox_min.z() );
+      glVertex3f( m_bbox_min.x(), m_bbox_min.y(), m_bbox_min.z() );
+
+      glVertex3f( m_bbox_min.x(), m_bbox_min.y(), m_bbox_min.z() );
+      glVertex3f( m_bbox_min.x(), m_bbox_min.y(), m_bbox_max.z() );
+
+      // verticals
+      glNormal3f( 0, 0, 1.0f );
+      glVertex3f( m_bbox_min.x(), m_bbox_max.y(), m_bbox_max.z() );
+      glVertex3f( m_bbox_min.x(), m_bbox_min.y(), m_bbox_max.z() );
+
+      glVertex3f( m_bbox_max.x(), m_bbox_max.y(), m_bbox_max.z() );
+      glVertex3f( m_bbox_max.x(), m_bbox_min.y(), m_bbox_max.z() );
+
+      glNormal3f( 0, 0, -1.0f );
+      glVertex3f( m_bbox_max.x(), m_bbox_max.y(), m_bbox_min.z() );
+      glVertex3f( m_bbox_max.x(), m_bbox_min.y(), m_bbox_min.z() );
+
+      glVertex3f( m_bbox_min.x(), m_bbox_max.y(), m_bbox_min.z() );
+      glVertex3f( m_bbox_min.x(), m_bbox_min.y(), m_bbox_min.z() );
+
+
+      glEnd();
+      glPopAttrib();
+
+
+      undo_local_transform();
+   }
+   dgd_end_scope( canvas );
+}
+
 void CrVRMLControl::resize( int x, int y, int width, int height ) {
    dgd_start_scope( canvas, "CrVRMLControl::resize()" );
    m_top = y;
@@ -1945,7 +2016,8 @@ bool CrVRMLControl::get_scene_bounds( Vector& center, FT& radius ) {
    bool success = false;
    
    RootNodeList root_nodes = browser.root_nodes();
-   
+   openvrml::bounding_sphere global_bvol;
+
    for( RootNodeList::iterator root_node_iter = root_nodes.begin();
 	root_node_iter != root_nodes.end();
 	++root_node_iter ) {
@@ -1956,21 +2028,27 @@ bool CrVRMLControl::get_scene_bounds( Vector& center, FT& radius ) {
 	 const openvrml::bounding_sphere *bounding_sphere =
 	    dynamic_cast<const openvrml::bounding_sphere*>( &bvol );
 	 dgd_echo( dgd_expand((void*)bounding_sphere) << std::endl );
-	 if( bounding_sphere != NULL && !bounding_sphere->maximized() ) {
-	    const openvrml::vec3f& c = bounding_sphere->center();
-	    radius = bounding_sphere->radius();
-	    
-	    center( c[0], c[1], c[2] );
-
-	    dgd_echo( dgd_expand(center) << std::endl
-		      << dgd_expand(radius) << std::endl );
-	    success = true;
+	 if( bounding_sphere != NULL ) {
+	    global_bvol.extend(*bounding_sphere);
 	 }
       }
    }
-   dgd_end_scope_text( canvas, success );
 
-   return success;
+   if( global_bvol.radius() < 0 ) {
+      global_bvol.radius( 1 );
+   } else {
+      const openvrml::vec3f& c = global_bvol.center();
+      radius = global_bvol.radius();
+	    
+      center( c[0], c[1], c[2] );
+   }
+   
+   dgd_echo( dgd_expand(center) << std::endl
+	     << dgd_expand(radius) << std::endl );
+
+   dgd_end_scope( canvas );
+
+   return true;
 }
 
 void CrVRMLControl::enable_notification( wxEvtHandler* eh ) {
@@ -1986,16 +2064,26 @@ void CrVRMLControl::disable_notification() {
 }
 
 void CrVRMLControl::clear_color( const wxColour& color ) {
-   m_clear_color[0] = (double)color.Red() / 255.0;
-   m_clear_color[1] = (double)color.Green() / 255.0;
-   m_clear_color[2] = (double)color.Blue() / 255.0;
+   m_clear_color = color;
 }
 
 wxColour CrVRMLControl::clear_color() const {
-   return wxColour( m_clear_color[0] * 255.0,
-		    m_clear_color[1] * 255.0,
-		    m_clear_color[2] * 255.0 );
+   return m_clear_color;
 }
+
+void CrVRMLControl::bbox( const Point& bbox_min, 
+			  const Point& bbox_max,
+			  const wxColour& color ) {
+   m_bbox_min = bbox_min;
+   m_bbox_max = bbox_max;
+   m_bbox_color = color;
+}
+
+void CrVRMLControl::bbox( bool val ) {
+   m_show_bbox = val;
+}
+
+bool CrVRMLControl::bbox() const { return m_show_bbox; }
 
 void CrVRMLControl::redraw() {
    dgd_start_scope( canvas, "CrVRMLControl::redraw()" );
@@ -2009,9 +2097,9 @@ void CrVRMLControl::redraw() {
       m_rotation = m_permanent_rotation_delta * m_rotation;
    }
 
-   glClearColor( m_clear_color[0], 
-		 m_clear_color[1], 
-		 m_clear_color[2], 
+   glClearColor( m_clear_color.Red() / 255.0, 
+		 m_clear_color.Green() / 255.0, 
+		 m_clear_color.Blue() / 255.0, 
 		 1.0 ); 
 
    GLuint mask = GL_COLOR_BUFFER_BIT  | GL_DEPTH_BUFFER_BIT;
@@ -2061,6 +2149,7 @@ void CrVRMLControl::redraw() {
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
 
+   draw_bbox();
    browser.render(*this);
 
    dgd_end_scope( canvas );
@@ -2285,8 +2374,8 @@ void CrVRMLControl::continue_user_action( Interaction::UserAction action,
 }
 
 void CrVRMLControl::finish_user_action( Interaction::UserAction action, 
-				       long time,
-				       long x, long y ) {
+					long time,
+					long x, long y ) {
    dgd_start_scope( canvas, "CrVRMLControl::finish_user_action()" );
 
    switch( action ) {

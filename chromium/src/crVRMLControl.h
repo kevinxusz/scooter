@@ -41,7 +41,7 @@
 
 #include <openvrml/viewer.h>
 
-#include "calculus.h"
+#include <scooter/calculus.h>
 
 class wxTimer;
 class wxEventHandler;
@@ -269,6 +269,9 @@ class CrVRMLControl:  public openvrml::viewer {
       void           draw_bounding_sphere(
 	 const openvrml::bounding_sphere& bs,
 	 openvrml::bounding_volume::intersection intersection);
+
+      void           draw_bbox();
+
    public: 
       void redraw();
       void resize( int x, int y, int width, int height );
@@ -279,6 +282,12 @@ class CrVRMLControl:  public openvrml::viewer {
 
       void clear_color( const wxColour& color );
       wxColour clear_color() const;
+      
+      void bbox( const Point& bbox_min, 
+		 const Point& bbox_max,
+		 const wxColour& color );
+      void bbox( bool val );
+      bool bbox() const;
 
    protected:
       void initialize();
@@ -393,13 +402,18 @@ class CrVRMLControl:  public openvrml::viewer {
       Matrix      m_permanent_rotation_delta;
       wxTimerPtr  m_permanent_rotation_timer;
       
-      float       m_clear_color[3];
+      wxColour    m_clear_color;
 
       TransformStack m_transform_stack;
 
       unsigned    m_cone_precision;
       unsigned    m_cylinder_precision;
       unsigned    m_sphere_precision;
+
+      wxColour    m_bbox_color;
+      bool        m_show_bbox;
+      Point       m_bbox_min;
+      Point       m_bbox_max;
 };
 
 #endif /* _crVRMLControl_h_ */

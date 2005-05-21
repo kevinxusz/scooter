@@ -52,7 +52,7 @@ class CrMainWindow: public wxDocMDIParentFrame {
       void ShowDebugConsole(wxCommandEvent&);
       void HideDebugConsole(wxCommandEvent&);
       void ConstructDebugConsole();
-
+      wxRect GetOptimalChildRect() const;
       void OnProgress( wxCommandEvent& event );
       void OnLoadFail( wxCommandEvent& event );
 

@@ -26,6 +26,8 @@
 
 #include "crConfig.h"
 
+#include <openvrml/node.h>
+
 #include <wx/defs.h>
 #include <wx/docview.h>
 #include <wx/docmdi.h>
@@ -33,16 +35,18 @@
 
 #include <dgDebug.h>
 
+#include "crEvent.h"
 #include "crFrameCounter.h"
 #include "crVRMLDocView.h"
 #include "crVRMLControl.h"
 #include "crVRMLDocument.h"
 #include "crVRMLCanvas.h"
+#include "crVRMLTree.h"
 
-CrVRMLCanvas::CrVRMLCanvas( CrVRMLDocView *viewer ) :
-   wxGLCanvas( viewer->frame(), -1, 
+CrVRMLCanvas::CrVRMLCanvas( wxWindow *parent, CrVRMLDocView *viewer ) :
+   wxGLCanvas( parent, -1, 
 	       wxDefaultPosition, wxDefaultSize,
-	       0,
+	       wxNO_FULL_REPAINT_ON_RESIZE,
 	       _T("CrVRMLCanvas") ) , 
    m_viewer(viewer),
    m_enable_frame_rate_display(true) {
@@ -89,6 +93,7 @@ void CrVRMLCanvas::OnSize(wxSizeEvent& event) {
 
    if( m_main_control.get() != NULL ) {
       m_main_control->resize( 0, 0, w, h );
+      this->Refresh( false );
    }
 }
 
@@ -133,6 +138,34 @@ void CrVRMLCanvas::OnTimer( wxTimerEvent& event ) {
 	 this->Refresh( false );
 	 break;
    }
+}
+
+void CrVRMLCanvas::OnTreeSelect( wxCommandEvent& event ) {
+   CrVRMLNodeInfo *node_info  = (CrVRMLNodeInfo*)event.GetClientData();
+   if( node_info != NULL ) {
+      openvrml::node& node = node_info->node();
+      openvrml::mat4f transform = node_info->transform();
+
+      const openvrml::bounding_sphere &bvol = 
+       dynamic_cast<const openvrml::bounding_sphere&>(node.bounding_volume());
+      float radius = bvol.radius();
+      openvrml::vec3f top = bvol.top();
+      openvrml::vec3f bottom = bvol.bottom();
+      top *= transform;
+      bottom *= transform;
+      m_main_control->bbox( CrVRMLControl::Vector( bottom.x(), 
+						   bottom.y(),
+						   bottom.z() ),
+			    CrVRMLControl::Vector( top.x(), 
+						   top.y(),
+						   top.z() ),
+			    *wxWHITE );
+      m_main_control->bbox( true );
+      
+   } else {
+      m_main_control->bbox( false );
+   }
+   this->Refresh( false );
 }
 
 void CrVRMLCanvas::ShowFrameRate( bool val ) {

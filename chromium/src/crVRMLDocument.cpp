@@ -84,7 +84,14 @@ bool CrVRMLDocument::OnOpenDocument(const wxString& file) {
       return false;
    }
    
+   wxFileName fn( file );
+   if( !fn.FileExists() ) {
+      dgd_end_scope( gui );
+      return false;
+   }
+
    SetFilename(file, true);
+   SetTitle( fn.GetName() );
    Modify( false );
    m_savedYet = true;
    

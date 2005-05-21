@@ -32,7 +32,9 @@
 #include <wx/docview.h>
 
 class wxDocMDIChildFrame;
+class wxSplitterWindow;
 class CrVRMLCanvas;
+class CrVRMLTree;
 
 class CrVRMLDocView: public wxView {
    public:
@@ -43,12 +45,13 @@ class CrVRMLDocView: public wxView {
       void OnDraw(wxDC *dc);
       bool OnClose(bool deleteWindow = TRUE);
       void OnLoadCompleted( wxCommandEvent& event );
-
-      wxDocMDIChildFrame *frame();
+      void OnTreeSelect( wxCommandEvent& event );
 
    private:
       wxDocMDIChildFrame *m_frame;
+      wxSplitterWindow   *m_splitter;
       CrVRMLCanvas       *m_gl_canvas;
+      CrVRMLTree         *m_scene_tree;
 
    private:
       DECLARE_DYNAMIC_CLASS(CrVRMLDocView);

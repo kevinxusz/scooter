@@ -142,6 +142,28 @@ void CrMainWindow::OnLoadFail( wxCommandEvent& event ) {
    }
 }
 
+wxRect CrMainWindow::GetOptimalChildRect() const {
+   wxRect size;
+
+   int width = 300;
+   int height = 300;
+
+   this->GetClientSize( &width, &height );
+
+   size.SetWidth( width * 3 / 4 );
+   size.SetHeight( height * 3 / 4 );
+
+   int deltax = width - size.GetWidth();
+   int deltay = height - size.GetHeight();
+   int nchildren = this->GetChildren().GetCount();
+
+   size.SetX( ((deltax / 10) * (nchildren-1)) % deltax );
+   size.SetY( ((deltay / 10) * (nchildren-1)) % deltay );
+
+   return size;
+}
+
+
 IMPLEMENT_CLASS(CrMainWindow, wxDocMDIParentFrame)
 BEGIN_EVENT_TABLE(CrMainWindow, wxDocMDIParentFrame)
    EVT_MENU(crID_SHOW_DEBUG_CONSOLE, CrMainWindow::ShowDebugConsole)
