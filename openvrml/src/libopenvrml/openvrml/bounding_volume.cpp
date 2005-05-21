@@ -441,6 +441,16 @@ const vec3f & bounding_sphere::center() const
     return this->center_;
 }
 
+const vec3f & bounding_sphere::top() const
+{
+    return this->top_;
+}
+
+const vec3f & bounding_sphere::bottom() const
+{
+    return this->bottom_;
+}
+
 /**
  * @brief Set the center coordinates.
  *
@@ -483,8 +493,10 @@ void bounding_sphere::radius(const float r)
  */
 void bounding_sphere::maximize()
 {
-    this->radius_ = std::numeric_limits<float>::max();
+    this->radius_ = -1;
     this->center_ = vec3f(0.0, 0.0, 0.0);
+    this->top_ = vec3f(0.0, 0.0, 0.0);
+    this->bottom_ = vec3f(0.0, 0.0, 0.0);
 }
 
 /**
@@ -495,7 +507,7 @@ void bounding_sphere::maximize()
  */
 bool bounding_sphere::maximized() const
 {
-    if (this->radius_ == std::numeric_limits<float>::max()) { return true; }
+//    if (this->radius_ == std::numeric_limits<float>::max()) { return true; }
     return false;
 }
 

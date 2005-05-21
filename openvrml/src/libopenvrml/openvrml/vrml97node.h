@@ -82,6 +82,10 @@ namespace openvrml {
 
             virtual void render(openvrml::viewer & viewer,
                                 rendering_context context);
+                
+            virtual viewer::object_t viewer_object() const {
+                return viewerObject;
+            }
 
         protected:
             abstract_geometry_node(const node_type & type,
@@ -214,6 +218,9 @@ namespace openvrml {
             group_node(const node_type & type, const scope_ptr & scope);
             virtual ~group_node() throw ();
 
+            virtual viewer::object_t viewer_object() const {
+                return viewerObject;
+            }
             virtual const openvrml::bounding_volume & bounding_volume() const;
             virtual bool modified() const;
             virtual void render(openvrml::viewer & viewer,
@@ -453,6 +460,9 @@ namespace openvrml {
             background_node(const node_type & type,
                             const scope_ptr & scope);
             virtual ~background_node() throw ();
+            virtual viewer::object_t viewer_object() const {
+                return viewerObject;
+            }
 
         private:
             virtual void do_initialize(double timestamp) throw ();
@@ -2011,6 +2021,9 @@ namespace openvrml {
             virtual const openvrml::bounding_volume & bounding_volume() const;
             virtual void render(openvrml::viewer & viewer,
                                 rendering_context context);
+            virtual viewer::object_t viewer_object() const {
+                return viewerObject;
+            }
 
         private:
             //

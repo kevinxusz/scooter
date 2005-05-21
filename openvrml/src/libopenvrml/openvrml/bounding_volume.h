@@ -83,6 +83,8 @@ namespace openvrml {
 
         void center(const vec3f & c);
         const vec3f & center() const;
+        const vec3f & top() const;
+        const vec3f & bottom() const;
 
         void radius(float r);
         float radius() const;
