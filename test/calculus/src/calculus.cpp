@@ -29,8 +29,8 @@
 #include <dgDebug.h>
 #include <dgOptionFilter.h>
 
-#include <calculus.h>
-#include <calculus_dgd.h>
+#include <scooter/calculus.h>
+#include <scooter/calculus_dgd.h>
 
 typedef Math::Vector<double> Vector;
 typedef Math::Matrix<double> Matrix;

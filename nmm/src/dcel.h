@@ -33,7 +33,7 @@
 
 #include <boost/smart_ptr.hpp>
 
-#include "dcel_iterator.h"
+#include <scooter/nmm/dcel_iterator.h>
 
 namespace scooter {
 

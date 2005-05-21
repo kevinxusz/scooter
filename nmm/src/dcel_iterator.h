@@ -29,8 +29,8 @@
 
 #include <boost/iterator/iterator_facade.hpp>
 
-#include "iterators.h"
-#include "dcel.h"
+#include <scooter/iterators.h>
+#include <scooter/nmm/dcel.h>
 
 namespace scooter {
 

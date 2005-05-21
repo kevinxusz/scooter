@@ -24,7 +24,7 @@
 // dcel_impl.cpp -- implementaion of nmm::dcel 
 //
 
-#include "dcel_trace.h"
+#include <scooter/nmm/dcel_trace.h>
 
 namespace scooter {
 namespace nmm {

@@ -33,7 +33,7 @@
 #include <dgDebug.h>
 #include <dgOptionFilter.h>
 
-#include <iterators.h>
+#include <scooter/iterators.h>
 
 void test_circulator() {
    dgd_start_scope( iter, "test_circulator()" );

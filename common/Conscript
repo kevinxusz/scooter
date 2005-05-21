@@ -34,11 +34,11 @@ our $BUILD      = $toolset->option( 'build' );
 our $buildenv   = new cons( %{$ruleset} );
 
 Link $BUILD => 'src';
-Install $buildenv "$BLIB/include", map( "$BUILD/$_", 
-					qw( calculus.h
-					    calculus_impl.h
-					    calculus_dgd.h 
-					    iterators.h ) );    
+Install $buildenv "$BLIB/include/scooter", map( "$BUILD/$_", 
+						qw( calculus.h
+						    calculus_impl.h
+						    calculus_dgd.h 
+						    iterators.h ) );    
 
 
 

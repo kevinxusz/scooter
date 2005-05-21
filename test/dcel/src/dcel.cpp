@@ -31,9 +31,9 @@
 #include <dgDebug.h>
 #include <dgOptionFilter.h>
 
-#include <dcel.h>
-#include <dcel_trace.h>
-#include <dcel_iterator.h>
+#include <scooter/nmm/dcel.h>
+#include <scooter/nmm/dcel_trace.h>
+#include <scooter/nmm/dcel_iterator.h>
 
 struct Vertex_base {
       int index;
