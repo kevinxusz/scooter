@@ -45,7 +45,9 @@ class CrVRMLDocView: public wxView {
       void OnDraw(wxDC *dc);
       bool OnClose(bool deleteWindow = TRUE);
       void OnLoadCompleted( wxCommandEvent& event );
-      void OnTreeSelect( wxCommandEvent& event );
+      void OnItemSelect( wxCommandEvent& event );
+      void OnItemFocus( wxCommandEvent& event );
+      void OnItemEdit( wxCommandEvent& event );
 
    private:
       wxDocMDIChildFrame *m_frame;

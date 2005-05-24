@@ -107,15 +107,25 @@ void CrVRMLDocView::OnLoadCompleted( wxCommandEvent& event ) {
    }
 }
 
-void CrVRMLDocView::OnTreeSelect( wxCommandEvent& event ) {
-   m_gl_canvas->OnTreeSelect( event );
+void CrVRMLDocView::OnItemSelect( wxCommandEvent& event ) {
+   m_gl_canvas->OnItemSelect( event );
+}
+
+void CrVRMLDocView::OnItemFocus( wxCommandEvent& event ) {
+   m_gl_canvas->OnItemFocus( event );
+}
+
+void CrVRMLDocView::OnItemEdit( wxCommandEvent& event ) {
+   m_gl_canvas->OnItemEdit( event );
 }
 
 IMPLEMENT_DYNAMIC_CLASS(CrVRMLDocView, wxView);
 
 BEGIN_EVENT_TABLE(CrVRMLDocView, wxView)
    EVT_LOAD_COMPLETED( CrVRMLDocView::OnLoadCompleted )
-   EVT_TREE_SELECT(CrVRMLDocView::OnTreeSelect)
+   EVT_TREE_SELECT(CrVRMLDocView::OnItemSelect)
+   EVT_TREE_FOCUS(CrVRMLDocView::OnItemFocus)
+   EVT_TREE_EDIT(CrVRMLDocView::OnItemEdit)
 END_EVENT_TABLE()
 
 // 

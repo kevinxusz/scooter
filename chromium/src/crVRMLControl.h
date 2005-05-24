@@ -30,6 +30,7 @@
 #include "crConfig.h"
 
 #include <list>
+#include <vector>
 
 #include <boost/smart_ptr.hpp>
 
@@ -39,6 +40,7 @@
 #include <gl/gl.h>
 #include <gl/glu.h>
 
+#include <openvrml/node.h>
 #include <openvrml/viewer.h>
 
 #include <scooter/calculus.h>
@@ -54,6 +56,8 @@ class CrVRMLControl:  public openvrml::viewer {
       typedef Math::Matrix<float> Matrix;
       typedef Vector::FT FT;
       typedef Vector::RT RT;
+
+      typedef std::vector<openvrml::node_ptr> Node_list;
 
       enum PolygonMode {
 	 WIREFRAME,
@@ -272,6 +276,11 @@ class CrVRMLControl:  public openvrml::viewer {
 
       void           draw_bbox();
 
+      void scene_root_nodes( const Node_list& ptr );
+      const Node_list&  scene_root_nodes() const;
+
+      const openvrml::node_ptr& root_node() const;
+
    public: 
       void redraw();
       void resize( int x, int y, int width, int height );
@@ -414,6 +423,8 @@ class CrVRMLControl:  public openvrml::viewer {
       bool        m_show_bbox;
       Point       m_bbox_min;
       Point       m_bbox_max;
+
+      Node_list   m_root_nodes;
 };
 
 #endif /* _crVRMLControl_h_ */

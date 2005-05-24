@@ -140,7 +140,7 @@ void CrVRMLCanvas::OnTimer( wxTimerEvent& event ) {
    }
 }
 
-void CrVRMLCanvas::OnTreeSelect( wxCommandEvent& event ) {
+void CrVRMLCanvas::OnItemSelect( wxCommandEvent& event ) {
    CrVRMLNodeInfo *node_info  = (CrVRMLNodeInfo*)event.GetClientData();
    if( node_info != NULL ) {
       openvrml::node& node = node_info->node();
@@ -166,6 +166,24 @@ void CrVRMLCanvas::OnTreeSelect( wxCommandEvent& event ) {
       m_main_control->bbox( false );
    }
    this->Refresh( false );
+}
+
+void CrVRMLCanvas::OnItemFocus( wxCommandEvent& event ) {
+   CrVRMLNodeInfo *node_info  = (CrVRMLNodeInfo*)event.GetClientData();
+   if( node_info != NULL ) {
+      openvrml::node& node = node_info->node();
+      openvrml::mat4f transform = node_info->transform();
+      CrVRMLControl::Node_list list;
+      list.push_back( CrVRMLControl::Node_list::value_type( &node ) );
+      m_main_control->scene_root_nodes( list );
+   } else {
+      m_main_control->scene_root_nodes( CrVRMLControl::Node_list() );
+   }
+   m_main_control->reset_user_navigation();
+   this->Refresh( false );
+}
+
+void CrVRMLCanvas::OnItemEdit( wxCommandEvent& event ) {
 }
 
 void CrVRMLCanvas::ShowFrameRate( bool val ) {

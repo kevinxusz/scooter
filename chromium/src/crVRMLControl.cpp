@@ -88,6 +88,7 @@ double CrVRMLControl::frame_rate() {
 
 void CrVRMLControl::reset_user_navigation() {
    dgd_start_scope( canvas, "CrVRMLControl::reset_user_navigation()" );
+   m_permanent_rotation = false;
    m_rotation.set_identity();
    m_translation( 0.0, 0.0, 0.0, 1.0 );
    dgd_end_scope( canvas );
@@ -1919,6 +1920,7 @@ void CrVRMLControl::draw_bbox() {
    dgd_end_scope( canvas );
 }
 
+
 void CrVRMLControl::resize( int x, int y, int width, int height ) {
    dgd_start_scope( canvas, "CrVRMLControl::resize()" );
    m_top = y;
@@ -2009,16 +2011,26 @@ void CrVRMLControl::undo_local_transform() {
    glPopMatrix();
 }
 
+void CrVRMLControl::scene_root_nodes( const Node_list& ptr ) {
+   m_root_nodes.clear();
+   m_root_nodes = ptr;
+}
+
+const CrVRMLControl::Node_list&  
+CrVRMLControl::scene_root_nodes() const {
+   if( m_root_nodes.size() == 0 )
+      return browser.root_nodes();
+   return m_root_nodes;
+}
 
 bool CrVRMLControl::get_scene_bounds( Vector& center, FT& radius ) {
    dgd_start_scope( canvas, "CrVRMLControl::get_scene_bounds()" );
-   typedef std::vector<openvrml::node_ptr> RootNodeList;
    bool success = false;
    
-   RootNodeList root_nodes = browser.root_nodes();
+   const Node_list& root_nodes = this->scene_root_nodes();
    openvrml::bounding_sphere global_bvol;
 
-   for( RootNodeList::iterator root_node_iter = root_nodes.begin();
+   for( Node_list::const_iterator root_node_iter = root_nodes.begin();
 	root_node_iter != root_nodes.end();
 	++root_node_iter ) {
       const openvrml::node_ptr root = *root_node_iter;
@@ -2149,8 +2161,8 @@ void CrVRMLControl::redraw() {
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
 
-   draw_bbox();
    browser.render(*this);
+   draw_bbox();
 
    dgd_end_scope( canvas );
 }

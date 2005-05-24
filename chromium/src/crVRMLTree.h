@@ -35,20 +35,33 @@
 
 namespace openvrml { class browser; };
 
+class wxMenu;
 class CrVRMLDocView;
 
 class CrVRMLTree: public wxTreeCtrl {
+   public:
+      enum {
+	 crID_TREE_ITEM_SELECT        = 0x00002001,
+	 crID_TREE_ITEM_FOCUS         = 0x00002002,
+	 crID_TREE_ITEM_EDIT          = 0x00002003
+      };
    public:
       CrVRMLTree();
       CrVRMLTree( wxWindow *parent, CrVRMLDocView *view );
       ~CrVRMLTree(); 
 
-      void OnTreeSelect( wxTreeEvent& event );
+      void OnItemSelect( wxTreeEvent& event );
+      void OnRightClick( wxTreeEvent& event );
 
       void build( const wxString &name, const openvrml::browser *browser );
 
+   protected:
+      void CreateItemMenu();
+
    private:
       CrVRMLDocView *m_doc_view;
+      wxMenu        *m_item_menu;
+      wxTreeItemId   m_selected_item;
 
    private:
       DECLARE_DYNAMIC_CLASS(CrVRMLTree);

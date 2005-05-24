@@ -56,7 +56,9 @@ class CrVRMLCanvas: public wxGLCanvas {
       void OnEraseBackground( wxEraseEvent& event );
       void OnMouse( wxMouseEvent& event );
       void OnTimer( wxTimerEvent& event );
-      void OnTreeSelect( wxCommandEvent& cmd );
+      void OnItemSelect( wxCommandEvent& cmd );
+      void OnItemFocus( wxCommandEvent& cmd );
+      void OnItemEdit( wxCommandEvent& cmd );
 
       void ShowFrameRate( bool val );
       bool ShowFrameRate() const;

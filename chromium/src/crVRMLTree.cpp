@@ -36,21 +36,40 @@
 #include <wx/utils.h>
 #include <wx/app.h>
 #include <wx/event.h>
+#include <wx/menu.h>
 
 #include "crEvent.h"
 #include "crVRMLDocView.h"
 #include "crVRMLTree.h"
 
 CrVRMLTree::CrVRMLTree() :
-   wxTreeCtrl(), m_doc_view(NULL) {}
+   wxTreeCtrl(), 
+   m_doc_view(NULL),
+   m_selected_item(-1) {}
 
 CrVRMLTree::CrVRMLTree( wxWindow *parent, CrVRMLDocView *view  ) :
    wxTreeCtrl( parent, -1, wxDefaultPosition, wxDefaultSize, 
 	       wxTR_HAS_BUTTONS | wxTR_TWIST_BUTTONS |
 	       wxTR_FULL_ROW_HIGHLIGHT ),
-   m_doc_view(view) {}
+   m_doc_view(view),
+   m_item_menu(NULL) {
+   CreateItemMenu();
+}
 
 CrVRMLTree::~CrVRMLTree() {}
+
+void CrVRMLTree::CreateItemMenu() {
+   m_item_menu = new wxMenu( _T("Select Item") );
+   m_item_menu->Append( crID_TREE_ITEM_SELECT, 
+			_T("(De)&Select\tCtrl-S"), 
+			_T("Select this item") );
+   m_item_menu->Append( crID_TREE_ITEM_FOCUS, 
+			_T("&Focus\tCtrl-F"), 
+			_T("Focus on this item") );
+   m_item_menu->Append( crID_TREE_ITEM_EDIT, 
+			_T("&Edit\tCtrl-E"), 
+			_T("Edit this item") );
+}
 
 class VRML_tree_traverser: public openvrml::node_traverser {
    public:
@@ -102,11 +121,78 @@ class VRML_tree_traverser: public openvrml::node_traverser {
       CrVRMLTree *m_tree;
 };
 
-void CrVRMLTree::OnTreeSelect( wxTreeEvent& event ) {
-   wxTreeItemId itemid = event.GetItem();
-   wxCommandEvent command(crEVT_TREE_SELECT,-1);
+void CrVRMLTree::OnItemSelect( wxTreeEvent& event ) {
+   wxTreeItemId itemid;
+   wxCommandEvent command;
+   
+   itemid = event.GetItem();
+   command.SetEventType(crEVT_TREE_SELECT);
 
    CrVRMLNodeInfo *data = (CrVRMLNodeInfo*)(this->GetItemData(itemid));
+   if( m_selected_item != itemid ) {
+      m_selected_item = itemid;
+   } else {
+      data = NULL;
+      m_selected_item = -1;
+   }
+   command.SetClientData( data );
+   wxPostEvent( m_doc_view, command );
+}
+
+class CrItemMenuHandler: public wxEvtHandler {
+   public:
+      CrItemMenuHandler() : 
+	 wxEvtHandler(),
+	 m_result(-1) {
+	 this->Connect(-1, wxEVT_COMMAND_MENU_SELECTED,
+		       (wxObjectEventFunction) 
+		       (wxEventFunction) 
+		       (wxCommandEventFunction)CrItemMenuHandler::OnSelect);
+      }
+
+      void OnSelect( wxEvent& event ) {
+	 m_result = event.GetId();
+      }
+      
+      int Result() const { return m_result; }
+
+   private:
+      int m_result;
+};
+
+void CrVRMLTree::OnRightClick( wxTreeEvent& event ) {
+   CrItemMenuHandler menu_handler;
+   wxCommandEvent command;
+   wxTreeItemId itemid;
+   CrVRMLNodeInfo *data;
+
+   itemid = event.GetItem();
+   data = (CrVRMLNodeInfo*)(this->GetItemData(itemid));   
+
+   m_item_menu->SetNextHandler( &menu_handler );
+
+   this->PopupMenu( m_item_menu, event.GetPoint() );
+
+   switch( menu_handler.Result() ) {
+      case crID_TREE_ITEM_SELECT:
+	 command.SetEventType(crEVT_TREE_SELECT);
+	 if( m_selected_item == itemid ) {
+	    data = NULL;
+	    m_selected_item = -1;
+	 } else {
+	    m_selected_item = itemid;
+	 }
+	 break;
+      case crID_TREE_ITEM_FOCUS:
+	 command.SetEventType(crEVT_TREE_FOCUS);
+	 break;
+      case crID_TREE_ITEM_EDIT:
+	 command.SetEventType(crEVT_TREE_EDIT);
+      default:
+	 return;
+   }
+
+
    command.SetClientData( data );
    wxPostEvent( m_doc_view, command );
 }
@@ -129,8 +215,10 @@ void CrVRMLTree::build( const wxString &name,
 IMPLEMENT_DYNAMIC_CLASS(CrVRMLTree, wxTreeCtrl);
 
 BEGIN_EVENT_TABLE(CrVRMLTree, wxTreeCtrl)
-   EVT_TREE_SEL_CHANGED(-1, CrVRMLTree::OnTreeSelect)
+   EVT_TREE_SEL_CHANGED(-1, CrVRMLTree::OnItemSelect)
+   EVT_TREE_ITEM_RIGHT_CLICK(-1, CrVRMLTree::OnRightClick )
 END_EVENT_TABLE()
+
 
 // 
 // crVRMLTree.cpp -- end of file
