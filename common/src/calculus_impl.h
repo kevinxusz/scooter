@@ -424,7 +424,6 @@ Matrix<FloatValue,ComparableValue>::Matrix( const FT& m00,
    _m20(m20), _m21(m21), _m22(m22), _m23(m23),
    _m30(m30), _m31(m31), _m32(m32), _m33(m33) {};
 
-
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>::Matrix( 
    const Vector& center,

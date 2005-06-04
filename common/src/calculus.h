@@ -280,7 +280,7 @@ class Matrix {
       Matrix( const FT& m00, const FT& m01, const FT& m02, const FT& m03,
 	      const FT& m10, const FT& m11, const FT& m12, const FT& m13,
 	      const FT& m20, const FT& m21, const FT& m22, const FT& m23,
-	      const FT& m30, const FT& m31, const FT& m32, const FT& m33 );
+	      const FT& m30, const FT& m31, const FT& m32, const FT& m33 ); 
       Matrix( const Vector& center,
 	      const Vector& rotation,
 	      const FT&     rotationAngle,
