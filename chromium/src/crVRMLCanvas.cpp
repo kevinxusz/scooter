@@ -26,8 +26,6 @@
 
 #include "crConfig.h"
 
-#include <openvrml/node.h>
-
 #include <wx/defs.h>
 #include <wx/docview.h>
 #include <wx/docmdi.h>
@@ -48,31 +46,12 @@ CrVRMLCanvas::CrVRMLCanvas( wxWindow *parent, CrVRMLDocView *viewer ) :
 	       wxDefaultPosition, wxDefaultSize,
 	       wxNO_FULL_REPAINT_ON_RESIZE,
 	       _T("CrVRMLCanvas") ) , 
-   m_viewer(viewer),
+   m_doc_view(viewer),
    m_enable_frame_rate_display(true) {
 }
 
-bool CrVRMLCanvas::Create() {
-   wxDocument* document = m_viewer->GetDocument();
-   
-   if( document == NULL )
-      return false;
 
-   CrVRMLDocument *vrml_doc = wxDynamicCast( document, CrVRMLDocument );
-
-   if( vrml_doc == NULL ) 
-      return false;
-
-   m_main_control.reset( new CrVRMLControl( *vrml_doc->browser() ) );
-   m_main_control->enable_notification( this );
-
-   this->OnSize( wxSizeEvent() );
-   this->Refresh(true);
-
-   m_frame_rate.reset( new CrFrameCounter );
-   ShowFrameRate( m_enable_frame_rate_display );
-
-   return true;
+CrVRMLCanvas::~CrVRMLCanvas() {
 }
 
 bool CrVRMLCanvas::Close( bool force ) {
@@ -81,9 +60,6 @@ bool CrVRMLCanvas::Close( bool force ) {
       m_main_control.reset();
    }
    return wxGLCanvas::Close( force );
-}
-
-CrVRMLCanvas::~CrVRMLCanvas() {
 }
 
 void CrVRMLCanvas::OnSize(wxSizeEvent& event) {
@@ -140,51 +116,6 @@ void CrVRMLCanvas::OnTimer( wxTimerEvent& event ) {
    }
 }
 
-void CrVRMLCanvas::OnItemSelect( wxCommandEvent& event ) {
-   CrVRMLNodeInfo *node_info  = (CrVRMLNodeInfo*)event.GetClientData();
-   if( node_info != NULL ) {
-      openvrml::node& node = node_info->node();
-      openvrml::mat4f transform = node_info->transform();
-
-      const openvrml::bounding_sphere &bvol = 
-       dynamic_cast<const openvrml::bounding_sphere&>(node.bounding_volume());
-      float radius = bvol.radius();
-      openvrml::vec3f top = bvol.top();
-      openvrml::vec3f bottom = bvol.bottom();
-      top *= transform;
-      bottom *= transform;
-      m_main_control->bbox( CrVRMLControl::Vector( bottom.x(), 
-						   bottom.y(),
-						   bottom.z() ),
-			    CrVRMLControl::Vector( top.x(), 
-						   top.y(),
-						   top.z() ),
-			    *wxWHITE );
-      m_main_control->bbox( true );
-      
-   } else {
-      m_main_control->bbox( false );
-   }
-   this->Refresh( false );
-}
-
-void CrVRMLCanvas::OnItemFocus( wxCommandEvent& event ) {
-   CrVRMLNodeInfo *node_info  = (CrVRMLNodeInfo*)event.GetClientData();
-   if( node_info != NULL ) {
-      openvrml::node& node = node_info->node();
-      openvrml::mat4f transform = node_info->transform();
-      CrVRMLControl::Node_list list;
-      list.push_back( CrVRMLControl::Node_list::value_type( &node ) );
-      m_main_control->scene_root_nodes( list );
-   } else {
-      m_main_control->scene_root_nodes( CrVRMLControl::Node_list() );
-   }
-   m_main_control->reset_user_navigation();
-   this->Refresh( false );
-}
-
-void CrVRMLCanvas::OnItemEdit( wxCommandEvent& event ) {
-}
 
 void CrVRMLCanvas::ShowFrameRate( bool val ) {
    if( val ) {
@@ -200,6 +131,12 @@ bool CrVRMLCanvas::ShowFrameRate() const {
    return m_enable_frame_rate_display;
 }
 
+void CrVRMLCanvas::OnItemSelect( wxCommandEvent& cmd ) {
+}
+
+void CrVRMLCanvas::OnItemFocus( wxCommandEvent& cmd ) {
+}
+
 IMPLEMENT_CLASS(CrVRMLCanvas, wxGLCanvas);
 BEGIN_EVENT_TABLE(CrVRMLCanvas, wxGLCanvas)
    EVT_PAINT(CrVRMLCanvas::OnPaint)
@@ -207,6 +144,10 @@ BEGIN_EVENT_TABLE(CrVRMLCanvas, wxGLCanvas)
    EVT_ERASE_BACKGROUND(CrVRMLCanvas::OnEraseBackground)
    EVT_MOUSE_EVENTS(CrVRMLCanvas::OnMouse)
    EVT_TIMER(CrVRMLControl::PERMANENT_ROTATION, CrVRMLCanvas::OnTimer)
+   EVT_TREE_COMMAND_ID( CrVRMLCanvas::OnItemSelect, 
+			CrVRMLTree::crID_TREE_ITEM_SELECT )
+   EVT_TREE_COMMAND_ID( CrVRMLCanvas::OnItemFocus, 
+			CrVRMLTree::crID_TREE_ITEM_FOCUS )
 END_EVENT_TABLE()
 
 

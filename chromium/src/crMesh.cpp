@@ -285,6 +285,7 @@ int CrMesh::load( const IFS_node *ifs ) {
 	 Facet *f = this->new_facet( facet_begin, facet_end );
       }
       
+      facet_begin = facet_end;
    }
    return 0;
 }

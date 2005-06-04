@@ -39,6 +39,7 @@ class CrVRMLDocView;
 class CrVRMLControl;
 class CrFrameCounter;
 class wxWindow;
+namespace openvrml { class browser; }
 
 class CrVRMLCanvas: public wxGLCanvas {
    protected:
@@ -47,27 +48,26 @@ class CrVRMLCanvas: public wxGLCanvas {
 
    public:
       CrVRMLCanvas( wxWindow *parent, CrVRMLDocView *viewer );
-      bool Create();
-      bool Close( bool force = false );
-      ~CrVRMLCanvas();
+      virtual void Create( openvrml::browser &browser ) = 0;
+      virtual bool Close( bool force = false );
+      virtual ~CrVRMLCanvas();
 
       void OnSize( wxSizeEvent& event );
       void OnPaint( wxPaintEvent&  );
       void OnEraseBackground( wxEraseEvent& event );
       void OnMouse( wxMouseEvent& event );
       void OnTimer( wxTimerEvent& event );
-      void OnItemSelect( wxCommandEvent& cmd );
-      void OnItemFocus( wxCommandEvent& cmd );
-      void OnItemEdit( wxCommandEvent& cmd );
-
       void ShowFrameRate( bool val );
       bool ShowFrameRate() const;
 
-   private:
+      virtual void OnItemSelect( wxCommandEvent& cmd );
+      virtual void OnItemFocus( wxCommandEvent& cmd );
+
+   protected:
       bool              m_enable_frame_rate_display;
       CrFrameCounterPtr m_frame_rate;
 
-      CrVRMLDocView    *m_viewer;
+      CrVRMLDocView    *m_doc_view;
       CrVRMLControlPtr  m_main_control;
 
    private:

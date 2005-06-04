@@ -47,7 +47,7 @@ class CrMeshVertexBase {
       CrMeshVertexBase();
       CrMeshVertexBase( const CrMeshVertexBase& peer );
       ~CrMeshVertexBase();
-      
+
       Point  coord() const;
       void   coord( const Point& p );
       
@@ -101,16 +101,19 @@ class CrMesh: public scooter::nmm::Dcel<CrMeshVertexBase,
       int save( IFS_node *ifs );
 };
 
+inline
 DGD::channel &operator<<( DGD::channel &ostr, const CrMeshVertexBase& vtx ) {
    
    return ostr;
 }
 
+inline
 DGD::channel &operator<<( DGD::channel &ostr, const CrMeshHalfedgeBase& vtx ) {
    
    return ostr;
 }
 
+inline
 DGD::channel &operator<<( DGD::channel &ostr, const CrMeshFacetBase& vtx ) {
    
    return ostr;

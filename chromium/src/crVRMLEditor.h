@@ -18,51 +18,46 @@
 //
 // This file is a part of the Scooter project. 
 //
-// Copyright (c) 2004. Dimitry Kloper <dimka@cs.technion.ac.il> . 
+// Copyright (c) 2005. Dimitry Kloper <dimka@cs.technion.ac.il> . 
 // Technion, Israel Institute of Technology. Computer Science Department.
 //
-// crVRMLDocView.h -- simple VRML viewer which will become editor in the future
+// crVRMLEditor.h -- CrVRMLCanvas for editing objcts
 //
 
-#ifndef _crVRMLDocView_h_
-#define _crVRMLDocView_h_
+#ifndef _crVRMLEditor_h_
+#define _crVRMLEditor_h_
 
 #include "crConfig.h"
 
-#include <wx/docview.h>
 
-class wxDocMDIChildFrame;
-class wxSplitterWindow;
-class wxNotebook;
-class CrVRMLTree;
+#include "crVRMLCanvas.h"
 
-class CrVRMLDocView: public wxView {
+class CrVRMLNodeInfo;
+namespace openvrml { class browser; }
+
+class CrVRMLEditor: public CrVRMLCanvas {
+   protected:
+      typedef CrVRMLCanvas Parent;
+
    public:
-      CrVRMLDocView();
-      ~CrVRMLDocView();
-
-      bool OnCreate(wxDocument *doc, long flags);
-      void OnDraw(wxDC *dc);
-      bool OnClose(bool deleteWindow = TRUE);
-      void OnLoadCompleted( wxCommandEvent& event );
-      void OnTreeCmd( wxCommandEvent& event );
-      void OnItemEdit( wxCommandEvent& event );
+      CrVRMLEditor( wxWindow *parent, 
+		    CrVRMLDocView *doc_view,
+		    CrVRMLNodeInfo *node_info );
+      ~CrVRMLEditor();
+      void Create( openvrml::browser &browser );
 
    private:
-      wxDocMDIChildFrame *m_frame;
-      wxSplitterWindow   *m_splitter;
-      wxNotebook         *m_notebook;
-      CrVRMLTree         *m_scene_tree;
+      CrVRMLNodeInfo    *m_node_info;
 
    private:
-      DECLARE_DYNAMIC_CLASS(CrVRMLDocView);
+      DECLARE_CLASS(CrVRMLEditor);
       DECLARE_EVENT_TABLE();
 };
 
 
-#endif /* _crVRMLDocView_h_ */
+#endif /* _crVRMLEditor_h_ */
 
 //
-// crVRMLDocView.h -- end of file
+// crVRMLEditor.h -- end of file
 //
 

@@ -31,6 +31,7 @@
 #include <string>
 
 #include <openvrml/browser.h>
+#include <openvrml/vrml97node.h>
 
 #include <wx/defs.h>
 #include <wx/utils.h>
@@ -126,7 +127,8 @@ void CrVRMLTree::OnItemSelect( wxTreeEvent& event ) {
    wxCommandEvent command;
    
    itemid = event.GetItem();
-   command.SetEventType(crEVT_TREE_SELECT);
+   command.SetEventType(crEVT_TREE_COMMAND);
+   command.SetId( crID_TREE_ITEM_SELECT );
 
    CrVRMLNodeInfo *data = (CrVRMLNodeInfo*)(this->GetItemData(itemid));
    if( m_selected_item != itemid ) {
@@ -169,13 +171,31 @@ void CrVRMLTree::OnRightClick( wxTreeEvent& event ) {
    itemid = event.GetItem();
    data = (CrVRMLNodeInfo*)(this->GetItemData(itemid));   
 
+   if( data == NULL ) {
+      return;
+   } else {
+      wxMenuItem *edit_item = 
+	 m_item_menu->FindItem( crID_TREE_ITEM_EDIT );
+
+      if( edit_item != NULL ) {
+	 if( dynamic_cast<openvrml::vrml97_node::indexed_face_set_node*>(
+		data->node().to_geometry()
+	     ) == NULL ) {
+	    edit_item->Enable( false );
+	 } else {
+	    edit_item->Enable( true );
+	 }
+      }
+   }
+
    m_item_menu->SetNextHandler( &menu_handler );
 
    this->PopupMenu( m_item_menu, event.GetPoint() );
 
+   command.SetEventType(crEVT_TREE_COMMAND);
    switch( menu_handler.Result() ) {
       case crID_TREE_ITEM_SELECT:
-	 command.SetEventType(crEVT_TREE_SELECT);
+	 command.SetId( crID_TREE_ITEM_SELECT );
 	 if( m_selected_item == itemid ) {
 	    data = NULL;
 	    m_selected_item = -1;
@@ -184,10 +204,11 @@ void CrVRMLTree::OnRightClick( wxTreeEvent& event ) {
 	 }
 	 break;
       case crID_TREE_ITEM_FOCUS:
-	 command.SetEventType(crEVT_TREE_FOCUS);
+	 command.SetId( crID_TREE_ITEM_FOCUS );
 	 break;
       case crID_TREE_ITEM_EDIT:
-	 command.SetEventType(crEVT_TREE_EDIT);
+	 command.SetId( crID_TREE_ITEM_EDIT );
+	 break;
       default:
 	 return;
    }

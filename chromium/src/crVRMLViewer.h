@@ -18,51 +18,47 @@
 //
 // This file is a part of the Scooter project. 
 //
-// Copyright (c) 2004. Dimitry Kloper <dimka@cs.technion.ac.il> . 
+// Copyright (c) 2005. Dimitry Kloper <dimka@cs.technion.ac.il> . 
 // Technion, Israel Institute of Technology. Computer Science Department.
 //
-// crVRMLDocView.h -- simple VRML viewer which will become editor in the future
+// crVRMLViewer.h -- CrVRMLCanvas for viewing objcts
 //
 
-#ifndef _crVRMLDocView_h_
-#define _crVRMLDocView_h_
+#ifndef _crVRMLViewer_h_
+#define _crVRMLViewer_h_
 
 #include "crConfig.h"
 
-#include <wx/docview.h>
+#include <boost/smart_ptr.hpp>
 
-class wxDocMDIChildFrame;
-class wxSplitterWindow;
-class wxNotebook;
-class CrVRMLTree;
+#include <wx/glcanvas.h>
+#include <wx/event.h>
+#include <wx/timer.h>
 
-class CrVRMLDocView: public wxView {
+#include "crVRMLCanvas.h"
+
+class CrVRMLViewer: public CrVRMLCanvas {
+   protected:
+      typedef CrVRMLCanvas Parent;
+      typedef Parent::CrVRMLControlPtr CrVRMLControlPtr;
+
    public:
-      CrVRMLDocView();
-      ~CrVRMLDocView();
+      CrVRMLViewer( wxWindow *parent, CrVRMLDocView *viewer );
+      void Create( openvrml::browser &browser );
+      void OnItemSelect( wxCommandEvent& cmd );
+      void OnItemFocus( wxCommandEvent& cmd );
 
-      bool OnCreate(wxDocument *doc, long flags);
-      void OnDraw(wxDC *dc);
-      bool OnClose(bool deleteWindow = TRUE);
-      void OnLoadCompleted( wxCommandEvent& event );
-      void OnTreeCmd( wxCommandEvent& event );
-      void OnItemEdit( wxCommandEvent& event );
+      ~CrVRMLViewer();
 
    private:
-      wxDocMDIChildFrame *m_frame;
-      wxSplitterWindow   *m_splitter;
-      wxNotebook         *m_notebook;
-      CrVRMLTree         *m_scene_tree;
-
-   private:
-      DECLARE_DYNAMIC_CLASS(CrVRMLDocView);
+      DECLARE_CLASS(CrVRMLViewer);
       DECLARE_EVENT_TABLE();
 };
 
 
-#endif /* _crVRMLDocView_h_ */
+#endif /* _crVRMLViewer_h_ */
 
 //
-// crVRMLDocView.h -- end of file
+// crVRMLViewer.h -- end of file
 //
 
