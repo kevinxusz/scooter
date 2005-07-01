@@ -249,6 +249,12 @@ Vector<FloatValue,ComparableValue> median(
    const Vector<FloatValue,ComparableValue>::FT& scale = 0.5f);
 
 template <class FloatValue, class ComparableValue>
+Vector<FloatValue,ComparableValue> bisector( 
+   const Vector<FloatValue,ComparableValue>& a, 
+   const Vector<FloatValue,ComparableValue>& b,  
+   const Vector<FloatValue,ComparableValue>::FT& scale = 0.5f);
+
+template <class FloatValue, class ComparableValue>
 Vector<FloatValue,ComparableValue>::FT dot( 
    const Vector<FloatValue,ComparableValue>& a, 
    const Vector<FloatValue,ComparableValue>& b );
@@ -260,9 +266,14 @@ Vector<FloatValue,ComparableValue> cross(
 
 template <class FloatValue, class ComparableValue>
 Vector<FloatValue,ComparableValue> cross_dot( 
+   const Vector<FloatValue,ComparableValue>& a,
    const Vector<FloatValue,ComparableValue>& cross, 
    const Vector<FloatValue,ComparableValue>& dot );
 
+template <class FloatValue, class ComparableValue>
+int orientation( 
+   const Vector<FloatValue,ComparableValue>& a, 
+   const Vector<FloatValue,ComparableValue>& b );
 
 // Matrix
 
@@ -426,7 +437,7 @@ Matrix<FloatValue,ComparableValue>& scale(
    Matrix<FloatValue,ComparableValue>& m, 
    const Matrix<FloatValue,ComparableValue>::FT& scale );
 
-#include "calculus_impl.h"
+#include <scooter/calculus_impl.h>
 
 }; // end of namespace Math
 

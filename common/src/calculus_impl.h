@@ -378,6 +378,23 @@ Vector<FloatValue,ComparableValue> cross_dot(
       a.w() * cross.w() * dot.w();
 }
 
+template <class FloatValue, class ComparableValue>
+int orientation( 
+   const Vector<FloatValue,ComparableValue>& a,
+   const Vector<FloatValue,ComparableValue>& b ) {
+   typedef Vector<FloatValue,ComparableValue>::RT RT;
+   Vector<FloatValue,ComparableValue> c = cross(a,b).cartesian();
+   if( RT(c.z()) != RT(0) ) {
+      return ( c.z() > 0 ) ? 1 : -1;
+   } else if( RT(c.y()) != RT(0) ) {
+      return ( c.y() > 0 ) ? 1 : -1;
+   } else if( RT(c.x()) != RT(0) ) {
+      return ( c.x() > 0 ) ? 1 : -1;
+   }  
+
+   return 0;
+}
+
 // Matrix 
 
 template <class FloatValue, class ComparableValue>

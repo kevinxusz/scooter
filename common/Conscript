@@ -38,6 +38,9 @@ Install $buildenv "$BLIB/include/scooter", map( "$BUILD/$_",
 						qw( calculus.h
 						    calculus_impl.h
 						    calculus_dgd.h 
+						    geometry.h
+						    geometry_impl.h
+						    geometry_dgd.h
 						    iterators.h 
 						    bezier.h ) );    
 
