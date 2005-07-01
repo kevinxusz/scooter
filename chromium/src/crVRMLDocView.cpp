@@ -147,11 +147,8 @@ void CrVRMLDocView::OnItemEdit( wxCommandEvent& event ) {
    if( node_info == NULL ) 
       return;
    
-   CrVRMLDocument *empty_doc = new CrVRMLDocument();
-   this->GetDocumentManager()->AddDocument(empty_doc);
-
    CrVRMLEditor *editor = new CrVRMLEditor( m_notebook, this, node_info );
-   editor->Create( *empty_doc->browser() );
+   editor->Create( *editor->browser() );
    
    m_notebook->AddPage( editor, _T("Edit"), true );
 }

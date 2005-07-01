@@ -44,10 +44,14 @@ class CrVRMLEditor: public CrVRMLCanvas {
 		    CrVRMLDocView *doc_view,
 		    CrVRMLNodeInfo *node_info );
       ~CrVRMLEditor();
+      
+      openvrml::browser *browser();
+
       void Create( openvrml::browser &browser );
 
    private:
       CrVRMLNodeInfo    *m_node_info;
+      openvrml::browser *m_vrml_browser;
 
    private:
       DECLARE_CLASS(CrVRMLEditor);

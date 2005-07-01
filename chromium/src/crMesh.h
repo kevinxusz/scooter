@@ -38,10 +38,10 @@
 
 class CrMeshVertexBase {
    public:
-      typedef Math::Vector<double> Vector;
-      typedef Math::Vector<double> Point;
-      typedef Math::Vector<double> Color;
-      typedef Math::Matrix<double> Matrix;
+      typedef Math::Vector<float> Vector;
+      typedef Math::Vector<float> Point;
+      typedef Math::Vector<float> Color;
+      typedef Math::Matrix<float> Matrix;
 
    public:
       CrMeshVertexBase();
@@ -101,23 +101,10 @@ class CrMesh: public scooter::nmm::Dcel<CrMeshVertexBase,
       int save( IFS_node *ifs );
 };
 
-inline
-DGD::channel &operator<<( DGD::channel &ostr, const CrMeshVertexBase& vtx ) {
-   
-   return ostr;
-}
 
-inline
-DGD::channel &operator<<( DGD::channel &ostr, const CrMeshHalfedgeBase& vtx ) {
-   
-   return ostr;
-}
-
-inline
-DGD::channel &operator<<( DGD::channel &ostr, const CrMeshFacetBase& vtx ) {
-   
-   return ostr;
-}
+DGD::channel &operator<<( DGD::channel &ostr, const CrMeshVertexBase& vtx );
+DGD::channel &operator<<( DGD::channel &ostr, const CrMeshHalfedgeBase& vtx );
+DGD::channel &operator<<( DGD::channel &ostr, const CrMeshFacetBase& vtx );
 
 #endif /* _crMesh_h_ */
 

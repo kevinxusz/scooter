@@ -48,9 +48,25 @@ CrVRMLEditor::CrVRMLEditor( wxWindow *parent,
 			    CrVRMLDocView *doc_view,
 			    CrVRMLNodeInfo *node_info ) :
    CrVRMLCanvas( parent, doc_view ), 
-   m_node_info( node_info ) {}
+   m_node_info( node_info ),
+   m_vrml_browser(NULL)
+{
+   if( DGD::Debug::factory() ) {
+      DGD::Debug::channel_ptr vrmldebug = dgd_channel(openvrml);
+      if( vrmldebug.get() ) 
+	 m_vrml_browser = new openvrml::browser( *vrmldebug, *vrmldebug );
+      else
+	 m_vrml_browser = new openvrml::browser( std::cout, std::cerr );
+   } else {
+      m_vrml_browser = new openvrml::browser( std::cout, std::cerr );
+   }
+}
 
 CrVRMLEditor::~CrVRMLEditor() {
+}
+
+openvrml::browser *CrVRMLEditor::browser() {
+   return m_vrml_browser;
 }
 
 void CrVRMLEditor::Create( openvrml::browser &browser ) {

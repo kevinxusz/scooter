@@ -44,6 +44,7 @@
 #include <openvrml/viewer.h>
 
 #include <scooter/calculus.h>
+#include <scooter/geometry.h>
 
 class wxTimer;
 class wxEventHandler;
@@ -54,6 +55,7 @@ class CrVRMLControl:  public openvrml::viewer {
       typedef Math::Vector<float> Vector;
       typedef Math::Vector<float> Point;
       typedef Math::Matrix<float> Matrix;
+      typedef Math::Bounding_box<float> BBox;
       typedef Vector::FT FT;
       typedef Vector::RT RT;
 

@@ -28,6 +28,7 @@
 
 #include <set>
 #include <map>
+#include <sstream>
 
 #include <boost/smart_ptr.hpp>
 
@@ -38,9 +39,11 @@
 #include <openvrml/node_ptr.h>
 #include <openvrml/browser.h>
 
-#include "scooter/calculus.h"
-#include "scooter/calculus_dgd.h"
-#include "scooter/iterators.h"
+#include <scooter/calculus.h>
+#include <scooter/calculus_dgd.h>
+#include <scooter/iterators.h>
+#include <scooter/geometry.h>
+#include <scooter/geometry_dgd.h>
 
 #include "crVRMLControl.h"
 
@@ -796,8 +799,11 @@ CrVRMLControl::generate_line_arrays(
       colors.reset( new Vector[nvertexes] );
    indexes.reset( new unsigned int[ nstrips ] );
 
+   BBox bbox;
+
    i = 0;
    facet = 0;
+   
    for( iter = coord_index.begin(); iter != coord_index.end(); ++iter ) {
       unsigned int index = std::distance( coord_index.begin(), iter );
 
@@ -807,6 +813,7 @@ CrVRMLControl::generate_line_arrays(
 
       if( *iter >= 0 ) {	 
 	 vertexes[i]( coord[*iter].x(), coord[*iter].y(), coord[*iter].z() );
+	 bbox.expand( vertexes[i] );
 	 dgd_echo( dgd_expand(vertexes[i]) << std::endl );
 	 if( !color.empty() ) {
 	    unsigned int idx;
@@ -825,47 +832,28 @@ CrVRMLControl::generate_line_arrays(
       }
    }
 
+   // handle situation when the index array ends with non -1 
    if( i > 0 && facet == 0 ) indexes[facet++] = i;
 
-   unsigned int index = 0;
-   for( facet = 0; facet < nstrips; ++facet ) {
-      unsigned int begin = index;
-      unsigned int end = indexes[facet];
+   dgd_echo( dgd_expand(bbox) << std::endl );
 
-      dgd_echo( dgd_expand(begin) << std::endl
-		<< dgd_expand(end) << std::endl );
-
-      while( index < end ) {
-	 unsigned int i0 = index, 
-		      i1 = index+1, 
-		      i2 = index+2;
-
-	 dgd_echo( dgd_expand(i0) << std::endl
-		   << dgd_expand(i1) << std::endl
-		   << dgd_expand(i2) << std::endl );
+   if( bbox.valid() ) {
+      i = 0;
+      Vector bbox_center = bbox.center();
+      unsigned int index = 0;
+      for( facet = 0; facet < nstrips; ++facet ) {
+	 unsigned int begin = index;
+	 unsigned int end = indexes[facet];
 	 
-	 if( i1 >= end || i2 >= end )
-	    break;
+	 dgd_echo( dgd_expand(begin) << std::endl
+		   << dgd_expand(end) << std::endl );
 
-	 if( i0 == begin )
-	    normals[i0] = 
-	       ((vertexes[i0]-vertexes[i1])+
-		(vertexes[i0]-vertexes[i2])).normalize().cartesian();
-
-	 normals[i1] = 
-	    ((vertexes[i1]-vertexes[i0])+
-	     (vertexes[i1]-vertexes[i2])).normalize().cartesian();
-	 
-	 if( i2 == end )
-	    normals[i2] = 
-	       ((vertexes[i2]-vertexes[i0])+
-		(vertexes[i2]-vertexes[i2])).normalize().cartesian();
-
-	  dgd_echo( dgd_expand(normals[i0]) << std::endl
-		    << dgd_expand(normals[i1]) << std::endl
-		    << dgd_expand(normals[i2]) << std::endl );
-
-	 index++;
+	 while( index < end ) {
+	    normals[i++] = 
+	       (vertexes[index]-bbox_center).normalize().cartesian();
+	    dgd_echo( dgd_expand(normals[i-1]) << std::endl );
+	    index++;
+	 }
       }
    }
 
@@ -1470,13 +1458,29 @@ void CrVRMLControl::set_fog( const openvrml::color& color,
    dgd_start_scope( canvas, "CrVRMLControl::set_fog()" );
 
    GLfloat fog_color[4] = { color[0], color[1], color[2], 1.0 };
-   GLint fog_mode = (*type == 'E') ? GL_EXP : GL_LINEAR;
+   GLint fog_mode;
+   std::string name = "LINEAR";
+   float density = 0.05f;
+   float start = 0;
+
+   if( type != NULL && *type != '\0' ) {
+      std::istringstream string_stream( type );
+      string_stream >> name >> density >> start;
+   }
+   
+   if( name == "EXPONENTIAL" )
+      fog_mode = GL_EXP;
+   else if( name == "EXPONENTIAL2" ) 
+      fog_mode = GL_EXP2;
+   else 
+      fog_mode = GL_LINEAR;
 
    glEnable( GL_FOG );
-   glFogf( GL_FOG_START, 1.5 );	// What should this be?...
+   glFogf( GL_FOG_START, start );
    glFogf( GL_FOG_END, visibility_range );
    glFogi( GL_FOG_MODE, fog_mode );
    glFogfv( GL_FOG_COLOR, fog_color );
+   glFogf(GL_FOG_DENSITY, density);
 
    dgd_end_scope( canvas );
 }

@@ -117,10 +117,14 @@ bool CrApp::ParseCmdLine() {
       channel& canvas   = m_dout->create_channel( "canvas" );
       channel& openvrml = m_dout->create_channel( "openvrml" );
       channel& ifs      = m_dout->create_channel( "canvas-ifs" );
+      channel& dcel     = m_dout->create_channel( "dcel" );
+      channel& editctrl = m_dout->create_channel( "editctrl" );
       assoc( f.get(), gui );
       assoc( f.get(), canvas );
       assoc( f.get(), ifs );
       assoc( f.get(), openvrml );
+      assoc( f.get(), dcel );
+      assoc( f.get(), editctrl );
    }
 
    this->argc = (*option_sets)[1].argc;

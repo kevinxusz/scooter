@@ -28,6 +28,9 @@
 
 #include <boost/scoped_array.hpp>
 
+#include <scooter/nmm/dcel.h>
+#include <scooter/nmm/dcel_trace.h>
+
 #include "crMesh.h"
 
 CrMeshVertexBase::CrMeshVertexBase():
@@ -100,18 +103,24 @@ CrMesh::~CrMesh() {
 int CrMesh::load( const IFS_node *ifs ) {   
    using namespace openvrml;
 
+   dgd_start_scope( dcel, "CrMesh::load()" );
+
    // get coord_vector and coord_index
    const sfnode &coord_node_field =
       dynamic_cast<const sfnode &>( ifs->field("coord") );
 
-   if( coord_node_field.value == NULL )
+   if( coord_node_field.value == NULL ) {
+      dgd_end_scope_text( dcel, "coord_node_field.value == NULL" );
       return 1;
+   }
 
    coordinate_node* const coordinate_node =
       coord_node_field.value->to_coordinate();
 
-   if( coordinate_node == NULL )
+   if( coordinate_node == NULL ) {
+      dgd_end_scope_text( dcel, "coordinate_node == NULL" );
       return 1;
+   }
    
    const std::vector<vec3f> *coord_vector = &(coordinate_node->point());
 
@@ -119,8 +128,10 @@ int CrMesh::load( const IFS_node *ifs ) {
       dynamic_cast<const mfint32 &>( ifs->field("coordIndex") );
 
    const std::vector<int32> *coord_index = &(coord_index_node_filed.value);
-   if( coord_index->size() < 3 ) 
+   if( coord_index == NULL || coord_index->size() < 3 ) {
+      dgd_end_scope_text( dcel, "bad coord_index" );
       return 1;
+   }
 
    // get normal_vector and normal_index
    const sfnode &normal_node_field =
@@ -222,10 +233,13 @@ int CrMesh::load( const IFS_node *ifs ) {
       }
       i2v.insert( I2VMap::value_type( index, v ) );
    }
+
  
    // create index=>vertex* array
    boost::scoped_array<Vertex*> 
       vertex_by_coord_index( new Vertex*[ coord_index->size() ] );
+
+   dgd_echo( dgd_expand(coord_index->size()) << std::endl );
 
    for( index_array::const_iterator iter = coord_index->begin();
 	iter != coord_index->end();
@@ -233,6 +247,10 @@ int CrMesh::load( const IFS_node *ifs ) {
       unsigned int index  = iter - coord_index->begin();
       unsigned int vindex = *iter;
       I2VMap::iterator findres = i2v.find( vindex );
+
+      dgd_echo( dgd_expand(index) << std::endl 
+		<< dgd_expand(vindex) << std::endl );
+
       if( findres == i2v.end() ) {
 	 // -1 or coord_index contains non-existing index. 
 	 vertex_by_coord_index[index] = NULL;
@@ -287,11 +305,35 @@ int CrMesh::load( const IFS_node *ifs ) {
       
       facet_begin = facet_end;
    }
+
+   dgd_echo ( std::flush );
+   dgd_end_scope( dcel );
    return 0;
 }
 
 int CrMesh::save( IFS_node *ifs ) {
    return 0;
+}
+
+
+DGD::channel &operator<<( DGD::channel &ostr, const CrMeshVertexBase& vtx ) {
+   ostr << "(" 
+	<< vtx.coord().x() << "," 
+	<< vtx.coord().y() << "," 
+	<< vtx.coord().z() << ")";
+   return ostr;
+}
+
+
+DGD::channel &operator<<( DGD::channel &ostr, const CrMeshHalfedgeBase& vtx ) {
+   
+   return ostr;
+}
+
+
+DGD::channel &operator<<( DGD::channel &ostr, const CrMeshFacetBase& vtx ) {
+   
+   return ostr;
 }
 
 // 
