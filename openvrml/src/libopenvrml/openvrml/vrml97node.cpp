@@ -8143,7 +8143,9 @@ indexed_line_set_node::indexed_line_set_node(const node_type & type,
                                              const scope_ptr & scope):
     node(type, scope),
     abstract_indexed_set_node(type, scope)
-{}
+{
+    this->bounding_volume_dirty(true);
+}
 
 /**
  * @brief Destroy.
