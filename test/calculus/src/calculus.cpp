@@ -185,6 +185,53 @@ void test_vector() {
    dgd_echo( dgd_expand(Math::homogeneus(sum)) << std::endl 
 	     << dgd_expand(sum) << std::endl );
 
+
+   a( 0, 1, 0 );
+   b( 1, 0, 0 );
+   dgd_echo( dgd_expand(Math::homogeneus(a)) << std::endl 
+	     << dgd_expand(a) << std::endl
+	     << dgd_expand(Math::homogeneus(b)) << std::endl 
+	     << dgd_expand(b) << std::endl 
+	     << dgd_expand(Math::orientation(a,b)) << std::endl
+	     << dgd_expand(Math::orientation(b,a)) << std::endl
+	     << dgd_expand(Math::orientation(a,a)) << std::endl );
+
+   a( 0, 1, 0 );
+   b( 0, 0, 1 );
+   dgd_echo( dgd_expand(Math::homogeneus(a)) << std::endl 
+	     << dgd_expand(a) << std::endl
+	     << dgd_expand(Math::homogeneus(b)) << std::endl 
+	     << dgd_expand(b) << std::endl 
+	     << dgd_expand(Math::orientation(a,b)) << std::endl
+	     << dgd_expand(Math::orientation(b,a)) << std::endl );
+
+   a( 1, 0, 0 );
+   b( 0, 0, 1 );
+   dgd_echo( dgd_expand(Math::homogeneus(a)) << std::endl 
+	     << dgd_expand(a) << std::endl
+	     << dgd_expand(Math::homogeneus(b)) << std::endl 
+	     << dgd_expand(b) << std::endl 
+	     << dgd_expand(Math::orientation(a,b)) << std::endl
+	     << dgd_expand(Math::orientation(b,a)) << std::endl );
+
+   a( 2, 0, 0 );
+   b( 20, 0, 0 );
+   dgd_echo( dgd_expand(Math::homogeneus(a)) << std::endl 
+	     << dgd_expand(a) << std::endl
+	     << dgd_expand(Math::homogeneus(b)) << std::endl 
+	     << dgd_expand(b) << std::endl 
+	     << dgd_expand(Math::orientation(a,b)) << std::endl
+	     << dgd_expand(Math::orientation(b,a)) << std::endl );
+
+   a( 2, 0, 0 );
+   b( -20, 0, 0 );
+   dgd_echo( dgd_expand(Math::homogeneus(a)) << std::endl 
+	     << dgd_expand(a) << std::endl
+	     << dgd_expand(Math::homogeneus(b)) << std::endl 
+	     << dgd_expand(b) << std::endl 
+	     << dgd_expand(Math::orientation(a,b)) << std::endl
+	     << dgd_expand(Math::orientation(b,a)) << std::endl );
+   
    dgd_end_scope( calc );
 }
 
