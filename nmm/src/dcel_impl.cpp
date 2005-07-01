@@ -308,7 +308,7 @@ Dcel<Vb,Hb,Fb>::Facet_iterator Dcel<Vb,Hb,Fb>::facets_end() {
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Edge_iterator edges_begin() {
+Dcel<Vb,Hb,Fb>::Edge_iterator Dcel<Vb,Hb,Fb>::edges_begin() {
    return Edge_iterator( m_halfedges.begin() );
 }
 
