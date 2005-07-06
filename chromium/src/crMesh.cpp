@@ -102,6 +102,7 @@ CrMesh::~CrMesh() {
 
 int CrMesh::load( const IFS_node *ifs ) {   
    using namespace openvrml;
+   using namespace scooter::nmm::trace;
 
    dgd_start_scope( dcel, "CrMesh::load()" );
 
@@ -301,12 +302,15 @@ int CrMesh::load( const IFS_node *ifs ) {
 
       if( facet_end - facet_begin > 2 ) {
 	 Facet *f = this->new_facet( facet_begin, facet_end );
+
+	 dgd_echo( dgd_expand(*this) << std::endl );
       }
       
       facet_begin = facet_end;
    }
 
-   dgd_echo ( std::flush );
+   dgd_flush_all;
+
    dgd_end_scope( dcel );
    return 0;
 }

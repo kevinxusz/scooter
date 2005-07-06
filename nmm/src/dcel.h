@@ -109,6 +109,8 @@ class Dcel_halfedge: public Dcel_traits<Vb,Hb,Fb>::Halfedge_base
       typedef Traits::Vertex                  Vertex;
       typedef Traits::Halfedge                Halfedge;
       typedef Traits::Facet                   Facet;
+      typedef Traits::Vertex_circulator       Vertex_circulator;
+      typedef Traits::Vertex_const_circulator Vertex_const_circulator;
 
    public:
       Dcel_halfedge();
@@ -132,7 +134,9 @@ class Dcel_halfedge: public Dcel_traits<Vb,Hb,Fb>::Halfedge_base
       void  set_vertex  ( Vertex* const he );
       void  set_facet   ( Facet* const he );
 
-      void  reset ();
+      void             reset ();
+      Halfedge*        boundary();
+      const Halfedge*  boundary() const;
 
       bool  is_rabbit() const;
    private:
@@ -239,7 +243,7 @@ class Dcel {
       Vertex*   new_vertex( const Vb& data );
       Facet*    new_facet( Vertex** const begin,
 			   Vertex** const end );
-      
+
    protected:
       Vertex*   new_vertex();
       Halfedge* new_edge();
@@ -252,6 +256,9 @@ class Dcel {
       Halfedge* new_rabbit( Halfedge* const left, Halfedge* const right );
       void zip_edge( Halfedge* const base, Halfedge* const target );
       void glue_facet_to_edge( Halfedge *const base, Halfedge *const target );
+      int detach_fan( Halfedge *src, Halfedge *dst,
+		      Halfedge* &fan, Halfedge* &body );
+      void glue_contours( Halfedge* const src, Halfedge* const dst );
 
    private:
 
@@ -268,6 +275,8 @@ Dcel_halfedge<Vb,Hb,Fb> *connector( Dcel_vertex<Vb,Hb,Fb> *src,
 template <class Vb, class Hb, class Fb>
 bool is_neighbor( Dcel_vertex<Vb,Hb,Fb> *src, Dcel_halfedge<Vb,Hb,Fb> *he );
 
+template <class Vb, class Hb, class Fb>
+bool is_neighbor( Dcel_halfedge<Vb,Hb,Fb> *src, Dcel_halfedge<Vb,Hb,Fb> *he );
 
 }; // end of namespace nmm
 }; // end of namespace scooter

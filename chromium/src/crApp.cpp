@@ -70,6 +70,8 @@ bool CrApp::OnInit() {
    m_main_window->Show( true );
 
    this->SetTopWindow( m_main_window );
+
+   wxHandleFatalExceptions( true );
    
    dgd_end_scope( gui );
 
@@ -109,7 +111,7 @@ bool CrApp::ParseCmdLine() {
       stream main_file = m_dout->main_file();
 
       stream f = 
-	 m_dout->append_file( 
+	 m_dout->prepend_file( 
 	    stream( new funnel( main_file.get() ? *main_file : std::cerr  ) ) 
 	 );
 

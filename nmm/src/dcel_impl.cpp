@@ -197,6 +197,28 @@ void Dcel_halfedge<Vb,Hb,Fb>::reset() {
 }
 
 template <class Vb, class Hb, class Fb>
+Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
+Dcel_halfedge<Vb,Hb,Fb>::boundary() {
+   Vertex_circulator c( this );   
+   do {
+      if( c->facet() == NULL )   return c.ptr();
+      c++;
+   } while( c.begin() != c );
+   return NULL;
+}
+
+template <class Vb, class Hb, class Fb>
+const Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
+Dcel_halfedge<Vb,Hb,Fb>::boundary() const {
+   Vertex_const_circulator c( this );
+   do {
+      if( c->facet() == NULL )  return c.ptr();	 
+      c++;
+   } while( c.begin() != c );
+   return NULL;
+}
+
+template <class Vb, class Hb, class Fb>
 bool Dcel_halfedge<Vb,Hb,Fb>::is_rabbit() const {
    return ( this->opposite() != NULL && 
 	    this->vertex() != NULL &&
@@ -391,15 +413,32 @@ Dcel<Vb,Hb,Fb>::new_facet( Vertex** const begin, Vertex** const end ) {
    dgd_echo( dgd_expand(verbose(f)) << std::endl );
 
    do {      
-      // we are circlong over the disjoint facet
-      // we need to sekip rabbits since they are appearing in the
+      // we are circling over the disjoint facet
+      // we need to skip rabbits since they will appear in the
       // process of zipping
       if( !edge->is_rabbit() ) {
 
 	 Vertex *src = edge->opposite()->vertex();
 	 Vertex *dst = edge->vertex();
 	 
-	 Halfedge *base = connector( src, dst );      
+	 Halfedge *base = NULL;
+
+	 if( dst && dst->halfedge() ) {
+	    Dcel_vertex<Vb,Hb,Fb>::Vertex_circulator edge_circ = 
+	       dst->halfedges_around();
+	    
+	    do {
+	       if( edge_circ->opposite()->vertex() == src &&
+		   edge_circ->facet() != f ) {
+		  base = edge_circ.ptr();
+		  break;
+	       }
+	       ++edge_circ;
+	    } while( edge_circ.begin() != edge_circ );
+	 }
+
+	 if( base == NULL ) 
+	    base = connector( src, dst );
 	 
 	 dgd_echo( dgd_expand(verbose(src)) << std::endl
 		   << dgd_expand(verbose(dst)) << std::endl
@@ -558,6 +597,7 @@ void Dcel<Vb,Hb,Fb>::glue_facet_to_vertex( Vertex* const target,
 
    if( boundary != NULL ) {
       // manifold vertex
+      // refert to doc/mesh/nmm.vsd for explanations
       Halfedge* a = he;
       Halfedge* b = a->next();
       Halfedge* c = a->opposite();
@@ -581,6 +621,54 @@ void Dcel<Vb,Hb,Fb>::glue_facet_to_vertex( Vertex* const target,
       // non-manifold vertex. we need to create some rabbit
       Halfedge* left  = find_rabbit_burrow( target->halfedge() );
       Halfedge* right = find_rabbit_burrow( he );
+      new_rabbit( left, right );
+   }
+
+   dgd_end_scope( dcel );
+}
+
+template <class Vb, class Hb, class Fb>
+void Dcel<Vb,Hb,Fb>::glue_contours( Halfedge* const src, 
+				    Halfedge* const dst ) {
+   dgd_start_scope( dcel, "Dcel<Vb,Hb,Fb>::glue_contours()" );
+
+   dgd_echo( dgd_expand(verbose(src)) << std::endl
+	     << dgd_expand(verbose(dst)) << std::endl );
+
+   // the simpliest case -- vertices are same
+   if( src == NULL || dst == NULL || dst == src ||
+       src->opposite() == NULL || dst->opposite() == NULL ) {
+      dgd_end_scope_text( dcel, "bad params" );
+      return;
+   }
+
+   Halfedge* src_boundary = src->boundary();
+   Halfedge* dst_boundary = dst->boundary();
+   dgd_echo( dgd_expand(verbose(src_boundary)) << std::endl 
+	     << dgd_expand(verbose(dst_boundary)) << std::endl );
+
+   if( src_boundary != NULL && dst_boundary != NULL ) {
+      // manifold vertex
+      // refer to doc/mesh/nmm.vsd for explanations
+      Halfedge* a = src_boundary;
+      Halfedge* b = a->next();
+      Halfedge* c = dst_boundary;
+      Halfedge* d = dst_boundary->next();
+
+      a->set_next( d );				
+      d->set_prev( a );
+      c->set_next( b );
+      b->set_prev( c );
+      
+      dgd_echo( dgd_expand(verbose(a)) << std::endl
+		<< dgd_expand(verbose(b)) << std::endl
+		<< dgd_expand(verbose(c)) << std::endl
+		<< dgd_expand(verbose(d)) << std::endl );
+
+   } else {
+      // non-manifold vertex. we need to create some rabbit
+      Halfedge* left  = find_rabbit_burrow( src );
+      Halfedge* right = find_rabbit_burrow( dst );
       new_rabbit( left, right );
    }
 
@@ -640,6 +728,57 @@ void Dcel<Vb,Hb,Fb>::zip_edge( Halfedge* const base,
 	     << dgd_expand(verbose(f)) << std::endl 
 	     << dgd_expand(verbose(e)) << std::endl ); 
 
+   Halfedge *a_fan = NULL, *a_body = NULL;
+   int a_res = 0;
+   Halfedge *c_fan = NULL, *c_body = NULL;
+   int c_res = 0;
+   Halfedge *g_fan = NULL, *g_body = NULL;
+   int g_res = 0;
+   Halfedge *f_fan = NULL, *f_body = NULL;
+   int f_res = 0;
+
+   a_res = detach_fan( a, c, a_fan, a_body );
+   c_res = detach_fan( c, a, c_fan, c_body );
+   g_res = detach_fan( g, o, g_fan, g_body );
+   f_res = detach_fan( f, k, f_fan, f_body );
+
+   dgd_echo( dgd_expand(a_res) << std::endl
+	     << dgd_expand(verbose(a_fan)) << std::endl
+	     << dgd_expand(verbose(a_body)) << std::endl
+	     << dgd_expand(c_res) << std::endl
+	     << dgd_expand(verbose(c_fan)) << std::endl
+	     << dgd_expand(verbose(c_body)) << std::endl 
+	     << dgd_expand(g_res) << std::endl
+	     << dgd_expand(verbose(g_fan)) << std::endl
+	     << dgd_expand(verbose(g_body)) << std::endl 
+	     << dgd_expand(f_res) << std::endl
+	     << dgd_expand(verbose(f_fan)) << std::endl
+	     << dgd_expand(verbose(f_body)) << std::endl );
+
+   if( a_res > 0 || c_res > 0 || g_res > 0 || f_res > 0 ) {
+      // once some part of the graph is detached, edges
+      // change their roles.
+      b = a->opposite();
+      d = c->opposite();
+      g = a->prev();
+      k = a->next();
+      o = c->next();
+      p = d->prev();
+      f = c->prev();
+      e = d->next();
+
+      dgd_echo( dgd_expand(verbose(a)) << std::endl
+		<< dgd_expand(verbose(b)) << std::endl
+		<< dgd_expand(verbose(c)) << std::endl
+		<< dgd_expand(verbose(d)) << std::endl
+		<< dgd_expand(verbose(g)) << std::endl
+		<< dgd_expand(verbose(k)) << std::endl 
+		<< dgd_expand(verbose(o)) << std::endl 
+		<< dgd_expand(verbose(p)) << std::endl 
+		<< dgd_expand(verbose(f)) << std::endl 
+		<< dgd_expand(verbose(e)) << std::endl ); 
+   }
+
    if( g != c ) {
       g->set_next( o );
       o->set_prev( g );
@@ -694,10 +833,79 @@ void Dcel<Vb,Hb,Fb>::zip_edge( Halfedge* const base,
 		<< dgd_expand(verbose(d->vertex())) << std::endl );
    }
    
+   if( a_body == c ) a_body = b;
+   if( a_body == d ) a_body = a;
+   if( c_body == c ) c_body = b;
+   if( c_body == d ) c_body = a;
+   if( g_body == c ) g_body = b;
+   if( g_body == d ) g_body = a;
+   if( f_body == c ) f_body = b;
+   if( f_body == d ) f_body = a;
+
    c->reset();
    d->reset();
 
+
+   // attach fans if any 
+   if( a_res > 0 ) {
+      glue_contours( a_fan, a_body );
+   }
+
+   if( c_res > 0 ) {
+      glue_contours( c_fan, c_body );
+   }
+
+   if( g_res > 0 ) {
+      glue_contours( g_fan, g_body );
+   }
+
+   if( f_res > 0 ) {
+      glue_contours( f_fan, f_body );
+   }
+   
    dgd_end_scope( dcel );
+}
+
+
+template <class Vb, class Hb, class Fb>
+int
+Dcel<Vb,Hb,Fb>::detach_fan( Halfedge *src, Halfedge *dst,
+			    Halfedge* &fan, Halfedge* &body ) {
+   dgd_start_scope( dcel, "Dcel<Vb,Hb,Fb>::detach_fan()" );
+
+   dgd_echo( dgd_expand(verbose(src)) << std::endl 
+	     << dgd_expand(verbose(dst)) << std::endl );
+
+   if( dst == NULL || dst->facet() != NULL || dst->opposite() == NULL ||
+       src == NULL || src->facet() != NULL || src->opposite() == NULL ||
+       src->vertex() != dst->opposite()->vertex() ||
+       !is_neighbor( src, dst->opposite() ) ) {
+      dgd_end_scope_text( dcel, "bad param" );
+      return -1;
+   }
+
+   Halfedge *src_next = src->next();
+   Halfedge *dst_prev = dst->prev();
+
+   dgd_echo( dgd_expand(verbose(src_next)) << std::endl 
+	     << dgd_expand(verbose(dst_prev)) << std::endl );
+
+   if( src_next == dst || dst_prev == src ) {
+      dgd_end_scope_text( dcel, "no fan" );
+      return 0;
+   }
+
+   dst_prev->set_next( src_next );
+   src_next->set_prev( dst_prev );
+   
+   src->set_next( dst );
+   dst->set_prev( src );
+
+   fan = dst_prev;
+   body = src;
+
+   dgd_end_scope( dcel );
+   return 1;
 }
 
 /**
@@ -798,6 +1006,19 @@ bool is_neighbor( Dcel_vertex<Vb,Hb,Fb> *src, Dcel_halfedge<Vb,Hb,Fb> *he ) {
 
    Dcel_vertex<Vb,Hb,Fb>::Vertex_circulator edge_circ = 
       src->halfedges_around();
+   
+   do {
+      if( edge_circ.ptr() == he )
+	 return true;
+      ++edge_circ;
+   } while( edge_circ.begin() != edge_circ );
+
+   return false;
+}
+
+template <class Vb, class Hb, class Fb>
+bool is_neighbor( Dcel_halfedge<Vb,Hb,Fb> *src, Dcel_halfedge<Vb,Hb,Fb> *he ) {
+   Dcel_halfedge<Vb,Hb,Fb>::Vertex_circulator edge_circ(src);
    
    do {
       if( edge_circ.ptr() == he )
