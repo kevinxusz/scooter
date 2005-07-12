@@ -381,16 +381,22 @@ Vector<FloatValue,ComparableValue> cross_dot(
 template <class FloatValue, class ComparableValue>
 int orientation( 
    const Vector<FloatValue,ComparableValue>& a,
-   const Vector<FloatValue,ComparableValue>& b ) {
+   const Vector<FloatValue,ComparableValue>& b,
+   const Vector<FloatValue,ComparableValue>& up ) {
    typedef Vector<FloatValue,ComparableValue>::RT RT;
-   Vector<FloatValue,ComparableValue> c = cross(a,b).cartesian();
-   if( RT(c.z()) != RT(0) ) {
-      return ( c.z() > 0 ) ? 1 : -1;
-   } else if( RT(c.y()) != RT(0) ) {
-      return ( c.y() > 0 ) ? 1 : -1;
-   } else if( RT(c.x()) != RT(0) ) {
-      return ( c.x() > 0 ) ? 1 : -1;
-   }  
+   typedef Vector<FloatValue,ComparableValue>::FT FT;
+
+   Vector<FloatValue,ComparableValue> x = a;
+   Vector<FloatValue,ComparableValue> y = b;
+   Vector<FloatValue,ComparableValue> c = cross( x, y );
+
+   FT d = dot( c, up );
+
+   if( RT(d) > RT(0) ) 
+      return 1;
+
+   if( RT(d) < RT(0) ) 
+      return -1;
 
    return 0;
 }

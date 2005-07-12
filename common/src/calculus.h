@@ -273,7 +273,8 @@ Vector<FloatValue,ComparableValue> cross_dot(
 template <class FloatValue, class ComparableValue>
 int orientation( 
    const Vector<FloatValue,ComparableValue>& a, 
-   const Vector<FloatValue,ComparableValue>& b );
+   const Vector<FloatValue,ComparableValue>& b,
+   const Vector<FloatValue,ComparableValue>& up );
 
 // Matrix
 

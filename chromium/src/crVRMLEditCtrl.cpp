@@ -37,6 +37,9 @@
 #include <openvrml/browser.h>
 #include <openvrml/scope.h>
 
+#include <scooter/calculus.h>
+#include <scooter/calculus_dgd.h>
+
 #include "crVRMLEditCtrl.h"
 
 CrVRMLEditCtrl::CrVRMLEditCtrl( openvrml::browser &browser,
@@ -51,6 +54,8 @@ CrVRMLEditCtrl::~CrVRMLEditCtrl() {
 
 void CrVRMLEditCtrl::build() {
    using namespace openvrml;
+   using namespace scooter::nmm::trace;
+   using namespace Math;
 
    dgd_start_scope( editctrl, "CrVRMLEditCtrl::build()" );
 
@@ -80,9 +85,97 @@ void CrVRMLEditCtrl::build() {
    mfint32 *coord_index_vector = 
       (mfint32 *)(field_value::create( field_value::mfint32_id ).release());
 
-   FT average_halfedge_length = 0;
+   FT average_length = 0;
    unsigned int halfedge_count = 0;
    He2DMap h2d;
+
+   for( CrMesh::Halfedge_iterator heiter = m_mesh->halfedges_begin();
+	heiter != m_mesh->halfedges_end();
+	++heiter ) {
+      dgd_echo( dgd_expand(verbose(*heiter)) << std::endl );
+
+      if( heiter->opposite() == NULL || 
+	  heiter->vertex() == heiter->opposite()->vertex() )
+	 continue;
+
+      const CrMesh::Halfedge* he = &*heiter;
+
+      if( h2d.find( he ) != h2d.end() )
+	 continue;
+
+      const CrMesh::Halfedge *next, *first = he;
+      const CrMesh::Vertex *src, *dst, *ndst;
+
+      dgd_echo( dgd_expand(verbose(first)) << std::endl  );
+
+      FT minimum_length;
+      bool initialized = false;
+
+      // run over the facet and find the minimum edge length
+      do {
+	 while( he->is_rabbit() )  he = he->next();
+
+	 next = he->next();
+
+	 while( next->is_rabbit() )  next = next->next();
+
+
+	 dgd_echo( dgd_expand(verbose(he)) << std::endl 
+		   << dgd_expand(verbose(next)) << std::endl );
+
+	 src = he->opposite()->vertex();
+	 dst = he->vertex();
+	 ndst = next->vertex();
+
+
+	 dgd_echo( dgd_expand(verbose(src)) << std::endl 
+		   << dgd_expand(verbose(dst)) << std::endl 
+		   << dgd_expand(verbose(ndst)) << std::endl );
+
+	 // now find the radius of inbound circle
+	 Vector a = src->coord() - dst->coord();
+	 Vector b = src->coord() - ndst->coord();
+	 Vector c = dst->coord() - ndst->coord();
+
+	 FT square = cross( a, b ).length() / 2.0;
+	 FT perimeter = a.length() + b.length() + c.length();
+
+	 FT r = 0;
+
+	 if( RT(perimeter) > RT(0) ) {
+	    r = 2.0 * square / perimeter;
+	 }
+
+	 dgd_echo( dgd_expand(a) << std::endl 
+		   << dgd_expand(b) << std::endl 
+		   << dgd_expand(c) << std::endl 
+		   << dgd_expand(square) << std::endl 
+		   << dgd_expand(perimeter) << std::endl 
+		   << dgd_expand(r) << std::endl );
+
+	 if( !initialized ) {
+	    minimum_length = r;
+	    initialized = true;
+	 } else {
+	    minimum_length = std::min( minimum_length, r );
+	 }
+	 average_length += r;
+	 halfedge_count++;
+
+	 he = next;
+      } while( first != he );
+
+      // now insert the result into the map
+      do {
+	 h2d.insert( He2DMap::value_type( next, minimum_length ) );
+	 next = next->next();
+      } while( next != he );
+   }
+   
+   average_length /= halfedge_count;
+
+   dgd_echo( dgd_expand(average_length) << std::endl
+	     << dgd_expand(halfedge_count) << std::endl );
 
    for( CrMesh::Halfedge_iterator heiter = m_mesh->halfedges_begin();
 	heiter != m_mesh->halfedges_end();
@@ -92,63 +185,11 @@ void CrVRMLEditCtrl::build() {
       if( heiter->opposite() == NULL )
 	 continue;
 
-      const CrMesh::Halfedge* he = &*heiter;
-
-      if( h2d.find( he ) != h2d.end() )
-	 continue;
-
-      const CrMesh::Halfedge* next = he;
-      const CrMesh::Vertex* src = he->opposite()->vertex();
-      const CrMesh::Vertex* dst = he->vertex();
-
-      dgd_echo( dgd_expand(*next) << std::endl 
-		<< dgd_expand(*src) << std::endl
-		<< dgd_expand(*dst) << std::endl );
-
-      FT minimum_halfedge_length = (src->coord() - dst->coord()).length();
-
-      // run over the facet and find the minimum edge length
-      do {
-
-	 src = next->opposite()->vertex();
-	 dst = next->vertex();
-
-	 if( src != dst ) {
-	    FT halfedge_length = (src->coord() - dst->coord()).length();
-	    minimum_halfedge_length = 
-	       std::min( minimum_halfedge_length, halfedge_length );
-	    average_halfedge_length += halfedge_length;
-	    halfedge_count++;
-	 }
-
-	 next = next->next();
-      } while( next != he );
-
-      // now insert the result into the map
-      do {
-	 h2d.insert( He2DMap::value_type( next, minimum_halfedge_length ) );
-	 next = next->next();
-      } while( next != he );
-   }
-   
-   average_halfedge_length /= halfedge_count;
-
-   dgd_echo( dgd_expand(average_halfedge_length) << std::endl
-	     << dgd_expand(halfedge_count) << std::endl );
-
-   for( CrMesh::Halfedge_iterator heiter = m_mesh->halfedges_begin();
-	heiter != m_mesh->halfedges_end();
-	++heiter ) {
-      dgd_echo( dgd_expand(*heiter) << std::endl );
-
-      if( heiter->opposite() == NULL || heiter->facet() == NULL )
-	 continue;
-
       CrMesh::Halfedge *next = heiter->next();
       CrMesh::Halfedge *prev = heiter->prev();
 
-      dgd_echo( dgd_expand(*next) << std::endl 
-		<< dgd_expand(*prev) << std::endl );
+      dgd_echo( dgd_expand(verbose(next)) << std::endl 
+		<< dgd_expand(verbose(prev)) << std::endl );
 
       while( next->vertex() == next->opposite()->vertex() ) 
 	 next = next->next();
@@ -157,60 +198,91 @@ void CrVRMLEditCtrl::build() {
 	 prev = prev->prev();
 
 
-      dgd_echo( dgd_expand(*next) << std::endl 
-		<< dgd_expand(*prev) << std::endl );
+      dgd_echo( dgd_expand(verbose(next)) << std::endl 
+		<< dgd_expand(verbose(prev)) << std::endl );
 
       const CrMesh::Vertex *src = heiter->opposite()->vertex();
       const CrMesh::Vertex *dst = heiter->vertex();
       const CrMesh::Vertex *prev_vertex = prev->opposite()->vertex();
       const CrMesh::Vertex *next_vertex = next->vertex();
 
-      dgd_echo( dgd_expand(*src) << std::endl 
-		<< dgd_expand(*dst) << std::endl 
-		<< dgd_expand(*prev_vertex) << std::endl
-		<< dgd_expand(*next_vertex) << std::endl );
+      dgd_echo( dgd_expand(verbose(src)) << std::endl 
+		<< dgd_expand(verbose(dst)) << std::endl 
+		<< dgd_expand(verbose(prev_vertex)) << std::endl
+		<< dgd_expand(verbose(next_vertex)) << std::endl );
 
       if( src == dst ) {
 	 // rabbit
       } else {
 	 Vector prev = (prev_vertex->coord() - src->coord()).normalize();
 	 Vector curr = (dst->coord() - src->coord()).normalize();
+	 Vector ncurr = curr * -1.0;
 	 Vector next = (next_vertex->coord() - dst->coord()).normalize();
 	 FT delta;
 
 	 dgd_echo( dgd_expand(prev) << std::endl
 		   << dgd_expand(curr) << std::endl 
+		   << dgd_expand(ncurr) << std::endl 
 		   << dgd_expand(next) << std::endl );
 
 	 He2DMap::iterator find_res = h2d.find( &*heiter );
 	 if( find_res == h2d.end() ) {
 	    dgd_echo( "find_res == h2d.end()" << std::endl );
-	    delta = average_halfedge_length;
+	    delta = average_length;
 	 } else {
 	    dgd_echo( "find_res != h2d.end()" << std::endl );
 	    delta = find_res->second;
 	 }
 
-	 delta = std::min( delta, average_halfedge_length ) / 10.0;
+	 delta = std::min( delta, average_length ) / 3.0;
 
-	 Vector src_diagonal = prev + curr;
-	 Vector dst_diagonal = next - curr;
-
-	 FT src_diagonal_len = src_diagonal.length();
-	 FT dst_diagonal_len = dst_diagonal.length();
-
-	 FT src_diagonal_proj = Math::dot(src_diagonal, curr);
-	 FT dst_diagonal_proj = Math::dot(dst_diagonal, -curr);
-
-	 FT src_diagonal_scale = 
-	    delta / ::sqrt( src_diagonal_len * src_diagonal_len -
-			    src_diagonal_proj * src_diagonal_proj );
+	 Vector up = cross( curr, prev );
 	 
-	 FT dst_diagonal_scale = 
-	    delta / ::sqrt( dst_diagonal_len * dst_diagonal_len -
-			    dst_diagonal_proj * dst_diagonal_proj );
+	 if( heiter->facet() == NULL )
+	    up *= -1;
+
+	 Vector src_diagonal(0,0,0);
+	 FT src_diagonal_len = 0;
+	 FT src_diagonal_proj = 0;
+	 FT src_diagonal_scale = 0;
+	 int src_orientation = 0;
+
+	 Vector dst_diagonal(0,0,0);
+	 FT dst_diagonal_len = 0;
+	 FT dst_diagonal_proj = 0;
+	 FT dst_diagonal_scale = 0;
+	 int dst_orientation = 0;
+	
+	 src_orientation =  orientation( curr, prev, up );
+	 if( src_orientation != 0 ) {
+	    src_diagonal      = prev * src_orientation + 
+				curr * src_orientation;
+	    src_diagonal_len  = src_diagonal.length();
+	    src_diagonal_proj = Math::dot(src_diagonal, curr );
+
+	    if( RT(src_diagonal_len) != RT(src_diagonal_proj) )
+	       src_diagonal_scale =
+		  delta / ::sqrt( src_diagonal_len * src_diagonal_len -
+				  src_diagonal_proj * src_diagonal_proj );
+	 }
+
+	 dst_orientation = orientation( next, ncurr, up );
+	 if( dst_orientation != 0 ) {
+	    dst_diagonal      = next * dst_orientation + 
+				ncurr * dst_orientation;
+	    dst_diagonal_len  = dst_diagonal.length();
+	    dst_diagonal_proj = Math::dot(dst_diagonal, ncurr);
+
+	    if( RT(dst_diagonal_len) != RT(dst_diagonal_proj) ) 
+	       dst_diagonal_scale = 
+		  delta / ::sqrt( dst_diagonal_len * dst_diagonal_len -
+				  dst_diagonal_proj * dst_diagonal_proj );
+	 }
 
 	 dgd_echo( dgd_expand(delta) << std::endl 
+		   << dgd_expand(up) << std::endl 
+		   << dgd_expand(src_orientation) << std::endl 
+		   << dgd_expand(dst_orientation) << std::endl 
 		   << dgd_expand(src_diagonal) << std::endl 
 		   << dgd_expand(dst_diagonal) << std::endl 
 		   << dgd_expand(src_diagonal_len) << std::endl 
@@ -224,11 +296,12 @@ void CrVRMLEditCtrl::build() {
 			 src_diagonal * src_diagonal_scale +
 			 curr * (delta / 3.0);
 	 Point new_dst = dst->coord() + 
-			 dst_diagonal * dst_diagonal_scale -
-			 curr * (delta / 3.0);
+			 dst_diagonal * dst_diagonal_scale +
+			 ncurr * (delta / 3.0);
 	 Point arrow = dst->coord() + 
-		       dst_diagonal * 1.25 * dst_diagonal_scale -
-		       curr * (delta / 3.0);
+		       dst_diagonal * dst_diagonal_scale * 
+		       ( 1 + 0.5 * dst_orientation ) + 
+		       ncurr * (delta / 3.0);
 
 	 dgd_echo( dgd_expand(new_src) << std::endl 
 		   << dgd_expand(new_dst) << std::endl 

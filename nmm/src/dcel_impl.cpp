@@ -926,7 +926,7 @@ Dcel<Vb,Hb,Fb>::find_rabbit_burrow( const Halfedge* target ) const {
    Vertex_const_circulator c( target );
    do {
       Facet_count_map::iterator find_res = fmap.find( c->facet() );      
-      if( find_res == fmap.end() ) {
+      if( c->facet() != NULL && find_res == fmap.end() ) {
 	 std::pair<Facet_count_map::iterator, bool> insert_res =
 	    fmap.insert( Facet_count_map::value_type(
 			    c->facet(),
@@ -951,6 +951,9 @@ Dcel<Vb,Hb,Fb>::find_rabbit_burrow( const Halfedge* target ) const {
 	 res = p.first;
       }
    }
+
+   while( res->is_rabbit() )
+      res = res->prev();
 
    dgd_end_scope_text( dcel, dgd_expand(verbose(res)) );
    return const_cast<Halfedge*>(res);
