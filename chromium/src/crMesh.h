@@ -87,7 +87,6 @@ class CrMesh: public scooter::nmm::Dcel<CrMeshVertexBase,
       typedef scooter::nmm::Dcel<CrMeshVertexBase,
 				 CrMeshHalfedgeBase,
 				 CrMeshFacetBase>           Parent;
-      typedef boost::shared_ptr<CrMesh>                     Mesh_ptr;
       typedef openvrml::vrml97_node::indexed_face_set_node  IFS_node;
       typedef Parent::Vertex::Vector                        Vector;
       typedef Parent::Vertex::Point                         Point;
@@ -99,7 +98,10 @@ class CrMesh: public scooter::nmm::Dcel<CrMeshVertexBase,
 
       int load( const IFS_node *ifs );
       int save( IFS_node *ifs );
+      
 };
+
+typedef boost::shared_ptr<CrMesh> CrMeshPtr;
 
 
 DGD::channel &operator<<( DGD::channel &ostr, const CrMeshVertexBase& vtx );

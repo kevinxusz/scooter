@@ -32,6 +32,7 @@
 
 #include "crVRMLControl.h"
 #include "crMesh.h"
+#include "crMeshControl.h"
 
 namespace openvrml { class browser; }
 
@@ -53,8 +54,9 @@ class CrVRMLEditCtrl: public CrVRMLControl {
       void build();
 
    private:
-      IFS_node          *m_ifs_node;
-      CrMesh::Mesh_ptr   m_mesh;
+      IFS_node        *m_ifs_node;
+      CrMeshPtr        m_mesh;
+      CrMeshControlPtr m_mesh_control;
 };
 
 
