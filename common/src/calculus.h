@@ -438,6 +438,26 @@ Matrix<FloatValue,ComparableValue>& scale(
    Matrix<FloatValue,ComparableValue>& m, 
    const Matrix<FloatValue,ComparableValue>::FT& scale );
 
+// general
+
+
+template <class FloatValue>
+inline FloatValue determinant( const FloatValue& m00, 
+			       const FloatValue& m01, 
+			       const FloatValue& m02, 
+			       const FloatValue& m10, 
+			       const FloatValue& m11, 
+			       const FloatValue& m12, 
+			       const FloatValue& m20, 
+			       const FloatValue& m21, 
+			       const FloatValue& m22 );
+
+template <class FloatValue, class ComparableValue>
+Vector<FloatValue,ComparableValue>
+solve( const Vector<FloatValue,ComparableValue>& v0,
+       const Vector<FloatValue,ComparableValue>& v1,
+       const Vector<FloatValue,ComparableValue>& v2 );
+
 #include <scooter/calculus_impl.h>
 
 }; // end of namespace Math

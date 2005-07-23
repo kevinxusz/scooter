@@ -89,6 +89,7 @@ class CrMesh: public scooter::nmm::Dcel<CrMeshVertexBase,
 				 CrMeshFacetBase>           Parent;
       typedef openvrml::vrml97_node::indexed_face_set_node  IFS_node;
       typedef Parent::Vertex::Vector                        Vector;
+      typedef Parent::Vertex::Matrix                        Matrix;
       typedef Parent::Vertex::Point                         Point;
       typedef Parent::Vertex::Color                         Color;
    public:

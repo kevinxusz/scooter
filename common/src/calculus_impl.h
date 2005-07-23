@@ -1250,6 +1250,48 @@ scale( Matrix<FloatValue,ComparableValue>& m,
 }
 
 
+template <class FloatValue>
+inline FloatValue determinant( const FloatValue& m00, 
+			       const FloatValue& m01, 
+			       const FloatValue& m02, 
+			       const FloatValue& m10, 
+			       const FloatValue& m11, 
+			       const FloatValue& m12, 
+			       const FloatValue& m20, 
+			       const FloatValue& m21, 
+			       const FloatValue& m22 ) {
+   return (m00*m11*m22 - m00*m12*m21 + m01*m12*m20 - 
+	   m01*m10*m22 + m02*m10*m21 - m02*m11*m20);
+
+}
+
+template <class FloatValue, class ComparableValue>
+Vector<FloatValue,ComparableValue>
+solve( const Vector<FloatValue,ComparableValue>& v0,
+       const Vector<FloatValue,ComparableValue>& v1,
+       const Vector<FloatValue,ComparableValue>& v2 ) {
+   Vector<FloatValue,ComparableValue> res(0,0,0,0);
+   FloatValue det = determinant( v0.x(), v0.y(), v0.z(),
+				 v1.x(), v1.y(), v1.z(),
+				 v2.x(), v2.y(), v2.z() );
+   if( ComparableValue(det) != ComparableValue(0) ) {
+      res.w() = 1.0;
+      
+      res.x() = determinant( v0.w(), v0.y(), v0.z(),
+			     v1.w(), v1.y(), v1.z(),
+			     v2.w(), v2.y(), v2.z() ) / det;
+      
+      res.y() = determinant( v0.x(), v0.w(), v0.z(),
+			     v1.x(), v1.w(), v1.z(),
+			     v2.x(), v2.w(), v2.z() ) / det;
+      
+      res.z() = determinant( v0.x(), v0.y(), v0.w(),
+			     v1.x(), v1.y(), v1.w(),
+			     v2.x(), v2.y(), v2.w() ) / det;
+   }
+   return res;
+}
+
 #endif /* _calculus_impl_h_ */
 
 /* 

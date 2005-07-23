@@ -185,6 +185,7 @@ void test_vector() {
    dgd_echo( dgd_expand(Math::homogeneus(sum)) << std::endl 
 	     << dgd_expand(sum) << std::endl );
 
+   Vector up(0,0,1);
 
    a( 0, 1, 0 );
    b( 1, 0, 0 );
@@ -192,9 +193,9 @@ void test_vector() {
 	     << dgd_expand(a) << std::endl
 	     << dgd_expand(Math::homogeneus(b)) << std::endl 
 	     << dgd_expand(b) << std::endl 
-	     << dgd_expand(Math::orientation(a,b)) << std::endl
-	     << dgd_expand(Math::orientation(b,a)) << std::endl
-	     << dgd_expand(Math::orientation(a,a)) << std::endl );
+	     << dgd_expand(Math::orientation(a,b,up)) << std::endl
+	     << dgd_expand(Math::orientation(b,a,up)) << std::endl
+	     << dgd_expand(Math::orientation(a,a,up)) << std::endl );
 
    a( 0, 1, 0 );
    b( 0, 0, 1 );
@@ -202,8 +203,8 @@ void test_vector() {
 	     << dgd_expand(a) << std::endl
 	     << dgd_expand(Math::homogeneus(b)) << std::endl 
 	     << dgd_expand(b) << std::endl 
-	     << dgd_expand(Math::orientation(a,b)) << std::endl
-	     << dgd_expand(Math::orientation(b,a)) << std::endl );
+	     << dgd_expand(Math::orientation(a,b,up)) << std::endl
+	     << dgd_expand(Math::orientation(b,a,up)) << std::endl );
 
    a( 1, 0, 0 );
    b( 0, 0, 1 );
@@ -211,8 +212,8 @@ void test_vector() {
 	     << dgd_expand(a) << std::endl
 	     << dgd_expand(Math::homogeneus(b)) << std::endl 
 	     << dgd_expand(b) << std::endl 
-	     << dgd_expand(Math::orientation(a,b)) << std::endl
-	     << dgd_expand(Math::orientation(b,a)) << std::endl );
+	     << dgd_expand(Math::orientation(a,b,up)) << std::endl
+	     << dgd_expand(Math::orientation(b,a,up)) << std::endl );
 
    a( 2, 0, 0 );
    b( 20, 0, 0 );
@@ -220,8 +221,8 @@ void test_vector() {
 	     << dgd_expand(a) << std::endl
 	     << dgd_expand(Math::homogeneus(b)) << std::endl 
 	     << dgd_expand(b) << std::endl 
-	     << dgd_expand(Math::orientation(a,b)) << std::endl
-	     << dgd_expand(Math::orientation(b,a)) << std::endl );
+	     << dgd_expand(Math::orientation(a,b,up)) << std::endl
+	     << dgd_expand(Math::orientation(b,a,up)) << std::endl );
 
    a( 2, 0, 0 );
    b( -20, 0, 0 );
@@ -229,8 +230,8 @@ void test_vector() {
 	     << dgd_expand(a) << std::endl
 	     << dgd_expand(Math::homogeneus(b)) << std::endl 
 	     << dgd_expand(b) << std::endl 
-	     << dgd_expand(Math::orientation(a,b)) << std::endl
-	     << dgd_expand(Math::orientation(b,a)) << std::endl );
+	     << dgd_expand(Math::orientation(a,b,up)) << std::endl
+	     << dgd_expand(Math::orientation(b,a,up)) << std::endl );
    
    dgd_end_scope( calc );
 }
@@ -248,6 +249,39 @@ void test_matrix() {
 
    dgd_echo( dgd_expand(m2) << std::endl
 	     << dgd_expand(Math::homogeneus(m2)) << std::endl );
+
+   dgd_end_scope( calc );
+}
+
+void test_solve() {
+   dgd_start_scope( calc, "test_solve()" );
+   
+   Vector a(1, 2, 3, 4);
+   Vector b(5, 6, 0, 8);
+   Vector c(9, 10, 11, 0);
+
+   dgd_echo( dgd_expand(Math::homogeneus(a)) << std::endl
+	     << dgd_expand(Math::homogeneus(b)) << std::endl
+	     << dgd_expand(Math::homogeneus(c)) << std::endl
+	     << dgd_expand(Math::solve(a,b,c)) << std::endl );
+
+   a(1, 2, 3, 4);
+   b(5, 6, 0, 8);
+   c(9, 10, 11, 13);
+
+   dgd_echo( dgd_expand(Math::homogeneus(a)) << std::endl
+	     << dgd_expand(Math::homogeneus(b)) << std::endl
+	     << dgd_expand(Math::homogeneus(c)) << std::endl
+	     << dgd_expand(Math::solve(a,b,c)) << std::endl );
+
+   a(1, 2, 3, 4);
+   b(5, 6, 0, 8);
+   c(9, 10, 11, 18);
+
+   dgd_echo( dgd_expand(Math::homogeneus(a)) << std::endl
+	     << dgd_expand(Math::homogeneus(b)) << std::endl
+	     << dgd_expand(Math::homogeneus(c)) << std::endl
+	     << dgd_expand(Math::solve(a,b,c)) << std::endl );
 
    dgd_end_scope( calc );
 }
@@ -280,6 +314,7 @@ int main( int argc, char** argv ) {
 
    test_vector();
    test_matrix();
+   test_solve();
    return 0;
 }
 

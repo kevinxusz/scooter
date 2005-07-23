@@ -36,7 +36,14 @@
 #include <scooter/geometry_dgd.h>
 
 typedef Math::Vector<double> Vector;
+typedef Math::Vector<double> Point;
 typedef Math::Bounding_box<double> BBox;
+typedef Math::Line<double> Line;
+typedef Math::Plane<double> Plane;
+typedef Math::Circle<double> Circle;
+typedef Math::Triangle<double> Triangle;
+typedef Math::Intersection<double> Intersection;
+
 
 void test_bbox() {
    dgd_start_scope( geom, "test_bbox()" );
@@ -59,6 +66,43 @@ void test_bbox() {
    dgd_end_scope( geom );
 }
 
+void test_line_plane() {
+   dgd_start_scope( geom, "test_line_plane()" );
+   Line a( Point( 0, 1, 0 ), Vector( 1, -1, 0 ) );
+   Line b( Point( 0, -1, 0 ), Vector( 1, 1, 0 ) );
+   Line c( Point( 0, -1, 1 ), Vector( 1, 1, 0 ) );
+
+   dgd_echo( dgd_expand(a) << std::endl
+	     << dgd_expand(b) << std::endl
+	     << dgd_expand(c) << std::endl
+	     << dgd_expand(Math::distance(a,b)) << std::endl
+	     << dgd_expand(Math::distance(a,c)) << std::endl
+	     << dgd_expand(Math::distance(Point(),a)) << std::endl
+	     << dgd_expand(Math::distance(Point(),b)) << std::endl
+	     << dgd_expand(Math::distance(Point(),c)) << std::endl
+	     << dgd_expand(Math::intersection(a,a)) << std::endl
+	     << dgd_expand(Math::intersection(b,c)) << std::endl
+	     << dgd_expand(Math::intersection(a,b)) << std::endl
+	     << dgd_expand(Math::intersection(a,c)) << std::endl );
+
+   Plane p1( Point( 0, 1, 1 ), Vector( 0, -1, 1 ) );
+   Plane p2( Point( 0, -1, 1 ), Vector( 0, 1, 1 ) );
+   Plane p3( Point( 0, -1, 2 ), Vector( 0, 1, 1 ) );
+
+   dgd_echo( dgd_expand(p1) << std::endl
+	     << dgd_expand(p2) << std::endl
+	     << dgd_expand(p3) << std::endl
+	     << dgd_expand(Math::distance( Point(0,0,2), p1 )) << std::endl
+	     << dgd_expand(Math::distance( Point(0,0,2), p2 )) << std::endl
+	     << dgd_expand(Math::distance( Point(0,0,2), p3 )) << std::endl
+	     << dgd_expand(Math::intersection(p1,p2)) << std::endl 
+	     << dgd_expand(Math::intersection(p2,p3)) << std::endl 
+	     << dgd_expand(Math::intersection( a, p1 )) << std::endl
+	     << dgd_expand(Math::intersection( b, p1 )) << std::endl
+	     << dgd_expand(Math::intersection( c, p1 )) << std::endl );
+   
+   dgd_end_scope( dcel );
+}
 
 int main( int argc, char** argv ) {
    using namespace DGD;
@@ -87,6 +131,7 @@ int main( int argc, char** argv ) {
    }   
 
    test_bbox();
+   test_line_plane();
    return 0;
 }
 
