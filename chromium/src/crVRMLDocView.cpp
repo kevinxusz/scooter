@@ -63,6 +63,8 @@ bool CrVRMLDocView::OnCreate( wxDocument *doc, long flags) {
 				     perfect_size.GetSize(),
 				     wxDEFAULT_FRAME_STYLE |
 				     wxNO_FULL_REPAINT_ON_RESIZE );
+   m_frame->SetIcon( wxIcon( "objects" ) );
+
    m_splitter = new wxSplitterWindow( m_frame, -1, 
 				      wxDefaultPosition, wxDefaultSize,
 				      wxSP_NOBORDER | 

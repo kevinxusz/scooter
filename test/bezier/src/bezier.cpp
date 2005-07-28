@@ -43,14 +43,17 @@ typedef Bezier::FT                       FT;
 void test_bezier() {
    dgd_start_scope( bezier, "test_bezier()" );
 
-   
-   Bezier b( Point(0,0,0), Point(1,0,0), Point(2,2,0,2), Point(0,1,0),
-	     20 );
+
+   Bezier b(
+      Point(0.00759565,0.0392947,0.00404713),
+      Point(0.00669556,0.0394836,0.00521644),
+      Point(0.0063925,0.0394836,0.00594808),
+      Point(0.00668647,0.0392947,0.00624205),
+      5 );
 
    dgd_echo( "array: " 
 	     << dgd_for( b, Bezier() ) 
 	     << std::endl );
-
    dgd_end_scope( bezier );
 }
 

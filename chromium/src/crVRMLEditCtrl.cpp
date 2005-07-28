@@ -70,7 +70,14 @@ void CrVRMLEditCtrl::build() {
    dgd_end_scope( editctrl );
 }
 
+void CrVRMLEditCtrl::select( int x, int y ) {
+   Line ray = unproject(x,y);
 
+   bbox( ray.origin() + ray.direction() * 50 + Vector(-1,-1,-1),
+	 ray.origin() + ray.direction() * 50 + Vector(1,1,1),
+	 *wxWHITE );
+   bbox( true );
+}
 
 // 
 // crVRMLEditCtrl.cpp -- end of file

@@ -399,6 +399,11 @@ intersection( const Plane<FloatValue,ComparableValue>& p1,
 	    Line<FloatValue,ComparableValue>(p,n3) 
 	 );
       } 	
+   } 
+
+   FloatValue coplanar = dot( p1.origin() - p2.origin(), p1.normal() );
+   if( ComparableValue(coplanar) == ComparableValue(0) ) {
+      return Intersection<FloatValue,ComparableValue>(p1);
    }
 
    return Intersection<FloatValue,ComparableValue>();

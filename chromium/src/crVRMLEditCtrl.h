@@ -42,6 +42,7 @@ class CrVRMLEditCtrl: public CrVRMLControl {
       typedef Parent::Vector Vector;
       typedef Parent::Point  Point;
       typedef Parent::Matrix Matrix;
+      typedef Parent::Line   Line;
       typedef Parent::FT     FT;
       typedef Parent::RT     RT;
 
@@ -52,6 +53,7 @@ class CrVRMLEditCtrl: public CrVRMLControl {
       ~CrVRMLEditCtrl();
 
       void build();
+      void select( int x, int y );
 
    private:
       IFS_node        *m_ifs_node;

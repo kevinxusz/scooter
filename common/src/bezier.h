@@ -60,12 +60,19 @@ class Bezier_iterator:
 		       const unsigned int precision ) :
 	 m_state( precision+1 ),
 	 m_precision( precision ),
-	 m_point( p1 ) {
+	 m_point( 0,0,0 ) {
+
+	 Point x1 = p1.cartesian();
+	 Point x2 = p2.cartesian();
+	 Point x3 = p3.cartesian();
+	 Point x4 = p4.cartesian();
+
+	 m_point = x1;
 
 	 if( precision > 0 ) {
-	    Point a = p1 * -1.0  + p2 * 3.0 + p3 * -3.0 + p4;
-	    Point b = p1 * 3.0   + p2 * -6.0 + p3 * 3.0;
-	    Point c = p1 * -3.0  + p2 * 3.0;
+	    Point a = x1 * -1.0  + x2 * 3.0  + x3 * -3.0 + x4;
+	    Point b = x1 * 3.0   + x2 * -6.0 + x3 * 3.0;
+	    Point c = x1 * -3.0  + x2 * 3.0;
 	    
 	    FT ds1 = 1.0 / precision;
 	    FT ds2 = ds1 * ds1;
@@ -91,6 +98,7 @@ class Bezier_iterator:
 	 if( m_state ) {
 	    m_state--;
 
+	    m_point.cartesian();
 	    m_delta1.cartesian();
 	    m_delta2.cartesian();
 	    m_delta3.cartesian();

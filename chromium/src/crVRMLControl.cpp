@@ -942,12 +942,28 @@ CrVRMLControl::insert_point_set(const std::vector<openvrml::vec3f>& coord,
    std::vector<openvrml::vec3f>::const_iterator coord_iter;
    std::vector<openvrml::color>::const_iterator color_iter;
 
+   Math::Bounding_box<FT> bbox;
+
+   for( coord_iter = coord.begin(), color_iter = color.begin();
+	coord_iter != coord.end();
+	++coord_iter ) {
+      bbox.expand( Vector( coord_iter->x(), 
+			   coord_iter->y(),
+			   coord_iter->z() ) );
+   }
+
+   Vector center = bbox.center();
+
    glBegin( GL_POINTS );
    for( coord_iter = coord.begin(), color_iter = color.begin();
 	coord_iter != coord.end();
 	++coord_iter ) {
       if( color_iter != color.end() ) 
 	 glColor3fv( &(*color_iter++)[0] );
+      glNormal3fv( (FT*)(Vector( coord_iter->x(),
+				 coord_iter->y(),
+				 coord_iter->z() ) - 
+			 center).normalize().cartesian() );
       glVertex3fv( &(*coord_iter)[0] );
    }
    glEnd();
@@ -1862,6 +1878,9 @@ void CrVRMLControl::draw_bbox() {
    if( m_show_bbox ) {
       apply_local_transform();
 
+      m_bbox_max.cartesian();
+      m_bbox_min.cartesian();
+
       glPushAttrib( GL_LIGHTING_BIT | GL_ENABLE_BIT );
       glShadeModel( GL_FLAT );
       glDisable(GL_LIGHTING);
@@ -1917,7 +1936,6 @@ void CrVRMLControl::draw_bbox() {
 
       glEnd();
       glPopAttrib();
-
 
       undo_local_transform();
    }
@@ -2171,6 +2189,71 @@ void CrVRMLControl::redraw() {
    dgd_end_scope( canvas );
 }
 
+CrVRMLControl::Line 
+CrVRMLControl::unproject( int x, int y ) {
+   using namespace Math;
+   dgd_start_scope( canvas, "CrVRMLControl::unproject()" );
+
+   Math::Vector<int,int> viewport;
+   Math::Matrix<double>  projection;
+   Matrix modelview;
+   Line res;
+
+   apply_local_transform();
+
+   glGetIntegerv (GL_VIEWPORT, viewport);
+   glGetDoublev( GL_PROJECTION_MATRIX, projection );
+   glGetFloatv( GL_MODELVIEW_MATRIX, modelview );
+
+   projection.transpose().invert();
+   modelview.transpose().invert();
+
+   dgd_echo( dgd_expand(x) << std::endl
+	     << dgd_expand(y) << std::endl
+	     << dgd_expand(Math::homogeneus(viewport)) << std::endl
+	     << dgd_expand(Math::homogeneus(projection)) << std::endl
+	     << dgd_expand(Math::homogeneus(modelview)) << std::endl );
+
+   double width = viewport.z()-viewport.x();
+   double height = viewport.w()-viewport.y();
+   Math::Vector<double> screen_coord( 2 * (x-viewport.x())/width - 1, 
+				      -(2 * (y-viewport.y())/height - 1), 
+				      0 );
+   const Math::Vector<double> space_coord_near = projection * screen_coord;
+   const Vector coord_near( space_coord_near.x(),
+			    space_coord_near.y(),
+			    space_coord_near.z(),
+			    space_coord_near.w() );
+   const Vector pnear = modelview * coord_near;
+
+   screen_coord.z() += 1.0;
+   const Math::Vector<double> space_coord_far =  projection * screen_coord;
+   const Vector coord_far( space_coord_far.x(),
+			   space_coord_far.y(),
+			   space_coord_far.z(),
+			   space_coord_far.w() );
+   const Vector pfar = modelview * coord_far;
+
+
+   res = Line( pnear, pfar-pnear );
+
+   dgd_echo( dgd_expand(screen_coord) << std::endl
+	     << dgd_expand(space_coord_near) << std::endl
+	     << dgd_expand(space_coord_far) << std::endl
+	     << dgd_expand(pfar) << std::endl
+	     << dgd_expand(pnear) << std::endl 
+	     << dgd_expand(res) << std::endl );
+
+   undo_local_transform();
+
+   dgd_end_scope( canvas );
+   return res;
+}
+
+void CrVRMLControl::select( int x, int y ) {
+
+}
+
 void CrVRMLControl::input( wxMouseEvent& event) {
    dgd_start_scope( canvas, "CrVRMLControl::input()" );
 
@@ -2191,12 +2274,16 @@ void CrVRMLControl::input( wxMouseEvent& event) {
   
    if( event.ButtonDown() && button > 0 ) {
       // button press
-
+      
       dgd_echo( "button down: " << button << std::endl );
 
       finish_user_action( m_user_state.m_state, 
 			  event.GetTimestamp(), 
 			  event.GetX(), event.GetY() );
+
+      if( event.ShiftDown() ) {
+	 m_enable_selection = true;
+      }
       
       switch( button ) {
 	 case 1:
@@ -2230,6 +2317,9 @@ void CrVRMLControl::input( wxMouseEvent& event) {
 	    break;
 	 }
    }
+
+   if( event.ButtonUp() )
+      m_enable_selection = false;
 
    if( (event.ButtonUp() && button > 0) || event.Leaving() ) {   
       dgd_echo( "button up: " << button << std::endl );
@@ -2276,10 +2366,8 @@ void CrVRMLControl::start_user_action( Interaction::UserAction action,
 	 m_user_state.m_zoom_y = y;
       } break;
       case Interaction::SELECT: {
-// 	 m_selected_object = NULL;
-// 	 select( x, y );
-// 	 if( m_selected_object != NULL )
-// 	    redraw();
+	 dgd_echo( "SELECT " << x << " " << y << std::endl );
+ 	 select( x, y );
       } break;
    }
    dgd_end_scope( canvas );
@@ -2380,10 +2468,8 @@ void CrVRMLControl::continue_user_action( Interaction::UserAction action,
 	 m_user_state.m_zoom_y = y;
       } break;
       case Interaction::SELECT: {
-// 	 m_selected_object = NULL;
-// 	 select( x, y );
-// 	 if( m_selected_object != NULL )
-// 	    redraw();
+	 dgd_echo( "SELECT " << x << " " << y << std::endl );
+ 	 select( x, y );
       } break;
    }
    dgd_end_scope( view );
@@ -2412,6 +2498,7 @@ void CrVRMLControl::finish_user_action( Interaction::UserAction action,
       case Interaction::ZOOM: {
 	 continue_user_action( Interaction::ZOOM, time, x, y );
       } break;
+
       case Interaction::SELECT: {
 	 continue_user_action( Interaction::SELECT, time, x, y );
       } break;

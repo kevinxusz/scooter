@@ -47,37 +47,37 @@ sub bezier {
     $ay = -$p1->[1] + 3.0*$p2->[1] - 3.0*$p3->[1] + $p4->[1];
     $az = -$p1->[2] + 3.0*$p2->[2] - 3.0*$p3->[2] + $p4->[2];
 
-    print "a( $ax, $ay, $az )\n";
+#    print "a( $ax, $ay, $az )\n";
 
     $bx = 3.0*$p1->[0] - 6.0*$p2->[0] + 3.0*$p3->[0];
     $by = 3.0*$p1->[1] - 6.0*$p2->[1] + 3.0*$p3->[1];
     $bz = 3.0*$p1->[2] - 6.0*$p2->[2] + 3.0*$p3->[2];
 
-    print "b( $bx, $by, $bz )\n";
+#    print "b( $bx, $by, $bz )\n";
 
     $cx = -3.0*$p1->[0] + 3.0*$p2->[0];
     $cy = -3.0*$p1->[1] + 3.0*$p2->[1];
     $cz = -3.0*$p1->[2] + 3.0*$p2->[2];
 
-    print "c( $cx, $cy, $cz )\n";
+ #   print "c( $cx, $cy, $cz )\n";
 
     $xdelta = $ax*$deltastep3 + $bx*$deltastep2 + $cx*$deltastep;
     $ydelta = $ay*$deltastep3 + $by*$deltastep2 + $cy*$deltastep;
     $zdelta = $az*$deltastep3 + $bz*$deltastep2 + $cz*$deltastep;
 
-    print "delta( $xdelta, $ydelta, $zdelta )\n";
+ #  print "delta( $xdelta, $ydelta, $zdelta )\n";
 
     $xdelta2 = 6.0*$ax*$deltastep3 + 2.0*$bx*$deltastep2;
     $ydelta2 = 6.0*$ay*$deltastep3 + 2.0*$by*$deltastep2;
     $zdelta2 = 6.0*$az*$deltastep3 + 2.0*$bz*$deltastep2;
 
-    print "delta2( $xdelta2, $ydelta2, $zdelta2 )\n";
+#    print "delta2( $xdelta2, $ydelta2, $zdelta2 )\n";
 
     $xdelta3 = 6.0*$ax*$deltastep3;
     $ydelta3 = 6.0*$ay*$deltastep3;
     $zdelta3 = 6.0*$az*$deltastep3;
 
-    print "delta3( $xdelta3, $ydelta3, $zdelta3 )\n";
+#    print "delta3( $xdelta3, $ydelta3, $zdelta3 )\n";
 
     @$v1 = @$p1;
 
@@ -99,7 +99,7 @@ sub bezier {
 	@$v1 = @$v2;
 
 	push @$points, @$v1;
-	print "v( " . join(" ", @$v1 ) . ")\n";
+#	print "v( " . join(" ", @$v1 ) . ")\n";
     }
 
     my $template = q(

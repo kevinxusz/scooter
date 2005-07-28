@@ -62,6 +62,8 @@ void CrVRMLViewer::Create( openvrml::browser &browser ) {
 }
 
 void CrVRMLViewer::OnItemSelect( wxCommandEvent& event ) {
+   dgd_start_scope( canvas, "CrVRMLViewer::OnItemSelect()" );
+
    CrVRMLNodeInfo *node_info  = (CrVRMLNodeInfo*)event.GetClientData();
    if( node_info != NULL ) {
       openvrml::node& node = node_info->node();
@@ -74,6 +76,10 @@ void CrVRMLViewer::OnItemSelect( wxCommandEvent& event ) {
       openvrml::vec3f bottom = bvol.bottom();
       top *= transform;
       bottom *= transform;
+
+      dgd_echo( dgd_expand(top) << std::endl 
+		<< dgd_expand(bottom) << std::endl );
+      
       m_main_control->bbox( CrVRMLControl::Vector( bottom.x(), 
 						   bottom.y(),
 						   bottom.z() ),
@@ -87,6 +93,8 @@ void CrVRMLViewer::OnItemSelect( wxCommandEvent& event ) {
       m_main_control->bbox( false );
    }
    this->Refresh( false );
+
+   dgd_end_scope( canvas );
 }
 
 void CrVRMLViewer::OnItemFocus( wxCommandEvent& event ) {

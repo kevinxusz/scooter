@@ -1,4 +1,6 @@
-chromium                 ICON    "cromium-gray.ico"
+chromium                 ICON    "logo-new-icon.ico"
+objects                  ICON    "objects-icon-16x16.ico"
+chromium-old             ICON    "cromium-gray.ico"
 debug                    ICON    "debug.ico"
 
 #include "wx/msw/wx.rc"

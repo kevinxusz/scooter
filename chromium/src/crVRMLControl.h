@@ -56,6 +56,7 @@ class CrVRMLControl:  public openvrml::viewer {
       typedef Math::Vector<float> Point;
       typedef Math::Matrix<float> Matrix;
       typedef Math::Bounding_box<float> BBox;
+      typedef Math::Line<float>   Line;
       typedef Vector::FT FT;
       typedef Vector::RT RT;
 
@@ -286,6 +287,7 @@ class CrVRMLControl:  public openvrml::viewer {
    public: 
       void redraw();
       void resize( int x, int y, int width, int height );
+      virtual void select( int x, int y );
       void input( wxMouseEvent &mouse_event );
 
       void enable_notification( wxEvtHandler *eh );
@@ -302,6 +304,7 @@ class CrVRMLControl:  public openvrml::viewer {
 
    protected:
       void initialize();
+      Line CrVRMLControl::unproject( int x, int y );
       void apply_local_transform();
       void undo_local_transform();
       bool get_scene_bounds( Vector& center, FT& radius );

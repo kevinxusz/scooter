@@ -67,26 +67,27 @@ class CrMeshControl {
 	    unsigned int    m_index;
 	    FT              m_delta;
 	    Vector          m_facet_normal;
-	    Vector          m_real_displacement;
+	    Vector          m_dst_disp;
+	    Vector          m_src_disp;
 
 	    Halfedge_properties() : 
 	       m_halfedge(NULL), 
 	       m_index(-1),
 	       m_delta(0),
 	       m_facet_normal(0,0,0),
-	       m_real_displacement(0,0,0) {}
+	       m_dst_disp(0,0,0) {}
 
 	    Halfedge_properties( const Halfedge *he, 
 				 unsigned int idx = -1,
 				 FT delta = 0,
 				 unsigned int rabbit = 0,
-				 const Vector &norm = Vector(0,0,0),
-				 const Vector &disp = Vector(0,0,0) ) :
+				 const Vector &norm = Vector(0,0,0) ) :
 	       m_halfedge(he), 
 	       m_index(idx),
 	       m_delta(delta),
 	       m_facet_normal(norm),
-	       m_real_displacement(disp) {}
+	       m_dst_disp(0,0,0),
+	       m_src_disp(0,0,0) {}
 
 
 	    Halfedge_properties( const Halfedge_properties& peer ) :
@@ -94,7 +95,8 @@ class CrMeshControl {
 	       m_index(peer.m_index),
 	       m_delta(peer.m_delta),
 	       m_facet_normal(peer.m_facet_normal),
-	       m_real_displacement(peer.m_real_displacement) {}
+	       m_dst_disp(peer.m_dst_disp),
+	       m_src_disp(peer.m_src_disp){}
       };
 
       typedef boost::shared_ptr<Vertex_properties> Vertex_properties_ptr;
@@ -130,6 +132,19 @@ class CrMeshControl {
 		       openvrml::mfint32 *coord_index_vector,
 		       openvrml::int32    coord_index,
 		       openvrml::mfint32 *color_index_vector );
+      void add_opposite( Halfedge *he,
+			 openvrml::mfvec3f *coord_vector,
+			 openvrml::mfint32 *coord_index_vector,
+			 openvrml::int32    coord_index,
+			 openvrml::mfint32 *color_index_vector );
+      void add_next( Halfedge *he,
+		     openvrml::mfvec3f *coord_vector,
+		     openvrml::mfint32 *coord_index_vector,
+		     openvrml::int32    coord_index,
+		     openvrml::mfint32 *color_index_vector );
+      void add_vertex( Vertex *v,
+		       openvrml::mfvec3f *coord_vector,
+		       openvrml::mfcolor *color_vector );
       void reload_halfedges();
       void init_vrml_nodes();
 
