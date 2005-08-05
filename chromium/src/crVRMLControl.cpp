@@ -61,7 +61,7 @@ CrVRMLControl::CrVRMLControl( openvrml::browser & b ):
    m_enable_lighting(true),
    m_max_lights(0),
    m_enable_interaction(true),
-   m_mouse_sensitivity(3.0f),
+   m_mouse_sensitivity(2.0f),
    m_enable_permanent_rotation(true),
    m_permanent_rotation(false),
    m_cone_precision(32),

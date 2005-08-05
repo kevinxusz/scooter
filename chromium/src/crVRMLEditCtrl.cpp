@@ -73,10 +73,11 @@ void CrVRMLEditCtrl::build() {
 void CrVRMLEditCtrl::select( int x, int y ) {
    Line ray = unproject(x,y);
 
-   bbox( ray.origin() + ray.direction() * 50 + Vector(-1,-1,-1),
-	 ray.origin() + ray.direction() * 50 + Vector(1,1,1),
-	 *wxWHITE );
-   bbox( true );
+   CrMeshControl::Vertex *v = m_mesh_control->find_vertex( ray );
+   if( v != NULL ) {
+      m_mesh_control->select( v );
+   } 
+
 }
 
 // 

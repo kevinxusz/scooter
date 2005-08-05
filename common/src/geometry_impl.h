@@ -153,6 +153,39 @@ Line<FloatValue,ComparableValue>::direction() const {
    return m_direction;
 }
 
+// Segment
+
+template <class FloatValue, class ComparableValue>
+Segment<FloatValue,ComparableValue>::Segment() :
+   m_a(0,0,0), m_b(0,0,0) {}
+
+template <class FloatValue, class ComparableValue>
+Segment<FloatValue,ComparableValue>::Segment( const Point& a, 
+					      const Point& b) :
+   m_a(a), m_b(b) {}
+
+template <class FloatValue, class ComparableValue>
+Segment<FloatValue,ComparableValue>::Segment( const Segment& peer ) :
+   m_a(peer.m_a), m_b(peer.m_b) {}
+
+template <class FloatValue, class ComparableValue>
+const Segment<FloatValue,ComparableValue>::Point&
+Segment<FloatValue,ComparableValue>::a() const {
+   return m_a;
+}
+
+template <class FloatValue, class ComparableValue>
+const Segment<FloatValue,ComparableValue>::Point&
+Segment<FloatValue,ComparableValue>::b() const {
+   return m_b;
+}
+
+template <class FloatValue, class ComparableValue>
+Segment<FloatValue,ComparableValue>::FT
+Segment<FloatValue,ComparableValue>::length() const {
+   return distance(m_a,m_b);
+}
+
 // Circle
 
 template <class FloatValue, class ComparableValue>
@@ -281,6 +314,10 @@ Intersection<FloatValue,ComparableValue>::Intersection( const Plane& plane ) :
    m_intersection(plane) {}
 
 template <class FloatValue, class ComparableValue>
+Intersection<FloatValue,ComparableValue>::Intersection( const Segment& seg ) :
+   m_intersection(seg) {}
+
+template <class FloatValue, class ComparableValue>
 Intersection<FloatValue,ComparableValue>::Intersection( 
    const Intersection& peer ) :  m_intersection(peer.m_intersection) {}
 
@@ -312,6 +349,12 @@ Intersection<FloatValue,ComparableValue>::is_plane() const {
 }
 
 template <class FloatValue, class ComparableValue>
+bool 
+Intersection<FloatValue,ComparableValue>::is_segment() const {
+   return (bool)(m_intersection.type() == typeid(Segment));
+}
+
+template <class FloatValue, class ComparableValue>
 Intersection<FloatValue,ComparableValue>::Point
 Intersection<FloatValue,ComparableValue>::point() const {
    return boost::any_cast<Point>( m_intersection );
@@ -327,6 +370,12 @@ template <class FloatValue, class ComparableValue>
 Intersection<FloatValue,ComparableValue>::Line
 Intersection<FloatValue,ComparableValue>::line() const {
    return boost::any_cast<Line>( m_intersection );
+}
+
+template <class FloatValue, class ComparableValue>
+Intersection<FloatValue,ComparableValue>::Segment
+Intersection<FloatValue,ComparableValue>::segment() const {
+   return boost::any_cast<Segment>( m_intersection );
 }
 
 // operators
@@ -365,6 +414,26 @@ FloatValue distance( const Line<FloatValue,ComparableValue>& l1,
 
    // lines are parallel
    return distance( l2.origin(), l1 );   
+}
+
+template < class FloatValue, class ComparableValue>
+FloatValue distance( const Line<FloatValue,ComparableValue>& l, 
+		     const Segment<FloatValue,ComparableValue>& s ) {
+   Line<FloatValue,ComparableValue> seg_line( s.a(), s.b()-s.a() );
+
+   Intersection<FloatValue,ComparableValue> clsup = closeup( l, seg_line );
+
+   if( clsup.is_segment() ) {
+      Point<FloatValue,ComparableValue> c = clsup.segment().b();
+      if( RT(dot( s.a() - c, s.b() - c )) <= RT(0) ) {
+	 return clsup.segment().length();
+      } else if( RT(dot( c - s.a(), s.b() - s.a() )) <= RT(0) ) {
+	 return distance( clsup.segment().a(), s.a() );
+      } 
+      return distance( clsup.segment().a(), s.b() );
+   } 
+      
+   return 0;
 }
 
 template < class FloatValue, class ComparableValue>
@@ -473,6 +542,84 @@ intersection( const Line<FloatValue,ComparableValue>& l1,
    }
 
    return Intersection<FloatValue,ComparableValue>(l1);
+}
+
+template < class FloatValue, class ComparableValue>
+Intersection<FloatValue,ComparableValue> 
+closeup( const Line<FloatValue,ComparableValue>& l1,
+	 const Line<FloatValue,ComparableValue>& l2 ) {
+   Vector<FloatValue,ComparableValue> n1 = l1.direction();
+   Vector<FloatValue,ComparableValue> n2 = l2.direction();
+   Vector<FloatValue,ComparableValue> b = l2.origin() - l1.origin();
+   Vector<FloatValue,ComparableValue> n = cross( n1, n2 );
+
+   if( ComparableValue(n.length()) != ComparableValue(0) ) {
+      // non parallel lines
+      
+      b.cartesian();
+      n2.cartesian();
+      n1.cartesian();
+      n.cartesian();
+
+      FloatValue t1 = determinant( b.x(), b.y(), b.z(),
+				   n2.x(),n2.y(), n2.z(),
+				   n.x(), n.y(), n.z() ) / n.squared_length();
+
+      FloatValue t2 = determinant( b.x(), b.y(), b.z(),
+				   n1.x(),n1.y(), n1.z(),
+				   n.x(), n.y(), n.z() ) / n.squared_length();
+      
+      Vector<FloatValue,ComparableValue> p1 =  l1.origin() + n1 * t1;
+      Vector<FloatValue,ComparableValue> p2 =  l2.origin() + n2 * t2;
+
+      return Intersection<FloatValue,ComparableValue>(
+	 Segment<FloatValue,ComparableValue>(p1,p2)
+      );
+   } 
+	     
+   if( ComparableValue(cross(b,n2).length()) != ComparableValue(0) ) {
+      // distinct parallel lines
+      Segment<FloatValue,ComparableValue> seg( l1.origin(), 
+					       l2.origin() - 
+					       n2 * dot( b, n2 ) );
+      return Intersection<FloatValue,ComparableValue>(seg);
+   }
+
+   // same lines
+   return Intersection<FloatValue,ComparableValue>(l1.origin());
+}
+
+template < class FloatValue, class ComparableValue>
+Intersection<FloatValue,ComparableValue> 
+closeup( const Line<FloatValue,ComparableValue>& l, 
+	  const Segment<FloatValue,ComparableValue>& s ) {
+   Line<FloatValue,ComparableValue> seg_line( s.a(), s.b()-s.a() );
+
+   Intersection<FloatValue,ComparableValue> clsup = closeup( l, seg_line );
+
+   if( clsup.is_segment() ) {
+      Vector<FloatValue,ComparableValue> c = clsup.segment().b();
+      if( ComparableValue(dot( s.a() - c, 
+			       s.b() - c )) <= ComparableValue(0) ) {
+	 return clsup;
+      } else if( ComparableValue(dot( c - s.a(),
+				      s.b() - s.a() )) <= ComparableValue(0) ) 
+      {
+	 return Intersection<FloatValue,ComparableValue>(
+	    Segment<FloatValue,ComparableValue>(clsup.segment().a(), s.a())
+	 );
+      } 
+      return Intersection<FloatValue,ComparableValue>(
+	 Segment<FloatValue,ComparableValue>(clsup.segment().a(), s.b())
+      );
+   } 
+      
+   if( ComparableValue(distance(l.origin(), s.a())) < 
+       ComparableValue(distance(l.origin(), s.b())) ) {
+      return Intersection<FloatValue,ComparableValue>(s.a());
+   }
+
+   return Intersection<FloatValue,ComparableValue>(s.b()) ;
 }
 
 

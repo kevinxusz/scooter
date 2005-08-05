@@ -69,6 +69,16 @@ DGD::channel& operator << (
 template <class FloatValue, class ComparableValue>
 DGD::channel& operator << (
    DGD::channel& ds, 
+   const Segment<FloatValue,ComparableValue>& seg) 
+{
+   ds << "[segment:a" << DGD::dgd << seg.a() << ",b" << DGD::dgd
+      << seg.b() << "]";
+   return ds;
+}
+
+template <class FloatValue, class ComparableValue>
+DGD::channel& operator << (
+   DGD::channel& ds, 
    const Circle<FloatValue,ComparableValue>& circle) 
 {
    ds << "[circle:O" << DGD::dgd << circle.origin() << ",N" << DGD::dgd
@@ -102,6 +112,8 @@ DGD::channel& operator << (
 	 ds << intr.line();
       } else if( intr.is_plane() ) {
 	 ds << intr.plane();
+      } else if( intr.is_segment() ) {
+	 ds << intr.segment();
       } else {
 	 ds << " unknown";
       }

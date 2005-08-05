@@ -106,6 +106,29 @@ class Line {
 
 template < class FloatValue, 
 	   class ComparableValue = Comparable_double<FloatValue> >
+class Segment {
+   public:
+      typedef FloatValue      FT;
+      typedef ComparableValue RT;
+      typedef Math::Vector<FloatValue,ComparableValue> Vector;
+      typedef Math::Vector<FloatValue,ComparableValue> Point;
+
+   public:
+      Segment();
+      Segment( const Point& a, const Point& b );
+      Segment( const Segment& peer );
+
+      const Point& a() const;
+      const Point& b() const;
+      FT           length() const;
+
+   private:
+      Point m_a;
+      Point m_b;
+};
+
+template < class FloatValue, 
+	   class ComparableValue = Comparable_double<FloatValue> >
 class Circle {
    public:
       typedef FloatValue      FT;
@@ -163,26 +186,30 @@ class Intersection {
    public:
       typedef FloatValue      FT;
       typedef ComparableValue RT;
-      typedef Math::Vector<FloatValue,ComparableValue> Vector;
-      typedef Math::Vector<FloatValue,ComparableValue> Point;
-      typedef Math::Plane<FloatValue,ComparableValue> Plane;
-      typedef Math::Line<FloatValue,ComparableValue> Line;
+      typedef Math::Vector<FloatValue,ComparableValue>  Vector;
+      typedef Math::Vector<FloatValue,ComparableValue>  Point;
+      typedef Math::Plane<FloatValue,ComparableValue>   Plane;
+      typedef Math::Line<FloatValue,ComparableValue>    Line;
+      typedef Math::Segment<FloatValue,ComparableValue> Segment;
 
    public:
       Intersection();
       Intersection( const Point& point );
       Intersection( const Line& line  );
       Intersection( const Plane& plane );
+      Intersection( const Segment& segment );
       Intersection( const Intersection& peer );
 
-      bool is_empty() const;
-      bool is_point() const;
-      bool is_line() const;
-      bool is_plane() const;
+      bool is_empty()   const;
+      bool is_point()   const;
+      bool is_line()    const;
+      bool is_plane()   const;
+      bool is_segment() const;
 
-      Point point() const;
-      Plane plane() const;
-      Line  line() const;
+      Point   point()   const;
+      Plane   plane()   const;
+      Line    line()    const;
+      Segment segment() const;
 
    private:
       boost::any m_intersection;
@@ -205,6 +232,9 @@ template < class FloatValue, class ComparableValue>
 FloatValue distance( const Line<FloatValue,ComparableValue>& line1, 
 		     const Line<FloatValue,ComparableValue>& line2 );
 
+template < class FloatValue, class ComparableValue>
+FloatValue distance( const Line<FloatValue,ComparableValue>& line, 
+		     const Segment<FloatValue,ComparableValue>& seg );
 
 template < class FloatValue, class ComparableValue>
 Intersection<FloatValue,ComparableValue>
@@ -220,6 +250,16 @@ template < class FloatValue, class ComparableValue>
 Intersection<FloatValue,ComparableValue>
 intersection( const Line<FloatValue,ComparableValue>& line1,
 	      const Line<FloatValue,ComparableValue>& line2 );
+
+template < class FloatValue, class ComparableValue>
+Intersection<FloatValue,ComparableValue> 
+closeup( const Line<FloatValue,ComparableValue>& l1,
+	 const Line<FloatValue,ComparableValue>& l2 );
+
+template < class FloatValue, class ComparableValue>
+Intersection<FloatValue,ComparableValue> 
+closeup( const Line<FloatValue,ComparableValue>& l, 
+	 const Segment<FloatValue,ComparableValue>& s );
 
 }; // end of namespace Math
 

@@ -34,14 +34,21 @@
 #include <openvrml/vrml97node.h>
 
 #include <scooter/calculus.h>
+#include <scooter/geometry.h>
 #include <scooter/nmm/dcel.h>
 
 class CrMeshVertexBase {
    public:
-      typedef Math::Vector<float> Vector;
-      typedef Math::Vector<float> Point;
-      typedef Math::Vector<float> Color;
-      typedef Math::Matrix<float> Matrix;
+      typedef Math::Vector<float>       Vector;  
+      typedef Math::Vector<float>   	Point;   
+      typedef Math::Vector<float>   	Color;   
+      typedef Math::Matrix<float>   	Matrix;  
+      typedef Math::Line<float>     	Line;    
+      typedef Math::Plane<float>    	Plane;   
+      typedef Math::Circle<float>   	Circle;  
+      typedef Math::Triangle<float> 	Triangle;
+      typedef Math::Segment<float> 	Segment;
+      typedef Math::Intersection<float> Intersection;
 
    public:
       CrMeshVertexBase();
@@ -92,6 +99,11 @@ class CrMesh: public scooter::nmm::Dcel<CrMeshVertexBase,
       typedef Parent::Vertex::Matrix                        Matrix;
       typedef Parent::Vertex::Point                         Point;
       typedef Parent::Vertex::Color                         Color;
+      typedef Parent::Vertex::Line                          Line;
+      typedef Parent::Vertex::Plane                         Plane;
+      typedef Parent::Vertex::Segment                       Segment;
+      typedef Parent::Vertex::Intersection                  Intersection;
+
    public:
 
       CrMesh();

@@ -26,6 +26,8 @@
 
 #include "crConfig.h"
 
+#include <map>
+
 #include <boost/scoped_array.hpp>
 
 #include <scooter/nmm/dcel.h>
@@ -273,6 +275,11 @@ int CrMesh::load( const IFS_node *ifs ) {
 	 ++facet_begin;
       }
 
+      typedef std::map<Vertex*,int> Loop_detector;
+      typedef std::pair<Loop_detector::iterator,bool> Loop_detector_insres;
+      Loop_detector loop_detector;
+      bool facet_has_loop = false;
+
       facet_end = facet_begin;
       while( facet_end != vertex_by_coord_index_end && 
 	     *facet_end != NULL ) {
@@ -296,11 +303,19 @@ int CrMesh::load( const IFS_node *ifs ) {
 	      tex_coord_vector->operator[](tex_coord_index->operator[](index));
 	    (*facet_end)->tex_coord( Vector( tc.x(), tc.y(), 0 ) );
 	 }
+
+	 Loop_detector_insres res = 
+	    loop_detector.insert( Loop_detector::value_type( *facet_end, 0 ) );
+
+	 if( !res.second ) 
+	    facet_has_loop = true;
 	 
+				     
 	 ++facet_end;
       }
 
-      if( facet_end - facet_begin > 2 ) {
+      
+      if( !facet_has_loop && facet_end - facet_begin > 2 ) {
 	 Facet *f = this->new_facet( facet_begin, facet_end );
 
 	 dgd_echo( dgd_expand(*this) << std::endl );

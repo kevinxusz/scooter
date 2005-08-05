@@ -44,6 +44,9 @@ class CrMeshControl {
       typedef CrMesh::Point                         Point;
       typedef CrMesh::Color                         Color;
       typedef CrMesh::Vertex                        Vertex;
+      typedef CrMesh::Line                          Line;
+      typedef CrMesh::Segment                       Segment;
+      typedef CrMesh::Intersection                  Intersection;
       typedef CrMesh::Halfedge                      Halfedge;
       typedef CrMesh::Facet                         Facet;
       typedef Point::FT                             FT;
@@ -53,13 +56,29 @@ class CrMeshControl {
       struct Vertex_properties {
 	    const Vertex *m_vertex;
 	    unsigned int  m_index;
+	    Vector        m_normal;
+	    FT            m_delta;
 
-	    Vertex_properties() : m_vertex(NULL), m_index(-1) {}
-	    Vertex_properties( const Vertex *v, unsigned int idx ) :
-	       m_vertex(v), m_index(idx) {}
+	    Vertex_properties() : 
+	       m_vertex(NULL), 
+	       m_index(-1),
+	       m_normal(0,0,0),
+	       m_delta(0) {}
+
+	    Vertex_properties( const Vertex *v, 
+			       unsigned int idx,
+			       const Vector& norm,
+			       FT delta ) :
+	       m_vertex(v), 
+	       m_index(idx), 
+	       m_normal(norm),
+	       m_delta(delta) {}
 
 	    Vertex_properties( const Vertex_properties& peer ) :
-	       m_vertex( peer.m_vertex ), m_index( peer.m_index ) {}
+	       m_vertex( peer.m_vertex ), 
+	       m_index( peer.m_index ),
+	       m_normal( peer.m_normal ),
+	       m_delta( peer.m_delta ) {}
       };
 
       struct Halfedge_properties {
@@ -103,14 +122,16 @@ class CrMeshControl {
       typedef boost::shared_ptr<Halfedge_properties> Halfedge_properties_ptr;
 
       typedef std::map<unsigned int, 
-		       Vertex_properties_ptr> Index_2_vprop_map;
+		       Vertex_properties> Index_2_vprop_map;
       typedef std::map<const Vertex*,
-		       Vertex_properties_ptr> Vertex_2_vprop_map;
+		       Vertex_properties> Vertex_2_vprop_map;
 
       typedef std::map<unsigned int, 
-		       Halfedge_properties_ptr> Index_2_hprop_map;
+		       Halfedge_properties> Index_2_hprop_map;
       typedef std::map<const Halfedge*, 
-		       Halfedge_properties_ptr> Halfedge_2_hprop_map;
+		       Halfedge_properties> Halfedge_2_hprop_map;
+
+      typedef std::list<Halfedge*> Selection;
 
    public:
 
@@ -119,8 +140,15 @@ class CrMeshControl {
 
       void reload( openvrml::browser *target_browser, const CrMeshPtr &mesh);
 
+      Vertex   *find_vertex( const Line& line );
+      Halfedge *find_halfedge( const Line& line );
+
+      void select( Vertex *v );
+      void select( Halfedge *he );
+
    protected:
       
+      void init_vertex_properties();
       void init_halfedge_properties();
       void add_halfedge( Halfedge *he,
 			 openvrml::mfvec3f *coord_vector,
@@ -147,36 +175,44 @@ class CrMeshControl {
 		       openvrml::mfcolor *color_vector );
       void reload_halfedges();
       void init_vrml_nodes();
+      void init_selection_nodes();
+      void reload_selection();
 
    private:
       CrMeshPtr          m_mesh;
       openvrml::browser *m_vrml_browser;     
       openvrml::node_ptr m_root_node;      
       openvrml::node_ptr m_halfedges;
-      openvrml::sfnode  *m_halfedges_coord;
-      openvrml::sfnode  *m_halfedges_color;
+      openvrml::node_ptr m_halfedges_coord;
+      openvrml::node_ptr m_halfedges_color;
       openvrml::node_ptr m_boundary;
-      openvrml::sfnode  *m_boundary_coord;
-      openvrml::sfnode  *m_boundary_color;
+      openvrml::node_ptr m_boundary_coord;
+      openvrml::node_ptr m_boundary_color;
       openvrml::node_ptr m_rabbits;
-      openvrml::sfnode  *m_rabbits_coord;
-      openvrml::sfnode  *m_rabbits_color;
+      openvrml::node_ptr m_rabbits_coord;
+      openvrml::node_ptr m_rabbits_color;
       openvrml::node_ptr m_prev;
-      openvrml::sfnode  *m_prev_coord;
-      openvrml::sfnode  *m_prev_color;
+      openvrml::node_ptr m_prev_coord;
+      openvrml::node_ptr m_prev_color;
       openvrml::node_ptr m_next;
-      openvrml::sfnode  *m_next_coord;
-      openvrml::sfnode  *m_next_color;
+      openvrml::node_ptr m_next_coord;
+      openvrml::node_ptr m_next_color;
       openvrml::node_ptr m_opposite;
-      openvrml::sfnode  *m_opposite_coord;
-      openvrml::sfnode  *m_opposite_color;
+      openvrml::node_ptr m_opposite_coord;
+      openvrml::node_ptr m_opposite_color;
       openvrml::node_ptr m_vertexes;
-      openvrml::sfnode  *m_vertexes_coord;
-      openvrml::sfnode  *m_vertexes_color;
+      openvrml::node_ptr m_vertexes_coord;
+      openvrml::node_ptr m_vertexes_color;
 
+      openvrml::node_ptr m_sel_vertex;
+      openvrml::node_ptr m_sel_halfedge;
+      openvrml::node_ptr m_sel_root;
+      openvrml::node_ptr m_sel_vertex_material;
+      openvrml::node_ptr m_sel_halfedge_material;
 
       Halfedge_2_hprop_map m_halfedge_lookup_by_ptr;
-      Vertex_2_vprop_map  m_vertex_lookup_by_ptr;
+      Vertex_2_vprop_map   m_vertex_lookup_by_ptr;
+      Selection            m_selection;
 
       Color m_halfedges_color_value;
       Color m_boundary_color_value;
@@ -185,6 +221,9 @@ class CrMeshControl {
       Color m_next_color_value;
       Color m_opposite_color_value;
       Color m_vertexes_color_value;
+
+      Color m_halfedges_sel_color_value;
+      Color m_vertexes_sel_color_value;
 
       FT m_average_halfedge_length;
 };
