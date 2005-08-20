@@ -131,8 +131,9 @@ class CrMeshControl {
       typedef std::map<const Halfedge*, 
 		       Halfedge_properties> Halfedge_2_hprop_map;
 
-      typedef std::list<Halfedge*> Selection;
-
+      typedef std::list<Halfedge*>      Selection;
+      typedef Selection::iterator       Selection_iterator;
+      typedef Selection::const_iterator Selection_const_iterator;
    public:
 
       CrMeshControl();
@@ -145,6 +146,11 @@ class CrMeshControl {
 
       void select( Vertex *v );
       void select( Halfedge *he );
+
+      Selection_iterator       selection_begin();
+      Selection_iterator       selection_end();
+      Selection_const_iterator selection_begin() const;
+      Selection_const_iterator selection_end()   const;
 
    protected:
       

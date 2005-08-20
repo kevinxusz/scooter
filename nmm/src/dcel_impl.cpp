@@ -186,7 +186,7 @@ void Dcel_halfedge<Vb,Hb,Fb>::set_facet( Facet* const facet ) {
 
 template <class Vb, class Hb, class Fb>
 void Dcel_halfedge<Vb,Hb,Fb>::reset() {
-   dgd_start_scope( dcel, "Dcel_halfedge<Vb,Hb,Fb>::reset()" );
+   dgd_start_scope( dcelimpl, "Dcel_halfedge<Vb,Hb,Fb>::reset()" );
    dgd_echo( dgd_expand(verbose(this)) << std::endl );
 
    m_next = m_prev = m_opposite = NULL;
@@ -398,7 +398,7 @@ template <class Vb, class Hb, class Fb>
 Dcel<Vb,Hb,Fb>::Facet*
 Dcel<Vb,Hb,Fb>::new_facet( Vertex** const begin, Vertex** const end ) {
    using namespace DGD;
-   dgd_start_scope( dcel, "Dcel<Vb,Hb,Fb>::new_facet()" );
+   dgd_start_scope( dcelimpl, "Dcel<Vb,Hb,Fb>::new_facet()" );
    dgd_echo( "vertexes: " << dgd << dgd_for(begin,end) << std::endl );
 
    Facet *f = new_disjoint_facet( begin, end );
@@ -512,7 +512,7 @@ template <class Vb, class Hb, class Fb>
 Dcel<Vb,Hb,Fb>::Facet*
 Dcel<Vb,Hb,Fb>::new_disjoint_facet( Vertex** const begin,
 				    Vertex** const end ) {
-   dgd_start_scope( dcel, "new_disjoint_facet()" );
+   dgd_start_scope( dcelimpl, "new_disjoint_facet()" );
    Vertex** cv = NULL;
    Halfedge *a = NULL, 
 	    *b = NULL, 
@@ -574,7 +574,7 @@ Dcel<Vb,Hb,Fb>::new_disjoint_facet( Vertex** const begin,
 template <class Vb, class Hb, class Fb>
 void Dcel<Vb,Hb,Fb>::glue_facet_to_vertex( Vertex* const target, 
 					   Halfedge* const he ) {
-   dgd_start_scope( dcel, "Dcel<Vb,Hb,Fb>::glue_facet_to_vertex()" );
+   dgd_start_scope( dcelimpl, "Dcel<Vb,Hb,Fb>::glue_facet_to_vertex()" );
 
    dgd_echo( dgd_expand(verbose(target)) << std::endl
 	     << dgd_expand(verbose(he)) << std::endl );
@@ -630,7 +630,7 @@ void Dcel<Vb,Hb,Fb>::glue_facet_to_vertex( Vertex* const target,
 template <class Vb, class Hb, class Fb>
 void Dcel<Vb,Hb,Fb>::glue_contours( Halfedge* const src, 
 				    Halfedge* const dst ) {
-   dgd_start_scope( dcel, "Dcel<Vb,Hb,Fb>::glue_contours()" );
+   dgd_start_scope( dcelimpl, "Dcel<Vb,Hb,Fb>::glue_contours()" );
 
    dgd_echo( dgd_expand(verbose(src)) << std::endl
 	     << dgd_expand(verbose(dst)) << std::endl );
@@ -678,7 +678,7 @@ void Dcel<Vb,Hb,Fb>::glue_contours( Halfedge* const src,
 template <class Vb, class Hb, class Fb>
 void Dcel<Vb,Hb,Fb>::glue_facet_to_edge( Halfedge *const base,
 					 Halfedge *const target ) {
-   dgd_start_scope( dcel, "Dcel<Vb,Hb,Fb>::glue_facet_to_edge()" );
+   dgd_start_scope( dcelimpl, "Dcel<Vb,Hb,Fb>::glue_facet_to_edge()" );
 
    Halfedge *a = base;
    Halfedge *c = target;
@@ -704,7 +704,7 @@ template <class Vb, class Hb, class Fb>
 void Dcel<Vb,Hb,Fb>::zip_edge( Halfedge* const base, 
 			       Halfedge* const target ) {
    using namespace DGD;
-   dgd_start_scope( dcel, "Dcel<Vb,Hb,Fb>::zip_edge()" );
+   dgd_start_scope( dcelimpl, "Dcel<Vb,Hb,Fb>::zip_edge()" );
 
    Halfedge *a = base;
    Halfedge *c = target;
@@ -871,7 +871,7 @@ template <class Vb, class Hb, class Fb>
 int
 Dcel<Vb,Hb,Fb>::detach_fan( Halfedge *src, Halfedge *dst,
 			    Halfedge* &fan, Halfedge* &body ) {
-   dgd_start_scope( dcel, "Dcel<Vb,Hb,Fb>::detach_fan()" );
+   dgd_start_scope( dcelimpl, "Dcel<Vb,Hb,Fb>::detach_fan()" );
 
    dgd_echo( dgd_expand(verbose(src)) << std::endl 
 	     << dgd_expand(verbose(dst)) << std::endl );
@@ -916,7 +916,7 @@ Dcel<Vb,Hb,Fb>::detach_fan( Halfedge *src, Halfedge *dst,
 template <class Vb, class Hb, class Fb>
 Dcel<Vb,Hb,Fb>::Halfedge*
 Dcel<Vb,Hb,Fb>::find_rabbit_burrow( const Halfedge* target ) const {
-   dgd_start_scope( dcel, "Dcel<Vb,Hb,Fb>::find_rabbit_burrow()" );
+   dgd_start_scope( dcelimpl, "Dcel<Vb,Hb,Fb>::find_rabbit_burrow()" );
 
    typedef std::pair<const Halfedge*, unsigned int> Facet_count_map_value; 
    typedef std::map<const Facet*,Facet_count_map_value>   Facet_count_map;
@@ -962,7 +962,7 @@ Dcel<Vb,Hb,Fb>::find_rabbit_burrow( const Halfedge* target ) const {
 template <class Vb, class Hb, class Fb>
 Dcel<Vb,Hb,Fb>::Halfedge*
 Dcel<Vb,Hb,Fb>::new_rabbit( Halfedge* const left, Halfedge* const right ) {
-   dgd_start_scope( dcel, "Dcel<Vb,Hb,Fb>::new_rabbit" );
+   dgd_start_scope( dcelimpl, "Dcel<Vb,Hb,Fb>::new_rabbit" );
    Halfedge* rabbit = new_edge();
    
    rabbit->set_vertex( left->vertex() );

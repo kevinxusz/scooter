@@ -96,7 +96,9 @@ CrMeshFacetBase::CrMeshFacetBase() {
 CrMeshFacetBase::~CrMeshFacetBase() {
 }
 
-CrMesh::CrMesh() : Parent() {
+CrMesh::CrMesh() : 
+   Parent(),
+   m_global_scale(1.0) {
 }
 
 CrMesh::~CrMesh() {
@@ -106,7 +108,7 @@ int CrMesh::load( const IFS_node *ifs ) {
    using namespace openvrml;
    using namespace scooter::nmm::trace;
 
-   dgd_start_scope( dcel, "CrMesh::load()" );
+   dgd_start_scope( dcelbuild, "CrMesh::load()" );
 
    // get coord_vector and coord_index
    const sfnode &coord_node_field =
@@ -214,6 +216,43 @@ int CrMesh::load( const IFS_node *ifs ) {
    typedef std::vector<int32> index_array;
    typedef std::map<unsigned int,Vertex*> I2VMap;
 
+   // calcualete the global scale needed for escaping numeric errors
+   BBox bbox;
+   for( vector_array::const_iterator viter = coord_vector->begin();
+	viter != coord_vector->end();
+	++viter ) {
+      bbox.expand( Point(viter->x(), viter->y(), viter->z()) );
+   }
+   
+   if( bbox.valid() ) {
+      FT xdim = bbox.top().x() - bbox.bottom().x();
+      FT ydim = bbox.top().y() - bbox.bottom().y();
+      FT zdim = bbox.top().z() - bbox.bottom().z();
+      FT mindim = std::max( xdim, std::max( ydim, zdim ) );
+      
+      if( RT(mindim) > RT(0) ) {
+	 if( RT(xdim) > RT(0) ) {
+	    mindim = std::min( mindim, xdim );
+	 }
+	 if( RT(ydim) > RT(0) ) {
+	    mindim = std::min( mindim, ydim );
+	 }
+	 if( RT(zdim) > RT(0) ) {
+	    mindim = std::min( mindim, zdim );
+	 }
+	 if( RT(mindim) > RT(0) ) {
+	    m_global_scale = mindim / 10.0;
+	 }
+      }
+
+      dgd_echo( dgd_expand(xdim) << std::endl
+		<< dgd_expand(ydim) << std::endl
+		<< dgd_expand(zdim) << std::endl
+		<< dgd_expand(mindim) << std::endl
+		<< dgd_expand(m_global_scale) << std::endl );
+   }
+
+
    // now create vertexes only setting normal and color if needed
    I2VMap i2v;
    for( vector_array::const_iterator viter = coord_vector->begin();
@@ -222,7 +261,10 @@ int CrMesh::load( const IFS_node *ifs ) {
       unsigned int index = viter - coord_vector->begin();
       Vertex *v = this->new_vertex( CrMeshVertexBase() );
       
-      v->coord( Point(viter->x(), viter->y(), viter->z()) );
+      v->coord( Point(viter->x(), 
+		      viter->y(), 
+		      viter->z(), 
+		      m_global_scale).cartesian() );
 
       if( normal_per_vertex_field.value && 
 	  normal_vector != NULL && normal_vector->size() > index ) {

@@ -38,6 +38,7 @@
 #include "crDebugConsole.h"
 #include "crMainStatusBar.h"
 #include "crVRMLDocument.h"
+#include "crMainControlPanel.h"
 
 CrMainWindow::CrMainWindow( wxDocManager *doc_manager, const wxRect& rect ) :
    wxDocMDIParentFrame( doc_manager, NULL, -1, _T("Chromium"), 
@@ -49,7 +50,8 @@ CrMainWindow::CrMainWindow( wxDocManager *doc_manager, const wxRect& rect ) :
    m_menu_bar( NULL ),
    m_doc_manager( doc_manager ),
    m_debug_console( NULL ),
-   m_status_bar( NULL )
+   m_status_bar( NULL ),
+   m_control_panel( NULL )
 {
    this->SetIcon( wxIcon( "chromium" ) );
 
@@ -81,7 +83,11 @@ CrMainWindow::CrMainWindow( wxDocManager *doc_manager, const wxRect& rect ) :
 
    this->SetMenuBar(m_menu_bar);
    this->ConstructDebugConsole();
+
    this->PositionStatusBar();
+
+   m_control_panel = new CrMainControlPanel( this );
+   m_control_panel->Show( true );
 }
 
 void CrMainWindow::ShowDebugConsole( wxCommandEvent& event ) {
@@ -162,7 +168,6 @@ wxRect CrMainWindow::GetOptimalChildRect() const {
 
    return size;
 }
-
 
 IMPLEMENT_CLASS(CrMainWindow, wxDocMDIParentFrame)
 BEGIN_EVENT_TABLE(CrMainWindow, wxDocMDIParentFrame)

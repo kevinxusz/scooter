@@ -112,9 +112,11 @@ Program $buildenv $TARGET,
 			crDebugConsole.cpp
 			crStreamToText.cpp
 			crMainStatusBar.cpp
+			crMainControlPanel.cpp
 			crMesh.cpp
 			crMeshControl.cpp
 			crVRMLTree.cpp
+			crToggleGroup.cpp
 			chromiumres.obj ) );
 
 Install $buildenv "$BLIB/bin", $TARGET;

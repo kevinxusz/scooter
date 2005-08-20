@@ -48,6 +48,7 @@ class CrMeshVertexBase {
       typedef Math::Circle<float>   	Circle;  
       typedef Math::Triangle<float> 	Triangle;
       typedef Math::Segment<float> 	Segment;
+      typedef Math::Bounding_box<float> BBox;
       typedef Math::Intersection<float> Intersection;
 
    public:
@@ -102,7 +103,10 @@ class CrMesh: public scooter::nmm::Dcel<CrMeshVertexBase,
       typedef Parent::Vertex::Line                          Line;
       typedef Parent::Vertex::Plane                         Plane;
       typedef Parent::Vertex::Segment                       Segment;
+      typedef Parent::Vertex::BBox                          BBox;
       typedef Parent::Vertex::Intersection                  Intersection;
+      typedef Vector::FT FT;
+      typedef Vector::FT RT;
 
    public:
 
@@ -111,7 +115,9 @@ class CrMesh: public scooter::nmm::Dcel<CrMeshVertexBase,
 
       int load( const IFS_node *ifs );
       int save( IFS_node *ifs );
-      
+
+   private:
+      FT m_global_scale;
 };
 
 typedef boost::shared_ptr<CrMesh> CrMeshPtr;

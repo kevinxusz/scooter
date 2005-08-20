@@ -257,21 +257,20 @@ void CrMeshControl::init_vrml_nodes() {
    node_ptr vertexes_shape = shape_type->create_node( scope );
    vertexes_shape->field( "geometry", sfnode( m_vertexes ) );
    
-   mfnode *children_vector = 
-      (mfnode*)(field_value::create( field_value::mfnode_id ).release());
+   mfnode children_vector;
 
    init_selection_nodes();
 
-   children_vector->value.push_back( halfedges_shape );
-   children_vector->value.push_back( boundary_shape );
-   children_vector->value.push_back( rabbits_shape );
-   children_vector->value.push_back( prev_shape );
-   children_vector->value.push_back( next_shape );
-   children_vector->value.push_back( opposite_shape );
-   children_vector->value.push_back( vertexes_shape );
-   children_vector->value.push_back( m_sel_root );
+   children_vector.value.push_back( halfedges_shape );
+   children_vector.value.push_back( boundary_shape );
+   children_vector.value.push_back( rabbits_shape );
+   children_vector.value.push_back( prev_shape );
+   children_vector.value.push_back( next_shape );
+   children_vector.value.push_back( opposite_shape );
+   children_vector.value.push_back( vertexes_shape );
+   children_vector.value.push_back( m_sel_root );
 
-   m_root_node->field( "children", *children_vector );
+   m_root_node->field( "children", children_vector );
 
    dgd_end_scope( dcel );
 }
@@ -949,99 +948,61 @@ void CrMeshControl::reload_halfedges() {
 
    dgd_start_scope( dcel, "CrMeshControl::reload_halfedges()" );
 
-   mfvec3f *halfedges_coord_vector = 
-      (mfvec3f*)(field_value::create( field_value::mfvec3f_id ).release());
+   mfvec3f halfedges_coord_vector;
+   mfcolor halfedges_color_vector;
+   mfint32 halfedges_coord_index_vector;
+   mfint32 halfedges_color_index_vector;
 
-   mfcolor *halfedges_color_vector = 
-      (mfcolor*)(field_value::create( field_value::mfcolor_id ).release());
+   mfvec3f boundary_coord_vector;
+   mfcolor boundary_color_vector;
+   mfint32 boundary_coord_index_vector;
+   mfint32 boundary_color_index_vector;
 
-   mfint32 *halfedges_coord_index_vector = 
-      (mfint32 *)(field_value::create( field_value::mfint32_id ).release());
+   mfvec3f rabbits_coord_vector;
+   mfcolor rabbits_color_vector;
+   mfint32 rabbits_coord_index_vector;
+   mfint32 rabbits_color_index_vector;
 
-   mfint32 *halfedges_color_index_vector = 
-      (mfint32 *)(field_value::create( field_value::mfint32_id ).release());
+   mfvec3f opposite_coord_vector;
+   mfcolor opposite_color_vector;
+   mfint32 opposite_coord_index_vector;
+   mfint32 opposite_color_index_vector;
 
-   mfvec3f *boundary_coord_vector = 
-      (mfvec3f*)(field_value::create( field_value::mfvec3f_id ).release());
+   mfvec3f next_coord_vector;
+   mfcolor next_color_vector;
+   mfint32 next_coord_index_vector;
+   mfint32 next_color_index_vector;
 
-   mfcolor *boundary_color_vector = 
-      (mfcolor*)(field_value::create( field_value::mfcolor_id ).release());
-
-   mfint32 *boundary_coord_index_vector = 
-      (mfint32 *)(field_value::create( field_value::mfint32_id ).release());
-
-   mfint32 *boundary_color_index_vector = 
-      (mfint32 *)(field_value::create( field_value::mfint32_id ).release());
-
-   mfvec3f *rabbits_coord_vector = 
-      (mfvec3f*)(field_value::create( field_value::mfvec3f_id ).release());
-
-   mfcolor *rabbits_color_vector = 
-      (mfcolor*)(field_value::create( field_value::mfcolor_id ).release());
-
-   mfint32 *rabbits_coord_index_vector = 
-      (mfint32 *)(field_value::create( field_value::mfint32_id ).release());
-
-   mfint32 *rabbits_color_index_vector = 
-      (mfint32 *)(field_value::create( field_value::mfint32_id ).release());
-
-   mfvec3f *opposite_coord_vector = 
-      (mfvec3f*)(field_value::create( field_value::mfvec3f_id ).release());
-
-   mfcolor *opposite_color_vector = 
-      (mfcolor*)(field_value::create( field_value::mfcolor_id ).release());
-
-   mfint32 *opposite_coord_index_vector = 
-      (mfint32 *)(field_value::create( field_value::mfint32_id ).release());
-
-   mfint32 *opposite_color_index_vector = 
-      (mfint32 *)(field_value::create( field_value::mfint32_id ).release());
-
-   mfvec3f *next_coord_vector = 
-      (mfvec3f*)(field_value::create( field_value::mfvec3f_id ).release());
-
-   mfcolor *next_color_vector = 
-      (mfcolor*)(field_value::create( field_value::mfcolor_id ).release());
-
-   mfint32 *next_coord_index_vector = 
-      (mfint32 *)(field_value::create( field_value::mfint32_id ).release());
-
-   mfint32 *next_color_index_vector = 
-      (mfint32 *)(field_value::create( field_value::mfint32_id ).release());
-
-   mfvec3f *vertexes_coord_vector = 
-      (mfvec3f*)(field_value::create( field_value::mfvec3f_id ).release());
-
-   mfcolor *vertexes_color_vector = 
-      (mfcolor*)(field_value::create( field_value::mfcolor_id ).release());
+   mfvec3f vertexes_coord_vector;
+   mfcolor vertexes_color_vector;
 
 
-   int32 halfedges_color_index = halfedges_color_vector->value.size();
-   halfedges_color_vector->value.push_back( 
+   int32 halfedges_color_index = halfedges_color_vector.value.size();
+   halfedges_color_vector.value.push_back( 
       color( m_halfedges_color_value.x(),
 	     m_halfedges_color_value.y(),
 	     m_halfedges_color_value.z() ) );
 
-   int32 boundary_color_index = boundary_color_vector->value.size();
-   boundary_color_vector->value.push_back( 
+   int32 boundary_color_index = boundary_color_vector.value.size();
+   boundary_color_vector.value.push_back( 
       color( m_boundary_color_value.x(),
 	     m_boundary_color_value.y(),
 	     m_boundary_color_value.z() ) );
 
-   int32 rabbits_color_index = rabbits_color_vector->value.size();
-   rabbits_color_vector->value.push_back( 
+   int32 rabbits_color_index = rabbits_color_vector.value.size();
+   rabbits_color_vector.value.push_back( 
       color( m_rabbits_color_value.x(),
 	     m_rabbits_color_value.y(),
 	     m_rabbits_color_value.z() ) );
 
-   int32 opposite_color_index = opposite_color_vector->value.size();
-   opposite_color_vector->value.push_back( 
+   int32 opposite_color_index = opposite_color_vector.value.size();
+   opposite_color_vector.value.push_back( 
       color( m_opposite_color_value.x(),
 	     m_opposite_color_value.y(),
 	     m_opposite_color_value.z() ) );
 
-   int32 next_color_index = next_color_vector->value.size();
-   next_color_vector->value.push_back( 
+   int32 next_color_index = next_color_vector.value.size();
+   next_color_vector.value.push_back( 
       color( m_next_color_value.x(),
 	     m_next_color_value.y(),
 	     m_next_color_value.z() ) );
@@ -1057,16 +1018,16 @@ void CrMeshControl::reload_halfedges() {
       if( !heiter->is_rabbit() ) {
 	 if( heiter->facet() != NULL ) {
 	    add_halfedge( &*heiter, 
-			  halfedges_coord_vector,
-			  halfedges_coord_index_vector,
+			  &halfedges_coord_vector,
+			  &halfedges_coord_index_vector,
 			  halfedges_color_index,
-			  halfedges_color_index_vector  );
+			  &halfedges_color_index_vector  );
 	 } else {
 	    add_halfedge( &*heiter, 
-			  boundary_coord_vector,
-			  boundary_coord_index_vector,
+			  &boundary_coord_vector,
+			  &boundary_coord_index_vector,
 			  boundary_color_index,
-			  boundary_color_index_vector );
+			  &boundary_color_index_vector );
 	 }
       } 
    }
@@ -1081,10 +1042,10 @@ void CrMeshControl::reload_halfedges() {
 
       if( heiter->is_rabbit() ) {
 	 add_rabbit( &*heiter,
-		     rabbits_coord_vector,
-		     rabbits_coord_index_vector,
+		     &rabbits_coord_vector,
+		     &rabbits_coord_index_vector,
 		     rabbits_color_index,
-		     rabbits_color_index_vector );
+		     &rabbits_color_index_vector );
       } 
    }
 
@@ -1097,16 +1058,16 @@ void CrMeshControl::reload_halfedges() {
 	 continue;
 
       add_opposite( &*heiter,
-		    opposite_coord_vector,
-		    opposite_coord_index_vector,
+		    &opposite_coord_vector,
+		    &opposite_coord_index_vector,
 		    opposite_color_index,
-		    opposite_color_index_vector );
+		    &opposite_color_index_vector );
 
       add_next( &*heiter,
-		next_coord_vector,
-		next_coord_index_vector,
+		&next_coord_vector,
+		&next_coord_index_vector,
 		next_color_index,
-		next_color_index_vector );
+		&next_color_index_vector );
    }
 
    for( CrMesh::Vertex_iterator viter = m_mesh->vertexes_begin();
@@ -1115,37 +1076,37 @@ void CrMeshControl::reload_halfedges() {
       dgd_echo( dgd_expand(*viter) << std::endl );
 
       add_vertex( &*viter,
-		  vertexes_coord_vector,
-		  vertexes_color_vector );
+		  &vertexes_coord_vector,
+		  &vertexes_color_vector );
    }
 
-   m_halfedges_coord->field( "point", *halfedges_coord_vector );
-   m_halfedges->field( "coordIndex", *halfedges_coord_index_vector );
-   m_halfedges_color->field( "color", *halfedges_color_vector );
-   m_halfedges->field( "colorIndex", *halfedges_color_index_vector );
+   m_halfedges_coord->field( "point", halfedges_coord_vector );
+   m_halfedges->field( "coordIndex",  halfedges_coord_index_vector );
+   m_halfedges_color->field( "color", halfedges_color_vector );
+   m_halfedges->field( "colorIndex",  halfedges_color_index_vector );
 
-   m_boundary_coord->field( "point", *boundary_coord_vector );
-   m_boundary->field( "coordIndex", *boundary_coord_index_vector );
-   m_boundary_color->field( "color", *boundary_color_vector );
-   m_boundary->field( "colorIndex", *boundary_color_index_vector );
+   m_boundary_coord->field( "point",  boundary_coord_vector );
+   m_boundary->field( "coordIndex",   boundary_coord_index_vector );
+   m_boundary_color->field( "color",  boundary_color_vector );
+   m_boundary->field( "colorIndex",   boundary_color_index_vector );
 
-   m_rabbits_coord->field( "point", *rabbits_coord_vector );
-   m_rabbits->field( "coordIndex", *rabbits_coord_index_vector );
-   m_rabbits_color->field( "color", *rabbits_color_vector );
-   m_rabbits->field( "colorIndex", *rabbits_color_index_vector );
+   m_rabbits_coord->field( "point",   rabbits_coord_vector );
+   m_rabbits->field( "coordIndex",    rabbits_coord_index_vector );
+   m_rabbits_color->field( "color",   rabbits_color_vector );
+   m_rabbits->field( "colorIndex",    rabbits_color_index_vector );
 
-   m_opposite_coord->field( "point", *opposite_coord_vector );
-   m_opposite->field( "coordIndex", *opposite_coord_index_vector );
-   m_opposite_color->field( "color", *opposite_color_vector );
-   m_opposite->field( "colorIndex", *opposite_color_index_vector );
+   m_opposite_coord->field( "point",  opposite_coord_vector );
+   m_opposite->field( "coordIndex",   opposite_coord_index_vector );
+   m_opposite_color->field( "color",  opposite_color_vector );
+   m_opposite->field( "colorIndex",   opposite_color_index_vector );
 
-   m_next_coord->field( "point", *next_coord_vector );
-   m_next->field( "coordIndex", *next_coord_index_vector );
-   m_next_color->field( "color", *next_color_vector );
-   m_next->field( "colorIndex", *next_color_index_vector );
+   m_next_coord->field( "point",      next_coord_vector );
+   m_next->field( "coordIndex",       next_coord_index_vector );
+   m_next_color->field( "color",      next_color_vector );
+   m_next->field( "colorIndex",       next_color_index_vector );
 
-   m_vertexes_coord->field( "point", *vertexes_coord_vector );
-   m_vertexes_color->field( "color", *vertexes_color_vector );
+   m_vertexes_coord->field( "point", vertexes_coord_vector );
+   m_vertexes_color->field( "color", vertexes_color_vector );
 
    dgd_end_scope( dcel );
 }
@@ -1308,27 +1269,13 @@ void CrMeshControl::reload_selection() {
    if( m_selection.size() == 0 ) {
       dgd_end_scope_text( dcel, "empty selection" );
       return;
-   } else if( m_selection.size() == 1 ) {
-      Vertex *v = m_selection.back()->vertex();
-
-      Vertex_2_vprop_map::iterator lookup = m_vertex_lookup_by_ptr.find( v );  
-      
-      FT scale = lookup->second.m_delta / 20;
-      Vector coord( v->coord() );
-      coord.cartesian();
-
-      node_ptr transform_node = transform_type->create_node(scope);
-
-      sfvec3f sfscale( vec3f( scale, scale, scale ) );
-      transform_node->field( "scale", sfscale );
-      
-      sfvec3f translation( vec3f( coord.x(), coord.y(), coord.z() ) );
-      transform_node->field( "translation", translation );
-
-      transform_node->field( "children", mfnode( 1, m_sel_vertex ) );
-
-      m_sel_root->field( "children", mfnode( 1, transform_node ) );
    } else {
+      mfnode &root_children = 
+	 const_cast<mfnode&>(
+	    dynamic_cast<const mfnode&>(m_sel_root->field( "children"))
+	 );
+      root_children.value.clear();
+
       for( Selection::iterator siter = m_selection.begin();
 	   siter != m_selection.end();
 	   ++siter ) {
@@ -1340,38 +1287,45 @@ void CrMeshControl::reload_selection() {
 
 	 Vector src = src_vertex->coord() + he_lookup->second.m_src_disp;
 	 Vector dst = dst_vertex->coord() + he_lookup->second.m_dst_disp;
-	 Vector he_vec = dst-src;
-	 Vector he_cross = Math::cross( Vector(0,1,0), he_vec.normalize() );
-	 Vector he_center = Math::median( src, dst, 0.5 ).cartesian();
-	 node_ptr he_transform_node = transform_type->create_node(scope);
-
-	 FT he_cross_len = he_cross.length();
-	 if( RT(he_cross_len) > RT(0) ) {
-	    FT angle = ::asin( he_cross_len );
-	    if( he_vec.y() < 0 ) 
-	       he_cross *= -1;
-	    he_cross.normalize().cartesian();
-
-	    sfrotation he_sfrot( rotation( he_cross.x(), 
-					   he_cross.y(), 
-					   he_cross.z(),
-					   angle ) );
-	    he_transform_node->field( "rotation", he_sfrot );
-	 }
 
 	 FT he_hscale = (dst-src).length();
-	 FT he_rscale = std::min( he_lookup->second.m_delta, 
-				  m_average_halfedge_length ) / 10;
+	 FT he_rscale = m_average_halfedge_length / 10;
 	 
-	 sfvec3f he_sfscale( vec3f( he_rscale, he_hscale, he_rscale ) );
-	 he_transform_node->field( "scale", he_sfscale );
-
-	 sfvec3f he_translation( vec3f( he_center.x(),
-					he_center.y(), 
+	 if( siter != m_selection.begin() ) {
+	    Vector he_vec = (dst-src).normalize().cartesian();
+	    Vector he_cross = Math::cross( Vector(0,1,0), he_vec );
+	    Vector he_center = Math::median( src, dst, 0.5 ).cartesian();
+	    node_ptr he_transform_node = transform_type->create_node(scope);
+	    
+	    // we can get he_cross_len=1.000000001 as the result of numeric
+	    // errors
+	    FT he_cross_len = std::min( (FT)1.0, (FT)he_cross.length() );
+	    if( RT(he_cross_len) > RT(0) ) {
+	       FT angle = ::asin( he_cross_len );
+	       if( he_vec.y() < 0 ) 
+		  he_cross *= -1;
+	       he_cross.normalize().cartesian();
+	       
+	       sfrotation he_sfrot( rotation( he_cross.x(), 
+					      he_cross.y(), 
+					      he_cross.z(),
+					      angle ) );
+	       he_transform_node->field( "rotation", he_sfrot );
+	    }
+	    	    
+	    sfvec3f he_sfscale( vec3f( he_rscale, he_hscale, he_rscale ) );
+	    he_transform_node->field( "scale", he_sfscale );
+	    
+	    sfvec3f he_translation( vec3f( he_center.x(),
+					   he_center.y(), 
 					he_center.z() ));
+	    
+	    he_transform_node->field( "translation", he_translation );
+	    he_transform_node->field( "children", 
+				      mfnode( 1, m_sel_halfedge ) );
 
-	 he_transform_node->field( "translation", he_translation );
-	 he_transform_node->field( "children", mfnode( 1, m_sel_halfedge ) );
+	    root_children.value.push_back( he_transform_node );
+	 }
 
 	 node_ptr vertex_transform_node = transform_type->create_node(scope);
 
@@ -1380,15 +1334,19 @@ void CrMeshControl::reload_selection() {
 					he_rscale * 2 ) );
 	 vertex_transform_node->field( "scale", vertex_sfscale );
 
-	 dst.cartesian();
-	 sfvec3f vertex_translation( vec3f( dst.x(), dst.y(), dst.z() ));
+	 // dst.cartesian();
+	 //sfvec3f vertex_translation( vec3f( dst.x(), dst.y(), dst.z() ));
+	 Vector coord = dst_vertex->coord();
+	 coord.cartesian();
+	 sfvec3f vertex_translation( vec3f( coord.x(), 
+					    coord.y(), 
+					    coord.z() ));
 	 vertex_transform_node->field( "translation", vertex_translation );
-	 vertex_transform_node->field( "children", mfnode( 1, m_sel_vertex ) );
+	 vertex_transform_node->field( "children", 
+				       mfnode( 1, m_sel_vertex ) );
 
-	 mfnode children;
-	 children.value.push_back( vertex_transform_node );
-	 children.value.push_back( he_transform_node );
-	 m_sel_root->field( "children", children );
+	 root_children.value.push_back( vertex_transform_node );
+	 m_sel_root->field( "children", root_children );
       }
    }
 
@@ -1396,9 +1354,33 @@ void CrMeshControl::reload_selection() {
 }
 
 void CrMeshControl::select( Vertex *v ) {
-   m_selection.clear();
-   if( v->halfedge() != NULL ) {
-      m_selection.push_back( v->halfedge() );
+   if( v == NULL ) {
+      m_selection.clear();
+   } else if( v->halfedge() != NULL ) {
+      bool selection_member = false;
+      for( Selection_iterator siter = m_selection.begin();
+	   siter != m_selection.end();
+	   ++siter ) {
+	 if( (*siter)->vertex() == v ) {
+	    selection_member = true;
+	    break;
+	 }
+      }
+      if( !selection_member ) {
+	 Halfedge *connector = NULL;
+
+	 if( m_selection.size() > 0 )
+	    connector = 
+	       scooter::nmm::connector( m_selection.back()->vertex(), v );
+	 
+	 if( connector != NULL ) {
+	    m_selection.push_back( connector );
+	 } else {
+	    m_selection.clear();
+	    m_selection.push_back( v->halfedge() );
+	 }
+      }
+
       reload_selection();
    }
 }
@@ -1408,6 +1390,25 @@ void CrMeshControl::select( Halfedge *he ) {
    reload_selection();
 }
 
+CrMeshControl::Selection_iterator 
+CrMeshControl::selection_begin() {
+   return m_selection.begin();
+}
+
+CrMeshControl::Selection_iterator 
+CrMeshControl::selection_end() {
+   return m_selection.end();
+}
+
+CrMeshControl::Selection_const_iterator 
+CrMeshControl::selection_begin() const {
+   return m_selection.begin();
+}
+
+CrMeshControl::Selection_const_iterator 
+CrMeshControl::selection_end() const {
+   return m_selection.end();
+}
 
 // 
 // crMeshControl.cpp -- end of file
