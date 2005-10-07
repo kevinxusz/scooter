@@ -48,6 +48,13 @@ class CrVRMLEditCtrl: public CrVRMLControl {
 
       typedef CrMesh::IFS_node IFS_node;
 
+      enum InputMode {
+	 Mode_Navigation,
+	 Mode_Single_Vertex,
+	 Mode_Vertex_Pair,
+	 Mode_Vertex_Sequense,
+      };
+
    public:
       CrVRMLEditCtrl( openvrml::browser &browser, IFS_node *ifs_node );
       ~CrVRMLEditCtrl();
@@ -55,10 +62,18 @@ class CrVRMLEditCtrl: public CrVRMLControl {
       void build();
       void select( int x, int y );
 
+   public:
+      
+      enum InputState {
+	 State_None,
+	 State_Vertex,
+      };
+
    private:
       IFS_node        *m_ifs_node;
       CrMeshPtr        m_mesh;
       CrMeshControlPtr m_mesh_control;
+      InputMode        m_input_mode;
 };
 
 

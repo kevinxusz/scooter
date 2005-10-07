@@ -32,8 +32,11 @@
 #include <wx/docview.h>
 #include <wx/colour.h>
 #include <wx/msgdlg.h>
+#include <wx/app.h>
+#include <wx/config.h>
 
 #include "crEvent.h"
+#include "crApp.h"
 #include "crMainWindow.h"
 #include "crDebugConsole.h"
 #include "crMainStatusBar.h"
@@ -62,7 +65,13 @@ CrMainWindow::CrMainWindow( wxDocManager *doc_manager, const wxRect& rect ) :
 
    wxMenu *recent_menu = new wxMenu;
    m_doc_manager->FileHistoryUseMenu(recent_menu);
+   wxConfig *config = wxGetApp().GetConfig();
+   wxString cwd = config->GetPath();
 
+   config->SetPath("/FileHistory/");
+   m_doc_manager->FileHistoryLoad( *config );
+   config->SetPath(cwd);
+   
    wxMenu *file_menu = new wxMenu;
    file_menu->Append( wxID_NEW, _T("&New\tCtrl-N"), _T("Create new scene") );
    file_menu->Append( wxID_OPEN, _T("&Open\tCtrl-X"), _T("Open scene") );

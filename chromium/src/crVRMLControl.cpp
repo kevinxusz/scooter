@@ -818,9 +818,11 @@ CrVRMLControl::generate_line_arrays(
 	 if( !color.empty() ) {
 	    unsigned int idx;
 	    if( color_per_vertex ) 
-	       idx = (!color_index.empty()) ? color_index[index] : *iter;
+	       idx = ( index < color_index.size() ) ? 
+		     color_index[index] : *iter;
 	    else 
-	       idx = (!color_index.empty()) ? color_index[facet] : index;
+	       idx = ( facet < color_index.size() ) ? 
+		     color_index[facet] : index;
 
 	    colors[i]( color[ idx ].r(), color[ idx ].g(), color[ idx ].b() );
 	    dgd_echo( dgd_expand(colors[i]) << std::endl
@@ -1011,9 +1013,17 @@ void CrVRMLControl::generate_ifs_arrays(
    Vector top, bottom;
    bool bbox_initialized = false;
 
-   for( iter = coord_index.begin(); iter != coord_index.end(); ++iter) {
+   
+   for( iter = coord_index.begin(); iter != coord_index.end(); ++iter ) {
+      if( *iter == -1 ) continue;
+	 
       next = std::find( iter, coord_index.end(), -1 );
-      size = std::distance( iter, next );
+
+      if( next != coord_index.end() ) 
+	 size = std::distance( iter, next );
+      else
+	 size = coord_index.size() - 
+		std::distance(coord_index.begin(), iter);
 
       if( size == 0 ) continue;
 
@@ -1059,7 +1069,11 @@ void CrVRMLControl::generate_ifs_arrays(
 		 std::max( coord[curr].z(), top.z() ) );
 	 }
       } while( ++facet_turnover != facet_turnover.begin() );
-      iter = next;
+
+      if( next != coord_index.end() ) 
+	 iter = next;
+      else 
+	 break;
    }
 
    dgd_echo( dgd_expand(nvertexes) << std::endl
@@ -1075,6 +1089,8 @@ void CrVRMLControl::generate_ifs_arrays(
    facet = 0;
    
    for( iter = coord_index.begin(); iter != coord_index.end(); ++iter ) {
+      if( *iter == -1 ) continue;
+
       next = std::find( iter, coord_index.end(), -1 );
 
       facet_turnover = index_const_circulator( iter, next );
@@ -1098,10 +1114,10 @@ void CrVRMLControl::generate_ifs_arrays(
 
 	 if( !color.empty() ) {
 	    if( mask & mask_color_per_vertex ) 
-	       idx = (!color_index.empty()) ? 
+	       idx = ( index < color_index.size() ) ? 
 		     color_index[index] : *facet_turnover;
 	    else 
-	       idx = (!color_index.empty()) ? 
+	       idx = ( facet < color_index.size() ) ? 
 		     color_index[facet] : index;
 
 	    colors[i]( color[idx].r(), color[idx].g(), color[idx].b() );
@@ -1112,10 +1128,10 @@ void CrVRMLControl::generate_ifs_arrays(
 
 	 if( !normal.empty() ) {
 	    if( mask & mask_normal_per_vertex ) 
-	       idx = (!normal_index.empty()) ? 
+	       idx = (index < normal_index.size()) ? 
 		     normal_index[index] :  *facet_turnover;
 	    else 
-	       idx = (!normal_index.empty()) ? 
+	       idx = (facet < normal_index.size()) ? 
 		     normal_index[facet] : index;
 	    normals[i]( normal[idx].x(), normal[idx].y(), normal[idx].z() );
 	 } else {
@@ -1143,7 +1159,7 @@ void CrVRMLControl::generate_ifs_arrays(
 	    normals[i] = -normals[i];
 
 	 if( !tex_coord.empty() ) {
-	    idx = (!tex_coord_index.empty()) ? 
+	    idx = ( index < tex_coord_index.size() ) ? 
 		  tex_coord_index[index] :  *facet_turnover;
 	    texture[i]( tex_coord[idx].x(), tex_coord[idx].y(), 0 );
 	 } else {
@@ -1152,8 +1168,12 @@ void CrVRMLControl::generate_ifs_arrays(
 	    unsigned u_index = 0, v_index = 0, min_index = 0;
 	    Vector::FT mindim = dim.x();
 	    
-	    if( RT(mindim) < RT(dim.y()) ) { mindim = dim.y(); min_index = 1; }
-	    if( RT(mindim) < RT(dim.z()) ) { mindim = dim.z(); min_index = 2; }
+	    if( RT(mindim) < RT(dim.y()) ) { 
+	       mindim = dim.y(); min_index = 1; 
+	    }
+	    if( RT(mindim) < RT(dim.z()) ) { 
+	       mindim = dim.z(); min_index = 2; 
+	    }
 	    u_index = (min_index+1) % 3;
 	    v_index = (min_index+2) % 3;
 	    if( RT(dim[u_index]) < RT(dim[v_index]) ) {
@@ -1175,7 +1195,10 @@ void CrVRMLControl::generate_ifs_arrays(
 
       ++facet;
       
-      iter = next;
+      if( next != coord_index.end() ) 
+	 iter = next;
+      else
+	 break;
    }
    
 

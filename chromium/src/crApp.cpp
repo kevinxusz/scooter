@@ -28,6 +28,8 @@
 
 #include <wx/defs.h>
 #include <wx/docview.h>
+#include <wx/config.h>
+#include <wx/timer.h>
 
 #include <dgDebug.h>
 #include <dgOptionFilter.h>
@@ -42,7 +44,8 @@ IMPLEMENT_APP(CrApp);
 CrApp::CrApp() : 
    wxApp(),
    m_doc_manager(NULL),
-   m_main_window(NULL) {
+   m_main_window(NULL),
+   m_config(NULL) {
 }
 
 bool CrApp::OnInit() {
@@ -50,6 +53,9 @@ bool CrApp::OnInit() {
       return false;
    
    dgd_start_scope( gui, "CrApp::OnInit()" );
+
+   m_config = new wxConfig( _T("Chromium"), _T("Kloper") );
+   m_config->Write( _T("LastUsed"), wxGetLocalTime() );
 
    m_doc_manager = new wxDocManager( wxDOC_MDI );
 
@@ -71,7 +77,7 @@ bool CrApp::OnInit() {
 
    this->SetTopWindow( m_main_window );
 
-   wxHandleFatalExceptions( true );
+   wxHandleFatalExceptions( false );
    
    dgd_end_scope( gui );
 
@@ -79,6 +85,11 @@ bool CrApp::OnInit() {
 }
 
 int CrApp::OnExit() {
+   wxString cwd = m_config->GetPath();
+   m_config->SetPath("/FileHistory/");
+   m_doc_manager->FileHistorySave( *m_config );
+   m_config->SetPath(cwd);
+
    m_dout.reset();
    return 0;
 }
@@ -93,6 +104,10 @@ wxDocManager* CrApp::GetDocManager() {
 
 CrMainWindow* CrApp::GetMainWindow() {
    return m_main_window;
+}
+
+wxConfig  *CrApp::GetConfig() {
+   return m_config;
 }
 
 bool CrApp::ParseCmdLine() {
@@ -121,6 +136,7 @@ bool CrApp::ParseCmdLine() {
       channel& ifs      = m_dout->create_channel( "canvas-ifs" );
       channel& dcel     = m_dout->create_channel( "dcel" );
       channel& dcelbuild = m_dout->create_channel( "dcelbuild" );
+      channel& dcelimpl = m_dout->create_channel( "dcelimpl" );
       channel& editctrl = m_dout->create_channel( "editctrl" );
       assoc( f.get(), gui );
       assoc( f.get(), canvas );
@@ -128,6 +144,7 @@ bool CrApp::ParseCmdLine() {
       assoc( f.get(), openvrml );
       assoc( f.get(), dcel );
       assoc( f.get(), dcelbuild );
+      assoc( f.get(), dcelimpl );
       assoc( f.get(), editctrl );
    }
 

@@ -35,6 +35,7 @@
 
 class wxDocManager;
 class CrMainWindow;
+class wxConfig;
 
 class CrApp: public wxApp {
    public:
@@ -46,17 +47,18 @@ class CrApp: public wxApp {
       int OnExit(void);
       void OnFatalException();
 
-      wxDocManager* GetDocManager();
-      CrMainWindow* GetMainWindow();
+      wxDocManager *GetDocManager();
+      CrMainWindow *GetMainWindow();
+      wxConfig     *GetConfig();
 
    protected:
       bool ParseCmdLine();
 
    private:
       
-      wxDocManager* m_doc_manager;
-      CrMainWindow* m_main_window;
-
+      wxDocManager *m_doc_manager;
+      CrMainWindow *m_main_window;
+      wxConfig     *m_config;
       DGD::Debug::debug_factory_ref m_dout;
 };
 

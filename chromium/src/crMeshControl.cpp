@@ -665,7 +665,8 @@ void CrMeshControl::add_rabbit( Halfedge *he,
    const Vector next = ( next_he->vertex()->coord() -
 		   next_he->opposite()->vertex()->coord() ).normalize();
    Vector up = cross( next.normalize(), prev.normalize() );
-   FT angle = ::asin( up.length() );
+   // up.length() can be 1.0000000001 because of numeric errors
+   FT angle = ::asin( std::min( (FT)1.0, (FT)up.length() ) );
    FT delta;
    int rabbit_count = prev_rabbit_count + next_rabbit_count + 1;
    
@@ -1301,7 +1302,8 @@ void CrMeshControl::reload_selection() {
 	    // errors
 	    FT he_cross_len = std::min( (FT)1.0, (FT)he_cross.length() );
 	    if( RT(he_cross_len) > RT(0) ) {
-	       FT angle = ::asin( he_cross_len );
+	       // he_cross_len can be 1.0000000001 because of numeric errors
+	       FT angle = ::asin( std::min( (FT)1.0, (FT)he_cross_len ) );
 	       if( he_vec.y() < 0 ) 
 		  he_cross *= -1;
 	       he_cross.normalize().cartesian();
