@@ -39,7 +39,6 @@
 #include "crApp.h"
 #include "crMainWindow.h"
 #include "crDebugConsole.h"
-#include "crMainStatusBar.h"
 #include "crVRMLDocument.h"
 #include "crMainControlPanel.h"
 
@@ -53,13 +52,9 @@ CrMainWindow::CrMainWindow( wxDocManager *doc_manager, const wxRect& rect ) :
    m_menu_bar( NULL ),
    m_doc_manager( doc_manager ),
    m_debug_console( NULL ),
-   m_status_bar( NULL ),
    m_control_panel( NULL )
 {
    this->SetIcon( wxIcon( "chromium" ) );
-
-   m_status_bar = new CrMainStatusBar( this );
-   this->SetStatusBar( m_status_bar );
 
    m_menu_bar = new wxMenuBar;
 
@@ -93,8 +88,6 @@ CrMainWindow::CrMainWindow( wxDocManager *doc_manager, const wxRect& rect ) :
    this->SetMenuBar(m_menu_bar);
    this->ConstructDebugConsole();
 
-   this->PositionStatusBar();
-
    m_control_panel = new CrMainControlPanel( this );
    m_control_panel->Show( true );
 }
@@ -125,37 +118,6 @@ void CrMainWindow::ConstructDebugConsole() {
 			     (wxObjectEventFunction)&wxMDIChildFrame::Hide );
 }
 
-void CrMainWindow::OnProgress( wxCommandEvent& event ) {
-   int val = event.GetInt();
-   if( val <= 0 ) 
-      m_status_bar->StartProgress();
-   else if( val > 0 && val < 100 ) 
-      m_status_bar->ContinueProgress( val );
-   else if( val >= 100 ) 
-      m_status_bar->EndProgress(); 
-}
-
-void CrMainWindow::OnLoadFail( wxCommandEvent& event ) {
-   wxDocument *doc = (wxDocument*)event.GetClientData();
-   if( doc != NULL ) {
-      bool show_msgbox = false;
-      wxString reason;
-
-      if( doc->IsKindOf( wxClassInfo::FindClass( "CrVRMLDocument" ) ) ) {
-	 reason = ((CrVRMLDocument*)doc)->GetLoaderStatus() + 
-		  _T(": ") + 
-		  doc->GetFilename();
-	 show_msgbox = true;
-      }
-
-      doc->DeleteAllViews();
-
-      if( show_msgbox ) {
-	 wxMessageBox( reason, _T("Load Failed"), wxICON_HAND | wxOK, this ); 
-      }
-
-   }
-}
 
 wxRect CrMainWindow::GetOptimalChildRect() const {
    wxRect size;
@@ -178,10 +140,31 @@ wxRect CrMainWindow::GetOptimalChildRect() const {
    return size;
 }
 
+void CrMainWindow::OnLoadFail( wxCommandEvent& event ) {
+   wxDocument *doc = (wxDocument*)event.GetClientData();
+   if( doc != NULL ) {
+      bool show_msgbox = false;
+      wxString reason;
+
+      if( doc->IsKindOf( wxClassInfo::FindClass( "CrVRMLDocument" ) ) ) {
+         reason = ((CrVRMLDocument*)doc)->GetLoaderStatus() + 
+                  _T(": ") + 
+                  doc->GetFilename();
+         show_msgbox = true;
+      }
+
+      doc->DeleteAllViews();
+
+      if( show_msgbox ) {
+         wxMessageBox( reason, _T("Load Failed"), wxICON_HAND | wxOK, this ); 
+      }
+
+   }
+}
+
 IMPLEMENT_CLASS(CrMainWindow, wxDocMDIParentFrame)
 BEGIN_EVENT_TABLE(CrMainWindow, wxDocMDIParentFrame)
    EVT_MENU(crID_SHOW_DEBUG_CONSOLE, CrMainWindow::ShowDebugConsole)
-   EVT_STATUS_PROGRESS( CrMainWindow::OnProgress )
    EVT_LOAD_FAILED( CrMainWindow::OnLoadFail )
 END_EVENT_TABLE()
 

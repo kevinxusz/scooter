@@ -46,15 +46,22 @@
 CrVRMLTree::CrVRMLTree() :
    wxTreeCtrl(), 
    m_doc_view(NULL),
-   m_selected_item(-1) {}
+   m_selected_item(-1),
+   m_item_menu(NULL),
+   m_initialized(false) {
+   this->AddRoot( _T("empty"), -1, -1, NULL );
+}
 
 CrVRMLTree::CrVRMLTree( wxWindow *parent, CrVRMLDocView *view  ) :
    wxTreeCtrl( parent, -1, wxDefaultPosition, wxDefaultSize, 
 	       wxTR_HAS_BUTTONS | wxTR_TWIST_BUTTONS |
 	       wxTR_FULL_ROW_HIGHLIGHT ),
    m_doc_view(view),
-   m_item_menu(NULL) {
+   m_selected_item(-1),
+   m_item_menu(NULL),
+   m_initialized(false) {
    CreateItemMenu();
+   this->AddRoot( _T("empty"), -1, -1, NULL );
 }
 
 CrVRMLTree::~CrVRMLTree() {}
@@ -126,6 +133,9 @@ void CrVRMLTree::OnItemSelect( wxTreeEvent& event ) {
    wxTreeItemId itemid;
    wxCommandEvent command;
    
+   if( !m_initialized ) 
+      return;
+
    itemid = event.GetItem();
    command.SetEventType(crEVT_TREE_COMMAND);
    command.SetId( crID_TREE_ITEM_SELECT );
@@ -167,6 +177,9 @@ void CrVRMLTree::OnRightClick( wxTreeEvent& event ) {
    wxCommandEvent command;
    wxTreeItemId itemid;
    CrVRMLNodeInfo *data;
+
+   if( !m_initialized )
+      return;
 
    itemid = event.GetItem();
    data = (CrVRMLNodeInfo*)(this->GetItemData(itemid));   
@@ -231,6 +244,8 @@ void CrVRMLTree::build( const wxString &name,
    traverser.traverse( browser->root_nodes() );
 
    this->Expand( rootid );
+
+   m_initialized = true;
 }
 
 IMPLEMENT_DYNAMIC_CLASS(CrVRMLTree, wxTreeCtrl);

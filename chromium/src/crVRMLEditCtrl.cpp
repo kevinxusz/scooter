@@ -71,7 +71,7 @@ void CrVRMLEditCtrl::build() {
 }
 
 void CrVRMLEditCtrl::select( int x, int y ) {
-   Line ray = unproject(x,y);
+   Line ray = this->unproject(x,y);
 
    CrMeshControl::Vertex *v = m_mesh_control->find_vertex( ray );
    if( v != NULL ) {

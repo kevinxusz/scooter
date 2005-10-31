@@ -62,6 +62,7 @@ class CrVRMLTree: public wxTreeCtrl {
       CrVRMLDocView *m_doc_view;
       wxMenu        *m_item_menu;
       wxTreeItemId   m_selected_item;
+      bool           m_initialized;
 
    private:
       DECLARE_DYNAMIC_CLASS(CrVRMLTree);

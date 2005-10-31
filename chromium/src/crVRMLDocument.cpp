@@ -156,8 +156,18 @@ wxString CrVRMLDocument::GetLoaderStatus() const {
    return res;
 }
 
+void CrVRMLDocument::OnLoadProgress( wxCommandEvent& event ) {
+   this->UpdateAllViews( NULL, &event );
+}
+
+void CrVRMLDocument::OnLoadCompleted( wxCommandEvent& event ) {
+   this->UpdateAllViews( NULL, &event );
+}
+
 IMPLEMENT_DYNAMIC_CLASS(CrVRMLDocument, wxDocument);
 BEGIN_EVENT_TABLE(CrVRMLDocument, wxDocument)
+   EVT_STATUS_PROGRESS( CrVRMLDocument::OnLoadProgress )
+   EVT_LOAD_COMPLETED( CrVRMLDocument::OnLoadCompleted )
 END_EVENT_TABLE()
 
 // 

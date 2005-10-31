@@ -49,6 +49,9 @@ class CrVRMLDocument: public wxDocument {
 
       std::ostream& SaveObject(std::ostream& stream);
 
+      void OnLoadProgress( wxCommandEvent& event );
+      void OnLoadCompleted( wxCommandEvent& event );
+
       VrmlBrowser *browser();
 
    private:

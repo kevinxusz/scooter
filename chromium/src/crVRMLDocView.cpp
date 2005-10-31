@@ -34,7 +34,9 @@
 
 #include "crApp.h"
 #include "crEvent.h"
+#include "crEvent.h"
 #include "crMainWindow.h"
+#include "crMainStatusBar.h"
 #include "crVRMLDocument.h"
 #include "crVRMLDocView.h"
 #include "crVRMLViewer.h"
@@ -46,7 +48,8 @@ CrVRMLDocView::CrVRMLDocView():
    m_frame(NULL),
    m_splitter(NULL), 
    m_notebook(NULL),
-   m_scene_tree(NULL) {
+   m_scene_tree(NULL),   
+   m_status_bar( NULL ) {
 }
 
 CrVRMLDocView::~CrVRMLDocView() {
@@ -55,6 +58,8 @@ CrVRMLDocView::~CrVRMLDocView() {
 
 bool CrVRMLDocView::OnCreate( wxDocument *doc, long flags) {
    wxRect perfect_size = wxGetApp().GetMainWindow()->GetOptimalChildRect();
+   m_frame_size = perfect_size.GetSize();
+
    m_frame = new wxDocMDIChildFrame( doc, this, 
 				     wxGetApp().GetMainWindow(), 
 				     -1, 
@@ -64,6 +69,13 @@ bool CrVRMLDocView::OnCreate( wxDocument *doc, long flags) {
 				     wxDEFAULT_FRAME_STYLE |
 				     wxNO_FULL_REPAINT_ON_RESIZE );
    m_frame->SetIcon( wxIcon( "objects" ) );
+   m_frame->Show( true );
+
+   m_status_bar = new CrMainStatusBar( m_frame );
+
+   m_frame->SetStatusBar( m_status_bar );
+   m_status_bar->Show( true );
+   m_frame->PositionStatusBar();
 
    m_splitter = new wxSplitterWindow( m_frame, -1, 
 				      wxDefaultPosition, wxDefaultSize,
@@ -76,16 +88,16 @@ bool CrVRMLDocView::OnCreate( wxDocument *doc, long flags) {
 				wxDefaultPosition, wxDefaultSize, 
 				wxNO_FULL_REPAINT_ON_RESIZE | 
 				wxCLIP_CHILDREN );
+   m_notebook->Show( true );
 
    m_scene_tree = new CrVRMLTree( m_splitter, this );
+   m_scene_tree->Show( true );
 
    m_splitter->SplitVertically( m_scene_tree, m_notebook,
 				m_frame->GetSize().GetWidth() / 3 );
 
-   m_frame->Show( true );
-   m_notebook->Show( true );
    this->Activate( true );
-  
+   
    return true;
 }
 
@@ -108,19 +120,24 @@ bool CrVRMLDocView::OnClose( bool deleteWindow ) {
 }
 
 
-void CrVRMLDocView::OnLoadCompleted( wxCommandEvent& event ) {
+bool CrVRMLDocView::OnLoadCompleted( wxCommandEvent& event ) {
    CrVRMLViewer *viewer = new CrVRMLViewer( m_notebook, this );
    wxDocument* document = this->GetDocument();
    
-   if( document == NULL )
-      // TODO: send event to close this view
-      return;
+   // The following check is needed for a situation when a view
+   // gets completion event from foreign document. Thus, the event
+   // must be set as skipped and passed for further processing.
+   if( document != (wxDocument*)event.GetClientData() ) {
+      event.Skip();
+      return false;
+   }
 
    CrVRMLDocument *vrml_doc = wxDynamicCast( document, CrVRMLDocument );
 
-   if( vrml_doc == NULL ) 
+   if( vrml_doc == NULL ) {
       // TODO: send event to close this view
-      return;
+      return false;
+   }
 
    viewer->Create( *vrml_doc->browser() );
    
@@ -130,6 +147,8 @@ void CrVRMLDocView::OnLoadCompleted( wxCommandEvent& event ) {
    if( doc ) {
       m_scene_tree->build( doc->GetTitle(), doc->browser() );
    }
+
+   return true;
 }
 
 void CrVRMLDocView::OnTreeCmd( wxCommandEvent& event ) {
@@ -155,11 +174,58 @@ void CrVRMLDocView::OnItemEdit( wxCommandEvent& event ) {
    m_notebook->AddPage( editor, _T("Edit"), true );
 }
 
+void CrVRMLDocView::OnUpdate(wxView *sender, wxObject *hint) {
+   if( hint == NULL ) {
+      m_status_bar->StartProgress();
+      return;
+   }
+
+   wxCommandEvent *event = wxDynamicCast( hint, wxCommandEvent );
+
+   if( event->GetEventType() == crEVT_STATUS_PROGRESS ) {
+      int val = event->GetInt();
+
+      if( val == 0 ) {
+	 m_status_bar->StartProgress();
+      } else {
+	 m_status_bar->ContinueProgress( val );
+      }
+   } else if( event->GetEventType() == crEVT_LOAD_COMPLETED ) {
+      bool rc = this->OnLoadCompleted( *event );
+      if( rc ) {
+	 m_status_bar->EndProgress();
+      } 
+   }
+}
+
+void CrVRMLDocView::OnSize( wxSizeEvent& event ) {
+   wxSize frame_size = m_frame->GetClientSize();
+   int sash_pos = m_splitter->GetSashPosition();
+   int delta = frame_size.GetWidth() - m_frame_size.GetWidth();
+   double ratio = (m_frame_size.GetWidth() > 0) ? 
+		  (double)frame_size.GetWidth() / 
+		  (double)m_frame_size.GetWidth() : 
+		  1.0;
+   if( delta < 0 ) {
+      if( (double)sash_pos / (double)frame_size.GetWidth() >= 0.25 ) {
+	 m_splitter->SetSashPosition( sash_pos * ratio );
+      }
+   } else {
+      if( (double)sash_pos /  (double)frame_size.GetWidth() < 0.25 ) {
+	 m_splitter->SetSashPosition( sash_pos * ratio );
+      }
+   }
+
+   m_frame_size = frame_size;
+
+   event.Skip();
+}
+
 IMPLEMENT_DYNAMIC_CLASS(CrVRMLDocView, wxView);
 
 BEGIN_EVENT_TABLE(CrVRMLDocView, wxView)
-   EVT_LOAD_COMPLETED( CrVRMLDocView::OnLoadCompleted )
    EVT_TREE_COMMAND( CrVRMLDocView::OnTreeCmd )
+   EVT_SIZE( CrVRMLDocView::OnSize )
 END_EVENT_TABLE()
 
 // 

@@ -29,12 +29,14 @@
 
 #include "crConfig.h"
 
+#include <wx/gdicmn.h>
 #include <wx/docview.h>
 
 class wxDocMDIChildFrame;
 class wxSplitterWindow;
 class wxNotebook;
 class CrVRMLTree;
+class CrMainStatusBar;
 
 class CrVRMLDocView: public wxView {
    public:
@@ -44,15 +46,19 @@ class CrVRMLDocView: public wxView {
       bool OnCreate(wxDocument *doc, long flags);
       void OnDraw(wxDC *dc);
       bool OnClose(bool deleteWindow = TRUE);
-      void OnLoadCompleted( wxCommandEvent& event );
+      bool OnLoadCompleted( wxCommandEvent& event );
       void OnTreeCmd( wxCommandEvent& event );
       void OnItemEdit( wxCommandEvent& event );
+      void OnUpdate(wxView *sender, wxObject *hint);
+      void OnSize( wxSizeEvent& event );
 
    private:
       wxDocMDIChildFrame *m_frame;
       wxSplitterWindow   *m_splitter;
       wxNotebook         *m_notebook;
       CrVRMLTree         *m_scene_tree;
+      CrMainStatusBar    *m_status_bar;
+      wxSize              m_frame_size;
 
    private:
       DECLARE_DYNAMIC_CLASS(CrVRMLDocView);

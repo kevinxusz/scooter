@@ -34,7 +34,6 @@
 class wxMenuBar;
 class wxDocManager;
 class wxMDIChildFrame;
-class CrMainStatusBar;
 class CrMainControlPanel;
 
 class CrMainWindow: public wxDocMDIParentFrame {
@@ -50,18 +49,16 @@ class CrMainWindow: public wxDocMDIParentFrame {
 
       CrMainWindow( wxDocManager *manager, const wxRect& rect );
 
+      void OnLoadFail(wxCommandEvent&);
       void ShowDebugConsole(wxCommandEvent&);
       void HideDebugConsole(wxCommandEvent&);
       void ConstructDebugConsole();
       wxRect GetOptimalChildRect() const;
-      void OnProgress( wxCommandEvent& event );
-      void OnLoadFail( wxCommandEvent& event );
 
    private:
       wxMenuBar          *m_menu_bar;
       wxDocManager       *m_doc_manager;
       wxMDIChildFrame    *m_debug_console;
-      CrMainStatusBar    *m_status_bar;
       CrMainControlPanel *m_control_panel;
 
    private:

@@ -256,13 +256,14 @@ CrVRMLControl::generate_cyllindric_arrays(
    boost::shared_array<Vector>& texture,
    const bool                   is_cone ) {
    dgd_start_scope( canvas, "CrVRMLControl::generate_cyllindric_arrays()" );
-   // precision is a number of vertices on the bound
-   // the last vertex on the cone/cylinder bound is virtually split 
-   // this is done to make texture mapping to fit exactly [0,1],
-   // thus precision is incremented by one. Factor of 4 means we are
-   // using separate coordinates for top and bottom vertices, more over
-   // we are using the same vertex set twice for side and for top and bottom 
-   // caps. This looks ugly, but lets us ability to utilize vertex arrays.
+   // precision is a number of vertices on the bound the last vertex
+   // on the cone/cylinder bound is virtually split this is done to
+   // make texture mapping to fit exactly [0,1], thus precision is
+   // incremented by one. Factor of 4 means we are using separate
+   // coordinates for top and bottom vertices, more over we are using
+   // the same vertex set twice for side and for top and bottom
+   // caps. This looks ugly, but lets us ability to utilize vertex
+   // arrays.
    unsigned nvertexes =  4 * (precision + 1);
    int cone_factor = is_cone ? 0 : 1;
 
@@ -2211,6 +2212,7 @@ void CrVRMLControl::redraw() {
 
    dgd_end_scope( canvas );
 }
+
 
 CrVRMLControl::Line 
 CrVRMLControl::unproject( int x, int y ) {

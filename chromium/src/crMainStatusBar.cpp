@@ -41,7 +41,7 @@ CrMainStatusBar::CrMainStatusBar( wxWindow* parent ) :
 				   wxDefaultPosition,
 				   wxSize(50,20),
 				   wxGA_PROGRESSBAR | wxSIMPLE_BORDER );
-//   m_progress_gauge->Show( false );   
+   m_progress_gauge->Show( false );   
    
    int width_array[] = { -4, -1 };
    this->SetFieldsCount( sizeof(width_array)/sizeof(int), width_array );
@@ -51,6 +51,12 @@ CrMainStatusBar::~CrMainStatusBar() {
 }
 
 void CrMainStatusBar::StartProgress() {
+   m_progress_gauge->SetValue( 0 );
+
+   wxRect rect;
+   this->GetFieldRect(Status_Progress_Index, rect);
+   m_progress_gauge->SetSize( rect.x + 2, rect.y + 2, 
+			      rect.width - 4, rect.height - 4 );
    m_progress_gauge->Show( true );
 }
 
@@ -59,16 +65,14 @@ void CrMainStatusBar::ContinueProgress( unsigned int val ) {
 }
 
 void CrMainStatusBar::EndProgress() {
-//   m_progress_gauge->Show( false );
+   m_progress_gauge->Show( false );
 }
 
 void CrMainStatusBar::OnSize(wxSizeEvent& event) {
-   if( m_progress_gauge->IsShown() ) {
-      wxRect rect;
-      GetFieldRect(Status_Progress_Index, rect);
-      m_progress_gauge->SetSize( rect.x + 2, rect.y + 2, 
-				 rect.width - 4, rect.height - 4 );
-   }
+   wxRect rect;
+   this->GetFieldRect(Status_Progress_Index, rect);
+   m_progress_gauge->SetSize( rect.x + 2, rect.y + 2, 
+			      rect.width - 4, rect.height - 4 );
       
    event.Skip();
 }

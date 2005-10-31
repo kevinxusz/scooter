@@ -149,7 +149,7 @@ void CrVRMLLoader::set_state_notify(  const State& state,
    } else {
       wxCommandEvent command(crEVT_LOAD_COMPLETED,-1);
       command.SetClientData( m_document );
-      wxPostEvent( wxGetApp().GetMainWindow(), command );
+      wxPostEvent( m_document, command );
    }
 
    dgd_end_scope( gui );
@@ -173,7 +173,7 @@ void CrVRMLLoader::operator () ( unsigned long l, unsigned long c ) {
       m_prev = val;
       wxCommandEvent command(crEVT_STATUS_PROGRESS,-1);
       command.SetInt( val );
-      wxPostEvent( wxGetApp().GetMainWindow(), command );
+      wxPostEvent( m_document, command );
    }	   
 }
 
