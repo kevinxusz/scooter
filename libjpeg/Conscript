@@ -89,6 +89,7 @@ Library $buildenv $TARGET,
 	   jidctfst.c
 	   jidctint.c
 	   jidctred.c
+	   jmemmgr.c
 	   jmemnobs.c
 	   jquant1.c
 	   jquant2.c
