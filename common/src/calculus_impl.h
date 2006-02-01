@@ -55,40 +55,40 @@ Vector(const Vector<FloatValue,ComparableValue>& peer) :
 
 template <class FloatValue, class ComparableValue>
 Vector<FloatValue,ComparableValue>::operator 
-Vector<FloatValue,ComparableValue>::FT* () {
+common_typename Vector<FloatValue,ComparableValue>::FT* () {
    return &_x;
 }
 
 template <class FloatValue, class ComparableValue>
-typename Vector<FloatValue,ComparableValue>::FT& 
+common_typename Vector<FloatValue,ComparableValue>::FT& 
 Vector<FloatValue,ComparableValue>::x() { return _x; }
 
 template <class FloatValue, class ComparableValue>
-typename Vector<FloatValue,ComparableValue>::FT& 
+common_typename Vector<FloatValue,ComparableValue>::FT& 
 Vector<FloatValue,ComparableValue>::y() { return _y; }
 
 template <class FloatValue, class ComparableValue>
-typename Vector<FloatValue,ComparableValue>::FT& 
+common_typename Vector<FloatValue,ComparableValue>::FT& 
 Vector<FloatValue,ComparableValue>::z() { return _z; }
 
 template <class FloatValue, class ComparableValue>
-typename Vector<FloatValue,ComparableValue>::FT& 
+common_typename Vector<FloatValue,ComparableValue>::FT& 
 Vector<FloatValue,ComparableValue>::w() { return _w; }
 
 template <class FloatValue, class ComparableValue>
-typename Vector<FloatValue,ComparableValue>::FT 
+common_typename Vector<FloatValue,ComparableValue>::FT 
 Vector<FloatValue,ComparableValue>::x() const { return _x; }
 
 template <class FloatValue, class ComparableValue>
-typename Vector<FloatValue,ComparableValue>::FT 
+common_typename  Vector<FloatValue,ComparableValue>::FT 
 Vector<FloatValue,ComparableValue>::y() const { return _y; }
 
 template <class FloatValue, class ComparableValue>
-typename Vector<FloatValue,ComparableValue>::FT 
+common_typename Vector<FloatValue,ComparableValue>::FT 
 Vector<FloatValue,ComparableValue>::z() const { return _z; }
 
 template <class FloatValue, class ComparableValue>
-typename Vector<FloatValue,ComparableValue>::FT 
+common_typename Vector<FloatValue,ComparableValue>::FT 
 Vector<FloatValue,ComparableValue>::w() const { return _w; }
 
 template <class FloatValue, class ComparableValue>
@@ -188,13 +188,13 @@ Vector<FloatValue,ComparableValue>::normalize() const {
 }
 
 template <class FloatValue, class ComparableValue>
-typename Vector<FloatValue,ComparableValue>::FT 
+common_typename Vector<FloatValue,ComparableValue>::FT 
 Vector<FloatValue,ComparableValue>::length() const {
    return (FT)sqrt((_x*_x + _y*_y + _z*_z)/(_w*_w));
 }
 
 template <class FloatValue, class ComparableValue>
-typename Vector<FloatValue,ComparableValue>::FT 
+common_typename Vector<FloatValue,ComparableValue>::FT 
 Vector<FloatValue,ComparableValue>::squared_length() const {
    return (_x*_x + _y*_y + _z*_z)/(_w*_w);
 }
@@ -287,7 +287,7 @@ template < class FloatValue1, class ComparableValue1,
 Vector<FloatValue1,ComparableValue1>& 
 assign ( Vector<FloatValue1,ComparableValue1>& a, 
 	 const Vector<FloatValue2,ComparableValue2>& b) {
-   typedef typename Vector<FloatValue1,ComparableValue1>::FT ftype;
+   typedef common_typename Vector<FloatValue1,ComparableValue1>::FT ftype;
    return a( (ftype)b.x(), (ftype)b.y(), (ftype)b.z(), (ftype)b.w() );
 }
 
@@ -315,7 +315,7 @@ Vector<FloatValue,ComparableValue> operator - (
 template <class FloatValue, class ComparableValue>
 Vector<FloatValue,ComparableValue> operator * ( 
    const Vector<FloatValue,ComparableValue>& a, 
-   const Vector<FloatValue,ComparableValue>::FT& scale ) {
+   const common_typename Vector<FloatValue,ComparableValue>::FT& scale ) {
    return Vector<FloatValue,ComparableValue>( a.x() * scale, 
 					      a.y() * scale, 
 					      a.z() * scale, 
@@ -324,7 +324,7 @@ Vector<FloatValue,ComparableValue> operator * (
 
 template <class FloatValue, class ComparableValue>
 Vector<FloatValue,ComparableValue> operator * ( 
-   const Vector<FloatValue,ComparableValue>::FT& scale, 
+   const common_typename Vector<FloatValue,ComparableValue>::FT& scale, 
    const Vector<FloatValue,ComparableValue>& a ) {
    return Vector<FloatValue,ComparableValue>( a.x() * scale, 
 					      a.y() * scale, 
@@ -336,7 +336,7 @@ template <class FloatValue, class ComparableValue>
 Vector<FloatValue,ComparableValue> median( 
    const Vector<FloatValue,ComparableValue>& a, 
    const Vector<FloatValue,ComparableValue>& b,
-   const Vector<FloatValue,ComparableValue>::FT& scale ) {
+   const common_typename Vector<FloatValue,ComparableValue>::FT& scale ) {
    return Vector<FloatValue,ComparableValue>( b.w() * a.x() + 
 					      ( a.w() * b.x() - 
 						b.w() * a.x() ) * scale,
@@ -350,7 +350,7 @@ Vector<FloatValue,ComparableValue> median(
 }
 
 template <class FloatValue, class ComparableValue>
-typename Vector<FloatValue,ComparableValue>::FT dot( 
+common_typename Vector<FloatValue,ComparableValue>::FT dot( 
    const Vector<FloatValue,ComparableValue>& a, 
    const Vector<FloatValue,ComparableValue>& b ) {
    return ( a.x() * b.x() + a.y() * b.y() + a.z() * b.z()) / (a.w() * b.w());
@@ -383,8 +383,8 @@ int orientation(
    const Vector<FloatValue,ComparableValue>& a,
    const Vector<FloatValue,ComparableValue>& b,
    const Vector<FloatValue,ComparableValue>& up ) {
-   typedef Vector<FloatValue,ComparableValue>::RT RT;
-   typedef Vector<FloatValue,ComparableValue>::FT FT;
+   typedef common_typename Vector<FloatValue,ComparableValue>::RT RT;
+   typedef common_typename Vector<FloatValue,ComparableValue>::FT FT;
 
    Vector<FloatValue,ComparableValue> x = a;
    Vector<FloatValue,ComparableValue> y = b;
@@ -511,141 +511,141 @@ Matrix<FloatValue,ComparableValue>::operator ()( const FT& m00,
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>::operator 
-Matrix<FloatValue,ComparableValue>::FT* () {
+common_typename Matrix<FloatValue,ComparableValue>::FT* () {
    return &_m00;
 }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::m00() { return _m00; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::m01() { return _m01; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::m02() { return _m02; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::m03() { return _m03; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::m10() { return _m10; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::m11() { return _m11; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::m12() { return _m12; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::m13() { return _m13; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::m20() { return _m20; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::m21() { return _m21; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::m22() { return _m22; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::m23() { return _m23; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::m30() { return _m30; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::m31() { return _m31; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::m32() { return _m32; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::m33() { return _m33; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT 
+common_typename Matrix<FloatValue,ComparableValue>::FT 
 Matrix<FloatValue,ComparableValue>::m00() const { return _m00; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT
+common_typename Matrix<FloatValue,ComparableValue>::FT
 Matrix<FloatValue,ComparableValue>::m01() const { return _m01; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT 
+common_typename Matrix<FloatValue,ComparableValue>::FT 
 Matrix<FloatValue,ComparableValue>::m02() const { return _m02; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT 
+common_typename Matrix<FloatValue,ComparableValue>::FT 
 Matrix<FloatValue,ComparableValue>::m03() const { return _m03; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT 
+common_typename Matrix<FloatValue,ComparableValue>::FT 
 Matrix<FloatValue,ComparableValue>::m10() const { return _m10; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT 
+common_typename Matrix<FloatValue,ComparableValue>::FT 
 Matrix<FloatValue,ComparableValue>::m11() const { return _m11; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT 
+common_typename Matrix<FloatValue,ComparableValue>::FT 
 Matrix<FloatValue,ComparableValue>::m12() const { return _m12; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT 
+common_typename Matrix<FloatValue,ComparableValue>::FT 
 Matrix<FloatValue,ComparableValue>::m13() const { return _m13; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT 
+common_typename Matrix<FloatValue,ComparableValue>::FT 
 Matrix<FloatValue,ComparableValue>::m20() const { return _m20; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT 
+common_typename Matrix<FloatValue,ComparableValue>::FT 
 Matrix<FloatValue,ComparableValue>::m21() const { return _m21; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT 
+common_typename Matrix<FloatValue,ComparableValue>::FT 
 Matrix<FloatValue,ComparableValue>::m22() const { return _m22; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT 
+common_typename Matrix<FloatValue,ComparableValue>::FT 
 Matrix<FloatValue,ComparableValue>::m23() const { return _m23; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT 
+common_typename Matrix<FloatValue,ComparableValue>::FT 
 Matrix<FloatValue,ComparableValue>::m30() const { return _m30; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT 
+common_typename Matrix<FloatValue,ComparableValue>::FT 
 Matrix<FloatValue,ComparableValue>::m31() const { return _m31; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT 
+common_typename Matrix<FloatValue,ComparableValue>::FT 
 Matrix<FloatValue,ComparableValue>::m32() const { return _m32; }
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT 
+common_typename Matrix<FloatValue,ComparableValue>::FT 
 Matrix<FloatValue,ComparableValue>::m33() const { return _m33; }
 
 
 template <class FloatValue, class ComparableValue> 
-Matrix<FloatValue,ComparableValue>::FT& 
+common_typename Matrix<FloatValue,ComparableValue>::FT& 
 Matrix<FloatValue,ComparableValue>::element( int i, int j ) {
    FT *ptr = &m00;
    return ptr[4 * i + j];
@@ -746,7 +746,7 @@ Matrix<FloatValue,ComparableValue>::cartesian() const {
 }
 
 template <class FloatValue, class ComparableValue>
-Matrix<FloatValue,ComparableValue>::FT 
+common_typename Matrix<FloatValue,ComparableValue>::FT 
 Matrix<FloatValue,ComparableValue>::determinant() const {
    FT d00,d01,d02,d03;
    FT d10,d11,d12,d13;
@@ -802,9 +802,9 @@ Matrix<FloatValue,ComparableValue>::operator *= (
 }
 
 template <class FloatValue, class ComparableValue>
-Matrix<FloatValue,ComparableValue>::Vector&
+common_typename Matrix<FloatValue,ComparableValue>::Vector&
 Matrix<FloatValue,ComparableValue>::operator *= ( 
-   Matrix<FloatValue,ComparableValue>::Vector& peer ) const {
+   common_typename Matrix<FloatValue,ComparableValue>::Vector& peer ) const {
    FT x = peer.x();
    FT y = peer.y();
    FT z = peer.z();
@@ -818,9 +818,10 @@ Matrix<FloatValue,ComparableValue>::operator *= (
 }
 
 template <class FloatValue, class ComparableValue>
-Matrix<FloatValue,ComparableValue>::Vector 
+common_typename Matrix<FloatValue,ComparableValue>::Vector 
 Matrix<FloatValue,ComparableValue>::operator *= ( 
-   const Matrix<FloatValue,ComparableValue>::Vector& peer ) const {
+   const common_typename 
+                 Matrix<FloatValue,ComparableValue>::Vector& peer ) const {
    return Matrix<FloatValue,ComparableValue>::Vector( 
       peer.x()*_m00 + peer.y()*_m01 + peer.z()*_m02 + peer.w()*_m03,
       peer.x()*_m10 + peer.y()*_m11 + peer.z()*_m12 + peer.w()*_m13,
@@ -972,7 +973,7 @@ template < class FloatValue1, class ComparableValue1,
 Matrix<FloatValue1,ComparableValue1> assign ( 
          Matrix<FloatValue1,ComparableValue1>& a, 
    const Matrix<FloatValue2,ComparableValue2>& b ) {
-   typedef typename Matrix<FloatValue1,ComparableValue1>::FT ftype;
+   typedef common_typename Matrix<FloatValue1,ComparableValue1>::FT ftype;
    a( (ftype)b.m00(), (ftype)b.m01(), 
       (ftype)b.m02(), (ftype)b.m03(),
       (ftype)b.m10(), (ftype)b.m11(), 
@@ -993,9 +994,10 @@ operator *( const Matrix<FloatValue,ComparableValue>& a,
 }
 
 template <class FloatValue, class ComparableValue>
-Matrix<FloatValue,ComparableValue>::Vector 
+common_typename Matrix<FloatValue,ComparableValue>::Vector 
 operator *( const Matrix<FloatValue,ComparableValue>& m, 
-	    const Matrix<FloatValue,ComparableValue>::Vector& v ) {
+	    const common_typename 
+	                Matrix<FloatValue,ComparableValue>::Vector& v ) {
    return Matrix<FloatValue,ComparableValue>(m) *= 
       Matrix<FloatValue,ComparableValue>::Vector(v);
 }
@@ -1003,14 +1005,16 @@ operator *( const Matrix<FloatValue,ComparableValue>& m,
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue> 
 translate( const Matrix<FloatValue,ComparableValue>& m, 
-	   const Matrix<FloatValue,ComparableValue>::Vector& v ) {
+	   const common_typename 
+	                Matrix<FloatValue,ComparableValue>::Vector& v ) {
    return translate( Matrix<FloatValue,ComparableValue>(m), v );
 }
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>& 
 translate( Matrix<FloatValue,ComparableValue>& m, 
-	   const Matrix<FloatValue,ComparableValue>::Vector& v ) {
+	   const common_typename 
+	                Matrix<FloatValue,ComparableValue>::Vector& v ) {
    Matrix<FloatValue,ComparableValue> trans( v.w(), 0.0, 0.0, v.x(),
 					     0.0, v.w(), 0.0, v.y(),
 					     0.0, 0.0, v.w(), v.z(),
@@ -1023,18 +1027,24 @@ translate( Matrix<FloatValue,ComparableValue>& m,
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue> 
 rotate( const Matrix<FloatValue,ComparableValue>& m, 
-	const Matrix<FloatValue,ComparableValue>::FT& angleX,
-	const Matrix<FloatValue,ComparableValue>::FT& angleY,
-	const Matrix<FloatValue,ComparableValue>::FT& angleZ ) {
-   return rotate( Matrix<FloatValue,ComparableValue>(m), angleX, angleY, angleZ );
+	const common_typename Matrix<FloatValue,ComparableValue>::FT& angleX,
+	const common_typename Matrix<FloatValue,ComparableValue>::FT& angleY,
+	const common_typename Matrix<FloatValue,ComparableValue>::FT& angleZ ) 
+{
+   return rotate( Matrix<FloatValue,ComparableValue>(m), 
+		  angleX, angleY, angleZ );
 }
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>& 
 rotate( Matrix<FloatValue,ComparableValue>& m, 
-	const Matrix<FloatValue,ComparableValue>::FT& angleX,
-	const Matrix<FloatValue,ComparableValue>::FT& angleY,
-	const Matrix<FloatValue,ComparableValue>::FT& angleZ ) {
+	const common_typename Matrix<FloatValue,ComparableValue>::FT& angleX,
+	const common_typename Matrix<FloatValue,ComparableValue>::FT& angleY,
+	const common_typename Matrix<FloatValue,ComparableValue>::FT& angleZ ) 
+{
+   typedef common_typename Matrix<FloatValue,ComparableValue>::RT RT;
+   typedef common_typename Matrix<FloatValue,ComparableValue>::FT FT;
+
    Matrix<FloatValue,ComparableValue> rotX,rotY,rotZ;
    rotX.set_identity();
    rotY.set_identity();
@@ -1067,46 +1077,48 @@ rotate( Matrix<FloatValue,ComparableValue>& m,
 	    0.0, 0.0, 0.0, 1.0 );
    }
 
-   if(RT(angleX)) this->operator *=( rotX );
-   if(RT(angleY)) this->operator *=( rotY );
-   if(RT(angleZ)) this->operator *=( rotZ );
-   return *this;
+   if(RT(angleX)) m *= rotX;
+   if(RT(angleY)) m *= rotY;
+   if(RT(angleZ)) m *= rotZ;
+   return m;
 }
 
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue> 
 rotate( const Matrix<FloatValue,ComparableValue>& m, 
-	const Matrix<FloatValue,ComparableValue>::Vector& axis,
-	const Matrix<FloatValue,ComparableValue>::FT& angle ) {
+	const common_typename Matrix<FloatValue,ComparableValue>::Vector& axis,
+	const common_typename Matrix<FloatValue,ComparableValue>::FT& angle ) {
    return rotate( Matrix<FloatValue,ComparableValue>(m), axis, angle );
 }
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>& 
 rotate( Matrix<FloatValue,ComparableValue>& m, 
-	const Matrix<FloatValue,ComparableValue>::Vector& axis,
-	const Matrix<FloatValue,ComparableValue>::FT& angle ) {
+	const common_typename Matrix<FloatValue,ComparableValue>::Vector& axis,
+	const common_typename Matrix<FloatValue,ComparableValue>::FT& angle ) {
+   typedef common_typename Matrix<FloatValue,ComparableValue>::RT RT;
+   typedef common_typename Matrix<FloatValue,ComparableValue>::FT FT;
+   typedef common_typename Matrix<FloatValue,ComparableValue>::Vector Vector;
    /* this function is from  mesa3d */
    /* This function contributed by Erich Boleyn (erich@uruk.org) */
-   Matrix<FloatValue,ComparableValue>::FT x, y, z;
-   Matrix<FloatValue,ComparableValue>::FT mag, s, c;
-   Matrix<FloatValue,ComparableValue>::FT 
-      xx, yy, zz, xy, yz, zx, xs, ys, zs, one_c;
-   Matrix<FloatValue,ComparableValue>::Vector r( axis );
+   FT x, y, z;
+   FT mag, s, c;
+   FT xx, yy, zz, xy, yz, zx, xs, ys, zs, one_c;
+   Vector r( axis );
+
    r.cartesian();
 
    x = r.x();
    y = r.y();
    z = r.z();
 
-   s = (Matrix<FloatValue,ComparableValue>::FT)sin( angle );
-   c = (Matrix<FloatValue,ComparableValue>::FT)cos( angle );
+   s = (FT)sin( angle );
+   c = (FT)cos( angle );
 
    mag = r.length();
 
-   if ( Matrix<FloatValue,ComparableValue>::RT(mag) == 
-			  Matrix<FloatValue,ComparableValue>::RT(0)) {
+   if ( RT(mag) == RT(0)) {
       /* generate an identity matrix and return */
       m.set_identity();
       return m;
@@ -1209,9 +1221,9 @@ rotate( Matrix<FloatValue,ComparableValue>& m,
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue> 
 scale( const Matrix<FloatValue,ComparableValue>& m, 
-       const Matrix<FloatValue,ComparableValue>::FT& scaleX,
-       const Matrix<FloatValue,ComparableValue>::FT& scaleY,
-       const Matrix<FloatValue,ComparableValue>::FT& scaleZ ) {
+       const common_typename Matrix<FloatValue,ComparableValue>::FT& scaleX,
+       const common_typename Matrix<FloatValue,ComparableValue>::FT& scaleY,
+       const common_typename Matrix<FloatValue,ComparableValue>::FT& scaleZ ) {
    return scale( Matrix<FloatValue,ComparableValue>(m), 
 		 scaleX, scaleY, scaleZ );
 }
@@ -1219,9 +1231,9 @@ scale( const Matrix<FloatValue,ComparableValue>& m,
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>& 
 scale( Matrix<FloatValue,ComparableValue>& m, 
-       const Matrix<FloatValue,ComparableValue>::FT& scaleX,
-       const Matrix<FloatValue,ComparableValue>::FT& scaleY,
-       const Matrix<FloatValue,ComparableValue>::FT& scaleZ ) {
+       const common_typename Matrix<FloatValue,ComparableValue>::FT& scaleX,
+       const common_typename Matrix<FloatValue,ComparableValue>::FT& scaleY,
+       const common_typename Matrix<FloatValue,ComparableValue>::FT& scaleZ ) {
    Matrix<FloatValue,ComparableValue> scl( scaleX, 0.0, 0.0, 0.0,
 					   0.0, scaleY, 0.0, 0.0,
 					   0.0, 0.0, scaleZ, 0.0,
@@ -1232,15 +1244,16 @@ scale( Matrix<FloatValue,ComparableValue>& m,
 
 
 template <class FloatValue, class ComparableValue>
-Matrix<FloatValue,ComparableValue> scale( const Matrix<FloatValue,ComparableValue>& m, 
-		     const Matrix<FloatValue,ComparableValue>::FT& s ) {
-   return scale( Matrix<FloatValue,ComparableValue>(m), s )
+Matrix<FloatValue,ComparableValue> scale( 
+   const Matrix<FloatValue,ComparableValue>& m, 
+   const common_typename Matrix<FloatValue,ComparableValue>::FT& s ) {
+   return scale( Matrix<FloatValue,ComparableValue>(m), s );
 }
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>& 
 scale( Matrix<FloatValue,ComparableValue>& m, 
-       const Matrix<FloatValue,ComparableValue>::FT& s ) {
+       const common_typename Matrix<FloatValue,ComparableValue>::FT& s ) {
    Matrix<FloatValue,ComparableValue> scl( s, 0.0, 0.0, 0.0,
 					   0.0, s, 0.0, 0.0,
 					   0.0, 0.0, s, 0.0,

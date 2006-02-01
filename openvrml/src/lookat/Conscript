@@ -34,18 +34,20 @@ our $BUILD      = $toolset->option( 'build' );
 our $INCLUDE    = [ "%STLPORT_INCLUDE", 
 		    "%BOOST_INCLUDE",
 		    "$BLIB/include",
-		    "d:/glut-3.7.6/include",
 		    "." ];
 our $DEFINE     = [ "%STLPORT_DEFINE", "%BOOST_DEFINE" ];
-our $LIBPATH    = [ "$BLIB/lib", "%STLPORT_LIB", "%BOOST_LIB", 
-		    "%ZLIB_LIB", "%JPEG_LIB", "%LIBPNG_LIB" ];
-our $LIBS       = join( ' ' , qw( -lantlr 
-				  -lopenvrml 
+our $LIBPATH    = [ "$BLIB/lib", "%STLPORT_LIB", "%BOOST_LIB"];
+our $LIBS       = join( ' ' , qw( -lopenvrml 
 				  -lopenvrml-gl
+				  -lantlr
 				  -lzlib 
-				  -llibjpeg 
-				  -llibpng
-				  -lwsock32 ) );
+				  -ljpeg 
+				  -lpng
+				  -lwsock32 
+				  -lopengl32 
+				  -lglu32
+				  -lglut32 
+				  -lboost_regex-mgw-s ) );
 
 
 Link $BUILD => '.';

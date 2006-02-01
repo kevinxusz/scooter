@@ -42,6 +42,9 @@ class circulator :
       
       typedef boost::iterator_adaptor< circulator<Base_iterator>, 
 				       Base_iterator > parent_type;
+   public:
+
+      typedef typename parent_type::difference_type difference_type;
 
    public:
       circulator() : parent_type() {}
@@ -100,6 +103,10 @@ class sampler :  public boost::iterator_adaptor< sampler<Base_iterator,count>,
       
       typedef boost::iterator_adaptor< sampler<Base_iterator,count>, 
 				       Base_iterator > parent_type;
+
+   public:
+
+      typedef typename parent_type::difference_type difference_type;
 
    public:
       sampler() : parent_type() {}

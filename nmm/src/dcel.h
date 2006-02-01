@@ -33,6 +33,7 @@
 
 #include <boost/smart_ptr.hpp>
 
+#include <scooter/common_config.h>
 #include <scooter/nmm/dcel_iterator.h>
 
 namespace scooter {
@@ -74,12 +75,14 @@ template <class Vb, class Hb, class Fb>
 class Dcel_vertex:  public Dcel_traits<Vb,Hb,Fb>::Vertex_base
 {
    public:
-      typedef Dcel_traits<Vb,Hb,Fb>           Traits;
-      typedef Traits::Vertex_base             Parent;
-      typedef Traits::Halfedge                Halfedge;
-      typedef Traits::Facet                   Facet;
-      typedef Traits::Vertex_circulator       Vertex_circulator;
-      typedef Traits::Vertex_const_circulator Vertex_const_circulator;
+      typedef Dcel_traits<Vb,Hb,Fb>                     Traits;
+      typedef common_typename Traits::Vertex_base       Parent;
+      typedef common_typename Traits::Halfedge          Halfedge;
+      typedef common_typename Traits::Facet             Facet;
+      typedef common_typename Traits::Vertex_circulator       
+                                                       Vertex_circulator;
+      typedef common_typename Traits::Vertex_const_circulator 
+                                                       Vertex_const_circulator;
 
    public:
       Dcel_vertex();
@@ -104,13 +107,15 @@ template <class Vb, class Hb, class Fb>
 class Dcel_halfedge: public Dcel_traits<Vb,Hb,Fb>::Halfedge_base
 {
    public:
-      typedef Dcel_traits<Vb,Hb,Fb>           Traits;
-      typedef Traits::Vertex_base             Parent;
-      typedef Traits::Vertex                  Vertex;
-      typedef Traits::Halfedge                Halfedge;
-      typedef Traits::Facet                   Facet;
-      typedef Traits::Vertex_circulator       Vertex_circulator;
-      typedef Traits::Vertex_const_circulator Vertex_const_circulator;
+      typedef Dcel_traits<Vb,Hb,Fb>                      Traits;
+      typedef common_typename Traits::Vertex_base        Parent;
+      typedef common_typename Traits::Vertex             Vertex;
+      typedef common_typename Traits::Halfedge           Halfedge;
+      typedef common_typename Traits::Facet              Facet;
+      typedef common_typename Traits::Vertex_circulator  
+                                                       Vertex_circulator;
+      typedef common_typename Traits::Vertex_const_circulator 
+                                                       Vertex_const_circulator;
 
    public:
       Dcel_halfedge();
@@ -152,13 +157,15 @@ template <class Vb, class Hb, class Fb>
 class Dcel_facet: public Dcel_traits<Vb,Hb,Fb>::Facet_base
 {
    public:
-      typedef Dcel_traits<Vb,Hb,Fb>           Traits;
-      typedef Traits::Vertex_base             Parent;
-      typedef Traits::Vertex                  Vertex;
-      typedef Traits::Halfedge                Halfedge;
-      typedef Traits::Facet                   Facet;
-      typedef Traits::Facet_circulator        Facet_circulator;
-      typedef Traits::Facet_const_circulator  Facet_const_circulator;
+      typedef Dcel_traits<Vb,Hb,Fb>                     Traits;
+      typedef common_typename Traits::Vertex_base       Parent;
+      typedef common_typename Traits::Vertex            Vertex;
+      typedef common_typename Traits::Halfedge          Halfedge;
+      typedef common_typename Traits::Facet             Facet;
+      typedef common_typename Traits::Facet_circulator  
+                                                        Facet_circulator;
+      typedef common_typename Traits::Facet_const_circulator 
+                                                        Facet_const_circulator;
 
    public:
       Dcel_facet();
@@ -181,16 +188,20 @@ class Dcel_facet: public Dcel_traits<Vb,Hb,Fb>::Facet_base
 template <class Vb, class Hb, class Fb>
 class Dcel {
    public:
-      typedef Dcel_traits<Vb,Hb,Fb> Traits;
+      typedef Dcel_traits<Vb,Hb,Fb>                    Traits;
 
-      typedef Traits::Vertex                  Vertex;
-      typedef Traits::Halfedge                Halfedge;
-      typedef Traits::Facet                   Facet;
+      typedef common_typename Traits::Vertex           Vertex;
+      typedef common_typename Traits::Halfedge         Halfedge;
+      typedef common_typename Traits::Facet            Facet;
 
-      typedef Traits::Vertex_circulator       Vertex_circulator;
-      typedef Traits::Vertex_const_circulator Vertex_const_circulator;
-      typedef Traits::Facet_circulator        Facet_circulator;
-      typedef Traits::Facet_const_circulator  Facet_const_circulator;
+      typedef common_typename Traits::Vertex_circulator      
+                                                       Vertex_circulator;
+      typedef common_typename Traits::Vertex_const_circulator 
+                                                       Vertex_const_circulator;
+      typedef common_typename Traits::Facet_circulator 
+                                                       Facet_circulator;
+      typedef common_typename Traits::Facet_const_circulator 
+                                                       Facet_const_circulator;
 
       typedef long                            Size;
 
@@ -198,17 +209,19 @@ class Dcel {
       typedef std::list<Halfedge>             Halfedge_list;
       typedef std::list<Facet>                Facet_list;      
 
-      typedef Vertex_list::iterator           Vertex_iterator;
-      typedef Halfedge_list::iterator         Halfedge_iterator;
-      typedef Facet_list::iterator            Facet_iterator;
-      typedef scooter::sampler<Halfedge_iterator,2> 
-                                              Edge_iterator;
+      typedef common_typename Vertex_list::iterator        Vertex_iterator;
+      typedef common_typename Halfedge_list::iterator      Halfedge_iterator;
+      typedef common_typename Facet_list::iterator         Facet_iterator;
+      typedef scooter::sampler<Halfedge_iterator,2>        Edge_iterator;
 
-      typedef Vertex_list::const_iterator     Vertex_const_iterator;
-      typedef Halfedge_list::const_iterator   Halfedge_const_iterator;
-      typedef Facet_list::const_iterator      Facet_const_iterator;
+      typedef common_typename Vertex_list::const_iterator     
+                                                       Vertex_const_iterator;
+      typedef common_typename Halfedge_list::const_iterator   
+                                                       Halfedge_const_iterator;
+      typedef common_typename Facet_list::const_iterator  
+                                                       Facet_const_iterator;
       typedef scooter::sampler<Halfedge_const_iterator,2> 
-                                              Edge_const_iterator;
+                                                       Edge_const_iterator;
       
    public:
       Dcel();

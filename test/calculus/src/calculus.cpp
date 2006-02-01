@@ -37,7 +37,7 @@ typedef Math::Matrix<double> Matrix;
 
 void test_vector() {
    dgd_start_scope( calc, "test_vector()" );
-
+ 
    Vector a;
    Vector b( 1, 2, 3 );
    Vector c(b);

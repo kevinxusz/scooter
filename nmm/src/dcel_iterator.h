@@ -29,6 +29,7 @@
 
 #include <boost/iterator/iterator_facade.hpp>
 
+#include <scooter/common_config.h>
 #include <scooter/iterators.h>
 #include <scooter/nmm/dcel.h>
 

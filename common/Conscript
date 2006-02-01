@@ -32,10 +32,38 @@ die if( !defined( $ruleset ) );
 
 our $BUILD      = $toolset->option( 'build' );
 our $buildenv   = new cons( %{$ruleset} );
+our $version = Cons::VersionControl->open();
+
+map {
+    my $src = "$BUILD/$_";
+    my $tgt = $src;
+    $tgt =~ s/.in$//i;
+    Command $buildenv $tgt, $src, "$BLIB/config/config-local.dpo",
+      q([perl] template_apply( '%>', qw(%<) ); );
+} qw( common_config.h.in );
+
+
+sub template_apply {
+    my ($tgt, $src, $dpo) = @_;
+
+    my $config = eval( "do '$dpo';" );    
+    if( $@ ) {
+	say( "error: cant load $dpo: $@" );
+	return 0;
+    }
+	
+    our $params = { 'version' => \$version, 
+		    'toolset' => \$toolset,
+		    'config' => \$config };
+    my $rc = Cons::Template->apply( $tgt, $src, $params );
+    return $rc;
+}
+
 
 Link $BUILD => 'src';
 Install $buildenv "$BLIB/include/scooter", map( "$BUILD/$_", 
-						qw( calculus.h
+						qw( common_config.h
+						    calculus.h
 						    calculus_impl.h
 						    calculus_dgd.h 
 						    geometry.h

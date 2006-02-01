@@ -30,6 +30,7 @@
 #   undef interface
 # endif
 
+extern "C" {
 # if HAVE_APPLE_OPENGL_FRAMEWORK
 #   include <OpenGL/gl.h>
 #   include <OpenGL/glu.h>
@@ -37,6 +38,18 @@
 #   include <GL/gl.h>
 #   include <GL/glu.h>
 # endif
+};
+
+
+#ifdef min
+#define local_min min
+#undef min
+#endif
+
+#ifdef max
+#define local_max max
+#undef max
+#endif
 
 # include <cmath>
 # include <limits>

@@ -42,13 +42,13 @@ Dcel_vertex<Vb,Hb,Fb>::Dcel_vertex( const Dcel_vertex& peer ) :
    Vb(peer), m_halfedge( peer.m_halfedge ) {}
 
 template <class Vb, class Hb, class Fb>
-Dcel_vertex<Vb,Hb,Fb>::Halfedge*  
+common_typename Dcel_vertex<Vb,Hb,Fb>::Halfedge*  
 Dcel_vertex<Vb,Hb,Fb>::halfedge() {
    return m_halfedge;
 }
 
 template <class Vb, class Hb, class Fb>
-const Dcel_vertex<Vb,Hb,Fb>::Halfedge*
+const common_typename Dcel_vertex<Vb,Hb,Fb>::Halfedge*
 Dcel_vertex<Vb,Hb,Fb>::halfedge() const {
    return m_halfedge;
 }
@@ -59,19 +59,19 @@ void Dcel_vertex<Vb,Hb,Fb>::set_halfedge( Halfedge* const he ) {
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel_vertex<Vb,Hb,Fb>::Vertex_circulator
+common_typename Dcel_vertex<Vb,Hb,Fb>::Vertex_circulator
 Dcel_vertex<Vb,Hb,Fb>::halfedges_around() {
    return Vertex_circulator( this );
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel_vertex<Vb,Hb,Fb>::Vertex_const_circulator
+common_typename Dcel_vertex<Vb,Hb,Fb>::Vertex_const_circulator
 Dcel_vertex<Vb,Hb,Fb>::halfedges_around() const {
    return Vertex_circulator( this );
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel_vertex<Vb,Hb,Fb>::Halfedge*
+common_typename Dcel_vertex<Vb,Hb,Fb>::Halfedge*
 Dcel_vertex<Vb,Hb,Fb>::boundary() {
    if( this->halfedge() != NULL ) {
       
@@ -85,7 +85,7 @@ Dcel_vertex<Vb,Hb,Fb>::boundary() {
 }
 
 template <class Vb, class Hb, class Fb>
-const Dcel_vertex<Vb,Hb,Fb>::Halfedge*
+const common_typename Dcel_vertex<Vb,Hb,Fb>::Halfedge*
 Dcel_vertex<Vb,Hb,Fb>::boundary() const {
    if( this->halfedge() != NULL ) {
 
@@ -120,43 +120,43 @@ Dcel_halfedge<Vb,Hb,Fb>::Dcel_halfedge( const Dcel_halfedge& peer ) :
    m_vertex(peer.m_vertex) {}
 
 template <class Vb, class Hb, class Fb>
-Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
+common_typename Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
 Dcel_halfedge<Vb,Hb,Fb>::opposite() { return m_opposite; }
 
 template <class Vb, class Hb, class Fb>
-Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
+common_typename Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
 Dcel_halfedge<Vb,Hb,Fb>::next() { return m_next; }
 
 template <class Vb, class Hb, class Fb>
-Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
+common_typename Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
 Dcel_halfedge<Vb,Hb,Fb>::prev() { return m_prev; }
 
 template <class Vb, class Hb, class Fb>
-Dcel_halfedge<Vb,Hb,Fb>::Vertex*
+common_typename Dcel_halfedge<Vb,Hb,Fb>::Vertex*
 Dcel_halfedge<Vb,Hb,Fb>::vertex() { return m_vertex; }
 
 template <class Vb, class Hb, class Fb>
-Dcel_halfedge<Vb,Hb,Fb>::Facet*
+common_typename Dcel_halfedge<Vb,Hb,Fb>::Facet*
 Dcel_halfedge<Vb,Hb,Fb>::facet() { return m_facet; }
 
 template <class Vb, class Hb, class Fb>
-const Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
+const common_typename Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
 Dcel_halfedge<Vb,Hb,Fb>::opposite() const { return m_opposite; }
 
 template <class Vb, class Hb, class Fb>
-const Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
+const common_typename Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
 Dcel_halfedge<Vb,Hb,Fb>::next() const { return m_next; }
 
 template <class Vb, class Hb, class Fb>
-const Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
+const common_typename Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
 Dcel_halfedge<Vb,Hb,Fb>::prev() const { return m_prev; }
 
 template <class Vb, class Hb, class Fb>
-const Dcel_halfedge<Vb,Hb,Fb>::Vertex*
+const common_typename Dcel_halfedge<Vb,Hb,Fb>::Vertex*
 Dcel_halfedge<Vb,Hb,Fb>::vertex() const { return m_vertex; }
 
 template <class Vb, class Hb, class Fb>
-const Dcel_halfedge<Vb,Hb,Fb>::Facet*
+const common_typename Dcel_halfedge<Vb,Hb,Fb>::Facet*
 Dcel_halfedge<Vb,Hb,Fb>::facet() const { return m_facet; }
    
 template <class Vb, class Hb, class Fb>
@@ -197,7 +197,7 @@ void Dcel_halfedge<Vb,Hb,Fb>::reset() {
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
+common_typename Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
 Dcel_halfedge<Vb,Hb,Fb>::boundary() {
    Vertex_circulator c( this );   
    do {
@@ -208,7 +208,7 @@ Dcel_halfedge<Vb,Hb,Fb>::boundary() {
 }
 
 template <class Vb, class Hb, class Fb>
-const Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
+const common_typename Dcel_halfedge<Vb,Hb,Fb>::Halfedge*
 Dcel_halfedge<Vb,Hb,Fb>::boundary() const {
    Vertex_const_circulator c( this );
    do {
@@ -238,11 +238,11 @@ Dcel_facet<Vb,Hb,Fb>::Dcel_facet( const Dcel_facet& peer ) :
    m_halfedge(peer.m_halfedge) {}
 
 template <class Vb, class Hb, class Fb>
-Dcel_facet<Vb,Hb,Fb>::Halfedge*
+common_typename Dcel_facet<Vb,Hb,Fb>::Halfedge*
 Dcel_facet<Vb,Hb,Fb>::halfedge() { return m_halfedge; }
 
 template <class Vb, class Hb, class Fb>
-const Dcel_facet<Vb,Hb,Fb>::Halfedge*
+const common_typename Dcel_facet<Vb,Hb,Fb>::Halfedge*
 Dcel_facet<Vb,Hb,Fb>::halfedge() const { return m_halfedge; }
 
 template <class Vb, class Hb, class Fb>
@@ -251,13 +251,13 @@ void Dcel_facet<Vb,Hb,Fb>::set_halfedge( Halfedge* const he ) {
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel_facet<Vb,Hb,Fb>::Facet_circulator
+common_typename Dcel_facet<Vb,Hb,Fb>::Facet_circulator
 Dcel_facet<Vb,Hb,Fb>::halfedges_around() {
    return Facet_circulator( this );
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel_facet<Vb,Hb,Fb>::Facet_const_circulator
+common_typename Dcel_facet<Vb,Hb,Fb>::Facet_const_circulator
 Dcel_facet<Vb,Hb,Fb>::halfedges_around() const {
    return Facet_const_circulator( this );
 }
@@ -280,17 +280,20 @@ void Dcel<Vb,Hb,Fb>::clear() {
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Size Dcel<Vb,Hb,Fb>::size_of_vertices() const {
+common_typename Dcel<Vb,Hb,Fb>::Size 
+Dcel<Vb,Hb,Fb>::size_of_vertices() const {
    return m_vertexes.size();
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Size Dcel<Vb,Hb,Fb>::size_of_halfedges() const {
+common_typename Dcel<Vb,Hb,Fb>::Size
+Dcel<Vb,Hb,Fb>::size_of_halfedges() const {
    return m_halfedges.size();
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Size Dcel<Vb,Hb,Fb>::size_of_facets() const {
+common_typename Dcel<Vb,Hb,Fb>::Size 
+Dcel<Vb,Hb,Fb>::size_of_facets() const {
    return m_facets.size();
 }
 
@@ -300,90 +303,103 @@ bool Dcel<Vb,Hb,Fb>::is_empty() const {
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Vertex_iterator Dcel<Vb,Hb,Fb>::vertexes_begin() {
+common_typename Dcel<Vb,Hb,Fb>::Vertex_iterator 
+Dcel<Vb,Hb,Fb>::vertexes_begin() {
    return m_vertexes.begin();
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Vertex_iterator Dcel<Vb,Hb,Fb>::vertexes_end() {
+common_typename Dcel<Vb,Hb,Fb>::Vertex_iterator 
+Dcel<Vb,Hb,Fb>::vertexes_end() {
    return m_vertexes.end();
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Halfedge_iterator Dcel<Vb,Hb,Fb>::halfedges_begin() {
+common_typename Dcel<Vb,Hb,Fb>::Halfedge_iterator
+Dcel<Vb,Hb,Fb>::halfedges_begin() {
    return m_halfedges.begin();
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Halfedge_iterator Dcel<Vb,Hb,Fb>::halfedges_end() {
+common_typename Dcel<Vb,Hb,Fb>::Halfedge_iterator
+Dcel<Vb,Hb,Fb>::halfedges_end() {
    return m_halfedges.end();
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Facet_iterator Dcel<Vb,Hb,Fb>::facets_begin() {
+common_typename Dcel<Vb,Hb,Fb>::Facet_iterator
+Dcel<Vb,Hb,Fb>::facets_begin() {
    return m_facets.begin();
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Facet_iterator Dcel<Vb,Hb,Fb>::facets_end() {
+common_typename Dcel<Vb,Hb,Fb>::Facet_iterator
+Dcel<Vb,Hb,Fb>::facets_end() {
    return m_facets.end();
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Edge_iterator Dcel<Vb,Hb,Fb>::edges_begin() {
+common_typename Dcel<Vb,Hb,Fb>::Edge_iterator 
+Dcel<Vb,Hb,Fb>::edges_begin() {
    return Edge_iterator( m_halfedges.begin() );
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Edge_iterator Dcel<Vb,Hb,Fb>::edges_end() {
+common_typename Dcel<Vb,Hb,Fb>::Edge_iterator
+Dcel<Vb,Hb,Fb>::edges_end() {
    return Edge_iterator( m_halfedges.end() );
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Vertex_const_iterator Dcel<Vb,Hb,Fb>::vertexes_begin() const {
+common_typename Dcel<Vb,Hb,Fb>::Vertex_const_iterator
+Dcel<Vb,Hb,Fb>::vertexes_begin() const {
    return m_vertexes.begin();
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Vertex_const_iterator Dcel<Vb,Hb,Fb>::vertexes_end() const {
+common_typename Dcel<Vb,Hb,Fb>::Vertex_const_iterator
+Dcel<Vb,Hb,Fb>::vertexes_end() const {
    return m_vertexes.end();
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Halfedge_const_iterator
+common_typename Dcel<Vb,Hb,Fb>::Halfedge_const_iterator
 Dcel<Vb,Hb,Fb>::halfedges_begin() const {
    return m_halfedges.begin();
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Halfedge_const_iterator 
+common_typename Dcel<Vb,Hb,Fb>::Halfedge_const_iterator 
 Dcel<Vb,Hb,Fb>::halfedges_end() const {
    return m_halfedges.end();
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Facet_const_iterator
+common_typename Dcel<Vb,Hb,Fb>::Facet_const_iterator
 Dcel<Vb,Hb,Fb>::facets_begin() const {
    return m_facets.begin();
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Facet_const_iterator Dcel<Vb,Hb,Fb>::facets_end() const {
+common_typename Dcel<Vb,Hb,Fb>::Facet_const_iterator
+Dcel<Vb,Hb,Fb>::facets_end() const {
    return m_facets.end();
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Edge_const_iterator Dcel<Vb,Hb,Fb>::edges_begin() const {
+common_typename Dcel<Vb,Hb,Fb>::Edge_const_iterator
+Dcel<Vb,Hb,Fb>::edges_begin() const {
    return Edge_const_iterator( m_halfedges.begin() );
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Edge_const_iterator Dcel<Vb,Hb,Fb>::edges_end() const {
+common_typename Dcel<Vb,Hb,Fb>::Edge_const_iterator
+Dcel<Vb,Hb,Fb>::edges_end() const {
    return Edge_const_iterator( m_halfedges.end() );
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Vertex*
+common_typename Dcel<Vb,Hb,Fb>::Vertex*
 Dcel<Vb,Hb,Fb>::new_vertex( const Vb& data ) {
    Vertex*  v = new_vertex();
    *(Vb*)v = data;
@@ -395,9 +411,10 @@ Dcel<Vb,Hb,Fb>::new_vertex( const Vb& data ) {
  * of already existing vertexes.
  */
 template <class Vb, class Hb, class Fb> 
-Dcel<Vb,Hb,Fb>::Facet*
+common_typename Dcel<Vb,Hb,Fb>::Facet*
 Dcel<Vb,Hb,Fb>::new_facet( Vertex** const begin, Vertex** const end ) {
    using namespace DGD;
+
    dgd_start_scope( dcelimpl, "Dcel<Vb,Hb,Fb>::new_facet()" );
    dgd_echo( "vertexes: " << dgd << dgd_for(begin,end) << std::endl );
 
@@ -424,8 +441,8 @@ Dcel<Vb,Hb,Fb>::new_facet( Vertex** const begin, Vertex** const end ) {
 	 Halfedge *base = NULL;
 
 	 if( dst && dst->halfedge() ) {
-	    Dcel_vertex<Vb,Hb,Fb>::Vertex_circulator edge_circ = 
-	       dst->halfedges_around();
+	    common_typename Dcel_vertex<Vb,Hb,Fb>::Vertex_circulator 
+	       edge_circ = dst->halfedges_around();
 	    
 	    do {
 	       if( edge_circ->opposite()->vertex() == src &&
@@ -479,13 +496,15 @@ Dcel<Vb,Hb,Fb>::new_facet( Vertex** const begin, Vertex** const end ) {
 
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Vertex* Dcel<Vb,Hb,Fb>::new_vertex() {
+common_typename Dcel<Vb,Hb,Fb>::Vertex* 
+Dcel<Vb,Hb,Fb>::new_vertex() {
    m_vertexes.push_back(Vertex());
    return &m_vertexes.back();
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Halfedge* Dcel<Vb,Hb,Fb>::new_edge() {
+common_typename Dcel<Vb,Hb,Fb>::Halfedge* 
+Dcel<Vb,Hb,Fb>::new_edge() {
    m_halfedges.push_back( Halfedge() );
    Halfedge& hedge = m_halfedges.back();
    m_halfedges.push_back( Halfedge() );
@@ -498,7 +517,8 @@ Dcel<Vb,Hb,Fb>::Halfedge* Dcel<Vb,Hb,Fb>::new_edge() {
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Facet* Dcel<Vb,Hb,Fb>::new_facet() {
+common_typename Dcel<Vb,Hb,Fb>::Facet* 
+Dcel<Vb,Hb,Fb>::new_facet() {
    m_facets.push_back(Facet());
    return &m_facets.back();
 }
@@ -509,7 +529,7 @@ Dcel<Vb,Hb,Fb>::Facet* Dcel<Vb,Hb,Fb>::new_facet() {
  */
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Facet*
+common_typename Dcel<Vb,Hb,Fb>::Facet*
 Dcel<Vb,Hb,Fb>::new_disjoint_facet( Vertex** const begin,
 				    Vertex** const end ) {
    dgd_start_scope( dcelimpl, "new_disjoint_facet()" );
@@ -914,7 +934,7 @@ Dcel<Vb,Hb,Fb>::detach_fan( Halfedge *src, Halfedge *dst,
  * looks for a near facet with minimum number of rabbits.
  */
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Halfedge*
+common_typename Dcel<Vb,Hb,Fb>::Halfedge*
 Dcel<Vb,Hb,Fb>::find_rabbit_burrow( const Halfedge* target ) const {
    dgd_start_scope( dcelimpl, "Dcel<Vb,Hb,Fb>::find_rabbit_burrow()" );
 
@@ -925,10 +945,12 @@ Dcel<Vb,Hb,Fb>::find_rabbit_burrow( const Halfedge* target ) const {
 
    Vertex_const_circulator c( target );
    do {
-      Facet_count_map::iterator find_res = fmap.find( c->facet() );      
+      common_typename Facet_count_map::iterator
+	 find_res = fmap.find( c->facet() );      
       if( c->facet() != NULL && find_res == fmap.end() ) {
-	 std::pair<Facet_count_map::iterator, bool> insert_res =
-	    fmap.insert( Facet_count_map::value_type(
+	 std::pair<common_typename Facet_count_map::iterator, 
+	           bool> insert_res =
+	    fmap.insert( common_typename Facet_count_map::value_type(
 			    c->facet(),
 			    Facet_count_map_value( c.ptr(), 0 ) ) );
 	 find_res = insert_res.first;
@@ -942,7 +964,7 @@ Dcel<Vb,Hb,Fb>::find_rabbit_burrow( const Halfedge* target ) const {
    const Halfedge* res = NULL;
    unsigned int mrc;
 
-   for( Facet_count_map::iterator fmi = fmap.begin(); 
+   for( common_typename Facet_count_map::iterator fmi = fmap.begin(); 
 	fmi != fmap.end();
 	++fmi ) {
       if( res == NULL || fmi->second.second < mrc ) {
@@ -960,7 +982,7 @@ Dcel<Vb,Hb,Fb>::find_rabbit_burrow( const Halfedge* target ) const {
 }
 
 template <class Vb, class Hb, class Fb>
-Dcel<Vb,Hb,Fb>::Halfedge*
+common_typename Dcel<Vb,Hb,Fb>::Halfedge*
 Dcel<Vb,Hb,Fb>::new_rabbit( Halfedge* const left, Halfedge* const right ) {
    dgd_start_scope( dcelimpl, "Dcel<Vb,Hb,Fb>::new_rabbit" );
    Halfedge* rabbit = new_edge();
@@ -991,7 +1013,7 @@ Dcel_halfedge<Vb,Hb,Fb> *connector( Dcel_vertex<Vb,Hb,Fb> *src,
    if( src->halfedge() == NULL || dst->halfedge() == NULL )
       return NULL;
 
-   Dcel_vertex<Vb,Hb,Fb>::Vertex_circulator edge_circ = 
+   common_typename Dcel_vertex<Vb,Hb,Fb>::Vertex_circulator edge_circ = 
       dst->halfedges_around();
 
    do {
@@ -1007,7 +1029,7 @@ bool is_neighbor( Dcel_vertex<Vb,Hb,Fb> *src, Dcel_halfedge<Vb,Hb,Fb> *he ) {
    if( he->vertex() != src || src->halfedge() == NULL )
       return false;
 
-   Dcel_vertex<Vb,Hb,Fb>::Vertex_circulator edge_circ = 
+   common_typename Dcel_vertex<Vb,Hb,Fb>::Vertex_circulator edge_circ = 
       src->halfedges_around();
    
    do {
@@ -1021,7 +1043,7 @@ bool is_neighbor( Dcel_vertex<Vb,Hb,Fb> *src, Dcel_halfedge<Vb,Hb,Fb> *he ) {
 
 template <class Vb, class Hb, class Fb>
 bool is_neighbor( Dcel_halfedge<Vb,Hb,Fb> *src, Dcel_halfedge<Vb,Hb,Fb> *he ) {
-   Dcel_halfedge<Vb,Hb,Fb>::Vertex_circulator edge_circ(src);
+   common_typename Dcel_halfedge<Vb,Hb,Fb>::Vertex_circulator edge_circ(src);
    
    do {
       if( edge_circ.ptr() == he )

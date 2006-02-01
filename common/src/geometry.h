@@ -29,6 +29,7 @@
 
 #include <boost/any.hpp>
 
+#include <scooter/common_config.h>
 #include <scooter/calculus.h>
 
 namespace Math {

@@ -62,6 +62,7 @@ std::ostream &operator << ( std::ostream &ostr, const Facet_base& f ) {
 
 
 void test_dcel() {
+   using namespace scooter::nmm::trace;
    try {
    dgd_start_scope( dcel, "test_circulator()" );
    
@@ -87,11 +88,11 @@ void test_dcel() {
    vertexes[8] = vertexes[1];
 
    Dcel::Facet* f1 = dcel.new_facet( vertexes + 0, vertexes + 3 );
-   dgd_echo( dgd_expand(scooter::nmm::trace::verbose(dcel)) << std::endl );
+   dgd_echo( dgd_expand(verbose(dcel)) << std::endl );
    Dcel::Facet* f2 = dcel.new_facet( vertexes + 3, vertexes + 6 );
-   dgd_echo( dgd_expand(scooter::nmm::trace::verbose(dcel)) << std::endl );
+   dgd_echo( dgd_expand(verbose(dcel)) << std::endl );
    Dcel::Facet* f3 = dcel.new_facet( vertexes + 6, vertexes + 9 );
-   dgd_echo( dgd_expand(scooter::nmm::trace::verbose(dcel)) << std::endl );
+   dgd_echo( dgd_expand(verbose(dcel)) << std::endl );
 
    dgd_end_scope( dcel );
    } catch(...) {
@@ -99,7 +100,7 @@ void test_dcel() {
    }
 }
 
-Debug::debug_factory_ref dout;
+DGD::Debug::debug_factory_ref dout;
 
 void run_tests() {
    test_dcel();
@@ -107,7 +108,8 @@ void run_tests() {
 
 int main( int argc, char** argv ) {
    using namespace DGD;
-   
+   using namespace scooter::nmm::trace;
+
    option_filter of;
    char* filter[] = { "--trace.*" };
    

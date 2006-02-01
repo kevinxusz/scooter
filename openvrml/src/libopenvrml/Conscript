@@ -33,18 +33,15 @@ die if( !defined( $ruleset ) );
 our $BUILD      = $toolset->option( 'build' );
 our $INCLUDE    = [ "%STLPORT_INCLUDE", 
 		    "%BOOST_INCLUDE",
-		    "%ZLIB_INCLUDE",
-		    "%JPEG_INCLUDE",
-		    "%LIBPNG_INCLUDE",
 		    "$BLIB/include",
 		    "$BLIB/include/openvrml" ];
-our $DEFINE = [ "%STLPORT_DEFINE", "%BOOST_DEFINE" ];
-
-push @$DEFINE, "-DOPENVRML_ENABLE_GZIP=1" if( $ruleset->{'ZLIB_ROOT'} );
-push @$DEFINE, "-DOPENVRML_ENABLE_GIF=1";
+our $DEFINE = [ "%STLPORT_DEFINE", "%BOOST_DEFINE",
+		"-DOPENVRML_ENABLE_GZIP=1",
+		"-DOPENVRML_ENABLE_GIF=1",
+		"-DOPENVRML_ENABLE_JPEG=1",
+		"-DOPENVRML_ENABLE_PNG=1" ];
+		
 push @$DEFINE, "-DOPENVRML_ENABLE_BOOST_REGEX=1" if($ruleset->{'BOOST_ROOT'});
-push @$DEFINE, "-DOPENVRML_ENABLE_JPEG=1" if( $ruleset->{'JPEG_ROOT'} );
-push @$DEFINE, "-DOPENVRML_ENABLE_PNG=1" if( $ruleset->{'LIBPNG_ROOT'} );
 
 Link $BUILD => 'openvrml';
 

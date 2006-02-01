@@ -68,16 +68,16 @@ verbose_type<T> verbose( const T& base ) { return verbose_type<T>(base); }
 
 template <class Vb, class Hb, class Fb>
 channel &operator << ( channel &ostr, 
-		       const brief_type<Dcel<Vb,Hb,Fb>::Vertex> &bv) {
-   ostr << (const Dcel<Vb,Hb,Fb>::Vertex::Parent&)bv.m_base;
+		       const brief_type<Dcel_vertex<Vb,Hb,Fb> > &bv) {
+   ostr << (const common_typename Dcel<Vb,Hb,Fb>::Vertex::Parent&)bv.m_base;
    return ostr;
 }
 
 
 template <class Vb, class Hb, class Fb>
 channel &operator << ( channel &ostr, 
-		       const brief_type<Dcel<Vb,Hb,Fb>::Halfedge>& bhe ) {
-   const Dcel<Vb,Hb,Fb>::Halfedge& he = bhe.m_base;
+		       const brief_type<Dcel_halfedge<Vb,Hb,Fb> >& bhe ) {
+   const common_typename Dcel<Vb,Hb,Fb>::Halfedge& he = bhe.m_base;
    if( he.opposite() == NULL || he.opposite()->vertex() == NULL ) 
       ostr << "null";
    else
@@ -92,8 +92,8 @@ channel &operator << ( channel &ostr,
 
 template <class Vb, class Hb, class Fb>
 channel &operator << ( channel &ostr, 
-		       const brief_type<Dcel<Vb,Hb,Fb>::Facet> &bf ) { 
-   const Dcel<Vb,Hb,Fb>::Facet& f = bf.m_base;
+		       const brief_type<Dcel_facet<Vb,Hb,Fb> > &bf ) { 
+   const common_typename Dcel<Vb,Hb,Fb>::Facet& f = bf.m_base;
    if( f.halfedge() != NULL ) 
       ostr << "<" << dgd << brief(*f.halfedge()) << ">";
    else
@@ -108,21 +108,24 @@ channel &operator << ( channel &ostr,
    const Dcel<Vb,Hb,Fb>& dcel = bdcel.m_base;
    ostr << "{" << dgd << incr << std::endl
 	<< "vertex list: " << dgd << incr << std::endl;
-   for( Dcel<Vb,Hb,Fb>::Vertex_const_iterator viter = dcel.vertexes_begin();
+   for( common_typename Dcel<Vb,Hb,Fb>::Vertex_const_iterator 
+	   viter = dcel.vertexes_begin();
 	viter != dcel.vertexes_end();
 	++viter ) {
       ostr << brief( *viter ) << std::endl;
    }
    ostr << decr 
 	<< "halfedge list: " << dgd << incr << std::endl;
-   for( Dcel<Vb,Hb,Fb>::Halfedge_const_iterator hiter = dcel.halfedges_begin();
+   for( common_typename Dcel<Vb,Hb,Fb>::Halfedge_const_iterator 
+	   hiter = dcel.halfedges_begin();
 	hiter != dcel.halfedges_end();
 	++hiter ) {
       ostr << brief( *hiter ) << std::endl;
    }
    ostr << decr 
 	<< "facet list: " << dgd << incr << std::endl;
-   for( Dcel<Vb,Hb,Fb>::Facet_const_iterator fiter = dcel.facets_begin();
+   for( common_typename Dcel<Vb,Hb,Fb>::Facet_const_iterator
+	   fiter = dcel.facets_begin();
 	fiter != dcel.facets_end();
 	++fiter ) {
       ostr << brief( *fiter ) << std::endl;
@@ -134,10 +137,10 @@ channel &operator << ( channel &ostr,
 
 template <class Vb, class Hb, class Fb>
 channel &operator << ( channel &ostr, 
-		       const verbose_type<Dcel<Vb,Hb,Fb>::Vertex> &bvertex ) {
-   const Dcel<Vb,Hb,Fb>::Vertex& vertex = bvertex.m_base;
+		       const verbose_type<Dcel_vertex<Vb,Hb,Fb> > &bvertex ) {
+   const common_typename Dcel<Vb,Hb,Fb>::Vertex& vertex = bvertex.m_base;
    ostr << mem_ref(&vertex) << "[" << dgd 
-	<< (const Dcel<Vb,Hb,Fb>::Vertex::Parent&)vertex
+	<< (const common_typename Dcel<Vb,Hb,Fb>::Vertex::Parent&)vertex
 	<< "," << dgd << mem_ref(vertex.halfedge()) << "]";
    return ostr;
 }
@@ -145,8 +148,8 @@ channel &operator << ( channel &ostr,
 
 template <class Vb, class Hb, class Fb>
 channel &operator << ( channel &ostr, 
-		       const verbose_type<Dcel<Vb,Hb,Fb>::Halfedge>& bhe ) {
-   const Dcel<Vb,Hb,Fb>::Halfedge& he = bhe.m_base;
+		       const verbose_type<Dcel_halfedge<Vb,Hb,Fb> >& bhe ) {
+   const common_typename Dcel<Vb,Hb,Fb>::Halfedge& he = bhe.m_base;
    ostr << mem_ref(&he) << "(";
    if( he.opposite() == NULL || he.opposite()->vertex() == NULL ) 
       ostr << "null";
@@ -168,9 +171,9 @@ channel &operator << ( channel &ostr,
 
 template <class Vb, class Hb, class Fb>
 channel &operator << ( channel &ostr, 
-		       const verbose_type<Dcel<Vb,Hb,Fb>::Facet> &bf ) { 
-   const Dcel<Vb,Hb,Fb>::Facet& f = bf.m_base;
-   const Dcel<Vb,Hb,Fb>::Halfedge *he;
+		       const verbose_type<Dcel_facet<Vb,Hb,Fb> > &bf ) { 
+   const common_typename Dcel<Vb,Hb,Fb>::Facet& f = bf.m_base;
+   const common_typename Dcel<Vb,Hb,Fb>::Halfedge *he;
 
    ostr << mem_ref(&f) << "{" << incr << std::endl;
    he = f.halfedge();
@@ -189,21 +192,24 @@ channel &operator << ( channel &ostr,
    const Dcel<Vb,Hb,Fb>& dcel = bdcel.m_base;
    ostr << "{" << dgd << incr << std::endl
 	<< "vertex list: " << dgd << incr << std::endl;
-   for( Dcel<Vb,Hb,Fb>::Vertex_const_iterator viter = dcel.vertexes_begin();
+   for( common_typename  Dcel<Vb,Hb,Fb>::Vertex_const_iterator
+	   viter = dcel.vertexes_begin();
 	viter != dcel.vertexes_end();
 	++viter ) {
       ostr << verbose( *viter ) << std::endl;
    }
    ostr << decr 
 	<< "halfedge list: " << dgd << incr << std::endl;
-   for( Dcel<Vb,Hb,Fb>::Halfedge_const_iterator hiter = dcel.halfedges_begin();
+   for( common_typename Dcel<Vb,Hb,Fb>::Halfedge_const_iterator
+	   hiter = dcel.halfedges_begin();
 	hiter != dcel.halfedges_end();
 	++hiter ) {
       ostr << verbose( *hiter ) << std::endl;
    }
    ostr << decr 
 	<< "facet list: " << dgd << incr << std::endl;
-   for( Dcel<Vb,Hb,Fb>::Facet_const_iterator fiter = dcel.facets_begin();
+   for( common_typename Dcel<Vb,Hb,Fb>::Facet_const_iterator 
+	   fiter = dcel.facets_begin();
 	fiter != dcel.facets_end();
 	++fiter ) {
       ostr << verbose( *fiter ) << std::endl;
@@ -215,21 +221,21 @@ channel &operator << ( channel &ostr,
 
 template <class Vb, class Hb, class Fb>
 channel &operator << ( channel &ostr, 
-		       const Dcel<Vb,Hb,Fb>::Vertex& vertex ) {
+		       const Dcel_vertex<Vb,Hb,Fb>& vertex ) {
     ostr << verbose(vertex);
    return ostr;
 }
 
 template <class Vb, class Hb, class Fb>
 channel &operator << ( channel &ostr, 
-		       const Dcel<Vb,Hb,Fb>::Halfedge& he ) {
+		       const Dcel_halfedge<Vb,Hb,Fb>& he ) {
    ostr << verbose(he);
    return ostr;
 }
 
 template <class Vb, class Hb, class Fb>
 channel &operator << ( channel &ostr, 
-		       const Dcel<Vb,Hb,Fb>::Facet &f ) { 
+		       const Dcel_facet<Vb,Hb,Fb> &f ) { 
    ostr << verbose(f);
    return ostr;   
 }

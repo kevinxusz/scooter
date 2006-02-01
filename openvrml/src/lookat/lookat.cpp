@@ -28,15 +28,19 @@
 # endif
 
 # include <iostream>
+
+extern "C" {
 # if HAVE_APPLE_OPENGL_FRAMEWORK
 #   include <GLUT/glut.h>
 # else
 #   include <GL/glut.h>
 # endif
+};
+
 # include <openvrml/browser.h>
 
 # include "ViewerGlut.h"
-
+ 
 extern "C" {
     typedef void (*GlutMenu)(int);
 }

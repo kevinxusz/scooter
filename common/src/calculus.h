@@ -24,11 +24,23 @@
 #ifndef _calculus_h_
 #define _calculus_h_
 
+#include <scooter/common_config.h>
+
 #include <cmath>
 
 namespace Math {
 
-const double PI = 3.1415926535897932384626433832795;
+static const double PI = 3.1415926535897932384626433832795;
+
+template <int Mantis>
+struct Epsilon {
+      static const double value = Epsilon<Mantis-1>::value / 10.0;
+};
+
+template <>
+struct Epsilon<0> {
+      static const double value = 1.0;
+};
 
 /**
  *  \brief epsilon precision floating point numbers
@@ -39,9 +51,11 @@ const double PI = 3.1415926535897932384626433832795;
  * versa.
  */
 
-template <typename D, double EpsilonValue = 0.00000001> 
+template <typename D, const unsigned int EpsilonMantis = 8> 
 class Comparable_double {
    protected:
+      static const double EpsilonValue;
+
       /*!
 	\brief floating point value
       */
@@ -153,6 +167,10 @@ class Comparable_double {
       }
 };
 
+template <typename D, const unsigned int EpsilonMantis> 
+const double Comparable_double<D,EpsilonMantis>::EpsilonValue =
+   Epsilon<EpsilonMantis>::value;
+
 // Vector
 
 template < class FloatValue, 
@@ -220,7 +238,7 @@ template < class FloatValue1, class ComparableValue1,
 	   class FloatValue2, class ComparableValue2 >
 Vector<FloatValue1,ComparableValue1>& 
 assign ( Vector<FloatValue1,ComparableValue1>& a, 
-	  const Vector<FloatValue2,ComparableValue2>& b);
+	 const Vector<FloatValue2,ComparableValue2>& b);
 
 template <class FloatValue, class ComparableValue>
 Vector<FloatValue,ComparableValue> operator + ( 
@@ -235,27 +253,27 @@ Vector<FloatValue,ComparableValue> operator - (
 template <class FloatValue, class ComparableValue>
 Vector<FloatValue,ComparableValue> operator * ( 
    const Vector<FloatValue,ComparableValue>& a, 
-   const Vector<FloatValue,ComparableValue>::FT& scale );
+   const common_typename Vector<FloatValue,ComparableValue>::FT& scale );
 
 template <class FloatValue, class ComparableValue>
 Vector<FloatValue,ComparableValue> operator * ( 
-   const Vector<FloatValue,ComparableValue>::FT& scale, 
+   const common_typename Vector<FloatValue,ComparableValue>::FT& scale, 
    const Vector<FloatValue,ComparableValue>& a );
 
 template <class FloatValue, class ComparableValue>
 Vector<FloatValue,ComparableValue> median( 
    const Vector<FloatValue,ComparableValue>& a, 
    const Vector<FloatValue,ComparableValue>& b,  
-   const Vector<FloatValue,ComparableValue>::FT& scale = 0.5f);
+   const common_typename Vector<FloatValue,ComparableValue>::FT& scale = 0.5f);
 
 template <class FloatValue, class ComparableValue>
 Vector<FloatValue,ComparableValue> bisector( 
    const Vector<FloatValue,ComparableValue>& a, 
    const Vector<FloatValue,ComparableValue>& b,  
-   const Vector<FloatValue,ComparableValue>::FT& scale = 0.5f);
+   const common_typename Vector<FloatValue,ComparableValue>::FT& scale = 0.5f);
 
 template <class FloatValue, class ComparableValue>
-Vector<FloatValue,ComparableValue>::FT dot( 
+common_typename Vector<FloatValue,ComparableValue>::FT dot( 
    const Vector<FloatValue,ComparableValue>& a, 
    const Vector<FloatValue,ComparableValue>& b );
 
@@ -370,73 +388,74 @@ Matrix<FloatValue,ComparableValue> operator *(
    const Matrix<FloatValue,ComparableValue>& b );
 
 template <class FloatValue, class ComparableValue>
-Matrix<FloatValue,ComparableValue>::Vector operator *( 
+common_typename Matrix<FloatValue,ComparableValue>::Vector operator *( 
    const Matrix<FloatValue,ComparableValue>& m, 
-   const Matrix<FloatValue,ComparableValue>::Vector& v );
+   const common_typename Matrix<FloatValue,ComparableValue>::Vector& v );
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue> 
-translate( const Matrix<FloatValue,ComparableValue>& m, 
-	   const Matrix<FloatValue,ComparableValue>::Vector& v );
+translate( 
+   const Matrix<FloatValue,ComparableValue>& m, 
+   const common_typename Matrix<FloatValue,ComparableValue>::Vector& v );
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>& 
 translate( 
-   Matrix<FloatValue,ComparableValue>& m, 
-   const Matrix<FloatValue,ComparableValue>::Vector& v );
+         Matrix<FloatValue,ComparableValue>& m, 
+   const common_typename Matrix<FloatValue,ComparableValue>::Vector& v );
 
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue> 
 rotate( const Matrix<FloatValue,ComparableValue>& m, 
-	const Matrix<FloatValue,ComparableValue>::FT& angleX,
-	const Matrix<FloatValue,ComparableValue>::FT& angleY,
-	const Matrix<FloatValue,ComparableValue>::FT& angleZ );
+	const common_typename Matrix<FloatValue,ComparableValue>::FT& angleX,
+	const common_typename Matrix<FloatValue,ComparableValue>::FT& angleY,
+	const common_typename Matrix<FloatValue,ComparableValue>::FT& angleZ );
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>& 
 rotate( Matrix<FloatValue,ComparableValue>& m, 
-	const Matrix<FloatValue,ComparableValue>::FT& angleX,
-	const Matrix<FloatValue,ComparableValue>::FT& angleY,
-	const Matrix<FloatValue,ComparableValue>::FT& angleZ );
+	const common_typename Matrix<FloatValue,ComparableValue>::FT& angleX,
+	const common_typename Matrix<FloatValue,ComparableValue>::FT& angleY,
+	const common_typename Matrix<FloatValue,ComparableValue>::FT& angleZ );
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue> rotate( 
    const Matrix<FloatValue,ComparableValue>& m, 
-   const Matrix<FloatValue,ComparableValue>::Vector& axis,
-   const Matrix<FloatValue,ComparableValue>::FT& angle );
+   const common_typename Matrix<FloatValue,ComparableValue>::Vector& axis,
+   const common_typename Matrix<FloatValue,ComparableValue>::FT& angle );
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>& rotate( 
-   Matrix<FloatValue,ComparableValue>& m, 
-   const Matrix<FloatValue,ComparableValue>::Vector& axis,
-   const Matrix<FloatValue,ComparableValue>::FT& angle );
+         Matrix<FloatValue,ComparableValue>& m, 
+   const common_typename Matrix<FloatValue,ComparableValue>::Vector& axis,
+   const common_typename Matrix<FloatValue,ComparableValue>::FT& angle );
 
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue> 
 scale( const Matrix<FloatValue,ComparableValue>& m, 
-       const Matrix<FloatValue,ComparableValue>::FT& scaleX,
-       const Matrix<FloatValue,ComparableValue>::FT& scaleY,
-       const Matrix<FloatValue,ComparableValue>::FT& scaleZ );
+       const common_typename Matrix<FloatValue,ComparableValue>::FT& scaleX,
+       const common_typename Matrix<FloatValue,ComparableValue>::FT& scaleY,
+       const common_typename Matrix<FloatValue,ComparableValue>::FT& scaleZ );
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>& 
 scale( Matrix<FloatValue,ComparableValue>& m, 
-       const Matrix<FloatValue,ComparableValue>::FT& scaleX,
-       const Matrix<FloatValue,ComparableValue>::FT& scaleY,
-       const Matrix<FloatValue,ComparableValue>::FT& scaleZ );
+       const common_typename Matrix<FloatValue,ComparableValue>::FT& scaleX,
+       const common_typename Matrix<FloatValue,ComparableValue>::FT& scaleY,
+       const common_typename Matrix<FloatValue,ComparableValue>::FT& scaleZ );
 
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue> 
 scale( const Matrix<FloatValue,ComparableValue>& m, 
-       const Matrix<FloatValue,ComparableValue>::FT& scale );
+       const common_typename Matrix<FloatValue,ComparableValue>::FT& scale );
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>& scale( 
-   Matrix<FloatValue,ComparableValue>& m, 
-   const Matrix<FloatValue,ComparableValue>::FT& scale );
+         Matrix<FloatValue,ComparableValue>& m, 
+   const common_typename Matrix<FloatValue,ComparableValue>::FT& scale );
 
 // general
 
