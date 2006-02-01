@@ -44,12 +44,12 @@ our $BLIB    = "#blib";
 
 die if( !defined( $toolset ) );
 
-my @liblist = qw(cons/config dgd chromium common) ;
+my @liblist = qw(cons/config zlib libpng libjpeg dgd common) ;
 
     
 map { 
     if( /^--full$/ ) {
-	@liblist = ( @liblist,  qw(openvrml wxwin) );
+	@liblist = ( @liblist,  qw(openvrml) );
     } elsif( /^--test$/ ) {
 	@liblist = qw(cons/config dgd common nmm test);
     } elsif( /^clean$/ ) {
