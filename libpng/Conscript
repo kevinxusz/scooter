@@ -1,0 +1,77 @@
+# -*- CPerl -*-
+#
+# $Id$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# This file is a part of the Scooter project. 
+#
+# Copyright (c) 2004. Dimitry Kloper <dimka@cs.technion.ac.il> . 
+# Technion, Israel Institute of Technology. Computer Science Department.
+#
+# Conscript -- Conscript file for libpng
+#
+
+use Data::Dumper;
+use Cons::Template;
+use Cons::Common;
+
+Import qw(BLIB toolset options);
+
+my $ruleset  = $toolset->env();
+
+die if( !defined( $ruleset ) );
+
+our $BUILD      = $toolset->option( 'build' );
+our $INCLUDE    = [ "$BLIB/include" ];
+
+Link $BUILD => 'src';
+
+our $buildenv   = new cons( %{$ruleset},
+			    'CPPPATH' => $INCLUDE );
+
+my $TARGET = "$BUILD/%{PREFLIB}png%{SUFLIB}";
+
+KeepPrecious $buildenv $TARGET;
+
+Library $buildenv $TARGET, 
+  map( "$BUILD/$_", 
+       qw( png.c
+	   pngerror.c
+	   pnggccrd.c
+	   pngget.c
+	   pngmem.c
+	   pngpread.c
+	   pngread.c
+	   pngrio.c
+	   pngrtran.c
+	   pngrutil.c
+	   pngset.c
+	   pngtrans.c
+	   pngvcrd.c
+	   pngwio.c
+	   pngwrite.c
+	   pngwtran.c
+	   pngwutil.c ) );
+
+Install $buildenv "$BLIB/include", 
+  map( "$BUILD/$_", qw( png.h pngconf.h ) );
+
+Install $buildenv "$BLIB/lib", $TARGET;
+
+#
+# Conscript -- end of file
+#
+
