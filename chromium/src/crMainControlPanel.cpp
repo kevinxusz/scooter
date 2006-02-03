@@ -27,86 +27,112 @@
 #include "crConfig.h"
 
 #include <wx/defs.h>
-#include <wx/mdi.h>
 #include <wx/statbox.h>
-#include <wx/tglbtn.h>
 #include <wx/sizer.h>
+#include <wx/toolbar.h>
+#include <wx/icon.h>
 
-#include "crToggleGroup.h"
 #include "crMainControlPanel.h"
 
-CrMainControlPanel::CrMainControlPanel( wxMDIParentFrame *parent ) :
-   wxMDIChildFrame( parent, -1, _T("Control Tool"), 
-		    wxDefaultPosition, wxDefaultSize, 
-		    wxCAPTION | wxSTAY_ON_TOP | wxFRAME_TOOL_WINDOW, 
-		    "crControlPanel" ),
-   m_selection_group(NULL)
+#include "icons/kill-icon-16x16.xpm"
+#include "icons/arrow-small-icon-32x32.xpm"
+#include "icons/arrow-large-icon-32x32.xpm"
+#include "icons/hand-up-icon-32x32.xpm"
+#include "icons/hand-down-icon-32x32.xpm"
+
+CrMainControlPanel::CrMainControlPanel() :
+   wxPanel( NULL ) {
+}
+
+CrMainControlPanel::CrMainControlPanel( wxWindow *parent ) :
+   wxPanel( parent, -1, wxDefaultPosition, wxDefaultSize,
+	    wxTAB_TRAVERSAL, 
+	    _T("CrMainControlPanel") )
 {
    wxBoxSizer *main_sizer = new wxBoxSizer( wxVERTICAL );
 
    this->SetSizer( main_sizer );
+
+   wxToolBar *top_toolbar = 
+      new wxToolBar( this, -1, 
+		     wxDefaultPosition, wxDefaultSize,
+		     wxTB_HORIZONTAL | wxNO_BORDER | 
+		     wxTB_FLAT | wxTB_NODIVIDER | wxTB_NOALIGN );
+
+   top_toolbar->SetSizeHints( 16, 16 );
+   top_toolbar->SetMargins(0,0);
+   top_toolbar->SetToolPacking(0);
+   top_toolbar->SetToolBitmapSize( wxSize(16,16) );
+
+   top_toolbar->AddTool( crID_MCTRL_CLOSE, 
+			 _T("Close"), 
+			 wxIcon( kill_icon_16x16 ) , 
+			 wxNullBitmap,
+			 wxITEM_NORMAL, 
+			 _T("Close"), 
+			 _T("Close ") );
+
+   top_toolbar->Realize();
+
+   top_toolbar->Show( true );
+
+   main_sizer->Add( top_toolbar , 1, wxEXPAND | wxALL, 1 );
+
+//    wxStaticBox *select_static_box = 
+//       new wxStaticBox( this, -1, _T("Control"), 
+// 		       wxDefaultPosition, wxDefaultSize);
+
+//    wxToolBar *control_toolbar = 
+//       new wxToolBar( this, -1, 
+// 		     wxDefaultPosition, wxDefaultSize,
+// 		     wxTB_HORIZONTAL | wxNO_BORDER | 
+// 		     wxTB_FLAT | wxTB_NODIVIDER | wxTB_NOALIGN );
+
+//   control_toolbar->SetMargins(0,0);
+//   control_toolbar->SetToolPacking(0);
+
+//    control_toolbar->AddTool( crID_MCTRL_HAND, 
+//  			     _T("Hand Tool"), 
+// 			     wxIcon( hand_down_icon_32x32 ) , 
+// 			     wxIcon( hand_up_icon_32x32 ), 
+// 			     wxITEM_RADIO, 
+// 			     _T("Rotate, Scale, Translate"), 
+// 			     _T("Use this tool for "
+// 				"controlling scene position") );
+
+
+//    control_toolbar->AddTool( crID_MCTRL_ARROW, 
+// 			     _T("Arrow Tool"), 
+// 			     wxIcon( arrow_small_icon_32x32 ) , 
+// 			     wxIcon( arrow_large_icon_32x32 ), 
+// 			     wxITEM_RADIO, 
+// 			     _T("Select vertices"), 
+// 			     _T("Use this tool for "
+// 				"selection of graph elements") );
+
+
+//    control_toolbar->SetToolBitmapSize( wxSize(32,32) );
+
+//    control_toolbar->Realize();
+
+//    wxStaticBoxSizer *select_static_box_sizer = 
+//       new wxStaticBoxSizer( select_static_box, wxHORIZONTAL );
    
-   wxStaticBox *select_static_box = 
-      new wxStaticBox( this, -1, _T("Selection") );
-   wxStaticBoxSizer *select_static_box_sizer = 
-      new wxStaticBoxSizer( select_static_box, wxHORIZONTAL );
-
-   main_sizer->Add( select_static_box_sizer, 0, wxEXPAND | wxALL, 1 );
-
-   wxGridSizer *select_buttons_sizer = 
-       new wxGridSizer( 3, 0, 0 );
-
-   select_static_box_sizer->Add( select_buttons_sizer, 0, 
-				 wxEXPAND | wxALL, 2 );
-
-   wxToggleButton *m_hand =
-      new wxToggleButton( this, crID_MCTRL_HAND, 
-			  _T("Hand") );
-
-   wxToggleButton *m_shortest_path =
-      new wxToggleButton( this, crID_MCTRL_SHORTEST_PATH, 
-			  _T("Shortest Path") );
-
-   wxToggleButton *m_manual_path =
-      new wxToggleButton( this, crID_MCTRL_MANUAL_PATH, 
-			  _T("Manual Path") );
-
-   wxToggleButton *m_circular_area =
-      new wxToggleButton( this, crID_MCTRL_CIRCULAR_AREA, 
-			  _T("Circular Area") );
-
-   select_buttons_sizer->Add( m_hand,          0, wxEXPAND );
-   select_buttons_sizer->Add( m_shortest_path, 0, wxEXPAND );
-   select_buttons_sizer->Add( m_manual_path,   0, wxEXPAND );
-   select_buttons_sizer->Add( m_circular_area, 0, wxEXPAND );
-
-   m_selection_group = new CrToggleGroup();
-
-   m_selection_group->Add( m_hand, true );
-   m_selection_group->Add( m_shortest_path, false );
-   m_selection_group->Add( m_manual_path, false );
-   m_selection_group->Add( m_circular_area, false );
+//    select_static_box_sizer->Add( control_toolbar, 1, 
+//  				 wxEXPAND | wxALL, 1 );
+      
+//    main_sizer->Add( control_toolbar, 0,  
+// 		    wxEXPAND | wxALL, 1 );
 
    main_sizer->SetSizeHints( this );
-
-   int width = 0; 
-   int height = 0;
-   wxSize size;
-
-   parent->GetClientSize( &width, &height );
-   size = this->GetSize();
-
-   this->SetSize( width - size.GetWidth() - 10 , 10, -1, -1 );
 }
 
 CrMainControlPanel::~CrMainControlPanel() {
-   if( m_selection_group != NULL )
-      delete m_selection_group;
 }
 
-IMPLEMENT_CLASS(CrMainControlPanel, wxMDIChildFrame);
+IMPLEMENT_DYNAMIC_CLASS(CrMainControlPanel, wxPanel);
 
-BEGIN_EVENT_TABLE(CrMainControlPanel, wxMDIChildFrame)
+BEGIN_EVENT_TABLE(CrMainControlPanel, wxPanel)
 END_EVENT_TABLE()
 
 

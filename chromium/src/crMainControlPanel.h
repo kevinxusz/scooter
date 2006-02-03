@@ -29,29 +29,25 @@
 
 #include "crConfig.h"
 
-#include <wx/mdi.h>
+#include <wx/panel.h>
 
-class wxMDIParentFrame;
-class CrToggleGroup;
+class wxPanel;
 
-class CrMainControlPanel: public wxMDIChildFrame {
+class CrMainControlPanel: public wxPanel {
    public:
       enum {
 	 crID_MCTRL_HAND              = 0x00003001,
-	 crID_MCTRL_SHORTEST_PATH     = 0x00003002,
-	 crID_MCTRL_MANUAL_PATH       = 0x00003003,
-	 crID_MCTRL_CIRCULAR_AREA     = 0x00003004	 
+	 crID_MCTRL_ARROW             = 0x00003002,
+	 crID_MCTRL_CLOSE             = 0x00003003
       };
 
    public:
-      CrMainControlPanel( wxMDIParentFrame *parent );
+      CrMainControlPanel();
+      CrMainControlPanel( wxWindow *parent );
       virtual ~CrMainControlPanel();
 
    private:
-      CrToggleGroup *m_selection_group;
-
-   private:
-      DECLARE_CLASS(CrMainControlPanel);
+      DECLARE_DYNAMIC_CLASS(CrMainControlPanel);
       DECLARE_EVENT_TABLE();
 };
 

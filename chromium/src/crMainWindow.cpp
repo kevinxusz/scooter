@@ -40,7 +40,9 @@
 #include "crMainWindow.h"
 #include "crDebugConsole.h"
 #include "crVRMLDocument.h"
-#include "crMainControlPanel.h"
+
+#include "icons/debug-icon-16x16.xpm"
+#include "icons/chromium-icon-32x32.xpm"
 
 CrMainWindow::CrMainWindow( wxDocManager *doc_manager, const wxRect& rect ) :
    wxDocMDIParentFrame( doc_manager, NULL, -1, _T("Chromium"), 
@@ -51,10 +53,9 @@ CrMainWindow::CrMainWindow( wxDocManager *doc_manager, const wxRect& rect ) :
 			"cr_main_window" ),
    m_menu_bar( NULL ),
    m_doc_manager( doc_manager ),
-   m_debug_console( NULL ),
-   m_control_panel( NULL )
+   m_debug_console( NULL )
 {
-   this->SetIcon( wxIcon( "chromium" ) );
+   this->SetIcon( wxIcon( chromium_icon_32x32 ) );
 
    m_menu_bar = new wxMenuBar;
 
@@ -87,9 +88,6 @@ CrMainWindow::CrMainWindow( wxDocManager *doc_manager, const wxRect& rect ) :
 
    this->SetMenuBar(m_menu_bar);
    this->ConstructDebugConsole();
-
-   m_control_panel = new CrMainControlPanel( this );
-   m_control_panel->Show( true );
 }
 
 void CrMainWindow::ShowDebugConsole( wxCommandEvent& event ) {
@@ -112,7 +110,7 @@ void CrMainWindow::ConstructDebugConsole() {
 							wxTextAttr( *wxBLUE ),
 							wxTextAttr( *wxRED ) );
    m_debug_console->Show( false );
-   m_debug_console->SetIcon( wxIcon( "debug" ) );
+   m_debug_console->SetIcon( wxIcon( debug_icon_16x16 ) );
    m_debug_console->Connect( m_debug_console->GetId(), 
 			     wxEVT_CLOSE_WINDOW, 		    
 			     (wxObjectEventFunction)&wxMDIChildFrame::Hide );

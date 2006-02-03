@@ -87,8 +87,8 @@ our $buildenv   = new cons( %{$ruleset},
 
 my $TARGET = "$BUILD/cr%{SUFEXE}";
 
-Command $buildenv "$BUILD/chromiumres.obj", "src/chromium.rc",
-  qq(%RC -r -Iblib/include -Ichromium/icons -fo%> %<);
+Command $buildenv "$BUILD/chromiumres%SUFOBJ", "src/chromium.rc",
+  qq(%RC -r -Iblib/include -fo%> %<);
 
 KeepPrecious $buildenv $TARGET;
 AfterBuild $buildenv $TARGET, q( 
@@ -117,7 +117,7 @@ Program $buildenv $TARGET,
 			crMeshControl.cpp
 			crVRMLTree.cpp
 			crToggleGroup.cpp
-			chromiumres.obj ) );
+			chromiumres%SUFOBJ ) );
 
 Install $buildenv "$BLIB/bin", $TARGET;
 

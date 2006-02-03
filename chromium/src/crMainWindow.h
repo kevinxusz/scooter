@@ -34,7 +34,6 @@
 class wxMenuBar;
 class wxDocManager;
 class wxMDIChildFrame;
-class CrMainControlPanel;
 
 class CrMainWindow: public wxDocMDIParentFrame {
       DECLARE_CLASS(CrMainWindow);
@@ -59,7 +58,6 @@ class CrMainWindow: public wxDocMDIParentFrame {
       wxMenuBar          *m_menu_bar;
       wxDocManager       *m_doc_manager;
       wxMDIChildFrame    *m_debug_console;
-      CrMainControlPanel *m_control_panel;
 
    private:
       DECLARE_EVENT_TABLE();

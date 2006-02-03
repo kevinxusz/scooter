@@ -35,10 +35,19 @@
 class wxDocMDIChildFrame;
 class wxSplitterWindow;
 class wxNotebook;
+class wxPanel;
+class wxToolBar;
+
 class CrVRMLTree;
 class CrMainStatusBar;
+class CrMainControlPanel;
 
 class CrVRMLDocView: public wxView {
+   public:
+      enum {
+	 crID_CANVAS_EDIT        = 0x00003001,
+      };
+
    public:
       CrVRMLDocView();
       ~CrVRMLDocView();
@@ -59,6 +68,8 @@ class CrVRMLDocView: public wxView {
       CrVRMLTree         *m_scene_tree;
       CrMainStatusBar    *m_status_bar;
       wxSize              m_frame_size;
+      wxPanel            *m_canvas_panel;
+      CrMainControlPanel *m_ctrl_panel;
 
    private:
       DECLARE_DYNAMIC_CLASS(CrVRMLDocView);

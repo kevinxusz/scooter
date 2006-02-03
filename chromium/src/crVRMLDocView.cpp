@@ -31,17 +31,24 @@
 #include <wx/docmdi.h>
 #include <wx/splitter.h>
 #include <wx/notebook.h>
+#include <wx/panel.h>
+#include <wx/toolbar.h>
+#include <wx/sizer.h>
+#include <wx/button.h>
 
 #include "crApp.h"
 #include "crEvent.h"
 #include "crEvent.h"
 #include "crMainWindow.h"
 #include "crMainStatusBar.h"
+#include "crMainControlPanel.h"
 #include "crVRMLDocument.h"
 #include "crVRMLDocView.h"
 #include "crVRMLViewer.h"
 #include "crVRMLEditor.h"
 #include "crVRMLTree.h"
+
+#include "icons/objects-icon-16x16.xpm"
 
 CrVRMLDocView::CrVRMLDocView():
    wxView(),
@@ -49,7 +56,9 @@ CrVRMLDocView::CrVRMLDocView():
    m_splitter(NULL), 
    m_notebook(NULL),
    m_scene_tree(NULL),   
-   m_status_bar( NULL ) {
+   m_status_bar( NULL ),
+   m_canvas_panel(NULL),
+   m_ctrl_panel(NULL) {
 }
 
 CrVRMLDocView::~CrVRMLDocView() {
@@ -67,8 +76,9 @@ bool CrVRMLDocView::OnCreate( wxDocument *doc, long flags) {
 				     perfect_size.GetPosition(), 
 				     perfect_size.GetSize(),
 				     wxDEFAULT_FRAME_STYLE |
+				     wxCLIP_CHILDREN |
 				     wxNO_FULL_REPAINT_ON_RESIZE );
-   m_frame->SetIcon( wxIcon( "objects" ) );
+   m_frame->SetIcon( wxIcon( objects_icon_16x16 ) );
    m_frame->Show( true );
 
    m_status_bar = new CrMainStatusBar( m_frame );
@@ -80,20 +90,35 @@ bool CrVRMLDocView::OnCreate( wxDocument *doc, long flags) {
    m_splitter = new wxSplitterWindow( m_frame, -1, 
 				      wxDefaultPosition, wxDefaultSize,
 				      wxSP_NOBORDER | 
-				      wxNO_FULL_REPAINT_ON_RESIZE |
-				      wxCLIP_CHILDREN );
+				      wxCLIP_CHILDREN | 
+				      wxNO_FULL_REPAINT_ON_RESIZE );
    m_splitter->SetMinimumPaneSize( 1 );
 
-   m_notebook = new wxNotebook( m_splitter, -1, 
+   m_canvas_panel = new wxPanel( m_splitter, -1, 
+				 wxDefaultPosition, wxDefaultSize, 
+				 wxCLIP_CHILDREN | 
+				 wxNO_FULL_REPAINT_ON_RESIZE );
+   m_canvas_panel->Show(true);
+   
+   m_notebook = new wxNotebook( m_canvas_panel, -1, 
 				wxDefaultPosition, wxDefaultSize, 
-				wxNO_FULL_REPAINT_ON_RESIZE | 
-				wxCLIP_CHILDREN );
+				wxCLIP_CHILDREN | 
+				wxNO_FULL_REPAINT_ON_RESIZE );
    m_notebook->Show( true );
+
+   m_ctrl_panel = new CrMainControlPanel( m_canvas_panel );
+   m_ctrl_panel->Show( true );
+
+   wxBoxSizer *canvas_sizer = new wxBoxSizer( wxHORIZONTAL );
+   m_canvas_panel->SetSizer( canvas_sizer );
+
+   canvas_sizer->Add( m_notebook, 4, wxEXPAND | wxALL, 1 );
+   canvas_sizer->Add( m_ctrl_panel, 0, wxEXPAND | wxALL, 1 );
 
    m_scene_tree = new CrVRMLTree( m_splitter, this );
    m_scene_tree->Show( true );
 
-   m_splitter->SplitVertically( m_scene_tree, m_notebook,
+   m_splitter->SplitVertically( m_scene_tree, m_canvas_panel,
 				m_frame->GetSize().GetWidth() / 3 );
 
    this->Activate( true );
@@ -207,11 +232,11 @@ void CrVRMLDocView::OnSize( wxSizeEvent& event ) {
 		  (double)m_frame_size.GetWidth() : 
 		  1.0;
    if( delta < 0 ) {
-      if( (double)sash_pos / (double)frame_size.GetWidth() >= 0.25 ) {
+      if( (double)sash_pos / (double)frame_size.GetWidth() >= 0.18 ) {
 	 m_splitter->SetSashPosition( sash_pos * ratio );
       }
    } else {
-      if( (double)sash_pos /  (double)frame_size.GetWidth() < 0.25 ) {
+      if( (double)sash_pos /  (double)frame_size.GetWidth() < 0.18 ) {
 	 m_splitter->SetSashPosition( sash_pos * ratio );
       }
    }
