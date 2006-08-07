@@ -304,7 +304,7 @@ class CrVRMLControl:  public openvrml::viewer {
 
    protected:
       void initialize();
-      Line CrVRMLControl::unproject( int x, int y );
+      Line unproject( int x, int y );
       void apply_local_transform();
       void undo_local_transform();
       bool get_scene_bounds( Vector& center, FT& radius );

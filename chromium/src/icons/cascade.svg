@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="100%" height="100%" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd"
+viewBox="0 0 500 500"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+    <linearGradient id="id0" gradientUnits="userSpaceOnUse" x1="43.8169" y1="65.7953" x2="373.522" y2="65.7953">
+     <stop offset="0" stop-color="darkslateblue"/>
+     <stop offset="0.368627" stop-color="#A39EC5"/>
+     <stop offset="1" stop-color="white"/>
+    </linearGradient>
+    <radialGradient id="id1" gradientUnits="userSpaceOnUse" cx="63.6201" cy="118.613" r="151.925" fx="63.6201" fy="118.613">
+     <stop offset="0" stop-color="#B6DDC7"/>
+     <stop offset="1" stop-color="white"/>
+    </radialGradient>
+    <radialGradient id="id2" gradientUnits="userSpaceOnUse" cx="69.311" cy="55.5909" r="16.8118" fx="69.311" fy="55.5909">
+     <stop offset="0" stop-color="white"/>
+     <stop offset="1" stop-color="firebrick"/>
+    </radialGradient>
+    <linearGradient id="id3" gradientUnits="userSpaceOnUse" x1="351.497" y1="81.0181" x2="319.44" y2="50.063">
+     <stop offset="0" stop-color="yellowgreen"/>
+     <stop offset="1" stop-color="white"/>
+    </linearGradient>
+    <linearGradient id="id4" gradientUnits="userSpaceOnUse" x1="273.769" y1="52.6969" x2="300.994" y2="78.3843">
+     <stop offset="0" stop-color="yellowgreen"/>
+     <stop offset="1" stop-color="white"/>
+    </linearGradient>
+    <linearGradient id="id5" gradientUnits="userSpaceOnUse" x1="130.049" y1="164.198" x2="459.755" y2="164.198">
+     <stop offset="0" stop-color="darkslateblue"/>
+     <stop offset="0.368627" stop-color="#A39EC5"/>
+     <stop offset="1" stop-color="white"/>
+    </linearGradient>
+    <radialGradient id="id6" gradientUnits="userSpaceOnUse" cx="149.852" cy="217.015" r="151.925" fx="149.852" fy="217.015">
+     <stop offset="0" stop-color="#B6DDC7"/>
+     <stop offset="1" stop-color="white"/>
+    </radialGradient>
+    <radialGradient id="id7" gradientUnits="userSpaceOnUse" cx="155.543" cy="153.993" r="16.8118" fx="155.543" fy="153.993">
+     <stop offset="0" stop-color="white"/>
+     <stop offset="1" stop-color="firebrick"/>
+    </radialGradient>
+    <linearGradient id="id8" gradientUnits="userSpaceOnUse" x1="437.729" y1="179.42" x2="405.672" y2="148.465">
+     <stop offset="0" stop-color="yellowgreen"/>
+     <stop offset="1" stop-color="white"/>
+    </linearGradient>
+    <linearGradient id="id9" gradientUnits="userSpaceOnUse" x1="360.001" y1="151.099" x2="387.226" y2="176.787">
+     <stop offset="0" stop-color="yellowgreen"/>
+     <stop offset="1" stop-color="white"/>
+    </linearGradient>
+ </defs>
+ <g id="Layer_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_59634256">
+   <path id="_59642640" fill="#1F1A17" fill-rule="nonzero" d="M385.554 95.3894l0 264.116 0 0.00314961 -0.0232283 0.0704724c-0.023622,1.75354 -0.752362,3.31417 -1.90866,4.4248 -1.0874,1.0437 -2.55157,1.69567 -4.18819,1.73976l-0.141339 0.0232283 -0.00629921 0 -341.232 0 -0.00314961 0 -0.0704724 -0.0232283c-1.67598,-0.0220472 -3.19961,-0.700394 -4.31102,-1.78937l-0.000787402 0.000787402 -0.0177165 -0.0185039 -0.00551181 -0.00511811c-1.10236,-1.09134 -1.78937,-2.57205 -1.83543,-4.25512l-0.023622 -0.164961 0 -0.00590551 0 -264.116 12.0547 0 0 258.322 329.658 0 0 -258.322 12.0547 0z"/>
+   <path id="_59641272" fill="#1F1A17" fill-rule="nonzero" d="M50.0138 24.1689l317.312 0 0.00314961 0 0 0.023622c4.98425,0.000787402 9.51772,1.98268 12.8059,5.17402 3.32638,3.22913 5.39252,7.71024 5.39528,12.6642l0.0232283 0 0 0.00590551 0 55.8917 -12.0547 0 0 -55.8917 0 -0.00590551 0.023622 0c-0.000393701,-1.55236 -0.67874,-2.9874 -1.76969,-4.04646 -1.13268,-1.09921 -2.69961,-1.78268 -4.42362,-1.78346l0 0.023622 -0.00314961 0 -317.312 0 -0.00669291 0 0 -0.023622c-1.72165,0.0011811 -3.28622,0.683465 -4.41811,1.7815 -1.09213,1.05984 -1.77205,2.49685 -1.77205,4.05118l0.023622 0 0 0.00314961 0 55.8917 -12.0547 0 0 -55.8917 0 -0.00314961 0.023622 0c0.0011811,-4.95512 2.0685,-9.43898 5.39724,-12.6689 3.2874,-3.18937 7.8189,-5.17008 12.8004,-5.17205l0 -0.023622 0.00669291 0z"/>
+   <rect id="_59640320" fill="black" stroke="black" stroke-width="0.3" x="43.8406" y="95.3895" width="329.658" height="5.52757"/>
+   <path id="_59639104" fill="url(#id0)" stroke="darkslateblue" stroke-width="0.3" d="M367.326 36.2244l0 0zm-323.485 5.8122l0 0zm0 53.3528l329.658 0 0 -53.3528 0 -0.00590551 0.023622 0c-0.000393701,-1.55236 -0.67874,-2.9874 -1.76969,-4.04646 -1.13268,-1.09921 -2.69961,-1.78268 -4.42362,-1.78346l-0.00314961 0.023622 -317.312 0 -0.00669291 0 0 -0.023622c-1.72165,0.0011811 -3.28622,0.683465 -4.41811,1.7815 -1.09213,1.05984 -1.77205,2.49685 -1.77205,4.05118l0.023622 0.00314961 0 53.3528z"/>
+   <polygon id="_59638088" fill="url(#id1)" stroke="mediumturquoise" stroke-width="0.3" points="373.499,100.917 43.8406,100.917 43.8406,353.711 373.499,353.711 "/>
+   <ellipse id="_59636976" fill="url(#id2)" stroke="firebrick" stroke-width="0.3" cx="76.2422" cy="64.4351" rx="18.2398" ry="17.6882"/>
+   <rect id="_59635992" fill="url(#id3)" stroke="yellowgreen" stroke-width="0.3" x="319.439" y="50.0635" width="32.0578" height="30.9544"/>
+   <rect id="_59634376" fill="url(#id4)" stroke="yellowgreen" stroke-width="0.3" x="271.353" y="50.0635" width="32.0578" height="30.9544"/>
+  </g>
+  <g id="_59624800">
+   <path id="_59633048" fill="#1F1A17" fill-rule="nonzero" d="M471.786 193.792l0 264.116 0 0.00314961 -0.023622 0.0704724c-0.0232283,1.75354 -0.751969,3.31417 -1.90827,4.4248 -1.0874,1.0437 -2.55197,1.69567 -4.18819,1.73937l-0.141339 0.023622 -0.00629921 0 -341.232 0 -0.00354331 0 -0.0704724 -0.023622c-1.67559,-0.0216535 -3.19921,-0.7 -4.31063,-1.78937l-0.000787402 0.000787402 -0.0181102 -0.0181102 -0.00551181 -0.00511811c-1.10197,-1.09134 -1.78937,-2.57205 -1.83543,-4.25512l-0.0232283 -0.164961 0 -0.00590551 0 -264.116 12.0547 0 0 258.322 329.658 0 0 -258.322 12.0547 0z"/>
+   <path id="_59631680" fill="#1F1A17" fill-rule="nonzero" d="M136.246 122.571l317.312 0 0.00354331 0 0 0.0232283c4.98425,0.0011811 9.51772,1.98307 12.8055,5.17441 3.32677,3.22913 5.39291,7.70984 5.39528,12.6638l0.023622 0 0 0.00629921 0 55.8913 -12.0547 0 0 -55.8913 0 -0.00629921 0.023622 0c-0.000787402,-1.55236 -0.67874,-2.98701 -1.76969,-4.04606 -1.13307,-1.09961 -2.69961,-1.78307 -4.42362,-1.78346l0 0.023622 -0.00354331 0 -317.312 0 -0.00629921 0 0 -0.023622c-1.72165,0.000787402 -3.28661,0.683465 -4.4185,1.7815 -1.09213,1.05984 -1.77165,2.49685 -1.77165,4.05118l0.023622 0 0 0.00314961 0 55.8913 -12.0547 0 0 -55.8913 0 -0.00314961 0.0232283 0c0.0015748,-4.95512 2.0689,-9.43937 5.39764,-12.6689 3.28701,-3.18937 7.8185,-5.17008 12.8004,-5.17244l0 -0.0232283 0.00629921 0z"/>
+   <rect id="_59630728" fill="black" stroke="black" stroke-width="0.3" x="130.073" y="193.792" width="329.658" height="5.52757"/>
+   <path id="_59629512" fill="url(#id5)" stroke="darkslateblue" stroke-width="0.3" d="M453.558 134.627l0 0zm-323.485 5.8122l0 0zm0 53.3528l329.658 0 0 -53.3528 0 -0.00629921 0.023622 0c-0.000787402,-1.55236 -0.67874,-2.98701 -1.76969,-4.04606 -1.13307,-1.09961 -2.69961,-1.78307 -4.42362,-1.78346l-0.00354331 0.023622 -317.312 0 -0.00629921 0 0 -0.023622c-1.72165,0.000787402 -3.28661,0.683465 -4.4185,1.7815 -1.09213,1.05984 -1.77165,2.49685 -1.77165,4.05118l0.023622 0.00314961 0 53.3528z"/>
+   <polygon id="_59628496" fill="url(#id6)" stroke="mediumturquoise" stroke-width="0.3" points="459.731,199.319 130.073,199.319 130.073,452.113 459.731,452.113 "/>
+   <ellipse id="_59627520" fill="url(#id7)" stroke="firebrick" stroke-width="0.3" cx="162.474" cy="162.837" rx="18.2398" ry="17.6882"/>
+   <rect id="_59626552" fill="url(#id8)" stroke="yellowgreen" stroke-width="0.3" x="405.672" y="148.466" width="32.0578" height="30.9544"/>
+   <rect id="_59624944" fill="url(#id9)" stroke="yellowgreen" stroke-width="0.3" x="357.585" y="148.466" width="32.0578" height="30.9544"/>
+  </g>
+ </g>
+</svg>

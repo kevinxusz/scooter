@@ -34,7 +34,7 @@
 #include <scooter/calculus_dgd.h>
 #include <scooter/geometry.h>
 #include <scooter/geometry_dgd.h>
-
+ 
 typedef Math::Vector<double> Vector;
 typedef Math::Vector<double> Point;
 typedef Math::Bounding_box<double> BBox;

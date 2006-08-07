@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="100%" height="100%" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd"
+viewBox="0 0 500 500"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+    <clipPath id="id0">
+     <path d="M10.6094 39.326l485.233 0 0 410.122 -485.233 0 0 -410.122z"/>
+    </clipPath>
+    <radialGradient id="id1" gradientUnits="userSpaceOnUse" cx="155.591" cy="216.373" r="210.314" fx="155.591" fy="216.373">
+     <stop offset="0" stop-color="white"/>
+     <stop offset="1" stop-color="#B6DDC7"/>
+    </radialGradient>
+    <linearGradient id="id2" gradientUnits="userSpaceOnUse" x1="220.869" y1="147.981" x2="320.127" y2="26.5008">
+     <stop offset="0" stop-color="#96AEBE"/>
+     <stop offset="0.301961" stop-color="#CAD6DE"/>
+     <stop offset="1" stop-color="white"/>
+    </linearGradient>
+    <radialGradient id="id3" gradientUnits="userSpaceOnUse" cx="184.367" cy="143.379" r="89.615" fx="184.367" fy="143.379">
+     <stop offset="0" stop-color="white"/>
+     <stop offset="1" stop-color="#7BC4A0"/>
+    </radialGradient>
+    <radialGradient id="id4" gradientUnits="userSpaceOnUse" cx="159.823" cy="143.379" r="89.615" fx="159.823" fy="143.379">
+     <stop offset="0" stop-color="white"/>
+     <stop offset="1" stop-color="#B6DDC7"/>
+    </radialGradient>
+ </defs>
+ <g id="Layer_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_58912176">
+   <g clip-path="url(#id0)">
+    <image id="_58881768" transform="matrix(1 0 0 1 -239.391 199.448)" x="250" y="-160.122" width="485.233" height="410.122" xlink:href="folder_Images\folder_ImgID1.png"/>
+   </g>
+  </g>
+  <g id="_58840536">
+   <rect id="_59141216" fill="none" stroke="black" stroke-width="0.3" x="29.4024" y="114.971" width="420.628" height="289.719" rx="19.3146" ry="19.3146"/>
+   <path id="_60575600" fill="url(#id1)" stroke="black" stroke-width="11.111" d="M384.611 114.971l-335.894 0c-0.425984,0 -0.848819,0.0137795 -1.26811,0.0413386 -0.727559,0.182677 -1.50354,0.284252 -2.33268,0.297638 -8.91811,1.69882 -15.7138,9.58189 -15.7138,18.9756l0 251.089c0,10.6232 8.69134,19.3146 19.3146,19.3146l381.999 0c10.6232,0 19.3146,-8.69134 19.3146,-19.3146l0 -251.089c0,-10.6232 -8.69134,-19.3146 -19.3146,-19.3146l-46.1047 0z"/>
+   <path id="_61090496" fill="url(#id2)" stroke="black" stroke-width="11.111" d="M360.113 115.309l-179.23 0.0011811c20.8106,-0.338976 8.18071,-56.1366 37.9378,-56.1366l103.354 -0.0011811c29.7571,0 17.1272,55.7976 37.9378,56.1366z"/>
+   <path id="_60196656" fill="url(#id3)" stroke="black" stroke-width="11.111" d="M290.113 115.309l-179.23 0.0011811c20.8106,-0.338976 8.18071,-56.1366 37.9378,-56.1366l103.354 -0.0011811c29.7571,0 17.1272,55.7976 37.9378,56.1366z"/>
+   <path id="_58851144" fill="url(#id4)" stroke="black" stroke-width="11.111" d="M224.346 115.309l-179.23 0.0011811c20.8106,-0.338976 8.18071,-56.1366 37.9378,-56.1366l103.354 -0.0011811c29.7571,0 17.1272,55.7976 37.9378,56.1366z"/>
+  </g>
+ </g>
+</svg>

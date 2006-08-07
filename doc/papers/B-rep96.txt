@@ -1,0 +1,818 @@
+            B-REP96.TXT - Boundary Representation Bibliography
+            --------------------------------------------------
+
+                               Prepared by
+
+                          Ian Ashdown, President
+                         byHeart Software Limited
+                          iashdown@ledalite.com
+
+Date:   February 2, 1996
+
+This bibliography includes references to papers, articles, and books on
+boundary representation methods for three-dimensional objects in solid
+modeling applications, such as CAD and radiosity rendering.
+
+A boundary representation of a solid, three-dimensional object represents
+the object by its surface boundary. In most applications, this
+representation consists of vertices, edges, and faces. The faces
+(polygons) are typically planar, but may also be curved.
+
+Boundary representations incorporate a variety of data structures,
+including the much-discussed winged-edge data structure. Others include
+the quad-edge, vertex-edge, and face-edge data structures, plus numerous
+variations. Each data structure has its merits and disadvantages,
+depending on the application. The tradeoff is between memory requirements
+and average access time for geometric data of interest.
+
+Winged-edge data structures are frequently discussed in the radiosity
+literature as the preferred representation for three-dimensional models.
+This is partly because winged-edge models make it relatively easy to
+implement adaptive mesh refinement techniques. Similar arguments apply to
+many finite mesh analysis applications.
+
+Unfortunately, a comprehensive discussion of boundary representation
+methods is not to be found in the literature, particularly if you are
+interesting in actually implementing them for solid modeling
+applications. The best you can do is to read the numerous papers that
+have been written and piece together a model for your implementation.
+Speaking from experience, the process will be most likely painful.
+
+This bibliography was prepared to alleviate the initial pain of a
+comprehensive literature search. It is undoubtably incomplete -- the
+literature on solid modeling is vast and diverse. On the other hand, you
+have to start somewhere ...
+
+Thanks to Robin Forrest of the University of East Anglia for contributing 
+more than 40 references from his boundary representation database.
+
+-------------------------------------------------------------------------
+
+%A S. R. Ala
+%T Design Methodology of Boundary Data Structures
+%E J. Rossignac
+%E J. Turner
+%J Symposium on Solid Modeling Foundations and CAD/CAM Applications
+%I ACM Press
+%C Austin, TX
+%D June 1991
+%P 13-23
+
+%A S. Ansaldi
+%A L. de Floriani
+%A B. Falcidieno
+%T Geometric Modeling of Solid Objects by Using a Face Adjacency Graph
+Representation
+%J Computer Graphics (ACM SIGGRAPH '85 Proceedings)
+%V 19
+%N 3
+%D 1985
+%P 131-139
+
+%A Michael J. Bailey
+%T Tele-Manufacturing: Rapid Prototyping on the Internet
+%J IEEE Computer Graphics and Applications
+%V 15
+%N 6
+%P 20-26
+%D November 1995
+
+%A L. Bardis
+%A N. Patrikalakis
+%T Topological Structures for Generalized Boundary Representation
+%R Design Laboratory Memo 91-18
+%I Massachusetts Institute of Technology
+%D 1992
+
+%A D. R. Baum
+%A S. Mann
+%A K. P. Smith
+%A J. M. Winget
+%T Making Radiosity Usable: Automatic Preprocessing and Meshing
+Techniques
+%J Computer Graphics (ACM SIGGRAPH '91 Proceedings)
+%V 25
+%N 4
+%D 1991
+%P 51-60
+
+%A Bruce G. Baumgart
+%T Winged Edge Polyhedron Representation
+%R Artificial Intelligence Project Memo AIM-179 (CS-TR-72-320)
+%I Computer Science Department, Stanford University
+%C Palo Alto, CA
+%D October 1972
+
+%A Bruce G. Baumgart
+%T Geometric Modeling for Computer Vision
+%R Artificial Intelligence Project Memo AIM-249 (CS-TR-74-463)
+%I Computer Science Department, Stanford University
+%C Palo Alto, CA
+%D 1974
+%Z available from UMI Dissertation Services (1-800-521-3042) as
+UMI order number AAC-7506806
+
+%A Bruce G. Baumgart
+%T A Polyhedral Representation for Computer Vision
+%J Proc. National Computer Conference
+%D 1975
+%P 589-596
+
+%A I. Braid
+%T The Synthesis of Solids Bounded by Many Faces
+%J Communications of the ACM
+%D April 1975
+%P 209-216
+
+%A I. C. Braid
+%A R. C. Hillyard
+%A I. A. Stroud
+%T Stepwise Construction of Polyhedra in Geometric Modeling
+%E K. W. Brodlie
+%B Mathematical Methods in Computer Graphics and Design
+%I Academic Press
+%C Boston, MA
+%D 1980
+%P 123-141
+
+%A K. C. Chan
+%A S. T. Tan
+%T Hierarchical Structure to Winged-Edge Structure: A Conversion
+Algorithm
+%J The Visual Computer
+%V 4
+%N 3
+%D 1988
+%P 133-141
+
+%A M. F. Cohen
+%A J. R. Wallace
+%B Radiosity and Realistic Image Synthesis
+%I Academic Press Professional
+%C Boston, MA
+%D 1993
+
+%A I. D. Faux
+%A M. J. Pratt
+%B Computational Geometry for Design and Manufacture
+%I Ellis Horwood Limited
+%C Chichester, UK
+%D 1979
+
+%A L. de Floriani
+%A B. Falcidieno
+%T A Hierarchical Boundary Model for Solid Object Representation
+%J ACM Transactions on Graphics
+%V 7
+%N 1
+%D 1988
+%P 42-60
+
+%A C. Eastman
+%A K. Weiler
+%T Geometric Modeling Using the Euler Operators
+%J Proceedings of the First Annual Conference on Computer Graphics in
+CAD/CAM Systems
+%I MIT Press
+%C Cambridge, MA
+%D 1979
+%P 248-254
+
+%A P. L. George
+%T Automatic Mesh Generation
+%I John Wiley & Sons, Inc.
+%C New York, NY
+%D 1991
+
+%A A. S. Glassner
+%T Maintaining Winged-Edge Models
+%E J. Arvo
+%B Graphics Gems II
+%I Academic Press Professional
+%C Boston, MA
+%D 1991
+%P 191-201
+
+%A L. Guibas
+%A J. Stolfi
+%T Primitives for the Manipulation of General Subdivisions and the
+Computation of Voronoi Diagrams
+%J ACM Transactions on Graphics
+%V 4
+%N 2
+%D 1985
+%P 74-123
+
+%A P. M. Hanrahan
+%T Creating Volume Models from Edge-Vertex Graphs
+%J Computer Graphics (ACM SIGGRAPH '82 Proceedings)
+%V 16
+%N 3
+%D 1982
+%P 77-84
+
+%A M. Higashi
+%A H. Yatomi
+%A Y. Mizutani
+%A S. Murabata
+%T Unified Geometric Modeling by Non-Manifold Shell Operation
+%J Second Symposium on Solid Modeling and Applications
+%I ACM Press
+%C Montreal, Quebec
+%D 1993
+%P 75-84
+
+%A K. Ho-Le
+%T Finite Element Mesh Generation Methods: A Review and Classification
+%J Computer-Aided Design
+%V 20
+%A 1988
+%P 27-38
+
+%A Christoph M. Hoffman
+%B Geometric and Solid Modeling: An Introduction
+%I Morgan Kaufmann
+%C San Francisco, CA
+%D 1989
+
+%A R. Juan
+%T On Boundary to CSG and Extended Octrees to CSG Conversions
+%E W. Strasser
+%E H.-P. Seidel
+%B In Theory and Practice of Geometric Modeling
+%I Springer-Verlag
+%C Berlin, Germany
+%D 1989
+%P 349-368
+
+%A M. S. Karasick
+%A D. Lieber
+%T Schemata for Interrogating Solid Boundaries
+%E J. Rossignac
+%E J. Turner
+&J Symposium on Solid Modeling Foundations and CAD/CAM Applications
+%I ACM Press
+%C Austin, TX
+%D June 1991
+%P 25-34
+
+%A A. Kela
+%T Hierarchical Octree Approximations for Boundary Representation-based
+Geometric Models
+%J Computer-Aided Design
+%V 21
+%N 6
+%D July/August 1989
+%P 355-362
+
+%A R. Klein
+%A W. Strasser
+%T Large Mesh Generation from Boundary Models with Parametric Face
+Representation
+%E C. Hoffmann
+%E J. Rossignac
+%J Third Symposium on Solid Modeling and Applications
+%I ACM Press
+%D May 1995
+%P 431-440
+
+%A K. Kobori
+%A N. Futagami
+%A I. Nishioka
+%T Automated Generation of Simply Connected Solid Objects from Wire-Frame
+Data Using Operations on Graphs
+%J The Visual Computer
+%V 2
+%N 6
+%D 1986
+%P 335-341
+
+%A T. L. Kunii
+%A T. Satoh
+%A K. Yamaguchi
+%T Generation of Topological Boundary Representations from Octree
+Encoding
+%J IEEE Computer Graphics and Applications
+%V 5
+%N 3
+%D 1985
+%P 29-38
+
+%A I. Lakatos
+%B Proofs and Refutations
+%I Cambridge University Press
+%C New York, NY
+%D 1976
+
+%A C-H. Lee
+%A T. Poston
+%A A. Rosenfeld
+%T Holes and Genus of 2D and 3D Digital Images
+%J CVGIP: Graphical Models and Image Processing
+%V 55
+%N 1
+%D January 1993
+%P 20-47
+
+%A K. Lee
+%A D. C. Gossard
+%T A Hierarchical Data Structure for Representing Assemblies: Part 1
+%J Computer-Aided Design
+%V 17
+%N 1
+%D January/February 1985
+%P 15-19
+
+%A L. Lienhardt
+%T Topological Models for Boundary Representation: A Comparison with N-
+Dimensional Maps
+%J Computer-Aided Design
+%V 23
+%N 1
+%D January/February 1991
+%P 59-82
+
+%A D. Lischinski
+%T Incremental Delaunay Triangulation
+%E P. S. Heckbert
+%B Graphics Gems IV
+%I Academic Press Professional
+%C Boston, MA
+%D 1994
+%P 47-59
+
+%A Y. Luo
+%A G. Lukacs
+%T A Boundary Representation for Form Features and Non-Manifold Solid
+Objects
+%E J. Rossignac
+%E J. Turner
+%J Symposium on Solid Modeling Foundations and CAD/CAM Applications
+%I ACM Press
+%C Austin, TX
+%D June 1991
+%P 45-60
+
+%A Y. Luo
+%A G. Lukacs
+%T Incidence Relationships: Kernel Concept in Combinatorical Topology
+%E B. Falcidieno
+%E I. Herman
+%E C. Pienovi
+%B Computer Graphics and Mathematics: Proceedings of the First
+Eurographics Workshop on Computer Graphics and Mathematics
+%I Springer-Verlag
+%C Berlin, Germany
+%D 1992
+%P 129-146
+
+%A M. J. Mantyla
+%T An Inversion Algorithm for Geometric Models
+%J ACM SIGGRAPH Computer Graphics
+%V 16
+%N 3
+%D July 1982
+%P 51-60
+
+%A M. J. Mantyla
+%T A Note on the Modeling Space of Euler Operators
+%J Computer Vision, Graphics and Image Processing
+%V 26
+%N 1
+%D 1984
+%P 45-60
+
+%A M. J. Mantyla
+%T Boolean Operations of 2-Manifolds through Vertex Neighborhood
+Classification
+%J ACM Transactions on Graphics
+%V 5
+%N 1
+%D January 1986
+%P 1-29
+
+%A M. J. Mantyla
+%B An Introduction to Solid Modeling
+%I Computer Science Press
+%C Rockville, MD
+%D 1988
+
+%A M. J. Mantyla
+%A R. Sulonen
+%T GWB: A Solid Modeler with Euler Operators
+%J IEEE Computer Graphics and Applications
+%V 2
+%N 7
+%D 1982
+%P 17-31
+
+%A M. J. Mantyla
+%A M. Tamminen
+%T Localised Set Operations for Solid Modeling
+%J ACM SIGGRAPH Computer Graphics
+%V 17
+%N 3
+%D July 1983
+%P 279-288
+
+%A D. Marcheix
+%A S. Gueorguieva
+%T Topological Operators for Non-manifold Modeling
+%E V. Skala
+%J Proceedings of the Third International Conference in Central
+Europe on Computer Graphics and Visualisation '95
+%C Plzen, Czech Republic
+%D February 1995
+%V 1
+%P 173-186
+
+%A J. R. Miller
+%T Architectural Issues in Solid Modelers
+%J IEEE Computer Graphics and Applications
+%V 9
+%N 5
+%D September 1989
+%P 72-87
+
+%A J. R. Miller
+%T Incremental Boundary Evaluation Using Inference of Edge
+Classifications
+%J IEEE Computer Graphics and Applications
+%V 13
+%N 1
+%D January 1993
+%P 71-78
+
+%A J. R. Miller
+%T Incremental Boundary Evaluation for Nonmanifold Partially Bounded
+Solids
+%E W. A. Davis
+%E P. Prusinkiewicz
+%J Graphics Interface '95
+%C Quebec City, Quebec
+%D May 1995
+%P 187-195
+
+%A C. Montani
+%A R. Scopigno
+%T Quadtree/Octree-to-Boundary Conversion
+%E J. R. Arvo
+%B Graphics Gems II
+%I Academic Press Professional
+%C Boston, MA
+%D 1991
+%P 202-218
+
+%A A. Muller
+%A D. Richter
+%T Reconstruction of a Boundary Representation Model from Three
+Orthographic Projections: A Geometrical Approach
+%E C.E. Vandoni
+%E D. A. Duce
+%J Computer Graphics Forum (Eurographics '90)
+%V 9
+%N 3
+%D September 1990
+%P C237-C250
+
+%A M. J. Muuss
+%A L. A. Butler
+%T Combinatorial Solid Geometry, Boundary Representations, and n-Manifold
+Geometry
+%E D. F. Rogers
+%E R. A. Earnshaw
+%B State of the Art in Computer Graphics: Visualization and Modeling
+%I Springer-Verlag
+%C Berlin, Germany
+%D 1991
+%P 185-223
+
+%A I. Navazo
+%A J. Fontdecaba
+%A P. Brunet
+%T Extended Octrees, Between CSG Trees and Boundary Representations
+%E G. Marechal
+%J Eurographics '87
+%I Elsevier North-Holland
+%D 1987
+%P 239-247
+
+%A X. Ni
+%A M. S. Bloor
+%T Performance Evaluation of Boundary Data Structures
+%J IEEE Computer Graphics and Applications
+%V 14
+%N 6
+%D 1994
+%P 66-77
+
+%A J. O'Rourke
+%B Computational Geometry in C
+%I Cambridge University Press
+%C Cambridge, UK
+%D 1994
+
+%A D. P. Peterson
+%T Boundary to Constructive Solid Geometry Mappings: a Focus on 2D
+Issues
+%J Computer-Aided Design
+%V 18
+%N 1
+%D January 1986
+%P 3-14
+
+%A S. Prabhakar
+%A M. R. Henderson
+%T Automatic Form-feature Recognition Using Neural-network-based
+Techniques on Boundary Representations of Solid Models
+%J Computer-Aided Design
+%V 24
+%N 7
+%D July 1992
+%P 381-393
+
+%A F. P. Preparata
+%A M. I. Shamos
+%B Computational Geometry: An Introduction
+%I Springer-Verlag
+%C New York, NY
+%D 1985
+
+%A A. A. G. Requicha
+%T Representation of Rigid Solid Objects
+%E J. L. Encarnacao
+%B Computer Aided Design, Modelling, Systems Engineering, CAD-Systems
+(CREST Advanced Course, Lecture Notes in Computer Science 89)
+%I Springer-Verlag
+%C Berlin, Germany
+%D 1980
+%P 2-78
+
+%A A. A. G. Requicha
+%A J. R. Rossignac
+%T Solid Modeling and Beyond
+%J IEEE Computer Graphics and Applications
+%V 12
+%N 5
+%D September 1992
+%P 31-44
+
+%A A. A. G. Requicha
+%A H. B. Voelcker
+%T Boolean Operations in Solid Modeling: Boundary Evaluation and Merging
+Algorithms
+%J Proceedings of the IEEE
+%V 73
+%N 1
+%D January 1985
+%P 30-44
+
+%A J. Ruppert
+%T A New and Simple Algorithm for Quality Two-Dimensional Mesh
+Generation
+%R Technical Report UCB/CSD 92/694
+%I CS Division (EECS), University of California at Berkeley
+%C Berkeley, CA
+%D 1992
+
+%A H. Sakurai
+%A D. C. Gossard
+%T Recognizing Shape Features in Solid Models
+%J IEEE Computer Graphics and Applications
+%V 10
+%N 5
+%D September 1990
+%P 22-32
+
+%A H. Samet
+%B The Design and Analysis of Spatial Data Structures
+%I Addison-Wesley
+%C Reading, MA
+%D 1990
+
+%A V. Shapiro
+%A D. L. Vossler
+%T Separation for Boundary to CSG Conversion
+%J ACM Transactions on Graphics
+%V 12
+%N 1
+%D January 1993
+%P 35-55
+
+%A C. Sobhanpanah
+%T Extension of a Boundary Representation Technique for the Description
+of N Dimensional Polytopes
+%J Computers and Graphics
+%V 13
+%N 1
+%D January 1989
+%P 17-24
+
+%E W. Strasser
+%E H.-P. Seidel
+%B Theory and Practice of Geometric Modeling
+%I Springer-Verlag
+%C Berlin, Germany
+%D 1989
+
+%A I. A. Stroud
+%T Boundary Modelling with Special Representations
+%J Computer-Aided Design
+%V 26
+%N 7
+%D July 1994
+%P 543-550
+
+%A R. M. Summer
+%T Feature and Face Editing in a Hybrid Solid Modeler
+%E J. Rossignac
+%E J. Turner
+%J Symposium on Solid Modeling Foundations and CAD/CAM Applications
+%I ACM Press
+%C Austin, TX
+%D June 1991
+%P 525
+
+%A T. Suzuki
+%A S. Eguchi
+%A M. Honda
+%A H. Yoshioka
+%A S. Tanimoto
+%T Development of a Surface-and-Solid Modeler for Raw Material Die
+Making
+%E J. Rossignac
+%E J. Turner
+%J Symposium on Solid Modeling Foundations and CAD/CAM Applications
+%I ACM Press
+%C Austin, TX
+%D June 1991
+%P 543
+
+%A T. Takala
+%T Geometric Boundary Modelling without Topological Data Structures
+%E A. A. G. Requicha
+%J Eurographics '86
+%I Elsevier North-Holland
+%D 1986
+%P 115-128
+
+%A Z. Tang
+%A S. Lu
+%T A New Algorithm for Converting Boundary Representation to Octree
+%E D. A. Luce
+%E P. Jancene
+%J Eurographics '88
+%I Elsevier North-Holland
+%D 1988
+%P 105-116
+
+%A M. S. Tawfik
+%T An Efficient Algorithm for CSG to B-Rep Conversion
+%E J. Rossignac
+%E J. Turner
+%J Symposium on Solid Modeling Foundations and CAD/CAM Applications
+%I ACM Press
+%C Austin, TX
+%D June 1991
+%P 99-108
+
+%A J. F. Thompson
+%A Z. U. A. Warsi
+%A C. W. Martin
+%B Numerical Grid Generation: Foundations and Applications
+%I North-Holland
+%C New York, NY
+%D 1985
+
+%A H. Toriya
+%A T. Satoh
+%A K. Ueda
+%A H. Chiyokura
+%T UNDO and REDO Operations for Solid Modeling
+%J IEEE Computer Graphics and Applications
+%V 6
+%N 4
+%D April 1986
+%P 35-42
+
+%A J. U. Turner
+%T Accurate Solid Modeling Using Polyhedral Approximations
+%J IEEE Computer Graphics and  Applications
+%V 8
+%N 3
+%D May 1988
+%P 14-28
+
+%A G. Vanecek Jr.
+%T BRep-Index: A Multidimensional Space Partitioning Tree
+%E J. Rossignac
+%E J. Turner
+%J Symposium on Solid Modeling Foundations and CAD/CAM Applications
+%I ACM Press
+%C Austin, TX
+%D June 1991
+%P 35-44
+
+%A T. Varady
+%A R. R. Martin
+%A J. Vida
+%T Topological Considerations in Blending Boundary Representation Solid
+Models
+%E W. Strasser
+%E H.-P. Seidel
+%B Theory and Practice of Geometric Modeling
+%I Springer-Verlag
+%C Berlin, Germany
+%D 1989
+%P 205-220
+
+%A T. Varady
+%A J. Vida
+%A R. R. Martin
+%T Parametric Blending in a Boundary Representation Solid Modeller
+%E D. C. Handscomb
+%B The Mathematics of Surfaces III (Institute of Mathematics and Its
+Applications Conference, Oxford, September 1988)
+%I Clarendon Press
+%C Oxford, UK
+%D 1989
+%P 171-198
+
+%A K. Weiler
+%T Edge-Based Data Structures for Solid Modeling in Curved-Surface
+Environments
+%J IEEE Computer Graphics and Applications
+%V 5
+%N 1
+%D 1985
+%P 21-40
+
+%A K. Weiler
+%T Topological Structures for Geometric Modeling
+%R Ph.D. thesis
+%I Computer and System Engineering, Rennselaer Polytechnic Institute
+%C Troy, NY
+%D 1986
+
+%A P. R. Wilson
+%T Euler Formulas and Geometric Modeling
+%J IEEE Computer Graphics and Applications
+%V 5
+%N 3
+%D 1985
+%P 24-36
+
+%A P. R. Wilson
+%T Solid Modeling Research and Applications in the USA
+%E M. Wozny
+%E J. Encarnacao
+%E H. McLaughlin
+%B Geometric Modeling for CAD Applications
+%I Elsevier North-Holland
+%C Amsterdam, The Netherlands
+%D 1988
+
+%A T. C. Woo
+%T Interfacing Solid Modeling to CAD and CAM: Data Structures and
+Algorithms for Decomposing a Solid
+%J Computer
+%V 17
+%N 12
+%D December 1984
+%P 44-49
+
+%A T. C. Woo
+%T A Combinatorial Analysis of Boundary Data Structure Schemata
+%J IEEE Computer Graphics and Applications
+%V 5
+%N 3
+%D 1985
+%P 21-40
+
+%A T. C. Woo
+%A J. D. Wolter
+%T A Constant Expected Time, Linear Storage Data Structure for
+Representing Three-Dimensional Objects
+%J IEEE Transactions on Systems, Man and Cybernetics
+%V SMC-14
+%N 3
+%D May/June 1984
+%P 510-515
+
+%A S.-T. Wu
+%T A New Combinatorial Model for Boundary Representations
+%J Computers and Graphics
+%V 13
+%N 4
+%D 1989
+%P 477-486
+
+%A Y. Yamaguchi
+%A F. Kimura
+%T Nonmanifold Topology Based on Coupling Entities
+%J IEEE Computer Graphics and Applications
+%V 15
+%N 1
+%D January 1995
+%P 42-50
+

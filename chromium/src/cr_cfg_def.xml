@@ -1,0 +1,16 @@
+<config>
+ <icon>
+  <size>
+   <value>32</value>
+   <description>Size of toolbar icons</description>
+  </size>
+ </icon>
+ <file>
+  <history>
+    <size>
+     <value>10</value>
+     <description>Number of files in the visited files history</description>
+    </size>
+  </history>
+ </file>
+</config>

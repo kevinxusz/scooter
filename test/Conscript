@@ -27,7 +27,7 @@
 Import qw(BLIB toolset options);
 
 Build map( "$_/Conscript", 
-	   qw( calculus geometry iterators dcel bezier ) );
+	   qw( calculus geometry iterators dcel bezier cfg ) );
 
 #
 # Conscript -- end of file

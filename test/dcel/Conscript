@@ -37,7 +37,7 @@ our $INCLUDE    = [ "%STLPORT_INCLUDE",
 
 our $DEFINE     = [ "%STLPORT_DEFINE", "%BOOST_DEFINE", "-D_TRACE" ];
 our $LIBPATH    = [ "$BLIB/lib", "%STLPORT_LIB", "%BOOST_LIB" ];
-our $LIBS       = q(-ldgd -lboost_regex-mgw-s);
+our $LIBS       = q(-ldgd -lboost_regex%BOOST_LIB_SUFFIX);
 
 map { $ruleset->{'CXXFLAGS'} .= " $_" } @$DEFINE;
 

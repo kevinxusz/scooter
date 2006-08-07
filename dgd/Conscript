@@ -38,6 +38,8 @@ our $BUILD      = $toolset->option( 'build' );
 our $INCLUDE    = [ "..", "%STLPORT_INCLUDE", "%BOOST_INCLUDE", 
 		    "$BLIB/include" ];
 
+#$ruleset->{'CXXFLAGS'} .= " -DDGD_INTERNAL_DEBUG=1";
+
 Link $BUILD => 'src';
 
 our $buildenv   = new cons( %{$ruleset},

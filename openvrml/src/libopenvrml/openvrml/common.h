@@ -30,7 +30,7 @@ namespace openvrml {
     const double inv_pi = 0.31830988618379067154;
 }
 
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(__MINGW32__)
 #pragma warning( disable : 4290 )
 #pragma warning( disable : 4250 )
 #pragma warning( disable : 4231 )

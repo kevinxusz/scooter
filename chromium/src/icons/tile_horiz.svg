@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="100%" height="100%" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd"
+viewBox="0 0 500 500"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+    <linearGradient id="id0" gradientUnits="userSpaceOnUse" x1="260.407" y1="108.394" x2="481.456" y2="108.394">
+     <stop offset="0" stop-color="darkslateblue"/>
+     <stop offset="0.368627" stop-color="#A39EC5"/>
+     <stop offset="1" stop-color="white"/>
+    </linearGradient>
+    <radialGradient id="id1" gradientUnits="userSpaceOnUse" cx="273.684" cy="164.057" r="151.925" fx="273.684" fy="164.057">
+     <stop offset="0" stop-color="#B6DDC7"/>
+     <stop offset="1" stop-color="white"/>
+    </radialGradient>
+    <linearGradient id="id2" gradientUnits="userSpaceOnUse" x1="469.104" y1="122.091" x2="435.227" y2="89.4984">
+     <stop offset="0" stop-color="yellowgreen"/>
+     <stop offset="1" stop-color="white"/>
+    </linearGradient>
+    <linearGradient id="id3" gradientUnits="userSpaceOnUse" x1="387.008" y1="92.2724" x2="415.779" y2="119.317">
+     <stop offset="0" stop-color="yellowgreen"/>
+     <stop offset="1" stop-color="white"/>
+    </linearGradient>
+    <radialGradient id="id4" gradientUnits="userSpaceOnUse" cx="291.961" cy="97.6398" r="16.8118" fx="291.961" fy="97.6398">
+     <stop offset="0" stop-color="white"/>
+     <stop offset="1" stop-color="firebrick"/>
+    </radialGradient>
+    <linearGradient id="id5" gradientUnits="userSpaceOnUse" x1="17.5886" y1="108.394" x2="238.637" y2="108.394">
+     <stop offset="0" stop-color="darkslateblue"/>
+     <stop offset="0.368627" stop-color="#A39EC5"/>
+     <stop offset="1" stop-color="white"/>
+    </linearGradient>
+    <radialGradient id="id6" gradientUnits="userSpaceOnUse" cx="30.8654" cy="164.057" r="151.925" fx="30.8654" fy="164.057">
+     <stop offset="0" stop-color="#B6DDC7"/>
+     <stop offset="1" stop-color="white"/>
+    </radialGradient>
+    <linearGradient id="id7" gradientUnits="userSpaceOnUse" x1="226.285" y1="122.091" x2="192.409" y2="89.4984">
+     <stop offset="0" stop-color="yellowgreen"/>
+     <stop offset="1" stop-color="white"/>
+    </linearGradient>
+    <linearGradient id="id8" gradientUnits="userSpaceOnUse" x1="144.19" y1="92.2724" x2="172.961" y2="119.317">
+     <stop offset="0" stop-color="yellowgreen"/>
+     <stop offset="1" stop-color="white"/>
+    </linearGradient>
+    <radialGradient id="id9" gradientUnits="userSpaceOnUse" cx="49.1429" cy="97.6398" r="16.8118" fx="49.1429" fy="97.6398">
+     <stop offset="0" stop-color="white"/>
+     <stop offset="1" stop-color="firebrick"/>
+    </radialGradient>
+ </defs>
+ <g id="Layer_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_59654712">
+   <path id="_59663096" fill="#1F1A17" fill-rule="nonzero" d="M489.522 139.582l0 278.344 0 0.00314961 -0.015748 0.0744094c-0.015748,1.84803 -0.503937,3.49291 -1.27953,4.66339 -0.72874,1.09961 -1.71063,1.78661 -2.80787,1.83307l-0.0944882 0.0248031 -0.00433071 0 -228.777 0 -0.0023622 0 -0.0472441 -0.0248031c-1.12323,-0.0228346 -2.14488,-0.737795 -2.89016,-1.88583l-0.000393701 0.000787402 -0.0122047 -0.0192913 -0.00354331 -0.00511811c-0.738976,-1.15039 -1.19961,-2.71063 -1.23071,-4.48425l-0.015748 -0.174016 0 -0.00629921 0 -278.344 8.08228 0 0 272.237 221.017 0 0 -272.237 8.08189 0z"/>
+   <path id="_59661592" fill="#1F1A17" fill-rule="nonzero" d="M264.561 64.5248l212.74 0 0.0023622 0 0 0.0248031c3.34173,0.000787402 6.38071,2.08976 8.58543,5.45315 2.23031,3.40276 3.61535,8.1252 3.61693,13.3461l0.015748 0 0 0.00629921 0 58.9024 -8.08189 0 0 -58.9024 0 -0.00629921 0.015748 0c-0.000393701,-1.63622 -0.455118,-3.14843 -1.18661,-4.26417 -0.759449,-1.15866 -1.80984,-1.87913 -2.96535,-1.87953l0 0.0248031 -0.0023622 0 -212.74 0 -0.00433071 0 0 -0.0248031c-1.15433,0.000787402 -2.20315,0.720079 -2.9622,1.87717 -0.732283,1.11693 -1.1878,2.6315 -1.1878,4.26969l0.015748 0 0 0.00314961 0 58.9024 -8.08228 0 0 -58.9024 0 -0.00314961 0.015748 0c0.0011811,-5.22244 1.38701,-9.94764 3.6189,-13.3516 2.20394,-3.36102 5.24213,-5.44843 8.58189,-5.45079l0 -0.0248031 0.00433071 0z"/>
+   <rect id="_59660640" fill="black" stroke="black" stroke-width="0.3" x="260.423" y="139.582" width="221.017" height="5.82534"/>
+   <path id="_59659424" fill="url(#id0)" stroke="darkslateblue" stroke-width="0.3" d="M477.302 77.2299l0 0zm-216.879 6.1252l0 0zm0 56.2272l221.017 0 0 -56.2272 0 -0.00629921 0.015748 0c-0.000393701,-1.63622 -0.455118,-3.14843 -1.18661,-4.26417 -0.759449,-1.15866 -1.80984,-1.87913 -2.96535,-1.87953l-0.0023622 0.0248031 -212.74 0 -0.00433071 0 0 -0.0248031c-1.15433,0.000787402 -2.20315,0.720079 -2.9622,1.87717 -0.732283,1.11693 -1.1878,2.6315 -1.1878,4.26969l0.015748 0.00314961 0 56.2272z"/>
+   <polygon id="_59658408" fill="url(#id1)" stroke="mediumturquoise" stroke-width="0.3" points="481.44,145.407 260.423,145.407 260.423,411.82 481.44,411.82 "/>
+   <rect id="_59657424" fill="url(#id2)" stroke="yellowgreen" stroke-width="0.3" x="435.242" y="89.4837" width="33.848" height="32.6219"/>
+   <rect id="_59656440" fill="url(#id3)" stroke="yellowgreen" stroke-width="0.3" x="384.47" y="89.4837" width="33.848" height="32.6219"/>
+   <ellipse id="_59654832" fill="url(#id4)" stroke="firebrick" stroke-width="0.3" cx="299.28" cy="106.96" rx="19.2583" ry="18.6411"/>
+  </g>
+  <g id="_59645136">
+   <path id="_59653496" fill="#1F1A17" fill-rule="nonzero" d="M246.704 139.582l0 278.344 0 0.00314961 -0.015748 0.0744094c-0.015748,1.84803 -0.503937,3.49291 -1.27953,4.66339 -0.72874,1.09961 -1.71063,1.78661 -2.80787,1.83307l-0.0944882 0.0248031 -0.00433071 0 -228.777 0 -0.0023622 0 -0.0472441 -0.0248031c-1.12323,-0.0228346 -2.14488,-0.737795 -2.89016,-1.88583l-0.000393701 0.000787402 -0.0122047 -0.0192913 -0.00354331 -0.00511811c-0.738976,-1.15039 -1.19961,-2.71063 -1.23071,-4.48425l-0.015748 -0.174016 0 -0.00629921 0 -278.344 8.08228 0 0 272.237 221.017 0 0 -272.237 8.08189 0z"/>
+   <path id="_59652128" fill="#1F1A17" fill-rule="nonzero" d="M21.7429 64.5248l212.74 0 0.0023622 0 0 0.0248031c3.34173,0.000787402 6.38071,2.08976 8.58543,5.45315 2.23031,3.40276 3.61535,8.1252 3.61693,13.3461l0.015748 0 0 0.00629921 0 58.9024 -8.08189 0 0 -58.9024 0 -0.00629921 0.015748 0c-0.000393701,-1.63622 -0.455118,-3.14843 -1.18661,-4.26417 -0.759449,-1.15866 -1.80984,-1.87913 -2.96535,-1.87953l0 0.0248031 -0.0023622 0 -212.74 0 -0.00433071 0 0 -0.0248031c-1.15433,0.000787402 -2.20315,0.720079 -2.9622,1.87717 -0.732283,1.11693 -1.1878,2.6315 -1.1878,4.26969l0.015748 0 0 0.00314961 0 58.9024 -8.08228 0 0 -58.9024 0 -0.00314961 0.015748 0c0.0011811,-5.22244 1.38701,-9.94764 3.6189,-13.3516 2.20394,-3.36102 5.24213,-5.44843 8.58189,-5.45079l0 -0.0248031 0.00433071 0z"/>
+   <rect id="_59651176" fill="black" stroke="black" stroke-width="0.3" x="17.6043" y="139.582" width="221.017" height="5.82534"/>
+   <path id="_59649792" fill="url(#id5)" stroke="darkslateblue" stroke-width="0.3" d="M234.483 77.2299l0 0zm-216.879 6.1252l0 0zm0 56.2272l221.017 0 0 -56.2272 0 -0.00629921 0.015748 0c-0.000393701,-1.63622 -0.455118,-3.14843 -1.18661,-4.26417 -0.759449,-1.15866 -1.80984,-1.87913 -2.96535,-1.87953l-0.0023622 0.0248031 -212.74 0 -0.00433071 0 0 -0.0248031c-1.15433,0.000787402 -2.20315,0.720079 -2.9622,1.87717 -0.732283,1.11693 -1.1878,2.6315 -1.1878,4.26969l0.015748 0.00314961 0 56.2272z"/>
+   <polygon id="_59648776" fill="url(#id6)" stroke="mediumturquoise" stroke-width="0.3" points="238.622,145.407 17.6043,145.407 17.6043,411.82 238.622,411.82 "/>
+   <rect id="_59647792" fill="url(#id7)" stroke="yellowgreen" stroke-width="0.3" x="192.423" y="89.4837" width="33.848" height="32.6219"/>
+   <rect id="_59646824" fill="url(#id8)" stroke="yellowgreen" stroke-width="0.3" x="141.651" y="89.4837" width="33.848" height="32.6219"/>
+   <ellipse id="_59645360" fill="url(#id9)" stroke="firebrick" stroke-width="0.3" cx="56.4612" cy="106.96" rx="19.2583" ry="18.6411"/>
+  </g>
+ </g>
+</svg>

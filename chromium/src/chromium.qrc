@@ -1,0 +1,28 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+<qresource>
+    <file>icons/cascade.svg</file>
+    <file>icons/exit.svg</file>
+    <file>icons/export.svg</file>
+    <file>icons/folder.svg</file>
+    <file>icons/help_baloon.svg</file>
+    <file>icons/help_book.svg</file>
+    <file>icons/new.svg</file>
+    <file>icons/open.svg</file>
+    <file>icons/close.svg</file>
+    <file>icons/save.svg</file>
+    <file>icons/saveas.svg</file>
+    <file>icons/tile_horiz.svg</file>
+    <file>icons/tile_vert.svg</file>
+    <file>icons/window.svg</file>
+    <file>icons/logo.svg</file>
+    <file>icons/objects.svg</file>
+    <file>icons/wireframe.svg</file>
+    <file>icons/flat.svg</file>
+    <file>icons/phong.svg</file>
+    <file>icons/center.svg</file>
+    <file>icons/culling.svg</file>
+    <file>icons/texture.svg</file>
+    <file>cr_cfg_def.xml</file> 
+</qresource>
+</RCC>

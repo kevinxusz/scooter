@@ -822,7 +822,7 @@ common_typename Matrix<FloatValue,ComparableValue>::Vector
 Matrix<FloatValue,ComparableValue>::operator *= ( 
    const common_typename 
                  Matrix<FloatValue,ComparableValue>::Vector& peer ) const {
-   return Matrix<FloatValue,ComparableValue>::Vector( 
+   return common_typename Matrix<FloatValue,ComparableValue>::Vector( 
       peer.x()*_m00 + peer.y()*_m01 + peer.z()*_m02 + peer.w()*_m03,
       peer.x()*_m10 + peer.y()*_m11 + peer.z()*_m12 + peer.w()*_m13,
       peer.x()*_m20 + peer.y()*_m21 + peer.z()*_m22 + peer.w()*_m23,
@@ -999,7 +999,7 @@ operator *( const Matrix<FloatValue,ComparableValue>& m,
 	    const common_typename 
 	                Matrix<FloatValue,ComparableValue>::Vector& v ) {
    return Matrix<FloatValue,ComparableValue>(m) *= 
-      Matrix<FloatValue,ComparableValue>::Vector(v);
+      common_typename Matrix<FloatValue,ComparableValue>::Vector(v);
 }
 
 template <class FloatValue, class ComparableValue>
@@ -1007,7 +1007,13 @@ Matrix<FloatValue,ComparableValue>
 translate( const Matrix<FloatValue,ComparableValue>& m, 
 	   const common_typename 
 	                Matrix<FloatValue,ComparableValue>::Vector& v ) {
-   return translate( Matrix<FloatValue,ComparableValue>(m), v );
+   Matrix<FloatValue,ComparableValue> tmp(m);
+   Matrix<FloatValue,ComparableValue> trans( v.w(), 0.0, 0.0, v.x(),
+					     0.0, v.w(), 0.0, v.y(),
+					     0.0, 0.0, v.w(), v.z(),
+					     0.0, 0.0, 0.0,   v.w() );
+   tmp *= trans;
+   return tmp;
 }
 
 template <class FloatValue, class ComparableValue>

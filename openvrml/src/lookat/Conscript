@@ -47,7 +47,7 @@ our $LIBS       = join( ' ' , qw( -lopenvrml
 				  -lopengl32 
 				  -lglu32
 				  -lglut32 
-				  -lboost_regex-mgw-s ) );
+				  -lboost_regex%BOOST_LIB_SUFFIX ) );
 
 
 Link $BUILD => '.';

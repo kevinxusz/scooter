@@ -31,54 +31,50 @@ Import qw(BLIB toolset options);
 my $ruleset  = $toolset->env();
 die if( !defined( $ruleset ) );
 
-$ruleset->{'LDFLAGS'} .= " -subsystem:windows";
+$ruleset->{'LDFLAGS'} .= q( -mthreads -Wl,-enable-stdcall-fixup -Wl,-enable-auto-import -Wl,-enable-runtime-pseudo-reloc -Wl,-subsystem,console);
 
 our $BUILD      = $toolset->option( 'build' );
-our $INCLUDE    = [ "%STLPORT_INCLUDE", 
-		    "%BOOST_INCLUDE",
-		    "$BLIB/include",
-		    "." ];
+our $INCLUDE    = join( ';', 
+			( "..",
+			  "%STLPORT_INCLUDE", 
+			  "%BOOST_INCLUDE",
+			  "%QT_INCLUDE",
+			  "$BLIB/include" )
+		       );
 
-our $DEFINE     = [ "%STLPORT_DEFINE", "%BOOST_DEFINE", "-D_TRACE" ];
-our $LIBPATH    = [ "$BLIB/lib", "%STLPORT_LIB", "%BOOST_LIB", 
-		    "%ZLIB_LIB", "%JPEG_LIB", "%LIBPNG_LIB" ];
+our $DEFINE     = [ "%STLPORT_DEFINE", 
+		    "%BOOST_DEFINE", 
+		    "%QT_DEFINE",
+		    "-D_TRACE" ];
+
+ our $LIBPATH    = [ "$BLIB/lib", 
+		     "%STLPORT_LIB", 
+		     "%BOOST_LIB", 
+		     "%QT_LIB" ];
+
 our $LIBS       = join( ' ' , qw( -ldgd
-				  -lwxcommon
-				  -lwxgeneric 
-				  -lwxregex
-				  -lwxhtml
-				  -lwxmsw
-				  -lantlr 
 				  -lopenvrml 
-				  -lopenvrml-gl
-				  -lzlib 
-				  -llibjpeg 
-				  -llibpng
-				  -lkernel32 
-				  -luser32
-				  -lgdi32
-				  -lcomdlg32
-				  -lwinspool
-				  -lwinmm
-				  -lshell32
-				  -loldnames
-				  -lcomctl32
-				  -lodbc32
-				  -lole32
-				  -loleaut32
-				  -luuid
-				  -lrpcrt4
-				  -ladvapi32
+				  -lantlr
+				  -lqtmain
+				  -lQtCore4
+				  -lQtGui4
+				  -lQt3Support4
+				  -lQtOpenGL4
+				  -lQtSvg4
+				  -lQtXml4
+				  -ljpeg 
+				  -lpng
 				  -lwsock32 
-				  -lopengl32
-				  -lglu32 ) );
-
-our $version    = Cons::VersionControl->open(); 
+				  -lopengl32 
+				  -lglu32
+				  -lboost_regex%BOOST_LIB_SUFFIX
+				  -lzlib ) );
+				  
+our $version    = Cons::VersionControl->open();
 
 map { $ruleset->{'CXXFLAGS'} .= " $_" } @$DEFINE;
 
 Link $BUILD => 'src';
-
 
 our $buildenv   = new cons( %{$ruleset},
 			   'CPPPATH' => $INCLUDE,
@@ -88,7 +84,10 @@ our $buildenv   = new cons( %{$ruleset},
 my $TARGET = "$BUILD/cr%{SUFEXE}";
 
 Command $buildenv "$BUILD/chromiumres%SUFOBJ", "src/chromium.rc",
-  qq(%RC -r -Iblib/include -fo%> %<);
+  qq(%RC --use-temp-file -v -Iblib/include -Ichromium/$BUILD -Ichromium/src %< -o %>);
+
+Command $buildenv "$BUILD/%{PREFQRC}chromium.cpp", "src/chromium.qrc",
+  qq(%QRC -name chromium %< -o %>);
 
 KeepPrecious $buildenv $TARGET;
 AfterBuild $buildenv $TARGET, q( 
@@ -97,31 +96,79 @@ AfterBuild $buildenv $TARGET, q(
      print "AfterBuild: version incremented to " . $version->string() . "...\n"
   }
 );
+
 Program $buildenv $TARGET, 
-  map( "$BUILD/$_", qw( crApp.cpp 
-			crEvent.cpp
-			crMainWindow.cpp 
-			crVRMLControl.cpp
-			crVRMLEditCtrl.cpp
-			crVRMLCanvas.cpp
-			crVRMLViewer.cpp
-			crVRMLEditor.cpp			
-			crVRMLLoader.cpp
-			crVRMLDocument.cpp
-			crVRMLDocView.cpp
-			crDebugConsole.cpp
-			crStreamToText.cpp
-			crMainStatusBar.cpp
-			crMainControlPanel.cpp
-			crMesh.cpp
-			crMeshControl.cpp
-			crVRMLTree.cpp
-			crToggleGroup.cpp
+  map( "$BUILD/$_", qw( cr_main.cpp
+			cr_cfg_opt.cpp
+			cr_cfg.cpp
+			cr_svg.cpp
+			cr_portal.cpp
+			cr_vrml_loader.cpp
+			cr_document.cpp
+			cr_vrml_control.cpp
+			cr_vrml_scene_map.cpp
+			cr_vrml_scene_model.cpp
+			cr_vrml_scene_item.cpp
+			cr_vrml_scene_tree.cpp
+			%{PREFMOC}cr_cfg.cpp
+			%{PREFMOC}cr_portal.cpp
+			%{PREFMOC}cr_vrml_loader.cpp
+			%{PREFMOC}cr_document.cpp
+			%{PREFMOC}cr_vrml_control.cpp
+			%{PREFMOC}cr_vrml_scene_model.cpp
+			%{PREFMOC}cr_vrml_scene_tree.cpp
+			%{PREFQRC}chromium.cpp
 			chromiumres%SUFOBJ ) );
+
+map {
+    my $src = $_;
+    my $tgt = $src;
+    $tgt =~ s/\.h$/.cpp/;
+    Command $buildenv $BUILD . '/%{PREFMOC}' . $tgt, "$BUILD/$src", q(%MOCCOM);
+} qw( cr_cfg.h 
+      cr_portal.h
+      cr_vrml_loader.h
+      cr_document.h
+      cr_vrml_control.h
+      cr_vrml_scene_model.h
+      cr_vrml_scene_tree.h );
 
 Install $buildenv "$BLIB/bin", $TARGET;
 
 
+if( defined($ruleset->{'CLOXXCOM'}) ) {
+    Command $buildenv [ "$BUILD/cr_cfg_opt.h", 
+			"$BUILD/cr_cfg_opt.cpp" ], 
+			  "$BUILD/cr_cfg_opt.xml",
+			    qq(#%CLOXXCOM# -Dcxx_header_file=%<:b.h ) .
+			    qq(-Dcxx_include_files=cr_config.h ) .
+			    qq(-Dcxx_namespace=cr_cfg ) . 
+			    qq(-Dcxx_source_file=%<:b.cpp -o c++ %<);
+}
+
+map {
+    my $src = "$BUILD/$_";
+    my $tgt = $src;
+    $tgt =~ s/.in$//i;
+    Command $buildenv $tgt, $src, "$BLIB/config/config-local.dpo",
+      q([perl] template_apply( '%>', qw(%<) ); );
+} qw( cr_config.h.in );
+
+sub template_apply {
+    my ($tgt, $src, $dpo) = @_;
+
+    my $config = eval( "do '$dpo';" );    
+    if( $@ ) {
+	say( "error: cant load $dpo: $@" );
+	return 0;
+    }
+	
+    our $params = { 'version' => \$version, 
+		    'toolset' => \$toolset,
+		    'config' => \$config };
+    my $rc = Cons::Template->apply( $tgt, $src, $params );
+    return $rc;
+}
 
 #
 # Conscript -- end of file

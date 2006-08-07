@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="5in" height="5in" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd"
+viewBox="0 0 500 500"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+   <linearGradient id="id0" gradientUnits="userSpaceOnUse" x1="284.606" y1="318.174" x2="23.0394" y2="53.2102">
+    <stop offset="0" stop-color="yellowgreen"/>
+    <stop offset="0.611765" stop-color="#CCE698"/>
+    <stop offset="1" stop-color="white"/>
+   </linearGradient>
+   <radialGradient id="id1" gradientUnits="userSpaceOnUse" cx="328.194" cy="187.718" r="130.323" fx="328.194" fy="187.718">
+    <stop offset="0" stop-color="white"/>
+    <stop offset="1" stop-color="#E3556A"/>
+   </radialGradient>
+   <linearGradient id="id2" gradientUnits="userSpaceOnUse" x1="408.599" y1="386.721" x2="217.694" y2="295.332">
+    <stop offset="0" stop-color="#007CC3"/>
+    <stop offset="0.631373" stop-color="#6FADD0"/>
+    <stop offset="1" stop-color="#DEDEDD"/>
+   </linearGradient>
+ </defs>
+ <g id="Layer_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <rect fill="url(#id0)" stroke="mediumturquoise" stroke-width="0.3" x="22.3622" y="48.5406" width="262.922" height="274.304"/>
+  <ellipse fill="url(#id1)" stroke="mediumturquoise" stroke-width="0.3" cx="366.095" cy="234.634" rx="126.339" ry="130.322"/>
+  <path fill="url(#id2)" fill-rule="nonzero" stroke="mediumturquoise" stroke-width="0.3" d="M265.365 207.887l0 0 139.428 274.873 -278.856 0 139.428 -274.873zm0 0m69.7142 137.436m-69.7142 137.437m-69.7138 -137.437"/>
+ </g>
+</svg>
