@@ -2325,7 +2325,7 @@ class Toucher: public openvrml::node_traverser {
 
    private:
       void on_entering(openvrml::node &node) {
-	 openvrml::vrml97_node::abstract_geometry_node 
+//	 openvrml::vrml97_node::abstract_geometry_node 
       }
 };
 
