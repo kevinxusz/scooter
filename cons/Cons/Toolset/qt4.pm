@@ -147,6 +147,7 @@ sub basic_ruleset {
 	'QRC'           => 'rcc',
 	'QRCFLAGS'      => '',
 	'QRCCOM'        => '%QRC %QRCFLAGS %< -o %>',
+	'QT_ROOT'       => $install_dir,
 	'QT_INCLUDE'    => $install_dir . '/include',
 	'QT_LIB'        => $install_dir . "/lib",
 	'QT_DEFINE'     => "-DUNICODE -DQT_LARGEFILE_SUPPORT -DQT_DLL " .

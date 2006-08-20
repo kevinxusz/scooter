@@ -1,0 +1,89 @@
+# -*- CPerl -*-
+#
+# $Id$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# This file is a part of the Scooter project. 
+#
+# Copyright (c) 2006. Dimitry Kloper <dimka@cs.technion.ac.il> . 
+# Technion, Israel Institute of Technology. Computer Science Department.
+#
+# Conscript -- build file for scooter/dist/win32
+#
+
+use Cons::VersionControl;
+
+Import qw(BLIB toolset options);
+
+my $ruleset  = $toolset->env();
+die if( !defined( $ruleset ) );
+
+our $BUILD      = $toolset->option( 'build' );
+our $version    = Cons::VersionControl->open();
+
+Link $BUILD => 'src';
+
+our $buildenv   = new cons( %{$ruleset} );
+
+my $TARGET = "$BUILD/scooter-" . $version->string() . "%{SUFEXE}";
+my $QT4DIR = $ruleset->{'QT_ROOT'};
+my $src_execs = [
+    "../../blib/bin/cr.exe",
+    "$QT4DIR/bin/Qt3Support4.dll",
+    "$QT4DIR/bin/QtCore4.dll",
+    "$QT4DIR/bin/QtGui4.dll",
+    "$QT4DIR/bin/QtNetwork4.dll",
+    "$QT4DIR/bin/QtOpenGL4.dll",
+    "$QT4DIR/bin/QtSvg4.dll",
+    "$QT4DIR/bin/QtXml4.dll",
+    "$QT4DIR/bin/mingwm10.dll" 
+];
+
+my $src_extras = [
+    "../../COPYING",
+];
+
+my $dst_execs = [];
+
+map {
+    my ($vol, $dir, $tgt) = File::Spec->splitpath($_);
+    if( $tgt ) {
+	push @$dst_execs, "$BUILD/$tgt";
+	Command $buildenv "$BUILD/$tgt", $_,
+	  qq([perl] File::Copy::copy( '%<', '%>' )
+             strip %>
+          );
+    }
+} @$src_execs;
+
+map {
+    my ($vol, $dir, $tgt) = File::Spec->splitpath($_);
+    push @$dst_extras, "$BUILD/$tgt";
+    Install $buildenv "$BUILD", $_;
+} @$src_extras;
+
+Command $buildenv $TARGET, "$BUILD/scooter.nsi", @$dst_execs, @$dst_extras,
+  qq(%NSISCOM /DOUTFILE=%>:f /DPRODUCT_VERSION=) . $version->string() . 
+  qq( %1);
+
+KeepPrecious $buildenv $TARGET;
+
+Install $buildenv "$BLIB/dist", $TARGET;
+
+#
+# Conscript -- end of file
+#
+

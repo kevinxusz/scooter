@@ -211,6 +211,10 @@ $param::quiet = 0;		# should we show the command being executed.
 #
 $indent = '';
 
+sub debug_hook {
+    print "debug_hook\n";
+}
+
 # Display a command while executing or otherwise. This
 # should be called by command builder action methods.
 sub showcom {

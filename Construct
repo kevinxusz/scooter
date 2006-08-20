@@ -44,7 +44,7 @@ our $BLIB    = "#blib";
 
 die if( !defined( $toolset ) );
 
-my @liblist = qw(cons/config zlib libpng libjpeg dgd common chromium) ;
+my @liblist = qw(cons/config zlib libpng libjpeg dgd common chromium dist) ;
 
     
 map { 
