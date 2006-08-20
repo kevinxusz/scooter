@@ -1,0 +1,19 @@
+<%attr>
+short => "Home"
+brief => "Dgcons Home Page"
+title => "Dgcons Home Page"
+</%attr>
+
+<%args>
+$config
+</%args>
+
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+
+<td valign="top" style="padding-right: 20px;">
+<&/dgcons/readme&>
+</td>
+
+</tr>
+</table>

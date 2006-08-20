@@ -1,0 +1,9 @@
+<%attr>
+short => "Download"
+brief => "Download dgcons"
+title => "Download dgcons at Sourceforge.net"
+dummy => 1
+</%attr>
+
+https://sourceforge.net/project/showfiles.php?group_id=174034
+

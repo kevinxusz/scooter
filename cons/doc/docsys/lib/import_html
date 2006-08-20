@@ -1,0 +1,14 @@
+<%args>
+$file
+</%args>
+
+% use HTML::Tree;
+% my $tree = HTML::TreeBuilder->new_from_file( $file );
+
+% die "Can't parse HTML file $file" if( !$tree );
+
+% my $body_node = $tree->find_by_tag_name( 'body' );
+
+% die "No body node" if( !$body_node );
+
+<% $body_node->as_HTML() %>

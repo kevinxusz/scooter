@@ -1,0 +1,38 @@
+<%once> 
+my $config;
+</%once>
+
+<%init>
+
+# last change: 13/08/2006 
+
+$config = {
+    "name"       => "dgcons",
+    "long_name"  => "dgcons build tool",
+    "logo"       => "dgcons_logo.gif",
+    "version"    => "0.1.0.1",
+    "page"       => "/dgcons/page",
+    "image_dir"  => "images",
+    "style_dir"  => "style",
+    "html_dir"   => "html",
+    "style_comp" => "/dgcons/style.css",
+    "colorscheme" => "#ffeeee",
+    "copy_asis"  => { "images/*" => "html/images/\$basename" },
+    "sitemap"  => [ "/dgcons/home",
+		    "/dgcons/sourceforge",
+                    "/dgcons/download", 
+		    "/dgcons/svn_on_sf",
+		    "/dgcons/style.css" ],
+    "navitems" => [ "/dgcons/home", 
+		    "/dgcons/download", 
+		    "/dgcons/sourceforge", 
+		    "/dgcons/svn_on_sf" ]
+    };
+
+</%init>
+
+<%perl>
+
+return $config;
+
+</%perl>

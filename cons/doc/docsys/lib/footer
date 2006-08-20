@@ -1,0 +1,36 @@
+<%args>
+$config
+</%args>
+
+<div align="center">
+<table align="center" width="100%">
+<tr align="center">
+<td>
+<a href="http://sourceforge.net"><img 
+    src="http://sourceforge.net/sflogo.php?group_id=174034&amp;type=1" 
+    width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
+<a href="http://www.masonhq.com/"><img width="88" height="31" border="0"
+    src="<&/lib/local, $config, 'powered_by_mason.jpg' &>" 
+         alt="Powered by Mason"></a>
+<a href="http://www.perl.org/"><img width="88" height="31" border="0"
+    src="<&/lib/local, $config, 'download_perl.gif' &>" 
+         alt="Powered by Perl"></a>
+</td>
+</tr>
+<tr>	      
+<td align="center" >
+<small>
+Web design derived from <a href="http://www.oswd.org/viewdesign.phtml?id=1027&referer=/browse.php?page=1&sort=ratingdesc">Pasilda design</a> found on www.oswd.org.<br>
+Copyright (c) 2002-2006. Dimitry Kloper 
+&lt;kloper@users.sourceforge.net&gt;
+<br>
+</small>
+</td>
+<br> 
+</tr>
+</table>
+</div>
+
+
+</body>
+</html>

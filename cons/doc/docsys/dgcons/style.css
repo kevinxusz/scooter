@@ -1,0 +1,156 @@
+<%args>
+$config
+</%args>
+
+<%attr>
+standalone => 1
+hidden => 1
+</%attr>
+
+dt {
+ font-weight: bold;
+}
+
+body {
+ font-family: Verdana, Arial, Helvetica, sans-serif;
+ font-size: xx-small;
+ font-weight: normal;
+ margin: 0px;
+ padding: 0px;
+ background-color: <&/lib/color, $config->{"colorscheme"}, 90 &>;
+}
+
+table {
+ font-family: Verdana, Arial, Helvetica, sans-serif;
+ font-size: x-small;
+ color: <&/lib/color, $config->{"colorscheme"}, 10 &>;
+}
+
+pre {
+ font-size: x-small;
+}
+
+code {
+ font-size: x-small;
+ background-color: <&/lib/color, $config->{"colorscheme"}, 100 &>;
+}
+
+h1 {
+ font-family: Times New Roman, serif;
+ font-size: x-large;
+ font-weight: bold;
+ color: <&/lib/color, $config->{"colorscheme"}, 10 &>;
+}
+
+h2 {
+ font-family: Verdana, Arial, Helvetica, sans-serif;
+ font-size: x-large;
+ font-weight: bold;
+ color: <&/lib/color, $config->{"colorscheme"}, 10 &>;
+}
+
+h2 {
+ font-family: Verdana, Arial, Helvetica, sans-serif;
+ font-size: large;
+ font-weight: bold;
+ color: <&/lib/color, $config->{"colorscheme"}, 10 &>;
+}
+
+a.navlink {
+ font-family: Verdana, Arial, Helvetica, sans-serif;
+ font-size: 80%;
+ font-weight: normal;
+ text-decoration: none;
+ color: <&/lib/color, "white", 90 &>;
+}
+
+a.navlink:link {
+ text-decoration: none;
+ color: <&/lib/color, "white", 90 &>;
+}
+
+a.navlink:visited {
+ text-decoration: none;
+ color: <&/lib/color, "white", 90 &>;
+}
+
+a.navlink:hover {
+ text-decoration: none;
+ color: <&/lib/color, "flame", 100 &>;
+}
+
+navcell {
+ padding: 3px 7px 3px 7px;
+}
+
+a.newslink {
+ font-family: Verdana, Arial, Helvetica, sans-serif;
+ font-size: xx-small;
+ font-weight: normal;
+ text-decoration: none;
+ color: <&/lib/color, "flame", 40 &>;
+}
+
+a.newslink:visited {
+ text-decoration: none;
+ color: <&/lib/color, "flame", 20 &>;
+}
+
+a.newslink:hover {
+ text-decoration: underline;
+}
+
+.newsheader {
+ font-family: Verdana, Arial, Helvetica, sans-serif;
+ font-size: x-small;
+ font-weight: normal;
+ padding-left: 5px;
+ color: <&/lib/color, "white", 90 &>;;
+ background-color: <&/lib/color, $config->{colorscheme}, 40 &>;
+}
+
+.newscell {
+ font-family: Verdana, Arial, Helvetica, sans-serif;
+ font-size: xx-small;
+ font-weight: normal;
+ padding-top: 7px;
+ padding-left: 5px;
+ padding-right: 5px;
+ padding-bottom: 9px;
+ color: <&/lib/color, $config->{colorscheme}, 90 &>;;
+ background-color: <&/lib/color, $config->{colorscheme}, 60 &>;
+}
+
+a.sidebarlink {
+ font-family: Verdana, Arial, Helvetica, sans-serif;
+ font-size: normal;
+ font-weight: bold;
+ text-decoration: none;
+ color: <&/lib/color, $config->{colorscheme}, 90 &>;
+}
+
+a.sidebarlink:visited {
+ text-decoration: none;
+ color: <&/lib/color, $config->{colorscheme}, 90 &>;
+}
+
+a.sidebarlink:hover {
+ text-decoration: none;
+ color: <&/lib/color, $config->{colorscheme}, 100 &>;
+}
+
+.sidebarheader {
+ font-family: Verdana, Arial, Helvetica, sans-serif;
+ font-size: normal;
+ font-weight: normal;
+ padding-left: 5px;
+ color: <&/lib/color, "white", 90 &>;;
+ background-color: <&/lib/color, $config->{colorscheme}, 40 &>;
+}
+
+.sidebarcell {
+ font-family: Verdana, Arial, Helvetica, sans-serif;
+ font-size: normal;
+ font-weight: normal;
+ color: <&/lib/color, $config->{colorscheme}, 90 &>;;
+}

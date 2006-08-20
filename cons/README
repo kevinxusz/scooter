@@ -1,0 +1,81 @@
+
+dgcons README
+=====================================
+
+Copyright (c) 2006. Dimitry Kloper <kloper@users.sourceforge.net>
+
+Available from http://sourceforge.net/projects/dgcons
+
+About
+=====
+
+dgcons is a framework of perl modules around of GNU Cons
+(http://www.gnu.org/software/cons/) that extend the cons functionality:
+
+  * Toolsets -- predefined set of Cons environments. Currently, the following
+    tollsets are supported: gcc, msvc70, cygwin, mingw, boost, libpng,
+    stlport, clo, doxygen, jpeg, qt4, zlib. 
+  
+  * Template support, a-la GNU autoconf *.in files, based on Text::Template.
+
+  * Automatic version and build counters.
+ 
+  * Possibility of configuration and environment tests like in GNU autoconf.
+
+License terms
+=============
+
+GNU Public License. See COPYING file in the dgcons root directory.
+
+Requirements
+============
+
+Perl 5.6.1
+
+Very short introduction into dgcons
+===================================
+
+This small guide is a brief introduction into dgcons and does not cover the
+GNU cons itself. Please refer http://www.gnu.org/software/cons/ for in-depth
+guide to the cons features.
+
+In order to start add the following lines at the beginning of your Construct
+file:
+
+   use Cons::Toolset;                       
+                                           
+   our $toolset = Cons::Toolset->getopt();  
+                                           
+   die if( !defined( $toolset ) );          
+
+This will parse the @ARGV options and create the toolset object. Next, you can
+use that object any time you need to construct the a cons object:
+
+   my $ruleset  = $toolset->env();            
+                                              
+   die if( !defined( $ruleset ) );            
+                                              
+   my $buildenv   = new cons( %{$ruleset} );  
+
+The toolset object is constructed once in the Construct file, exported by 
+cons Export mechanism to all its sibling Conscript files.
+
+Now, it is possible to run cons with dgcons support:
+
+   perl -I ./dgcons ./dgcons/cons.pl myproject -- --toolset=gcc,boost
+
+Bug reports
+===========
+
+Please report bugs at
+http://sourceforge.net/tracker/?group_id=174034&atid=867713
+
+Mailing lists
+=============
+
+Please refer to the mailing list of the project at
+http://sourceforge.net/mail/?group_id=174034
+
+
+
+

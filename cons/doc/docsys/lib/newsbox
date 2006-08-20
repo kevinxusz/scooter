@@ -1,0 +1,63 @@
+<%args>
+$config
+$comp_name
+$max_news
+</%args>
+
+% use HTML::Tree;
+% my $tree = HTML::TreeBuilder->new_from_content( $m->scomp( $comp_name ) );
+
+% die "Can't parse HTML produced by $comp_name" if( !$tree );
+
+% my $list_node = $tree->find_by_tag_name( 'dl' );
+
+% die "No list node" if( !$list_node );
+
+<table cellspacing="0" cellpadding="1" border="0" 
+       bgcolor="<&/lib/color, $config->{colorscheme}, 10 &>" width="100%">
+<tr>
+<td>
+
+<table cellspacing="1" cellpadding="0" border="0" 
+       bgcolor="<&/lib/color, $config->{colorscheme}, 40 &>" 
+       width="100%">
+
+<tr>
+<td class="newsheader">
+<strong>NEWS</strong>
+</td>
+</tr>
+
+% for (@{  $list_node->extract_links()  }) {
+%	(my $link, my $element, my $attr, my $tag) = @$_;
+%       $element->attr( "class", "newslink" );
+% }
+
+% my @content_list = $list_node->content_list();
+% my $i = 0;
+% while( $i < $max_news && scalar( @content_list ) > 0 ) {
+<tr><td class="newscell">
+%   my $dt = shift( @content_list );
+%   my $dd = shift( @content_list );
+%   last if( !defined($dt) );
+<strong><% $dt->as_HTML() %></strong><br><br>
+<% $dd->as_HTML() %>
+</td></tr>
+%    $i++;
+% }
+
+<tr><td class="newscell">
+<strong>
+<a href="<&/lib/local, $config, $comp_name &>" 
+   class="newslink" title="All news"> 
+More News...
+</a>
+</strong><br><br>
+
+</table>
+
+</td>
+</tr>
+</table>
+% $tree->delete;
+

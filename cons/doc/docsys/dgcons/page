@@ -1,0 +1,61 @@
+<%args>
+$path
+$config
+</%args>
+
+% my $root_item = $path->[0];
+% my $root_item_name = 
+%        ref( $root_item->[0] ) ? $root_item->[0]->[0] : $root_item->[0] ;
+% my $top_item = $path->[ scalar( @$path ) - 1 ];
+% my $top_item_comp = $m->fetch_comp( 
+%               ref( $top_item->[0] ) ? $top_item->[0]->[0] : $top_item->[0] );
+
+<& /lib/header, config => $config, title => $top_item_comp->attr("title") &>
+<table cellspacing="0" cellpadding="0" border="0" 
+       bgcolor="<&/lib/color, $config->{colorscheme}, 80 &>" 
+       width="100%">
+<tr>
+<td>
+
+<table cellspacing="0" cellpadding="0" border="0" width="100%">
+<tr>
+<td>
+<& /lib/title, config => $config &>
+</td>
+</tr>
+
+<tr>
+<td>
+
+<table cellspacing="1" cellpadding="0" border="0" 
+       bgcolor="<&/lib/color, $config->{colorscheme}, 10 &>" width="100%">
+<tr bgcolor="<&/lib/color, $config->{colorscheme}, 100 &>" >
+<td>
+
+<table cellspacing="0" cellpadding="0" border="0" >
+<tr>
+<td valign="top" width="210" 
+    style="padding-left: 20px; padding-top: 20px; padding-bottom: 20px;">
+<& /lib/sidebar, config => $config, path => $path &>
+</td>
+<td style="padding-left: 20px; padding-right: 20px; padding-top: 20px; 
+           padding-bottom: 20px; font-size: normal;"
+    valign="top">
+<& $top_item_comp, config => $config &>
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+
+</table>
+
+</td>
+</tr>
+</table>
+<& /lib/footer, config => $config &>

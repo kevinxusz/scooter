@@ -1,0 +1,63 @@
+# -*- CPerl -*-
+# 
+# Copyright (c) 2004. Dimitry Kloper <kloper at users dot sf dot net>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Conscript file for configure test
+#
+
+use Data::Dumper;
+
+Import qw(toolset config);
+    
+my $ruleset  = $toolset->env();
+die if( !defined( $ruleset ) );
+
+$ruleset->{'CXXFLAGS'} .= ' -D_subst_';
+
+my $buildenv  = new cons( %{$ruleset} );
+
+sub exception_what_throw {
+    my ($config, $toolset, $tgt_name, $cxxcmd) = @_;
+    my $result = {};
+    my $real_cmd = $cxxcmd;
+    $real_cmd =~ s/_subst_/TEST_THROW=""/;
+    print "config: checking if std::exception::what has throw()...";
+
+    my $res_with_throw = 
+      $config->action( $toolset->env->{'ENV'}, $real_cmd );
+    
+    $result->{'defines'} = {};
+    if( $res_with_throw ) {
+	$result->{'defines'}->{'WITH_THROW'} = 1;	
+	print "throw() required\n";
+    } else {
+	$result->{'defines'}->{'WITHOUT_THROW'} = 1;
+	print "without throw()\n";
+    } 
+
+    local *tgth;
+    open( tgth, ">" . $tgt_name ) or
+      die "can't open file $tgt_name: $!";
+    print tgth Dumper($result) . "\n";
+    close( tgth );
+    
+    return 1;
+}
+
+Command $buildenv "test.dpo", "test.cpp",
+  q(@[perl] exception_what_throw( $config, $toolset, '%>', '%CXX %CXXFLAGS %<' ););

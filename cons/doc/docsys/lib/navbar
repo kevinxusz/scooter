@@ -1,0 +1,29 @@
+<%args>
+$config
+</%args>
+
+<table cellspacing="1" cellpadding="0" border="0" 
+       bgcolor="<& /lib/color, $config->{colorscheme}, 40 &>" width="100%">
+<tr>
+% for my $comp_name (@{$config->{"navitems"}}) {
+<td bgcolor="<&/lib/color, $config->{colorscheme}, 60 &>" 
+    class="navcell" 
+    align="center"
+    style="padding-left: 10px; 
+           padding-right: 10px; 
+           padding-top: 3px;
+           padding-bottom: 3px; ">
+%     my $comp = $m->fetch_comp( $comp_name );
+<a class="navlink" 
+%     if( $comp->attr_if_exists("dummy") ) {
+   href="<& $comp_name, config => $config &>"
+%     } else {
+   href="<& /lib/local, $config, $comp_name &>"
+%     }
+   title="<% $comp->attr("title") %>">
+<% $comp->attr("short") %>
+</a>
+</td>
+% }
+</tr>
+</table>

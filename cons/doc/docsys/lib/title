@@ -1,0 +1,33 @@
+<%args>
+$config
+</%args>
+
+<table cellpadding="0" width="100%">
+<tr>
+  <td style="padding-left: 10px;" width="30%">
+    <div align="left" 
+         style="font-size: x-large; 
+                color: <&/lib/color, "white", 90 &>;">
+    <% $config->{"long_name"} %>
+    </div>
+  </td>
+  <td align="right" width="70%">
+    <table width="100%">
+      <tr>
+	<td align="right">
+% use POSIX;
+% my $date = scalar( localtime() );
+% $date =~ s/\s+/&nbsp;/g;
+	  Version:&nbsp;<%$config->{"version"}%>&nbsp;|&nbsp;Updated:&nbsp;<% $date %>
+	</td>
+      </tr>
+      <tr>
+	<td>
+	  <& /lib/navbar, config => $config &>
+	</td>
+      </tr>
+    </table>
+  </td>
+  <td>
+</tr>
+</table>

@@ -1,0 +1,41 @@
+<%perl>
+my ($config, $name) = @_;
+
+if( $name =~ /jpg$/i ||
+    $name =~ /jpeg$/i ||
+    $name =~ /gif$/i ||
+    $name =~ /png$/i ) {
+    $name =~ s/^\///;
+    $name =~ s/\/+/_/g;
+    $name = $config->{"image_dir"} . "/$name";
+} elsif( $name =~ /css$/i ) {
+    $name =~ s/^\///;
+    $name =~ s/\/+/_/g;
+    $name = $config->{"style_dir"} . "/$name";
+} else { # component
+    if( !($name =~ /^\//) ) { # local ref, convert to global 
+                            # one without . and ..
+	my $caller_path = $m->caller->path;
+	my @caller_stack = split( '/', $caller_path );
+	pop @caller_stack;
+	my @target_stack = split( '/', $name );
+	while( scalar( @target_stack ) > 0 ) {
+	    my $item = shift @target_stack;
+	    if( ($item eq "") || ($item eq ".") ) {
+	    } elsif( $item eq ".." ) {
+		pop @caller_stack;
+	    } else {
+		push @caller_stack, $item;
+	    }
+	}
+	$name = join( '/', @caller_stack );
+    }
+    $name =~ s/^\///;
+    $name =~ s/\/+/_/g;
+    $name =~ s/[^\w\d]/_/g;
+    $name = "$name.html";
+}
+
+$m->print($name);
+return $name;
+</%perl>

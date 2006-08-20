@@ -1,0 +1,154 @@
+#!/d/perl/bin/perl
+
+use HTML::Mason;
+use Cwd;
+use File::Basename;
+use File::Copy;
+use strict;
+
+my $project_name = $ARGV[0];
+ die "Usage: $0 project_name."
+    if( !defined($project_name) || !$project_name );
+
+my $root_dir;
+my $html_dir;
+my $style_dir;
+my $image_dir;
+my $outbuf;
+my $my_config;
+
+sub generate_component($$@);
+
+sub traverse_sitemap($$) {
+    my( $interp, $config) = @_;
+    my $tree = $config->{"sitemap"};
+    my @search_stack;
+
+    push @search_stack, [$tree, 0];
+    
+    while( scalar( @search_stack ) > 0 ) {
+	my $tail = $search_stack[ $#search_stack ];
+	my ( $node_ref, $child_index ) = @$tail;
+
+	if( !ref( $node_ref ) ) {
+	    generate_component( $interp, $config, @search_stack );
+
+	    pop @search_stack;
+	} else {
+	    if( $child_index < scalar( @$node_ref ) )  {
+		$tail->[1] += 1;
+
+		if( $child_index == 0 ) {
+		    generate_component( $interp, $config, @search_stack );
+		} else {
+		    my $child = $node_ref->[ $child_index ];
+		    push @search_stack, [ $child, 0 ];
+		}
+	    } else {
+		pop @search_stack;
+	    }
+	}
+    }
+}
+
+sub generate_component( $$@ ) {
+    my ($interp, $config, @comp_stack) = @_;
+    my $comp_name = $comp_stack[ $#comp_stack ]->[0]; 
+    my $file_name;
+
+    $comp_name = $comp_name->[0]  if( ref( $comp_name ) );
+
+    my $comp = $interp->load( $comp_name );
+
+    if( $comp->attr_if_exists( "dummy" ) ) {
+        print "$comp_name -> /dev/null\n";
+	$outbuf = "";
+	$interp->exec( $comp_name, 
+		       config => $config, 
+		       path => \@comp_stack );
+	return;
+    }
+
+    $file_name = $interp->exec("/lib/local", $config, $comp_name ) or 
+	die "Can't run /lib/local: $!";
+    $file_name = $config->{"html_dir"} . "/" . $file_name;    
+
+
+    if( defined( $comp ) ) {
+	print "$comp_name -> $file_name\n";
+	local *html_file;
+	open(html_file, ">$file_name") or die "can't open $file_name: $!";
+	my $standalone = $comp->attr_if_exists( "standalone" );
+	$outbuf = "";
+	if( $standalone ) {
+	    $interp->exec( $comp_name, 
+                           config => $config, 
+			   path => \@comp_stack );
+	} else {
+ 	    $interp->exec( $config->{"page"}, 
+			   config => $config, 
+ 			   path => \@comp_stack );
+	}
+	print html_file $outbuf;
+	close html_file;
+    } else {
+	print "Warning: $comp_name can't be loaded\n";
+    }
+}
+
+$root_dir = cwd();
+
+my $interp = HTML::Mason::Interp->new
+    (comp_root  => $root_dir,
+     out_method => \$outbuf
+     );
+
+$my_config = $interp->exec("/$project_name/config") or 
+    die "Can't find config for $project_name";
+
+$html_dir  = $root_dir . "/" . $my_config->{"html_dir"};
+$style_dir = $html_dir . "/" . $my_config->{"style_dir"};
+$image_dir = $html_dir . "/" . $my_config->{"image_dir"};
+
+if( ! -e $html_dir ) {
+    mkdir $html_dir;
+    print "Created $html_dir...\n";
+}
+if( ! -e $style_dir ) {
+    mkdir $style_dir;
+    print "Created $style_dir...\n";
+}
+if( ! -e $image_dir ) {
+    mkdir $image_dir;
+    print "Created $image_dir...\n";
+}
+
+for my $glob ( keys(%{$my_config->{"copy_asis"}}) ) {
+    for my $fname ( glob($glob) ) {
+	next if( -d $fname );
+
+	my $basename = basename( $fname );
+	my $target = $my_config->{copy_asis}->{$glob};
+	$target =~ s/\$basename/$basename/g;
+	print "Copying \"$fname\" to \"$target\" ... ";
+	
+	if( -e $target ) {
+	    my $src_time = (stat( $fname ))[9];
+	    my $dst_time = (stat( $target ))[9];
+	    if( $src_time > $dst_time ) {
+		copy( $fname, $target ) or 
+		die "Can't copy file $fname: $!\n";
+		print "done.\n" ;
+	    } else {
+		print "exists.\n";
+	    }
+	} else {
+	    copy( $fname, $target ) or 
+		die "Can't copy file $fname: $!\n";
+	    print "done.\n" ;
+	}
+    }
+}
+
+traverse_sitemap( $interp, $my_config );
+

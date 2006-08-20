@@ -1,0 +1,77 @@
+# -*- CPerl -*-
+# Copyright (c) 2004. Dimitry Kloper <kloper at users dot sf dot net>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+# 
+# Conscript file for hello
+#
+
+use File::Find;
+use File::Spec;
+use Data::Dumper;
+
+use Cons::Configure;
+use Cons::Common;
+
+Import qw(BLIB toolset);
+
+my $ruleset  = $toolset->env(); die if( !defined( $ruleset ) );
+
+my $buildenv  = new cons( %{$ruleset} );
+
+our $config = Cons::Configure->getopt( 'config-logfile' => 'config.log' );    
+
+Export qw(toolset config);
+
+my @testlist = qw( typename-warning/Conscript 
+		   exception-what-throw/Conscript
+		   std-cstd/Conscript );
+
+my @reslist = @testlist;
+map(s/Conscript/test.dpo/, @reslist);
+
+Build @testlist;
+
+Command $buildenv 'config-local.dpo', @reslist, 
+  q(@[perl] config_local($config,'%>', qw(%<)) );
+
+Install $buildenv "$BLIB/config", 'config-local.dpo';
+
+sub config_local {
+    my ($config, $tgt_name, @src_names) = @_;
+    my $test_vals = {};
+    for my $test_pl (@src_names) {
+	my $test_res = eval( "do '$test_pl';" );
+	if( $@ ) {
+	    say("warning: eval of $test_pl failed: $@");
+	}
+	for my $key (keys %{$test_res}) {
+	    %{$test_vals->{$key}} = ( %{$test_vals->{$key}}, 
+				      %{$test_res->{$key}} );
+	}
+    }
+
+    my $rc = 1;
+    local *clh;
+    if( !open( clh, ">" . $tgt_name ) ) {
+	say( "error: Can't open $tgt_name: $!" );
+	$rc = 0;
+    }
+    
+    print clh Dumper( $test_vals ) . "\n";
+    close( clh );
+    return $rc;
+}

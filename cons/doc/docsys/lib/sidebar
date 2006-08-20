@@ -1,0 +1,80 @@
+<%args>
+$config
+$path
+</%args>
+
+% my $i;
+% my $j;
+
+<table cellspacing="2" cellpadding="0" border="0" width="100%">
+
+% for ( $i = 0; $i <=scalar( @$path ) - 1; $i++ ) {
+%   my ( $path_node_ref, $child_index ) = @{$path->[$i]};
+%   if( ref( $path_node_ref ) && scalar( @$path_node_ref ) > 1 ) {
+%     my $comp_name = $path_node_ref->[0];
+%     my $comp = $m->fetch_comp( $comp_name );
+%
+%     next if( $comp->attr_if_exists("hidden" ) );
+
+<tr>
+<td>
+
+<table cellspacing="0" cellpadding="1" border="0" 
+       bgcolor="<&/lib/color, $config->{colorscheme}, 10 &>" width="100%">
+  <tr>
+  <td>
+  <table cellspacing="0" cellpadding="2" border="0" 
+         bgcolor="<&/lib/color, $config->{colorscheme}, 40 &>" 
+         width="100%">
+     <tr>
+     <td class="sidebarheader" colspan="2">
+     <strong>
+     <a class="sidebarlink" 
+%      if( $comp->attr_if_exists("dummy") ) {
+         href="<& $comp_name, config => $config, path => $path &>"
+%      } else {
+        href="<&/lib/local, $config, $comp_name &>"
+%      }
+        title="<% $comp->attr("title")%>">
+     <% $comp->attr("short") %>
+     </a>
+     </strong>
+     </td>
+     </tr>
+%     for( $j = 1; $j < scalar( @$path_node_ref ); $j++ ) {
+%        $comp_name = $path_node_ref->[$j];
+%        $comp_name = $comp_name->[0] if( ref( $comp_name ) );
+%        $comp = $m->fetch_comp( $comp_name );
+%        if( !$comp->attr_if_exists("hidden" ) ) {
+     <tr>
+     <td class="sidebarcell" align="center"
+         bgcolor="<&/lib/color, $config->{colorscheme}, 60-10*(($j-1) % 2) &>">
+     <img src="<&/lib/local, $config, "black_arrow.gif" &>"
+     </td>
+     <td class="sidebarcell"
+         bgcolor="<&/lib/color, $config->{colorscheme}, 60-10*(($j-1) % 2) &>">
+      <a class="sidebarlink" 
+%           if( $comp->attr_if_exists("dummy") ) {
+         href="<& $comp_name, config => $config, path => $path &>"
+%           } else {
+         href="<&/lib/local, $config, $comp_name &>"
+%           }
+         title="<% $comp->attr("title")%>">
+      <% $comp->attr("brief") %>
+      </a>
+     </td>
+     </tr>
+%        }
+%    }
+     </table>
+  </td>
+  </tr>
+</table>
+
+</td>
+</tr>
+
+%   }
+% }
+
+</table>

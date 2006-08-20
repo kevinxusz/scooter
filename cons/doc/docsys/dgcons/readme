@@ -1,0 +1,12 @@
+<%attr>
+short => "Readme"
+brief => "Dgcons Readme"
+title => "About dgcons"
+</%attr>
+
+% use Text::EtText::EtText2HTML;
+% my $t = new Text::EtText::EtText2HTML;
+% open( README, "<../../README" ) or 
+%     die "Can't open README: $!";
+<% $t->text2html ( <README> ) %>
+% close(README);

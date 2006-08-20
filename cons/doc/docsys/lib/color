@@ -1,0 +1,52 @@
+<%perl>
+
+my ( $base, $val ) = @_;
+
+if( !($base =~ /^\#/) ) {
+    $base = $predefined_base_colors{$base};
+}
+
+die "bad color value $base" 
+    if( !($base =~ /^\#[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/) );
+
+
+if( defined($val) ) {
+    my ($red, $green, $blue) = 
+	( $base =~ 
+	  /^\#([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])/ );
+    $red   = int( hex($red)   * "$val.0" / 100 ); 
+    $red = 0xff if ( $red > 0xff );
+    $green = int( hex($green) * "$val.0" / 100 );
+    $green = 0xff if ( $green > 0xff );
+    $blue  = int( hex($blue)  * "$val.0" / 100 );
+    $blue = 0xff if( $blue > 0xff );
+    $base = sprintf( "#%02x%02x%02x", $red, $green, $blue );
+}
+
+$m->print($base);
+return $base;
+</%perl>
+
+<%once>
+
+my %predefined_base_colors;
+
+</%once>
+
+<%init>
+
+%predefined_base_colors = ( "red" => "#ff0000",
+			    "green" => "#00ff00",
+			    "blue" => "#0000ff",
+			    "yellow" => "#ffff00",
+			    "cyan" => "#00ffff",
+			    "magenta" => "#ff00ff",
+			    "white" => "#ffffff",
+			    "black" => "#000000",
+			    "sky" => "#b6ddff",
+			    "sky-blue" => "#d0c0ff",
+			    "sky-red" => "#ffe0f0",
+			    "grass" => "#ddffb6",
+			    "flame" => "#ffddb6" );
+			   
+</%init>
