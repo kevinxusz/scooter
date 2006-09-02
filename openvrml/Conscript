@@ -29,8 +29,7 @@ Import qw(BLIB toolset options);
 Build map( "$_/Conscript", 
 	   qw( lib/antlr 
 	       src/libopenvrml
-	       src/libopenvrml-gl
-	       src/lookat ) );
+	       src/libopenvrml-gl ) );
 
 #
 # Conscript -- end of file
