@@ -23,6 +23,7 @@ package Cons::Toolset;
 
 use strict;
 use Getopt::Long;
+use File::Spec;
 use Cons::Common;
 
 sub getopt  {
@@ -125,6 +126,8 @@ sub env {
 	return undef;
     }
 
+    $env->{'TMP'} = File::Spec->tmpdir() unless( defined($env->{'TMP'}) );
+
     my $ruleset = Cons::Common::Env->merge( @ruleset );
     if( defined( $ruleset->{'_error'} ) ) {
 	say( "error: cant aggregate variables " .
@@ -143,5 +146,6 @@ sub option {
 
     return one( map( $self->{'options'}->{$_}, @names ) );
 }
+
 
 1;
