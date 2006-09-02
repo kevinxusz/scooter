@@ -568,11 +568,16 @@ void Portal::handle_glpad_propchange( QWidget *w ) {
       dgd_echo( dgd_expand(doc->windowTitle().toStdString()) << std::endl );
 
       m_flat_action->setChecked( 
-	 doc->glpad_property("shading_mode").toInt() == vrml::Control::FLAT 
+	 doc->glpad_property("shading_mode").toInt() == vrml::Control::FLAT &&
+	 doc->glpad_property("polygon_mode").toInt() != 
+	                                              vrml::Control::WIREFRAME 
       );
 
       m_phong_action->setChecked( 
-	 doc->glpad_property("shading_mode").toInt() == vrml::Control::SMOOTH
+	 doc->glpad_property("shading_mode").toInt() == vrml::Control::SMOOTH 
+	 &&
+	 doc->glpad_property("polygon_mode").toInt() != 
+	                                              vrml::Control::WIREFRAME
       );
 
       m_wireframe_action->setChecked( 

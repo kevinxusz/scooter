@@ -36,6 +36,7 @@
 
 #include <openvrml/node_ptr.h>
 #include <openvrml/browser.h>
+#include <openvrml/vrml97node.h>
 
 #include <scooter/calculus.h>
 #include <scooter/calculus_dgd.h>
@@ -643,7 +644,8 @@ Control::generate_elevation_arrays(
 	 if( normal.size() > 0 ) {
 	    for( int k = 0; k < 4; ++k ) {
 	       unsigned int n = 
-		  ( (mask & mask_normal_per_vertex) == 0 ) ? facet : vindex[k];
+		  ( m_shading_mode == FLAT || 
+		    (mask & mask_normal_per_vertex) == 0 ) ? facet : vindex[k];
 	       normals[index+k](normal[n].x(), normal[n].y(), normal[n].z());
 	    }
 	 } else {
@@ -1057,7 +1059,9 @@ void Control::generate_ifs_arrays(
 	 indexes.push_back( std::make_pair( size, 1 ) );
 
       facet_turnover = index_const_circulator( iter, next );
-      if( normal.empty() && (mask & mask_normal_per_vertex) != 0 ) {
+      if( normal.empty() && 
+	  m_shading_mode == SMOOTH &&
+	  (mask & mask_normal_per_vertex) != 0 ) {
 	 do {
 	    unsigned curr = *facet_turnover,
 		     next = *(facet_turnover+1),
@@ -1148,7 +1152,8 @@ void Control::generate_ifs_arrays(
 	 }
 
 	 if( !normal.empty() ) {
-	    if( mask & mask_normal_per_vertex ) 
+	    if( m_shading_mode == SMOOTH && 
+		(mask & mask_normal_per_vertex) != 0 ) 
 	       idx = (index < normal_index.size()) ? 
 		     normal_index[index] :  *facet_turnover;
 	    else 
@@ -2129,10 +2134,12 @@ bool Control::get_scene_bounds( Vector& center, FT& radius ) {
 }
 
 void Control::polygon_mode( PolygonMode val) {
+   this->touch_scene();
    m_polygon_mode = val;
 }
 
 void Control::shading_mode( ShadingMode val ) {
+   this->touch_scene();
    m_shading_mode = val;
 }
 
@@ -2325,13 +2332,21 @@ class Toucher: public openvrml::node_traverser {
 
    private:
       void on_entering(openvrml::node &node) {
-//	 openvrml::vrml97_node::abstract_geometry_node 
+	 try {
+	    openvrml::vrml97_node::abstract_geometry_node &geom = 
+	       dynamic_cast< openvrml::vrml97_node::
+	                        abstract_geometry_node&>(node);
+	    geom.modified(true);
+	 } catch( std::bad_cast ) {	    
+	 }
       }
 };
 
 
 void Control::touch_scene() {
-   
+   Toucher t;
+
+   t.traverse( m_browser->root_nodes() );
 }
 
 QSize Control::minimumSizeHint() const {

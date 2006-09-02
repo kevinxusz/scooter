@@ -14,7 +14,7 @@ perl -I cons ./cons/cons.pl $2 -- --toolset=gcc,cygwin,boost,stlport,clo,zlib,jp
 (win|win-debug)
 /d/perl/bin/perl -I cons ./cons/cons.pl $2 -- --toolset=msvc70,cygwin,boost,stlport,clo,zlib,jpeg,libpng --nostlport-debug -v3 $3 $4 $5 $6;;
 (ming|mingw)
-/d/perl/bin/perl -I cons ./cons/cons.pl $2 -- --toolset=mingw,cygwin,boost,qt4,clo,nsis -v3 --mingw-root-dir=d:/mingw $3 $4 $5 $6;;
+/d/perl/bin/perl -I cons ./cons/cons.pl $2 -- --toolset=mingw,cygwin,boost,qt4,clo,nsis -v3 --mingw-root-dir=d:/mingw --qt4-root-dir=d:/qt-4.1.4-mingw $3 $4 $5 $6;;
 esac
 
 # 
