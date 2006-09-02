@@ -44,7 +44,7 @@ our $BLIB    = "#blib";
 
 die if( !defined( $toolset ) );
 
-my @liblist = qw(cons/config zlib libpng libjpeg dgd common chromium dist) ;
+my @liblist = qw(cons/config zlib libpng libjpeg dgd common chromium) ;
 
     
 map { 
@@ -52,6 +52,8 @@ map {
 	@liblist = ( @liblist,  qw(openvrml) );
     } elsif( /^--test$/ ) {
 	@liblist = qw(cons/config dgd common nmm test);
+    } elsif( /^--dist$/ ) {
+	@liblist = ( @liblist,  qw(dist) );
     } elsif( /^clean$/ ) {
 	clean( cwd() );
 	return 1;
