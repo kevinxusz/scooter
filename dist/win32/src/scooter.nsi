@@ -43,6 +43,13 @@ Section "Executable" SEC01
   SetOutPath "$INSTDIR\bin"
   SetOverwrite ifnewer
   File "cr.exe"
+  File "cr0antlr.dll"
+  File "cr0dgd.dll"
+  File "cr0jpeg.dll"
+  File "cr0openvrml.dll"
+  File "cr0png.dll"
+  File "cr0zlib.dll"
+  File "boost_regex-mgw-mt-d-1_31.dll"
   File "Qt3Support4.dll"
   File "QtCore4.dll"
   File "QtGui4.dll"

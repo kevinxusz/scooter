@@ -28,7 +28,7 @@ use Data::Dumper;
 use Cons::Template;
 use Cons::Common;
 
-Import qw(BLIB toolset options);
+Import qw(BLIB toolset options version);
 
 my $ruleset  = $toolset->env();
 
@@ -36,40 +36,58 @@ die if( !defined( $ruleset ) );
 
 our $BUILD      = $toolset->option( 'build' );
 our $INCLUDE    = [ "$BLIB/include" ];
+our $DEFINE     = [ "-DPNG_BUILD_DLL" ];
 
 Link $BUILD => 'src';
 
+$ruleset->{'LDFLAGS'} .= 
+  q( -mthreads -Wl,-enable-stdcall-fixup) . 
+  q( -Wl,-enable-auto-import -Wl,-enable-runtime-pseudo-reloc);
+
+map { $ruleset->{'CFLAGS'} .= " $_"; } @$DEFINE;
+
 our $buildenv   = new cons( %{$ruleset},
-			    'CPPPATH' => $INCLUDE );
+			    'CPPPATH' => $INCLUDE,
+			    'LIBPATH' => "$BLIB/lib",
+			    'LIBS' => '-lzlib' );
 
-my $TARGET = "$BUILD/%{PREFLIB}png%{SUFLIB}";
+my $DLLTGT = "$BUILD/cr" . $version->get('hash')->{'stable'} . "png%{SUFDLL}";
+my $LIBTGT = "$BUILD/%{PREFLIB}png%{SUFLIB}";
 
-KeepPrecious $buildenv $TARGET;
+KeepPrecious $buildenv $DLLTGT;
+KeepPrecious $buildenv $LIBTGT;
 
-Library $buildenv $TARGET, 
-  map( "$BUILD/$_", 
-       qw( png.c
-	   pngerror.c
-	   pnggccrd.c
-	   pngget.c
-	   pngmem.c
-	   pngpread.c
-	   pngread.c
-	   pngrio.c
-	   pngrtran.c
-	   pngrutil.c
-	   pngset.c
-	   pngtrans.c
-	   pngvcrd.c
-	   pngwio.c
-	   pngwrite.c
-	   pngwtran.c
-	   pngwutil.c ) );
+my @srclist =map( "$BUILD/$_", 
+		  qw( png.c
+		      pngerror.c
+		      pnggccrd.c
+		      pngget.c
+		      pngmem.c
+		      pngpread.c
+		      pngread.c
+		      pngrio.c
+		      pngrtran.c
+		      pngrutil.c
+		      pngset.c
+		      pngtrans.c
+		      pngvcrd.c
+		      pngwio.c
+		      pngwrite.c
+		      pngwtran.c
+		      pngwutil.c ) );
+				      
+Modules $buildenv [$DLLTGT, $LIBTGT], @srclist, 
+  qq(%CC -shared %LDFLAGS -o ) . 
+  FilePathEnv($buildenv,$DLLTGT) . 
+  qq( -Wl,--out-implib,) . 
+  FilePathEnv($buildenv,$LIBTGT) . 
+  qq( %< %_LDIRS %LIBS);
 
 Install $buildenv "$BLIB/include", 
   map( "$BUILD/$_", qw( png.h pngconf.h ) );
 
-Install $buildenv "$BLIB/lib", $TARGET;
+Install $buildenv "$BLIB/lib", $LIBTGT;
+Install $buildenv "$BLIB/bin", $DLLTGT;
 
 #
 # Conscript -- end of file

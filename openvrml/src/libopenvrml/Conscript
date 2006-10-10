@@ -24,7 +24,7 @@
 # Conscript -- construction file for libopenvrml core
 #
 
-Import qw(BLIB toolset options);
+Import qw(BLIB toolset options version);
 
 my $ruleset  = $toolset->env();
 
@@ -40,20 +40,32 @@ our $DEFINE = [ "%STLPORT_DEFINE", "%BOOST_DEFINE",
 		"-DOPENVRML_ENABLE_GIF=1",
 		"-DOPENVRML_ENABLE_JPEG=1",
 		"-DOPENVRML_ENABLE_PNG=1" ];
+our $LIBPATH = [ "%STLPORT_LIB",
+		 "%BOOST_LIB",
+		 "$BLIB/lib" ];
 		
 push @$DEFINE, "-DOPENVRML_ENABLE_BOOST_REGEX=1" if($ruleset->{'BOOST_ROOT'});
 
 Link $BUILD => 'openvrml';
 
+$ruleset->{'LDFLAGS'} .= 
+  q( -mthreads -Wl,-enable-stdcall-fixup) . 
+  q( -Wl,-enable-auto-import -Wl,-enable-runtime-pseudo-reloc);
 $ruleset->{'CXXFLAGS'} .= ' ' . join(' ', @$DEFINE) if( $DEFINE );
 
 our $buildenv   = new cons( %{$ruleset},
-			   'CPPPATH' => $INCLUDE );
+			   'CPPPATH' => $INCLUDE,
+			   'LIBPATH' => $LIBPATH,
+			   'LIBS' => q(-lpng -ljpeg -lzlib -lantlr -lwsock32 -lboost_regex%BOOST_LIB_SUFFIX ) );
 
-my $TARGET = "$BUILD/%{PREFLIB}openvrml%{SUFLIB}";
+my $DLLTGT = "$BUILD/cr" . $version->get('hash')->{'stable'} . 
+             "openvrml%{SUFDLL}";
+my $LIBTGT = "$BUILD/%{PREFLIB}openvrml%{SUFLIB}";
 
-KeepPrecious $buildenv $TARGET;
-Library $buildenv $TARGET, 
+KeepPrecious $buildenv $DLLTGT;
+KeepPrecious $buildenv $LIBTGT;
+
+my @srclist = 
   map( "$BUILD/$_", 
        qw( ScriptJDK.cpp
 	   basetypes.cpp
@@ -76,7 +88,7 @@ Library $buildenv $TARGET,
 	   viewer.cpp
 	   vrml97node.cpp ) );
 
-Install $buildenv "$BLIB/include/openvrml", 
+my @hdrlist = 
   map( "openvrml/$_", 
        qw( ScriptJDK.h
 	   basetypes.h
@@ -101,7 +113,17 @@ Install $buildenv "$BLIB/include/openvrml",
 	   viewer.h
 	   vrml97node.h) );
 
-Install $buildenv "$BLIB/lib", $TARGET;
+Modules $buildenv [$DLLTGT, $LIBTGT], @srclist, 
+  qq(%CXX -shared %LDFLAGS -o ) . 
+  FilePathEnv($buildenv,$DLLTGT) . 
+  qq( -Wl,--out-implib,) . 
+  FilePathEnv($buildenv,$LIBTGT) . 
+  qq( %< %_LDIRS %LIBS);
+
+Install $buildenv "$BLIB/include/openvrml", @hdrlist;
+
+Install $buildenv "$BLIB/lib", $LIBTGT;
+Install $buildenv "$BLIB/bin", $DLLTGT;
 
 #
 # Conscript -- end of file

@@ -98,7 +98,7 @@ sub basic_ruleset {
 		 @{$options{'boost-dynamic-link'}} ) );
 
     if( $options{'platform'} =~ /mingw/i ) {
-	$ruleset->{'BOOST_LIB_SUFFIX'} = '-mgw-s';
+	$ruleset->{'BOOST_LIB_SUFFIX'} = '-mgw-mt-d-1_31';
     }
 
     

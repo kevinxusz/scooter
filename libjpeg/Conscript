@@ -28,7 +28,7 @@ use Data::Dumper;
 use Cons::Template;
 use Cons::Common;
 
-Import qw(BLIB toolset options);
+Import qw(BLIB toolset options version);
 
 my $ruleset  = $toolset->env();
 
@@ -36,17 +36,26 @@ die if( !defined( $ruleset ) );
 
 our $BUILD      = $toolset->option( 'build' );
 our $INCLUDE    = [ "$BLIB/include" ];
+our $DEFINE     = [ "-DJPEG_DLL" ];
 
 Link $BUILD => 'src';
+
+$ruleset->{'LDFLAGS'} .= 
+  q( -mthreads -Wl,-enable-stdcall-fixup) . 
+  q( -Wl,-enable-auto-import -Wl,-enable-runtime-pseudo-reloc);
+map { $ruleset->{'CFLAGS'} .= " $_"; } @$DEFINE;
 
 our $buildenv   = new cons( %{$ruleset},
 			    'CPPPATH' => $INCLUDE );
 
-my $TARGET = "$BUILD/%{PREFLIB}jpeg%{SUFLIB}";
+my $DLLTGT = "$BUILD/cr" . $version->get('hash')->{'stable'} . 
+             "jpeg%{SUFDLL}";
+my $LIBTGT = "$BUILD/%{PREFLIB}jpeg%{SUFLIB}";
 
-KeepPrecious $buildenv $TARGET;
+KeepPrecious $buildenv $DLLTGT;
+KeepPrecious $buildenv $LIBTGT;
 
-Library $buildenv $TARGET, 
+my @srclist =
   map( "$BUILD/$_", 
        qw( cdjpeg.c
 	   jcapimin.c
@@ -58,6 +67,7 @@ Library $buildenv $TARGET,
 	   jcinit.c
 	   jcmarker.c
 	   jcmaster.c
+           jcmainct.c
 	   jcomapi.c
 	   jcparam.c
 	   jcphuff.c
@@ -108,10 +118,18 @@ Library $buildenv $TARGET,
 	   wrrle.c
 	   wrtarga.c ) );
 
+Modules $buildenv [$DLLTGT, $LIBTGT], @srclist, 
+  qq(%CC -shared %LDFLAGS -o ) . 
+  FilePathEnv($buildenv,$DLLTGT) . 
+  qq( -Wl,--out-implib,) . 
+  FilePathEnv($buildenv,$LIBTGT) . 
+  qq( %< %_LDIRS %LIBS);
+
 Install $buildenv "$BLIB/include", 
   map( "$BUILD/$_", qw( jpeglib.h jmorecfg.h jconfig.h ) );
 
-Install $buildenv "$BLIB/lib", $TARGET;
+Install $buildenv "$BLIB/lib", $LIBTGT;
+Install $buildenv "$BLIB/bin", $DLLTGT;
 
 #
 # Conscript -- end of file

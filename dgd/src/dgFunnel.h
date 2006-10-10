@@ -31,6 +31,10 @@
  * Declaration of DGD::funnel.
  */ 
 
+#ifndef DGD_EXPORT
+#define DGD_EXPORT
+#endif
+
 #include "dgChannelBuf.h"
 
 namespace DGD {
@@ -54,7 +58,7 @@ class funnel;
  * @see DGD::funnel 
  * @see DGD::channelbuf
  */
-class funnelbuf: public channelbuf {
+class DGD_EXPORT funnelbuf: public channelbuf {
    public:
       friend class funnel;
 
@@ -107,7 +111,7 @@ class funnelbuf: public channelbuf {
  * @see DGD::channel
  * @see DGD::multifile_log
  */
-class funnel: public std::ostream, public funnelbuf::Callback {
+class DGD_EXPORT funnel: public std::ostream, public funnelbuf::Callback {
    public:
       typedef std::ostream Parent;
       

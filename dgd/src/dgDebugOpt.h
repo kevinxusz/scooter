@@ -35,7 +35,7 @@ namespace DGD {
      * the options. It has a constructor that sets all the option 
      * values to their default value.
     **/
-    struct options {
+    struct DGD_EXPORT options {
 	options (void) :
 	    trace_allow_word_wrap(true),
 	    trace_allow_wrap(true),
@@ -69,7 +69,7 @@ namespace DGD {
      * the following struct is used to record the location
      * on the command line where the option was found.
     **/
-    struct option_locations {
+    struct DGD_EXPORT option_locations {
 	typedef int size_type;
 	size_type trace_allow_word_wrap;
 	size_type trace_allow_wrap;
@@ -89,7 +89,7 @@ namespace DGD {
      * if there are any errors while parsing the command
      * line, the following class will be thrown.
     **/
-    class option_error : public std::runtime_error {
+    class DGD_EXPORT option_error : public std::runtime_error {
     public:
 	option_error (const std::string &what_arg)
 	    : runtime_error(what_arg) { }
@@ -102,7 +102,7 @@ namespace DGD {
      * on the command line, this exception class will be
      * thrown when that option is parsed.
     **/
-    class autoexcept : public option_error {
+    class DGD_EXPORT autoexcept : public option_error {
     public:
 	// constructor
 	autoexcept (autothrow id, const std::string &message)
@@ -123,7 +123,7 @@ namespace DGD {
      * line parsing class. You can control the name of it
      * using the cxx_class variable.
     **/
-    class parser {
+    class DGD_EXPORT parser {
     public:
 	/// default constructor
 	parser (void);

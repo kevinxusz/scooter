@@ -28,7 +28,7 @@ use Data::Dumper;
 use Cons::Template;
 use Cons::Common;
 
-Import qw(BLIB toolset options);
+Import qw(BLIB toolset options version);
 
 my $ruleset  = $toolset->env();
 
@@ -37,19 +37,29 @@ die if( !defined( $ruleset ) );
 our $BUILD      = $toolset->option( 'build' );
 our $INCLUDE    = [ "..", "%STLPORT_INCLUDE", "%BOOST_INCLUDE", 
 		    "$BLIB/include" ];
+our $DEFINE     = [ "-DDGD_BUILD_DLL" ];
+our $LIBPATH    = [ "%STLPORT_LIB",
+		    "%BOOST_LIB",
+		    "$BLIB/lib" ];
 
 #$ruleset->{'CXXFLAGS'} .= " -DDGD_INTERNAL_DEBUG=1";
+map { $ruleset->{'CXXFLAGS'} .= " $_"; } @$DEFINE;
 
 Link $BUILD => 'src';
 
 our $buildenv   = new cons( %{$ruleset},
-			    'CPPPATH' => $INCLUDE );
+			    'CPPPATH' => $INCLUDE,
+			    'LIBPATH' => $LIBPATH,
+			    'LIBS' => q(-lboost_regex%BOOST_LIB_SUFFIX ) );
 
-my $TARGET = "$BUILD/%{PREFLIB}dgd%{SUFLIB}";
+my $DLLTGT = "$BUILD/cr" . $version->get('hash')->{'stable'} .
+             "dgd%{SUFDLL}";
+my $LIBTGT = "$BUILD/%{PREFLIB}dgd%{SUFLIB}";
 
-KeepPrecious $buildenv $TARGET;
+KeepPrecious $buildenv $LIBTGT;
+KeepPrecious $buildenv $DLLTGT;
 
-Library $buildenv $TARGET, 
+my @srclist = 
   map( "$BUILD/$_", 
        qw( dgChannel.cpp
 	   dgChannelBuf.cpp
@@ -58,6 +68,13 @@ Library $buildenv $TARGET,
 	   dgFunnel.cpp
 	   dgMultifileLog.cpp
 	   dgOptionFilter.cpp ) );
+
+Modules $buildenv [$DLLTGT, $LIBTGT], @srclist, 
+  qq(%CXX -shared %LDFLAGS -o ) . 
+  FilePathEnv($buildenv,$DLLTGT) . 
+  qq( -Wl,--out-implib,) . 
+  FilePathEnv($buildenv,$LIBTGT) . 
+  qq( %< %_LDIRS %LIBS);
 
 Install $buildenv "$BLIB/include", 
   map( "$BUILD/$_", qw(dgChannel.h
@@ -74,7 +91,8 @@ Install $buildenv "$BLIB/include",
 		       dgStream.h
 		       dgBoost.h ) );
 
-Install $buildenv "$BLIB/lib", $TARGET;
+Install $buildenv "$BLIB/lib", $LIBTGT;
+Install $buildenv "$BLIB/bin", $DLLTGT;
 
 map {
     my $src = "$BUILD/$_";

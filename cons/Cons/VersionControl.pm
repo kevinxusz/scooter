@@ -128,15 +128,15 @@ sub get {
     if( !defined($how) or $how eq "string" ) {
 	return $self->string();
     } elsif( $how eq "array" ) {
-	return ( $self->{'version'}->{'stable'},
+	return [ $self->{'version'}->{'stable'},
 		 $self->{'version'}->{'major'},
 		 $self->{'version'}->{'build'},
-		 $self->{'version'}->{'compile'} );
+		 $self->{'version'}->{'compile'} ];
     } elsif( $how eq "hash" ) {
-	return ( 'stable'  => $self->{'version'}->{'stable'},
+	return { 'stable'  => $self->{'version'}->{'stable'},
 		 'major'   => $self->{'version'}->{'major'},
 		 'build'   => $self->{'version'}->{'build'},
-		 'compile' => $self->{'version'}->{'compile'} );
+		 'compile' => $self->{'version'}->{'compile'} };
     } elsif( $how eq 'time' ) {
 	return $self->{'version'}->{'timestamp'};
     }

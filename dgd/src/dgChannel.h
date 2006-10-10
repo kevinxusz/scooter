@@ -32,6 +32,10 @@
  * Declaration of DGD::channel 
  */
 
+#ifndef DGD_EXPORT
+#define DGD_EXPORT
+#endif
+
 #include <iostream>
 #include <string>
 
@@ -137,7 +141,7 @@ namespace DGD {
  * std::ostream derivatives. The output from the channel will be
  * copied to all the associated files.
  */
-class channel: public std::ostream {
+class DGD_EXPORT channel: public std::ostream {
    public:
       typedef std::ostream Parent;
       
@@ -187,14 +191,14 @@ enum Assoc_type {
    Assoc_Delete
 };
 
-void assoc( std::ostream* s, channel& channel, 
-	    const Assoc_type action = Assoc_Append );
-void assoc( std::ostream& s, channel& channel, 
-	    const Assoc_type action = Assoc_Append );
+void DGD_EXPORT assoc( std::ostream* s, channel& channel, 
+		       const Assoc_type action = Assoc_Append );
+void DGD_EXPORT assoc( std::ostream& s, channel& channel, 
+		       const Assoc_type action = Assoc_Append );
 
 #ifndef DGD_WITHOUT_BOOST
-void assoc( std::ostream* s, const std::string& name, 
-	    const Assoc_type action = Assoc_Append );
+void DGD_EXPORT assoc( std::ostream* s, const std::string& name, 
+		       const Assoc_type action = Assoc_Append );
 #endif // DGD_WITHOUT_BOOST
 
 }; // end of namespace DGD

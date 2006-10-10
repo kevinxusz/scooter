@@ -24,7 +24,7 @@
 # Conscript -- constructtion file for antlr library for openvrml
 #
 
-Import qw(BLIB toolset options);
+Import qw(BLIB toolset options version);
 
 my $ruleset  = $toolset->env();
 
@@ -32,97 +32,117 @@ die if( !defined( $ruleset ) );
 
 our $BUILD      = $toolset->option( 'build' );
 our $INCLUDE    = [ "%STLPORT_INCLUDE", "%BOOST_INCLUDE", "." ];
+our $DEFINE     = [ "-DANTRL_EXPORT" ];
 
 Link $BUILD => 'src';
+
+$ruleset->{'LDFLAGS'} .= 
+  q( -mthreads -Wl,-enable-stdcall-fixup) . 
+  q( -Wl,-enable-auto-import -Wl,-enable-runtime-pseudo-reloc);
+map { $ruleset->{'CXXFLAGS'} .= " $_"; } @$DEFINE;
 
 our $buildenv   = new cons( %{$ruleset},
 			   'CPPPATH' => $INCLUDE );
 
-my @cpp_files = qw( ANTLRUtil.cpp
-		    ASTFactory.cpp
-		    ASTNULLType.cpp
-		    ASTRefCount.cpp
-		    BaseAST.cpp
-		    BitSet.cpp
-		    CharBuffer.cpp
-		    CharScanner.cpp
-		    CommonAST.cpp
-		    CommonASTWithHiddenTokens.cpp
-		    CommonHiddenStreamToken.cpp
-		    CommonToken.cpp
-		    InputBuffer.cpp
-		    LLkParser.cpp
-		    MismatchedCharException.cpp
-		    MismatchedTokenException.cpp
-		    NoViableAltException.cpp
-		    NoViableAltForCharException.cpp
-		    Parser.cpp
-		    RecognitionException.cpp
-		    String.cpp
-		    Token.cpp
-		    TokenBuffer.cpp
-		    TokenStreamBasicFilter.cpp
-		    TokenStreamHiddenTokenFilter.cpp
-		    TokenStreamSelector.cpp
-		    TreeParser.cpp );
+my $DLLTGT = "$BUILD/cr" . $version->get('hash')->{'stable'} . 
+             "antlr%{SUFDLL}";
+my $LIBTGT = "$BUILD/%{PREFLIB}antlr%{SUFLIB}";
 
-my @hpp_files = qw( ANTLRException.hpp
-		    ANTLRUtil.hpp
-		    AST.hpp
-		    ASTArray.hpp
-		    ASTFactory.hpp
-		    ASTNULLType.hpp
-		    ASTPair.hpp
-		    ASTRefCount.hpp
-		    BaseAST.hpp
-		    BitSet.hpp
-		    CharBuffer.hpp
-		    CharInputBuffer.hpp
-		    CharScanner.hpp
-		    CharStreamException.hpp
-		    CharStreamIOException.hpp
-		    CircularQueue.hpp
-		    CommonAST.hpp
-		    CommonASTWithHiddenTokens.hpp
-		    CommonHiddenStreamToken.hpp
-		    CommonToken.hpp
-		    IOException.hpp
-		    InputBuffer.hpp
-		    LLkParser.hpp
-		    LexerSharedInputState.hpp
-		    MismatchedCharException.hpp
-		    MismatchedTokenException.hpp
-		    NoViableAltException.hpp
-		    NoViableAltForCharException.hpp
-		    Parser.hpp
-		    ParserSharedInputState.hpp
-		    RecognitionException.hpp
-		    RefCount.hpp
-		    SemanticException.hpp
-		    String.hpp
-		    Token.hpp
-		    TokenBuffer.hpp
-		    TokenStream.hpp
-		    TokenStreamBasicFilter.hpp
-		    TokenStreamException.hpp
-		    TokenStreamHiddenTokenFilter.hpp
-		    TokenStreamIOException.hpp
-		    TokenStreamRecognitionException.hpp
-		    TokenStreamRetryException.hpp
-		    TokenStreamSelector.hpp
-		    TreeParser.hpp
-		    TreeParserSharedInputState.hpp
-		    config.hpp );
+KeepPrecious $buildenv $DLLTGT;
+KeepPrecious $buildenv $LIBTGT;
 
-my $TARGET = "$BUILD/%{PREFLIB}antlr%{SUFLIB}";
+my @srclist =  
+  map( "$BUILD/$_", 
+       qw( ANTLRUtil.cpp
+	   ASTFactory.cpp
+	   ASTNULLType.cpp
+	   ASTRefCount.cpp
+	   BaseAST.cpp
+	   BitSet.cpp
+	   CharBuffer.cpp
+	   CharScanner.cpp
+	   CommonAST.cpp
+	   CommonASTWithHiddenTokens.cpp
+	   CommonHiddenStreamToken.cpp
+	   CommonToken.cpp
+	   InputBuffer.cpp
+	   LLkParser.cpp
+	   MismatchedCharException.cpp
+	   MismatchedTokenException.cpp
+	   NoViableAltException.cpp
+	   NoViableAltForCharException.cpp
+	   Parser.cpp
+	   RecognitionException.cpp
+	   String.cpp
+	   Token.cpp
+	   TokenBuffer.cpp
+	   TokenStreamBasicFilter.cpp
+	   TokenStreamHiddenTokenFilter.cpp
+	   TokenStreamSelector.cpp
+	   TreeParser.cpp ) );
+       
+my @hdrlist =  
+  map( "antlr/$_", 
+       qw( ANTLRException.hpp
+	   ANTLRUtil.hpp
+	   AST.hpp
+	   ASTArray.hpp
+	   ASTFactory.hpp
+	   ASTNULLType.hpp
+	   ASTPair.hpp
+	   ASTRefCount.hpp
+	   BaseAST.hpp
+	   BitSet.hpp
+	   CharBuffer.hpp
+	   CharInputBuffer.hpp
+	   CharScanner.hpp
+	   CharStreamException.hpp
+	   CharStreamIOException.hpp
+	   CircularQueue.hpp
+	   CommonAST.hpp
+	   CommonASTWithHiddenTokens.hpp
+	   CommonHiddenStreamToken.hpp
+	   CommonToken.hpp
+	   IOException.hpp
+	   InputBuffer.hpp
+	   LLkParser.hpp
+	   LexerSharedInputState.hpp
+	   MismatchedCharException.hpp
+	   MismatchedTokenException.hpp
+	   NoViableAltException.hpp
+	   NoViableAltForCharException.hpp
+	   Parser.hpp
+	   ParserSharedInputState.hpp
+	   RecognitionException.hpp
+	   RefCount.hpp
+	   SemanticException.hpp
+	   String.hpp
+	   Token.hpp
+	   TokenBuffer.hpp
+	   TokenStream.hpp
+	   TokenStreamBasicFilter.hpp
+	   TokenStreamException.hpp
+	   TokenStreamHiddenTokenFilter.hpp
+	   TokenStreamIOException.hpp
+	   TokenStreamRecognitionException.hpp
+	   TokenStreamRetryException.hpp
+	   TokenStreamSelector.hpp
+	   TreeParser.hpp
+	   TreeParserSharedInputState.hpp
+	   config.hpp ) );
+       
 
-KeepPrecious $buildenv $TARGET;
+Modules $buildenv [$DLLTGT, $LIBTGT], @srclist, 
+  qq(%CXX -shared %LDFLAGS -o ) . 
+  FilePathEnv($buildenv,$DLLTGT) . 
+  qq( -Wl,--out-implib,) . 
+  FilePathEnv($buildenv,$LIBTGT) . 
+  qq( %< %_LDIRS %LIBS);
 
-Library $buildenv $TARGET,  map( "$BUILD/$_", @cpp_files );
+Install $buildenv "$BLIB/include/antlr", @hdrlist;
 
-Install $buildenv "$BLIB/include/antlr", map( "antlr/$_", @hpp_files );
-
-Install $buildenv "$BLIB/lib", $TARGET;
+Install $buildenv "$BLIB/lib", $LIBTGT;
+Install $buildenv "$BLIB/bin", $DLLTGT;
 
 #
 # Conscript -- end of file

@@ -833,6 +833,7 @@ sub Local {
     map($_->local(1), @files);
 }
 
+
 # Export variables to any scripts invoked from this one.
 sub Export {
     my(@illegal) = grep($special_var{$_}, @_);
@@ -926,6 +927,13 @@ sub FilePath {
     wantarray
 	? map($dir::cwd->lookupfile($_)->path, @_)
 	: $dir::cwd->lookupfile($_[0])->path;
+}
+
+sub FilePathEnv {
+    my($env) = shift;
+    wantarray
+	? map($dir::cwd->lookupfile($env->_subst($_))->path, @_)
+	: $dir::cwd->lookupfile($env->_subst($_[0]))->path;
 }
 
 # Return the build name(s) of a directory or directory list.
@@ -1226,6 +1234,32 @@ sub Module {
     my($modenv) = $env->_resolve($tgt);
     my($com) = pop(@_);
     $tgt->bind(find build::command::link($modenv, $com), $env->_Objects(@_));
+}
+
+sub Modules {
+    my($env,$modules,@rest) = @_;
+    my($tgt);
+    if( ref($modules) ) {
+	$tgt = shift @$modules;
+    } else {
+	$tgt = $modules;
+	$modules = undef;
+    }
+    $tgt = $dir::cwd->lookupfile($env->_subst($tgt));
+    my($modenv) = $env->_resolve($tgt);
+    my($com) = pop(@rest);
+    my(@objlist) = $env->_Objects(@rest);
+    my($builder) = find build::command::link($modenv, $com);
+
+    $tgt->bind($builder, @objlist);
+
+    if( ref($modules) ) {
+	my(@tgts) = map($dir::cwd->lookupfile($env->_subst($_)), @$modules);
+	my($multi) = build::multiple->new($builder, \@tgts);
+	for my $t (@tgts) {
+	    $t->bind($multi, @objlist);
+	}
+    }
 }
 
 sub LinkedModule {

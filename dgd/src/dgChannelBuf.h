@@ -32,6 +32,10 @@
  * Declaration of DGD::channelbuf
  */
 
+#ifndef DGD_EXPORT
+#define DGD_EXPORT
+#endif
+
 #include <iostream>
 #include <list>
 #include <string>
@@ -69,7 +73,7 @@ namespace DGD {
  * current state of the output it has m_line and m_column variables which
  * can be queried using channelbuf::position() method. 
  */
-class channelbuf: public std::streambuf {
+class DGD_EXPORT channelbuf: public std::streambuf {
    public:
       enum Assoc_type { 
 	 Assoc_Append = 0,

@@ -26,7 +26,7 @@
 
 use Cons::VersionControl;
 
-Import qw(BLIB toolset options);
+Import qw(BLIB toolset options version);
 
 my $ruleset  = $toolset->env();
 die if( !defined( $ruleset ) );
@@ -40,15 +40,26 @@ our $buildenv   = new cons( %{$ruleset} );
 
 my $TARGET = "$BUILD/scooter-" . $version->string() . "%{SUFEXE}";
 my $QT4DIR = $ruleset->{'QT_ROOT'};
+my $BOOSTDIR = $ruleset->{'BOOST_ROOT'};
+my $stable = $version->get('hash')->{'stable'};
+my $boost_lib_suffix = $ruleset->{'BOOST_LIB_SUFFIX'};
+
 my $src_execs = [
     "../../blib/bin/cr.exe",
+    "../../blib/bin/cr${stable}antlr.dll",
+    "../../blib/bin/cr${stable}dgd.dll",
+    "../../blib/bin/cr${stable}jpeg.dll",
+    "../../blib/bin/cr${stable}openvrml.dll",
+    "../../blib/bin/cr${stable}png.dll",
+    "../../blib/bin/cr${stable}zlib.dll",
+    "$BOOSTDIR/bin/boost_regex${boost_lib_suffix}.dll",
     "$QT4DIR/bin/Qt3Support4.dll",
     "$QT4DIR/bin/QtCore4.dll",
     "$QT4DIR/bin/QtGui4.dll",
     "$QT4DIR/bin/QtNetwork4.dll",
     "$QT4DIR/bin/QtOpenGL4.dll",
     "$QT4DIR/bin/QtSvg4.dll",
-    "$QT4DIR/bin/QtXml4.dll",
+    "$QT4DIR/bin/QtXml4.dll",    
     "$QT4DIR/bin/mingwm10.dll" 
 ];
 

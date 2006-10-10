@@ -43,6 +43,12 @@
  $res;
 *)
 
+#if defined(_WIN32) && defined(DGD_BUILD_DLL)
+#define DGD_EXPORT __declspec(dllexport)
+#else
+#define DGD_EXPORT
+#endif
+
 #if defined(WITHOUT_THROW)
 #define DGD_THROW
 #endif

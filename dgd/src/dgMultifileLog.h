@@ -32,6 +32,10 @@
  * Declaration of DGD::multifile_log
  */
 
+#ifndef DGD_EXPORT
+#define DGD_EXPORT
+#endif
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -60,7 +64,7 @@ namespace DGD {
  * set the preferable criteria. By default split-by-size is used with
  * size set to 5M.
  */
-class multifile_log: public funnel {
+class DGD_EXPORT multifile_log: public funnel {
    public:
       /**
        * Abstract class providing interface for predicate triggering

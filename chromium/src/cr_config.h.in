@@ -32,7 +32,7 @@
 #define CR_VERSION_INFO 1
 #define CR_APPNAME        "cromium"
 #define CR_VERSION_STRING "(* $version ? $version->string_full() : 'Unknown' *);"
-#define CR_COMMA_VERSION  (* $version ? join(',',$version->get('array')) : 'Unknown' *)
+#define CR_COMMA_VERSION  (* $version ? join(',',@{$version->get('array')}) : 'Unknown' *)
 #define CR_CREATOR_NAME   "Dimitry Kloper <dimka@cs.technion.ac.il>"
 #define CR_DESCRIPTION    "Chromium -- The Visual Non-Manifold Mesh Editor"
 #define CR_COPYRIGHT      "Copyright (C) 2003-2006. " \

@@ -32,6 +32,10 @@
  * Manipulators for DGD::channel. 
  */
 
+#ifndef DGD_EXPORT
+#define DGD_EXPORT
+#endif
+
 #include "dgChannel.h"
 
 namespace DGD {
@@ -207,7 +211,8 @@ const channel_manip_nop  dgd  = channel_manip_nop();
  * Change indentation step manipulator.
  * @see DGD::channel::indent_step(unsigned int)
  */
-inline channel_manip_uint step( unsigned int s ) {
+inline 
+channel_manip_uint step( unsigned int s ) {
    return channel_manip_uint( &channel::indent_step, s );
 }
 
@@ -215,7 +220,8 @@ inline channel_manip_uint step( unsigned int s ) {
  * Change indentation level manipulator.
  * @see DGD::channel::indent(unsigned int)
  */
-inline channel_manip_uint indent( unsigned int s ) {
+inline 
+channel_manip_uint indent( unsigned int s ) {
    return channel_manip_uint( &channel::indent, s );
 }
 
@@ -223,7 +229,8 @@ inline channel_manip_uint indent( unsigned int s ) {
  * Change minimum line width manipulator.
  * @see DGD::channel::min_width(unsigned int)
  */
-inline channel_manip_uint minwidth( unsigned int s ) {
+inline 
+channel_manip_uint minwidth( unsigned int s ) {
    return channel_manip_uint( &channel::min_width, s );
 }
 
@@ -231,7 +238,8 @@ inline channel_manip_uint minwidth( unsigned int s ) {
  * Change maximum line width manipulator.
  * @see DGD::channel::max_width(unsigned int)
  */
-inline channel_manip_uint maxwidth( unsigned int s ) {
+inline 
+channel_manip_uint maxwidth( unsigned int s ) {
    return channel_manip_uint( &channel::max_width, s );
 }
 
@@ -239,7 +247,8 @@ inline channel_manip_uint maxwidth( unsigned int s ) {
  * Enable/disable character wrapping manipulator.
  * @see DGD::channel::wrap(bool)
  */
-inline channel_manip_bool wrap( bool s ) {
+inline 
+channel_manip_bool wrap( bool s ) {
    return channel_manip_bool( &channel::wrap, s );
 }
 
@@ -247,7 +256,8 @@ inline channel_manip_bool wrap( bool s ) {
  * Enable/disable word wrapping manipulator.
  * @see DGD::channel::word_wrap(bool)
  */
-inline channel_manip_bool word_wrap( bool s ) {
+inline 
+channel_manip_bool word_wrap( bool s ) {
    return channel_manip_bool( &channel::word_wrap, s );
 }
 

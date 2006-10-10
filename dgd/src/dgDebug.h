@@ -31,6 +31,10 @@
  * Declaration of DGD::Debug.
  */
 
+#ifndef DGD_EXPORT
+#define DGD_EXPORT
+#endif
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -93,7 +97,7 @@ namespace DGD {
  * received by main() function or use DGD::option_filter to create
  * custom option sets. 
  */
-class Debug {
+class DGD_EXPORT Debug {
    public:
       typedef channel& channel_ref;
       typedef boost::shared_ptr<Debug> debug_factory_ref;

@@ -30,6 +30,10 @@
  * Declaration of DGD::option_filter.
  */
 
+#ifndef DGD_EXPORT
+#define DGD_EXPORT
+#endif
+
 #include <vector>
 
 namespace DGD {
@@ -52,7 +56,7 @@ namespace DGD {
  * </dl>
  * @see DGD::Debug
  */
-class option_filter {
+class DGD_EXPORT option_filter {
    public:
       class option_set_type {
 	 public:

@@ -24,7 +24,7 @@
 # Conscript -- build file for scooter/dist
 #
 
-Import qw(BLIB toolset options);
+Import qw(BLIB toolset options version);
 
 Build map( "$_/Conscript", 
 	   qw( win32 ) );
