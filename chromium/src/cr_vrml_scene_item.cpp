@@ -34,6 +34,11 @@
 
 #include <QtGui/QFont>
 #include <QtGui/QFontMetrics>
+#include <QtGui/QPushButton>
+#include <QtGui/QFrame>
+#include <QtGui/QLabel>
+#include <QtGui/QBoxLayout>
+#include <QtGui/QMenu>
 
 #include <dgDebug.h>
 
@@ -50,7 +55,7 @@ Delegate::~Delegate() {}
 
 QSize Delegate::sizeHint ( const QStyleOptionViewItem & option, 
 			   const QModelIndex & index ) const {
-   dgd_start_scope( gui, "Delegate::sizeHint" );
+   dgd_start_scope( gui, "Delegate::sizeHint()" );
 
    if( !index.isValid() || index.model() == NULL ) {
       dgd_end_scope_text( gui, "index not valid" );
@@ -70,8 +75,10 @@ QSize Delegate::sizeHint ( const QStyleOptionViewItem & option,
    
    dgd_echo( dgd_expand(str.toStdString()) << std::endl );
 
-   if( str.isNull() )
+   if( str.isNull() ) {
+      dgd_end_scope_text( gui, "string is empty" );
       return QSize();
+   }
 
    QRect rect = QFontMetrics( option.font ).boundingRect( str );
 
@@ -82,6 +89,91 @@ QSize Delegate::sizeHint ( const QStyleOptionViewItem & option,
 
    dgd_end_scope( gui );
    return size.expandedTo( rect.size() );
+}
+
+QWidget *Delegate::createEditor(QWidget *parent,
+				const QStyleOptionViewItem &option,
+				const QModelIndex &index) const {
+   dgd_start_scope( gui, "Delegate::createEditor()" );
+
+   DelegateEditor *editor = new DelegateEditor( parent );
+   if( !editor->construct( option, index ) ) {
+      delete editor;
+      editor = NULL;
+   }
+
+   dgd_end_scope( gui );
+
+   return editor;
+}
+      
+void Delegate::updateEditorGeometry(QWidget *editor,
+				    const QStyleOptionViewItem &option, 
+				    const QModelIndex &index) const {
+   QItemDelegate::updateEditorGeometry( editor, option, index );
+}
+
+DelegateEditor::DelegateEditor( QWidget *parent ) :
+   QWidget( parent ),
+   m_label( NULL ),
+   m_button( NULL ) {
+}
+
+DelegateEditor::~DelegateEditor() {}
+
+bool DelegateEditor::construct( const QStyleOptionViewItem &option, 
+				const QModelIndex &index ) {
+   dgd_start_scope( gui, "DelegateEditor::construct_editor()" );
+
+   if( !index.isValid() || index.model() == NULL ) {
+      dgd_end_scope_text( gui, "index not valid" );
+      return false;
+   }
+
+   const QAbstractItemModel *model = index.model();
+   QSize size = model->data( index, Qt::SizeHintRole ).toSize();
+   QVariant data = model->data( index, Qt::DisplayRole );
+
+   if( !data.isValid() || data.isNull() ) {
+      dgd_end_scope_text( gui, "data not valid" );
+      return false;
+   }
+
+   QString str = data.toString();
+   
+   dgd_echo( dgd_expand(str.toStdString()) << std::endl );
+
+   if( str.isNull() ) {
+      dgd_end_scope_text( gui, "string is empty" );
+      return false;
+   }
+
+   m_label = new QLabel( tr("[") + str + tr("]") , this );
+   m_button = new QPushButton( tr(">"), this );
+
+   QHBoxLayout *layout = new QHBoxLayout;
+
+   m_button->setMinimumSize( 10, 10 );   
+   m_button->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
+					 QSizePolicy::Fixed ) );
+
+   m_label->setMinimumSize( 10, 10 );
+   m_label->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
+					QSizePolicy::Fixed ) );
+
+   layout->addWidget( m_label, 0, Qt::AlignLeft  );
+   layout->addWidget( m_button, 0, Qt::AlignRight );
+
+   this->setLayout( layout );
+
+   QMenu *menu = new QMenu( this );
+   menu->addAction ( tr("Select") );
+   menu->addAction ( tr("Focus") );
+   menu->addAction ( tr("Edit") );
+   
+   dgd_end_scope( gui );
+
+   return true;
 }
 
 }; // end of namespace scene

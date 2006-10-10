@@ -29,6 +29,9 @@
 
 #include <QtGui/QItemDelegate>
 
+class QLabel;
+class QPushButton;
+
 namespace cr {
 
 namespace vrml {
@@ -40,8 +43,29 @@ class Delegate: public QItemDelegate {
       Delegate();
       virtual ~Delegate();
 
-      QSize sizeHint ( const QStyleOptionViewItem & option, 
-		       const QModelIndex & index ) const;
+      QWidget *createEditor(QWidget *parent,
+			    const QStyleOptionViewItem &option,
+			    const QModelIndex &index) const;
+      
+      void updateEditorGeometry(QWidget *editor,
+				const QStyleOptionViewItem &option, 
+				const QModelIndex &index) const;
+
+      QSize sizeHint( const QStyleOptionViewItem &option, 
+		      const QModelIndex &index ) const;
+};
+
+class DelegateEditor: public QWidget {
+   public:
+      DelegateEditor( QWidget *parent );
+      virtual ~DelegateEditor();
+
+      bool construct( const QStyleOptionViewItem &option, 
+		      const QModelIndex &index );
+
+   private:
+      QLabel      *m_label;
+      QPushButton *m_button;
 };
 
 }; // end of namespace scene

@@ -44,6 +44,8 @@ Tree::Tree( QWidget * parent ) :
 
    connect( this, SIGNAL(expanded(const QModelIndex&)),
 	    this, SLOT(resize_tree_to_content(const QModelIndex&)) );
+
+   this->setEditTriggers( QAbstractItemView::CurrentChanged );
 }
 
 Tree::~Tree() {}

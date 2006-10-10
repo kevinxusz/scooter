@@ -222,8 +222,19 @@ QVariant Model::data( const QModelIndex & index, int role ) const {
 
 Qt::ItemFlags Model::flags( const QModelIndex & index ) const {
    dgd_start_scope( model, "Model::flags()" );
+
+   Qt::ItemFlags flags = Qt::ItemIsSelectable;
+   
+   switch( index.column() ) {
+      case SM_NAME_COLUMN:
+	 flags |= Qt::ItemIsEditable;
+	 break;
+      default:
+	 break;
+   }
+
    dgd_end_scope( model );
-   return Qt::ItemIsSelectable;
+   return flags;
 }
 
 bool Model::hasChildren( const QModelIndex & parent ) const {
