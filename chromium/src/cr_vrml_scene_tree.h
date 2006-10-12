@@ -45,7 +45,13 @@ class Tree: public QTreeView {
       virtual ~Tree();
 
    private slots:
-      void resize_tree_to_content( const QModelIndex & index );
+      void resize_tree_to_content( const QModelIndex &index );
+      
+   private:
+      void mousePressEvent ( QMouseEvent * event );
+
+   private:
+      QMenu *m_item_menu;
 };
 
 }; // end of namespace scene

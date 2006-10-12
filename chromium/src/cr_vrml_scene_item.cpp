@@ -32,16 +32,19 @@
 #include <QtCore/QVariant>
 #include <QtCore/QAbstractItemModel>
 
+#include <QtGui/QPen>
+#include <QtGui/QPainter>
 #include <QtGui/QFont>
+#include <QtGui/QColor>
 #include <QtGui/QFontMetrics>
 #include <QtGui/QPushButton>
 #include <QtGui/QFrame>
 #include <QtGui/QLabel>
 #include <QtGui/QBoxLayout>
-#include <QtGui/QMenu>
 
 #include <dgDebug.h>
 
+#include "cr_svg.h"
 #include "cr_vrml_scene_item.h"
 
 namespace cr {
@@ -53,127 +56,70 @@ namespace scene {
 Delegate::Delegate() {}
 Delegate::~Delegate() {}
 
-QSize Delegate::sizeHint ( const QStyleOptionViewItem & option, 
-			   const QModelIndex & index ) const {
-   dgd_start_scope( gui, "Delegate::sizeHint()" );
+QRect Delegate::getSensitiveArea( const QRect &rect ) const {
+   dgd_start_scope( gui, "Delegate::getSensitiveArea()" );
 
-   if( !index.isValid() || index.model() == NULL ) {
-      dgd_end_scope_text( gui, "index not valid" );
-      return QSize();
-   }
+   int x = 0, y = 0, width = 0, height = 0, pad = 0;
 
-   const QAbstractItemModel *model = index.model();
-   QSize size = model->data( index, Qt::SizeHintRole ).toSize();
-   QVariant data = model->data( index, Qt::DisplayRole );
-
-   if( !data.isValid() || data.isNull() ) {
-      dgd_end_scope_text( gui, "data not valid" );
-      return QSize();
-   }
-
-   QString str = data.toString();
-   
-   dgd_echo( dgd_expand(str.toStdString()) << std::endl );
-
-   if( str.isNull() ) {
-      dgd_end_scope_text( gui, "string is empty" );
-      return QSize();
-   }
-
-   QRect rect = QFontMetrics( option.font ).boundingRect( str );
-
-   dgd_echo( dgd_expand(rect.width()) << std::endl
-	     << dgd_expand(rect.height()) << std::endl 
-	     << dgd_expand(option.decorationSize.width()) << std::endl
-	     << dgd_expand(option.decorationSize.height()) << std::endl );
-
-   dgd_end_scope( gui );
-   return size.expandedTo( rect.size() );
-}
-
-QWidget *Delegate::createEditor(QWidget *parent,
-				const QStyleOptionViewItem &option,
-				const QModelIndex &index) const {
-   dgd_start_scope( gui, "Delegate::createEditor()" );
-
-   DelegateEditor *editor = new DelegateEditor( parent );
-   if( !editor->construct( option, index ) ) {
-      delete editor;
-      editor = NULL;
-   }
-
-   dgd_end_scope( gui );
-
-   return editor;
-}
+   if( rect.width() >= rect.height() ) {
+      pad = std::max( 2, (int)( (double)rect.height() * 0.1 ) );
       
-void Delegate::updateEditorGeometry(QWidget *editor,
-				    const QStyleOptionViewItem &option, 
-				    const QModelIndex &index) const {
-   QItemDelegate::updateEditorGeometry( editor, option, index );
-}
+      width = height = rect.height() - 2 * pad;
+      y = rect.y() + pad;
+      x = rect.x() + rect.width() - rect.height() + pad;
+   } else {
+      pad = std::max( 2, (int)( (double)rect.width() * 0.1 ) );
 
-DelegateEditor::DelegateEditor( QWidget *parent ) :
-   QWidget( parent ),
-   m_label( NULL ),
-   m_button( NULL ) {
-}
-
-DelegateEditor::~DelegateEditor() {}
-
-bool DelegateEditor::construct( const QStyleOptionViewItem &option, 
-				const QModelIndex &index ) {
-   dgd_start_scope( gui, "DelegateEditor::construct_editor()" );
-
-   if( !index.isValid() || index.model() == NULL ) {
-      dgd_end_scope_text( gui, "index not valid" );
-      return false;
+      width = height = rect.width() - 2 * pad;
+      y = rect.y() + rect.height() - rect.width() + pad;
+      x = rect.x() + pad;
    }
 
-   const QAbstractItemModel *model = index.model();
-   QSize size = model->data( index, Qt::SizeHintRole ).toSize();
-   QVariant data = model->data( index, Qt::DisplayRole );
-
-   if( !data.isValid() || data.isNull() ) {
-      dgd_end_scope_text( gui, "data not valid" );
-      return false;
-   }
-
-   QString str = data.toString();
-   
-   dgd_echo( dgd_expand(str.toStdString()) << std::endl );
-
-   if( str.isNull() ) {
-      dgd_end_scope_text( gui, "string is empty" );
-      return false;
-   }
-
-   m_label = new QLabel( tr("[") + str + tr("]") , this );
-   m_button = new QPushButton( tr(">"), this );
-
-   QHBoxLayout *layout = new QHBoxLayout;
-
-   m_button->setMinimumSize( 10, 10 );   
-   m_button->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
-					 QSizePolicy::Fixed ) );
-
-   m_label->setMinimumSize( 10, 10 );
-   m_label->setSizePolicy( QSizePolicy( QSizePolicy::Fixed,
-					QSizePolicy::Fixed ) );
-
-   layout->addWidget( m_label, 0, Qt::AlignLeft  );
-   layout->addWidget( m_button, 0, Qt::AlignRight );
-
-   this->setLayout( layout );
-
-   QMenu *menu = new QMenu( this );
-   menu->addAction ( tr("Select") );
-   menu->addAction ( tr("Focus") );
-   menu->addAction ( tr("Edit") );
+   dgd_echo( dgd_expand(rect.x()) << std::endl 
+	     << dgd_expand(rect.y()) << std::endl 
+	     << dgd_expand(rect.width()) << std::endl
+	     << dgd_expand(rect.height()) << std::endl 
+	     << dgd_expand(x) << std::endl
+	     << dgd_expand(y) << std::endl
+	     << dgd_expand(width) << std::endl
+	     << dgd_expand(height) << std::endl );
    
    dgd_end_scope( gui );
+   return QRect(x,y,width,height);
+}
 
-   return true;
+void Delegate::drawDisplay( QPainter *painter, 
+			    const QStyleOptionViewItem &option, 
+			    const QRect &rect, 
+			    const QString &text ) const {
+   dgd_start_scope( gui, "Delegate::drawDisplay()" );
+
+   QItemDelegate::drawDisplay( painter, option, rect, text );
+
+   if( (option.state & QStyle::State_Selected) == 0 ) {
+      dgd_end_scope_text( gui, dgd_expand(option.state) << std::endl );
+      return;
+   }
+
+
+   QRect tagrect = this->getSensitiveArea( rect );
+   QPen pen = painter->pen();
+   QBrush brush = option.palette.brush( QPalette::Normal, QPalette::Shadow);
+   QColor brush_color = brush.color();
+
+   brush_color.setAlpha(128);
+   brush.setColor( brush_color );
+
+   painter->save();
+   painter->drawPixmap( tagrect,
+			Svg_icon( ":/icons/dropdown.svg", tagrect.size() ),
+			QRect(0,0,tagrect.width(),tagrect.height()) );
+//   painter->fillRect( tagrect, brush );
+   painter->restore();
+
+   painter->setPen( pen );
+
+   dgd_end_scope( gui );
 }
 
 }; // end of namespace scene

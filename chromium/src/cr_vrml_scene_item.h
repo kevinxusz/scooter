@@ -43,29 +43,13 @@ class Delegate: public QItemDelegate {
       Delegate();
       virtual ~Delegate();
 
-      QWidget *createEditor(QWidget *parent,
-			    const QStyleOptionViewItem &option,
-			    const QModelIndex &index) const;
-      
-      void updateEditorGeometry(QWidget *editor,
-				const QStyleOptionViewItem &option, 
-				const QModelIndex &index) const;
-
-      QSize sizeHint( const QStyleOptionViewItem &option, 
-		      const QModelIndex &index ) const;
-};
-
-class DelegateEditor: public QWidget {
-   public:
-      DelegateEditor( QWidget *parent );
-      virtual ~DelegateEditor();
-
-      bool construct( const QStyleOptionViewItem &option, 
-		      const QModelIndex &index );
+      QRect getSensitiveArea( const QRect &rect ) const;
 
    private:
-      QLabel      *m_label;
-      QPushButton *m_button;
+      void drawDisplay( QPainter *painter, 
+			const QStyleOptionViewItem &option, 
+			const QRect &rect, 
+			const QString &text ) const;
 };
 
 }; // end of namespace scene

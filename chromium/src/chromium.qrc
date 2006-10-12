@@ -23,6 +23,7 @@
     <file>icons/center.svg</file>
     <file>icons/culling.svg</file>
     <file>icons/texture.svg</file>
+    <file>icons/dropdown.svg</file>
     <file>cr_cfg_def.xml</file> 
 </qresource>
 </RCC>
