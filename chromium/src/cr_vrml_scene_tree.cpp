@@ -43,7 +43,10 @@ namespace scene {
 
 Tree::Tree( QWidget * parent ) :
    QTreeView( parent ),
-   m_item_menu(NULL) {
+   m_item_menu(NULL) ,
+   m_select_action(NULL),
+   m_focus_action(NULL),
+   m_edit_action(NULL) {
    this->setAlternatingRowColors( true );
 
    Delegate *delegate = new Delegate;
@@ -53,6 +56,12 @@ Tree::Tree( QWidget * parent ) :
 	    this, SLOT(resize_tree_to_content(const QModelIndex&)) );
 
    this->setEditTriggers( QAbstractItemView::CurrentChanged );
+
+   m_item_menu = new QMenu( this );
+   
+   m_select_action = m_item_menu->addAction( tr("(Un)Select")  );
+   m_focus_action  = m_item_menu->addAction( tr("(Un)Focus") );
+   m_edit_action   = m_item_menu->addAction( tr("Edit") );
 }
 
 Tree::~Tree() {}
@@ -65,35 +74,38 @@ void Tree::resize_tree_to_content( const QModelIndex & index ) {
 void Tree::mousePressEvent ( QMouseEvent *event ) {
    dgd_start_scope( gui, "Tree::mousePressEvent()" );
 
-   if( m_item_menu == NULL ) {
-      dgd_echo( "constructing m_item_menu" << std::endl );
-      m_item_menu = new QMenu;
+   QTreeView::mousePressEvent( event );
+
+   dgd_echo( dgd_expand(event->pos().x()) << std::endl
+	     << dgd_expand(event->pos().y()) << std::endl );
       
-      m_item_menu->addAction( tr("(Un)Select") );
-      m_item_menu->addAction( tr("(Un)Focus") );
-      m_item_menu->addAction( tr("Edit") );
-   }
+   QModelIndex index = this->indexAt( event->pos() );
+   if( index.isValid() && index.column() == Model::SM_NAME_COLUMN ) {
 
-   if( event != NULL && event->button() == Qt::RightButton ) {
-      dgd_echo( "right button pressed" << std::endl );
-
-      QModelIndex index = this->indexAt( event->globalPos() );
-
-      if( index.isValid() && index.column() == Model::SM_NAME_COLUMN ) {
-	 m_item_menu->popup( event->globalPos() );
+      QString title = index.data(Qt::DisplayRole).toString();
+      if( title.length() > CTX_MAX_TITLE_WIDTH ) {
+	 title.remove( CTX_MAX_TITLE_WIDTH, title.length() );
+	 title += tr("...");
       }
-   } else if( event != NULL && event->button() == Qt::LeftButton ) {
-      dgd_echo( "left button pressed" << std::endl );
-      
-      QModelIndex index = this->indexAt( event->globalPos() );
 
-      dgd_echo( dgd_expand(event->pos().x()) << std::endl
-		<< dgd_expand(event->pos().y()) << std::endl );
-      
-      if( index.isValid() && index.column() == Model::SM_NAME_COLUMN ) {
-	 QRect rect = 
-	    this->visualRect( this->selectionModel()->currentIndex() );
+      dgd_echo( dgd_expand(title.toStdString()) << std::endl );
 
+      m_item_menu->setTitle( title );
+      m_select_action->setData( QVariant( index.row() ) );
+      m_focus_action->setData( QVariant( index.row() ) );
+      m_edit_action->setData( QVariant( index.row() ) );
+
+      if( event != NULL && event->button() == Qt::RightButton ) {
+	 dgd_echo( "right button pressed" << std::endl );      
+	 this->handle_context_action (
+	    m_item_menu->exec( event->globalPos() ),
+	    index
+	 );
+      } else if( event != NULL && event->button() == Qt::LeftButton ) {
+	 dgd_echo( "left button pressed" << std::endl );
+      
+	 QRect rect =  this->visualRect( index );
+      
 	 dgd_echo( dgd_expand(rect.x()) << std::endl 
 		   << dgd_expand(rect.y()) << std::endl 
 		   << dgd_expand(rect.width()) << std::endl 
@@ -107,20 +119,36 @@ void Tree::mousePressEvent ( QMouseEvent *event ) {
 		      << dgd_expand(sensitive_area.y()) << std::endl 
 		      << dgd_expand(sensitive_area.width()) << std::endl 
 		      << dgd_expand(sensitive_area.height()) << std::endl );
-
+	 
 	    if( sensitive_area.isValid() && 
 		sensitive_area.contains( event->pos() ) ) {
-	       m_item_menu->popup( event->globalPos() );
+	       this->handle_context_action( 
+		  m_item_menu->exec( event->globalPos() ),
+		  index
+	       );
 	    }
 	 }
       }
    }
 
-   QTreeView::mousePressEvent( event );
-
    dgd_end_scope(gui);
 }
 
+void Tree::handle_context_action( QAction *sender, const QModelIndex& index ) {
+   dgd_start_scope( gui, "Tree::handle_context_action()" );
+
+   if( sender == m_select_action ) {
+      dgd_echo( dgd_expand(sender->text().toStdString()) << std::endl );
+      emit select( index );
+   } else if( sender == m_focus_action ) {
+      dgd_echo( dgd_expand(sender->text().toStdString()) << std::endl );
+      emit focus( index );
+   } else if( sender == m_edit_action ) {
+      dgd_echo( dgd_expand(sender->text().toStdString()) << std::endl );
+      emit edit( index );
+   }
+   dgd_end_scope( gui );
+}
 
 }; // end of namespace scene
 

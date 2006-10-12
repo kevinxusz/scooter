@@ -39,6 +39,8 @@
 #include <QtGui/QTabWidget>
 #include <QtGui/QTreeView>
 
+#include <openvrml/browser.h>
+
 #include <dgDebug.h>
 
 #include "cr_svg.h"
@@ -65,7 +67,8 @@ Document::Document( const QFileInfo& finfo ) :
    m_loader(NULL),
    m_scene_model(NULL),
    m_scene_tree(NULL),
-   m_glpad(NULL) {
+   m_glpad(NULL),
+   m_selection(NULL) {
 
    dgd_start_scope( gui, "Document::Document()" );
 
@@ -218,6 +221,13 @@ void Document::construct_toolset() {
    m_tool_tab->setTabPosition( QTabWidget::East );
 
    m_scene_tree = new vrml::scene::Tree(m_tool_tab);
+   
+   connect( m_scene_tree, SIGNAL(select(QModelIndex)),
+	    this, SLOT(handle_select(QModelIndex)) );
+   connect( m_scene_tree, SIGNAL(focus(QModelIndex)),
+	    this, SLOT(handle_focus(QModelIndex)) );
+   connect( m_scene_tree, SIGNAL(edit(QModelIndex)),
+	    this, SLOT(handle_edit(QModelIndex)) );
 
    m_tool_tab->addTab( m_scene_tree, tr("Scene Tree") );
 }
@@ -242,6 +252,119 @@ void Document::glpad_reset() {
       m_glpad->reset_user_navigation();
       m_glpad->repaint();
    }
+}
+
+void Document::handle_select( QModelIndex index ) {
+   dgd_start_scope( gui, "Document::handle_select()" );
+   
+   if( m_glpad == NULL ) {
+      dgd_end_scope_text( gui, "glpad is NULL" );
+      return;
+   }
+
+   if( !index.isValid() ) {
+      dgd_end_scope_text( gui, "index not valid" );
+      return;
+   }
+
+   void *object = index.internalPointer();
+   if( object == NULL ) {
+      dgd_end_scope_text( gui, "object == NULL" );
+      return;
+   }
+
+   vrml::scene::Item *item = static_cast<vrml::scene::Item*>( object );
+   if( item == NULL ) {
+      dgd_end_scope_text( gui, "item == NULL" );
+      return;
+   }
+
+   if( item != NULL && 
+       item->node().node() != NULL &&
+       item->node().field().isNull() ) {
+      openvrml::node *node = item->node().node();
+
+      if( node != m_selection ) {
+	 m_selection = node;
+
+	 openvrml::mat4f transform = item->transform();
+	 
+	 const openvrml::bounding_sphere &bvol = 
+	    dynamic_cast<const openvrml::bounding_sphere&>(
+	       node->bounding_volume()
+	    );
+	 
+	 // float radius = bvol.radius();
+	 openvrml::vec3f top = bvol.top();
+	 openvrml::vec3f bottom = bvol.bottom();
+	 
+	 top *= transform;
+	 bottom *= transform;
+	 
+	 dgd_echo( dgd_expand(top) << std::endl 
+		   << dgd_expand(bottom) << std::endl );
+	 	 
+	 m_glpad->bbox( vrml::Control::Point( bottom.x(), 
+					      bottom.y(),
+					      bottom.z() ),
+			vrml::Control::Point( top.x(), 
+					      top.y(),
+					      top.z() ),
+			Qt::white );
+	 m_glpad->bbox( true );      
+      } else {
+	 m_selection = NULL;
+	 m_glpad->bbox( false );     
+      }
+   }
+	
+   m_glpad->repaint();
+ 
+   dgd_end_scope( gui );
+}
+
+void Document::handle_focus( QModelIndex index ) {
+   dgd_start_scope( gui, "Document::handle_focus()" );
+   
+   if( m_glpad == NULL ) {
+      dgd_end_scope_text( gui, "glpad is NULL" );
+      return;
+   }
+
+   if( !index.isValid() ) {
+      dgd_end_scope_text( gui, "index not valid" );
+      return;
+   }
+
+   void *object = index.internalPointer();
+   if( object == NULL ) {
+      dgd_end_scope_text( gui, "object == NULL" );
+      return;
+   }
+
+   vrml::scene::Item *item = static_cast<vrml::scene::Item*>( object );
+   if( item == NULL ) {
+      dgd_end_scope_text( gui, "item == NULL" );
+      return;
+   }
+
+   if( item != NULL && 
+       item->node().node() != NULL &&
+       item->node().field().isNull() ) {
+      openvrml::node *node = item->node().node();
+      openvrml::mat4f transform = item->transform();
+
+      vrml::Control::Node_list list;
+      list.push_back( vrml::Control::Node_list::value_type( node ) );
+      m_glpad->scene_root_nodes( list );
+   }
+
+   this->glpad_reset();
+ 
+   dgd_end_scope( gui );
+}
+
+void Document::handle_edit( QModelIndex index ) {
 }
 
 }; // end of namespace cr

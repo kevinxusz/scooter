@@ -56,6 +56,14 @@ namespace scene {
 Delegate::Delegate() {}
 Delegate::~Delegate() {}
 
+QSize Delegate::sizeHint( const QStyleOptionViewItem &option, 
+			  const QModelIndex &index ) const {
+   QSize size = QItemDelegate::sizeHint(option,index);
+   if( size.isValid() ) 
+      size.setWidth( size.width() + size.height() );
+   return size;
+}
+
 QRect Delegate::getSensitiveArea( const QRect &rect ) const {
    dgd_start_scope( gui, "Delegate::getSensitiveArea()" );
 
@@ -104,17 +112,11 @@ void Delegate::drawDisplay( QPainter *painter,
 
    QRect tagrect = this->getSensitiveArea( rect );
    QPen pen = painter->pen();
-   QBrush brush = option.palette.brush( QPalette::Normal, QPalette::Shadow);
-   QColor brush_color = brush.color();
-
-   brush_color.setAlpha(128);
-   brush.setColor( brush_color );
 
    painter->save();
    painter->drawPixmap( tagrect,
 			Svg_icon( ":/icons/dropdown.svg", tagrect.size() ),
 			QRect(0,0,tagrect.width(),tagrect.height()) );
-//   painter->fillRect( tagrect, brush );
    painter->restore();
 
    painter->setPen( pen );

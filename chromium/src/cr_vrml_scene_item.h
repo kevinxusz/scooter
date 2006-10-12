@@ -45,6 +45,8 @@ class Delegate: public QItemDelegate {
 
       QRect getSensitiveArea( const QRect &rect ) const;
 
+      QSize sizeHint( const QStyleOptionViewItem &option, 
+		      const QModelIndex &index ) const;
    private:
       void drawDisplay( QPainter *painter, 
 			const QStyleOptionViewItem &option, 

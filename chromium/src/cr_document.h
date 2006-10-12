@@ -28,6 +28,7 @@
 #define _cr_document_h_
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QModelIndex>
 
 #include <QtGui/QWidget>
 
@@ -70,6 +71,10 @@ class Document: public QWidget {
       void load_cancel();
       void load_start();
 
+      void handle_select( QModelIndex index );
+      void handle_focus( QModelIndex index );
+      void handle_edit( QModelIndex index );
+
    private:
       void closeEvent(QCloseEvent *event);
 
@@ -91,6 +96,7 @@ class Document: public QWidget {
       vrml::scene::Model *m_scene_model;
       vrml::scene::Tree  *m_scene_tree;
       vrml::Control      *m_glpad;
+      void               *m_selection;
 };
 
 }; // end of namespace cr
