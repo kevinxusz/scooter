@@ -24,7 +24,7 @@
 # Conscript -- conscript file for scooter/common
 #
 
-Import qw(BLIB toolset options );
+Import qw(BLIB toolset options version);
 
 my $ruleset  = $toolset->env();
 
@@ -32,7 +32,6 @@ die if( !defined( $ruleset ) );
 
 our $BUILD      = $toolset->option( 'build' );
 our $buildenv   = new cons( %{$ruleset} );
-our $version = Cons::VersionControl->open();
 
 map {
     my $src = "$BUILD/$_";

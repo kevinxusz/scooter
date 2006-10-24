@@ -24,7 +24,7 @@
 # Conscript -- conscript file for tests
 #
 
-Import qw(BLIB toolset options);
+Import qw(BLIB toolset options version);
 
 Build map( "$_/Conscript", 
 	   qw( calculus geometry iterators dcel bezier cfg ) );

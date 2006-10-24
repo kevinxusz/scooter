@@ -82,6 +82,7 @@ class Document: public QWidget {
       void constructed();
       void load_finished();
       void load_failed();
+      void edit( QModelIndex index );
 
    private:
       void construct_toolset();

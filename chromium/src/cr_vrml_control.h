@@ -18,7 +18,7 @@
 //
 // This file is a part of the Scooter project. 
 //
-// Copyright (c) 2004. Dimitry Kloper <dimka@cs.technion.ac.il> . 
+// Copyright (c) 2004-2006. Dimitry Kloper <dimka@cs.technion.ac.il> . 
 // Technion, Israel Institute of Technology. Computer Science Department.
 //
 // cr_vrml_control.h -- VRML rendering engine

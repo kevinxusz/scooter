@@ -29,8 +29,6 @@
 namespace scooter {
 namespace nmm {
 
-using namespace trace;
-
 // Dcel_vertex
 
 template <class Vb, class Hb, class Fb>

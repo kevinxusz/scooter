@@ -36,7 +36,6 @@
 
 namespace scooter {
 namespace nmm {
-namespace trace {
 
 using namespace DGD;
 
@@ -266,8 +265,6 @@ channel &operator << ( channel &ostr, const brief_type<T*> &vf ) {
    return ostr;
 }
 
-
-}; // end of namespace trace
 }; // end of namespace nmm
 }; // end of namespace scooter
 

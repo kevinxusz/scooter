@@ -55,6 +55,7 @@
 #include "cr_svg.h"
 #include "cr_vrml_control.h"
 #include "cr_document.h"
+#include "cr_mesh_editor.h"
 
 namespace cr {
 
@@ -197,13 +198,42 @@ void Portal::open( const QString& fname ) {
 	       m_history_mapper, SLOT(map()) );
       connect( doc, SIGNAL(load_finished()), 
 	       m_properties_mapper, SLOT(map()) );
-      
+      connect( doc, SIGNAL(edit(QModelIndex)),
+	       this, SLOT(open(QModelIndex)) );
+
       m_history_mapper->setMapping( doc, finfo.absoluteFilePath() );
       m_properties_mapper->setMapping( doc, doc );
 
       m_workspace->addWindow( doc );
 
       doc->show();
+   }
+
+   dgd_end_scope( gui );
+}
+
+void Portal::open( QModelIndex index ) {
+   dgd_start_scope( gui, "Portal::open(QModelIndex)" );
+
+   if( index.isValid() ) {
+      cr::vrml::mesh::Editor *editor = 
+	 new cr::vrml::mesh::Editor( m_workspace );
+
+      QRect wsgeom = m_workspace->geometry();
+      QRect mygeom;
+
+      mygeom.setLeft( 10 );
+      mygeom.setTop( 35 );
+      mygeom.setWidth( (int)(wsgeom.width() * 0.7) );
+      mygeom.setHeight( (int)(wsgeom.height() * 0.7) );
+
+      editor->setGeometry( mygeom );
+      
+      m_workspace->addWindow( editor );
+
+      editor->show();
+
+      editor->reload( index );
    }
 
    dgd_end_scope( gui );

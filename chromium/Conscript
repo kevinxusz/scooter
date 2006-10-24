@@ -105,6 +105,10 @@ Program $buildenv $TARGET,
 			cr_portal.cpp
 			cr_vrml_loader.cpp
 			cr_document.cpp
+			cr_mesh.cpp
+			cr_mesh_scene.cpp
+			cr_mesh_control.cpp
+			cr_mesh_editor.cpp
 			cr_vrml_control.cpp
 			cr_vrml_scene_map.cpp
 			cr_vrml_scene_model.cpp
@@ -114,6 +118,8 @@ Program $buildenv $TARGET,
 			%{PREFMOC}cr_portal.cpp
 			%{PREFMOC}cr_vrml_loader.cpp
 			%{PREFMOC}cr_document.cpp
+			%{PREFMOC}cr_mesh_control.cpp
+			%{PREFMOC}cr_mesh_editor.cpp
 			%{PREFMOC}cr_vrml_control.cpp
 			%{PREFMOC}cr_vrml_scene_model.cpp
 			%{PREFMOC}cr_vrml_scene_tree.cpp
@@ -129,6 +135,8 @@ map {
       cr_portal.h
       cr_vrml_loader.h
       cr_document.h
+      cr_mesh_control.h
+      cr_mesh_editor.h
       cr_vrml_control.h
       cr_vrml_scene_model.h
       cr_vrml_scene_tree.h );

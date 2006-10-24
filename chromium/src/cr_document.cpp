@@ -365,6 +365,11 @@ void Document::handle_focus( QModelIndex index ) {
 }
 
 void Document::handle_edit( QModelIndex index ) {
+   dgd_start_scope( gui, "Document::handle_edit()" );
+   
+   emit edit( index );
+   
+   dgd_end_scope( gui );
 }
 
 }; // end of namespace cr

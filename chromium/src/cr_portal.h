@@ -29,6 +29,7 @@
 
 #include <QtCore/QRect>
 #include <QtCore/QStringList>
+#include <QtCore/QModelIndex>
 
 #include <QtGui/QMainWindow>
 
@@ -60,6 +61,7 @@ class Portal: public QMainWindow {
 
       void open( const QString& fname );
       void open();
+      void open( QModelIndex index );
       void close();
       void save();
       void saveas();
