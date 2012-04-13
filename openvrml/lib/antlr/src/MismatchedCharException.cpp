@@ -5,6 +5,8 @@
  * $Id: MismatchedCharException.cpp,v 1.1.1.1 2003/04/06 22:26:27 braden Exp $
  */
 
+#include <cstring>
+
 #include "antlr/CharScanner.hpp"
 #include "antlr/MismatchedCharException.hpp"
 #include "antlr/String.hpp"

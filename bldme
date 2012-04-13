@@ -10,11 +10,11 @@ perl -I cons ./cons/cons.pl $2 -- --toolset=gcc,cygwin,boost,stlport,clo,zlib,jp
 (doc)
 /c/perl/bin/perl -I cons ./cons/cons.pl $2-- --toolset=doxygen -v3 && cd doc/docsys && ./docsys dgd && ./docsys doxy ;;
 (clean)
-/c/perl/bin/perl -I cons ./cons/cons.pl $2 -- clean ;;
+/c/s/perl/bin/perl -I cons ./cons/cons.pl $2 -- clean ;;
 (win|win-debug)
 /c/perl/bin/perl -I cons ./cons/cons.pl $2 -- --toolset=msvc70,cygwin,boost,stlport,clo,zlib,jpeg,libpng --nostlport-debug -v3 $3 $4 $5 $6;;
 (ming|mingw)
-/c/perl/bin/perl -I cons ./cons/cons.pl $2 -- --toolset=mingw,cygwin,boost,qt4,clo,nsis -v3 --mingw-root-dir=c:/mingw-3.4.2 --qt4-root-dir=c:/qt-4.1.4-mingw $3 $4 $5 $6;;
+/c/perl64/bin/perl -I cons ./cons/cons.pl $2 -- --toolset=mingw,cygwin,boost,qt4 -v3 --cygwin-root-dir=c:/cygwin --mingw-root-dir=c:/personal/mingw --qt4-root-dir=c:/personal/qt-4.8.0-src/qt-everywhere-opensource-src-4.8.0 --boost-root-dir=c:/personal/boost-1.47 $3 $4 $5 $6;;
 esac
 
 # 

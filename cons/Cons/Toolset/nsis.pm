@@ -18,8 +18,7 @@
 #
 # This file is a part of the Scooter project. 
 #
-# Copyright (c) 2006. Dimitry Kloper <dimka@cs.technion.ac.il> . 
-# Technion, Israel Institute of Technology. Computer Science Department.
+# Copyright (c) 2002-2012. Dimitry Kloper <kloper@users.sf.net>. 
 #
 # nsis.pm -- NSIS toolset
 #

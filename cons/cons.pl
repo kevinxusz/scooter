@@ -56,6 +56,8 @@ use vars qw( $_WIN32 $_a $_exe $_o $_so );
 use vars qw( $PATH_SEPARATOR $iswin32 $_WIN32 $usage $indent @targets );
 
 BEGIN {
+    $ENV{ACTIVEPERL_CONFIG_DISABLE} = 1;
+
     use Config;
 
     # if the version is 5.003, we can check $^O

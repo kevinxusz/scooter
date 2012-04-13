@@ -26,6 +26,8 @@
 #   include <config.h>
 # endif
 
+#include <cstring>
+
 # include <algorithm>
 # include <iostream>
 # include <iterator>

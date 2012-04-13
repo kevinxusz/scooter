@@ -1,4 +1,4 @@
-# Copyright (c) 2004. Dimitry Kloper <kloper at users dot sf dot net>
+# Copyright (c) 2002-2012. Dimitry Kloper <kloper at users dot sf dot net>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -98,7 +98,7 @@ sub basic_ruleset {
 		 @{$options{'boost-dynamic-link'}} ) );
 
     if( $options{'platform'} =~ /mingw/i ) {
-	$ruleset->{'BOOST_LIB_SUFFIX'} = '-mgw-mt-d-1_31';
+	$ruleset->{'BOOST_LIB_SUFFIX'} = '-mgw45-mt-d-1_47';
     }
 
     

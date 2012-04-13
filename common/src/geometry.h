@@ -40,7 +40,7 @@ class Bounding_box {
    public:
       typedef FloatValue      FT;
       typedef ComparableValue RT;
-      typedef Vector<FloatValue,ComparableValue> Vector;
+      typedef Math::Vector<FloatValue,ComparableValue> Vector;
    public:
       Bounding_box();
       Bounding_box( const Vector& bottom, const Vector& top );

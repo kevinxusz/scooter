@@ -302,7 +302,7 @@ class Matrix {
    public:
       typedef FloatValue      FT;
       typedef ComparableValue RT;
-      typedef Vector<FloatValue,ComparableValue> Vector;
+      typedef Math::Vector<FloatValue,ComparableValue> Vector;
    public:
       Matrix();
       Matrix( const FT* ft );

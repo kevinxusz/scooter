@@ -5,6 +5,8 @@
  * $Id: CharScanner.cpp,v 1.1.1.1 2003/04/06 22:26:27 braden Exp $
  */
 
+#include <cstdlib>
+
 #include <map>
 
 #include <iostream>

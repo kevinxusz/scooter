@@ -5,6 +5,8 @@
  * $Id: Parser.cpp,v 1.1.1.1 2003/04/06 22:26:27 braden Exp $
  */
 
+#include <cstdlib>
+
 #include "antlr/Parser.hpp"
 
 #include "antlr/BitSet.hpp"

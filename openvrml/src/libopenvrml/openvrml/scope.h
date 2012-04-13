@@ -30,6 +30,7 @@
 #   include <openvrml/scope_ptr.h>
 
 namespace openvrml {
+    class node;
 
     class scope {
         friend class node;
