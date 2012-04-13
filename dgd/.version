@@ -1,7 +1,0 @@
-my $version = {
-'build' => '0',
-'compile' => '6',
-'major' => '1',
-'stable' => '0',
-'timestamp' => '1092089435',
-}
