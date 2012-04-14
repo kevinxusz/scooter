@@ -34,6 +34,8 @@
 #include <openvrml/browser.h>
 #include <openvrml/scope.h>
 
+#include <dgd.h>
+
 #include <scooter/calculus.h>
 #include <scooter/calculus_dgd.h>
 #include <scooter/geometry.h>
@@ -85,10 +87,10 @@ Scene::~Scene() {
 
 void Scene::reload( openvrml::browser *target_browser, 
 		    const Mesh_pointer& mesh) {
-   dgd_start_scope( dcel, "Scene::reload()" );
+   dgd_scope;
 
    if( target_browser == NULL || mesh.get() == NULL ) {
-      dgd_end_scope_text( dcel, "bad params" );
+      dgd_logger << "bad params" << std::endl;
       return ;
    }
 
@@ -109,15 +111,13 @@ void Scene::reload( openvrml::browser *target_browser,
 //    std::ofstream dump( "dump.wrl" );
 //    m_root_node->print( dump, 0 );
 //    dump.close();
-
-   dgd_end_scope( dcel );
 }
 
 void
 Scene::init_selection_nodes() {
    using namespace openvrml;
 
-   dgd_start_scope( dcel, "Scene::init_selection_nodes()" );
+   dgd_scope;
 
    const scope_ptr &scope = m_root_node->scope();
    const node_type_ptr &shape_type = scope->find_type( "Shape" );
@@ -172,14 +172,12 @@ Scene::init_selection_nodes() {
 
    m_sel_halfedge->field( "appearance", sfnode( halfedge_appearance ) );
    m_sel_halfedge->field( "geometry", sfnode( halfedge_geometry ) );
-
-   dgd_end_scope( dcel );
 }
 
 void Scene::init_vrml_nodes() {
    using namespace openvrml;
    
-   dgd_start_scope( dcel, "Scene::init_vrml_nodes()" );
+   dgd_scope;
 
    std::vector<node_ptr> &root_nodes =
       const_cast< std::vector<node_ptr>& >( m_vrml_browser->root_nodes() );
@@ -277,14 +275,12 @@ void Scene::init_vrml_nodes() {
    children_vector.value.push_back( m_sel_root );
 
    m_root_node->field( "children", children_vector );
-
-   dgd_end_scope( dcel );
 }
 
 void Scene::init_vertex_properties() {
    using namespace Math;
 
-   dgd_start_scope( dcel, "Scene::init_vertex_properties()" );
+   dgd_scope;
 
    for( Mesh::Vertex_iterator viter = m_mesh->vertexes_begin();
 	viter != m_mesh->vertexes_end();
@@ -323,14 +319,12 @@ void Scene::init_vertex_properties() {
 	 ) 
       );
    }
-
-   dgd_end_scope( dcel );
 }
 
 void Scene::init_halfedge_properties() {
    using namespace Math;
 
-   dgd_start_scope( dcel, "Scene::init_halfedge_properties()" );
+   dgd_scope;
 
    unsigned int halfedge_count = 0;
 
@@ -339,7 +333,7 @@ void Scene::init_halfedge_properties() {
    for( Mesh::Halfedge_iterator heiter = m_mesh->halfedges_begin();
 	heiter != m_mesh->halfedges_end();
 	++heiter ) {
-      dgd_echo( dgd_expand(verbose(*heiter)) << std::endl );
+      dgd_echo(verbose(*heiter));
 
       if( heiter->opposite() == NULL /* garbage */ )
 	 continue;
@@ -355,7 +349,7 @@ void Scene::init_halfedge_properties() {
       const Mesh::Halfedge *next, *first = he;
       const Mesh::Vertex *src, *dst, *ndst;
 
-      dgd_echo( dgd_expand(verbose(first)) << std::endl  );
+      dgd_echo(verbose(first));
 
       FT minimum_length;
       bool initialized = false;
@@ -371,8 +365,8 @@ void Scene::init_halfedge_properties() {
 	 while( next->is_rabbit() )  next = next->next();
 
 
-	 dgd_echo( dgd_expand(verbose(he)) << std::endl 
-		   << dgd_expand(verbose(next)) << std::endl );
+	 dgd_logger << dgd_expand(verbose(he)) << std::endl 
+                    << dgd_expand(verbose(next)) << std::endl;
 
 	 src = he->opposite()->vertex();
 	 dst = he->vertex();
@@ -380,16 +374,16 @@ void Scene::init_halfedge_properties() {
 
 	 center += dst->coord();
 
-	 dgd_echo( dgd_expand(verbose(src)) << std::endl 
-		   << dgd_expand(verbose(dst)) << std::endl 
-		   << dgd_expand(verbose(ndst)) << std::endl );
-
+	 dgd_logger << dgd_expand(verbose(src)) << std::endl 
+                    << dgd_expand(verbose(dst)) << std::endl 
+                    << dgd_expand(verbose(ndst)) << std::endl;
+      
 	 // now find the radius of inbound circle
 	 FT r = Math::Triangle<FT>( src->coord(), 
 				    dst->coord(), 
 				    ndst->coord() ).inbound_circle().radius();
 
-	 dgd_echo( dgd_expand(r) << std::endl );
+	 dgd_echo(r);
 
 	 if( !initialized ) {
 	    minimum_length = r;
@@ -411,8 +405,8 @@ void Scene::init_halfedge_properties() {
 	 cross( (he->opposite()->vertex()->coord() - center),
 		(he->vertex()->coord() - center) ).normalize();
 
-      dgd_echo( dgd_expand(center) << std::endl
-		<< dgd_expand(facet_normal) << std::endl );
+      dgd_logger << dgd_expand(center) << std::endl
+                 << dgd_expand(facet_normal) << std::endl;
 
       // now insert the result into the map
       // note that rabbits and boundaries are also inserted
@@ -430,10 +424,8 @@ void Scene::init_halfedge_properties() {
    
    m_average_halfedge_length /= halfedge_count;
 
-   dgd_echo( dgd_expand(m_average_halfedge_length) << std::endl
-	     << dgd_expand(halfedge_count) << std::endl );   
-
-   dgd_end_scope( dcel );
+   dgd_logger << dgd_expand(m_average_halfedge_length) << std::endl
+              << dgd_expand(halfedge_count) << std::endl;   
 }
 
 void Scene::add_vertex( Vertex *v,
@@ -442,13 +434,13 @@ void Scene::add_vertex( Vertex *v,
    using namespace openvrml;
    using namespace Math;
 
-   dgd_start_scope( dcel, "Scene::add_vertex()" );
+   dgd_scope;
 
    Vertex_2_vprop_map::iterator lookup = 
       m_vertex_lookup_by_ptr.find( v );   
 
    if( lookup != m_vertex_lookup_by_ptr.end() ) {
-      dgd_echo( "lookup failed" << std::endl );      
+      dgd_logger << "lookup failed" << std::endl;      
       lookup->second.m_index = coord_vector->value.size()-1;
    }
 
@@ -458,7 +450,6 @@ void Scene::add_vertex( Vertex *v,
    color_vector->value.push_back( color( m_vertexes_color_value.x(),
 					 m_vertexes_color_value.y(),
 					 m_vertexes_color_value.z() ) );
-   dgd_end_scope( dcel );
 }
 
 void Scene::add_opposite( Halfedge *he,
@@ -469,10 +460,10 @@ void Scene::add_opposite( Halfedge *he,
    using namespace openvrml;
    using namespace Math;
 
-   dgd_start_scope( dcel, "Scene::add_opposite()" );
+   dgd_scope;
 
    if( he->opposite() == NULL ) {
-      dgd_end_scope_text( dcel, "garbage" );
+      dgd_logger << "garbage" << std::endl;
       return;
    }
       
@@ -488,11 +479,11 @@ void Scene::add_opposite( Halfedge *he,
 
    if( he_lookup == m_halfedge_lookup_by_ptr.end() ||
        op_lookup == m_halfedge_lookup_by_ptr.end() ) {
-      dgd_echo( "lookup failed" << std::endl );
+      dgd_logger << "lookup failed" << std::endl;
       return;
    } 
 
-   dgd_echo( "lookup successfull" << std::endl );
+   dgd_logger << "lookup successfull" << std::endl;
 
    Vector he_dst_disp  = he_lookup->second.m_dst_disp;
    Vector he_src_disp  = he_lookup->second.m_src_disp;
@@ -508,12 +499,12 @@ void Scene::add_opposite( Halfedge *he,
    a.cartesian();
    c.cartesian();
       
-   dgd_echo( dgd_expand(he_dst_disp) << std::endl
-	     << dgd_expand(he_src_disp) << std::endl
-	     << dgd_expand(op_dst_disp) << std::endl
-	     << dgd_expand(op_src_disp) << std::endl
-	     << dgd_expand(a) << std::endl
-	     << dgd_expand(c) << std::endl );
+   dgd_logger << dgd_expand(he_dst_disp) << std::endl
+              << dgd_expand(he_src_disp) << std::endl
+              << dgd_expand(op_dst_disp) << std::endl
+              << dgd_expand(op_src_disp) << std::endl
+              << dgd_expand(a) << std::endl
+              << dgd_expand(c) << std::endl;
 
    coord_vector->value.push_back( vec3f( a.x(), a.y(), a.z() ) );
 
@@ -530,9 +521,6 @@ void Scene::add_opposite( Halfedge *he,
    coord_index_vector->value.push_back( -1 );
       
    color_index_vector->value.push_back( -1 );         
-
-
-   dgd_end_scope( dcel );
 }
 
 void Scene::add_next( Halfedge *he,
@@ -543,10 +531,10 @@ void Scene::add_next( Halfedge *he,
    using namespace openvrml;
    using namespace Math;
 
-   dgd_start_scope( dcel, "Scene::add_next()" );
+   dgd_scope;
 
    if( he->opposite() == NULL ) {
-      dgd_end_scope_text( dcel, "garbage" );
+      dgd_logger << "garbage" << std::endl;
       return;
    }
       
@@ -564,11 +552,11 @@ void Scene::add_next( Halfedge *he,
 
    if( he_lookup == m_halfedge_lookup_by_ptr.end() ||
        next_lookup == m_halfedge_lookup_by_ptr.end() ) {
-      dgd_echo( "lookup failed" << std::endl );
+      dgd_logger << "lookup failed" << std::endl;
       return;
    } 
 
-   dgd_echo( "lookup successfull" << std::endl );
+   dgd_logger << "lookup successfull" << std::endl;
 
    FT     he_delta     = std::min( he_lookup->second.m_delta,
 				   m_average_halfedge_length ) / 3.0;
@@ -589,14 +577,14 @@ void Scene::add_next( Halfedge *he,
    Vector c = o2 + next_vec * 0.1;
    Vector d = o2 + next_vec * 0.3;
    
-   dgd_echo( dgd_expand(he_dst_disp) << std::endl
-	     << dgd_expand(he_src_disp) << std::endl
-	     << dgd_expand(next_dst_disp) << std::endl
-	     << dgd_expand(next_src_disp) << std::endl
-	     << dgd_expand(a) << std::endl
-	     << dgd_expand(b) << std::endl
-	     << dgd_expand(c) << std::endl
-	     << dgd_expand(d) << std::endl );
+   dgd_logger << dgd_expand(he_dst_disp) << std::endl
+              << dgd_expand(he_src_disp) << std::endl
+              << dgd_expand(next_dst_disp) << std::endl
+              << dgd_expand(next_src_disp) << std::endl
+              << dgd_expand(a) << std::endl
+              << dgd_expand(b) << std::endl
+              << dgd_expand(c) << std::endl
+              << dgd_expand(d) << std::endl;
 
    scooter::Bezier_iterator<FT> bezier( b, a, c, d, 5 );
 
@@ -605,7 +593,7 @@ void Scene::add_next( Halfedge *he,
       p = *bezier++;
       p.cartesian();
 
-      dgd_echo( dgd_expand(p) << std::endl );
+      dgd_echo(p);
 
       coord_vector->value.push_back( vec3f( p.x(), p.y(), p.z() ) );
 
@@ -627,8 +615,6 @@ void Scene::add_next( Halfedge *he,
    coord_index_vector->value.push_back( -1 );
    
    color_index_vector->value.push_back( -1 );   
-
-   dgd_end_scope( dcel );
 }
 
 
@@ -640,10 +626,10 @@ void Scene::add_rabbit( Halfedge *he,
    using namespace openvrml;
    using namespace Math;
 
-   dgd_start_scope( dcel, "Scene::add_rabbit()" );
+   dgd_scope;
    
    if( !he->is_rabbit() ) {
-      dgd_end_scope_text( dcel, "he is not a rabbit" );
+      dgd_logger << "he is not a rabbit" << std::endl;
       return;
    }
 
@@ -672,21 +658,21 @@ void Scene::add_rabbit( Halfedge *he,
    FT delta;
    int rabbit_count = prev_rabbit_count + next_rabbit_count + 1;
    
-   dgd_echo( dgd_expand(prev) << std::endl
-	     << dgd_expand(next) << std::endl
-	     << dgd_expand(up) << std::endl
-	     << dgd_expand(angle) << std::endl
-	     << dgd_expand(prev_rabbit_count) << std::endl 
-	     << dgd_expand(next_rabbit_count) << std::endl );
+   dgd_logger << dgd_expand(prev) << std::endl
+              << dgd_expand(next) << std::endl
+              << dgd_expand(up) << std::endl
+              << dgd_expand(angle) << std::endl
+              << dgd_expand(prev_rabbit_count) << std::endl 
+              << dgd_expand(next_rabbit_count) << std::endl;
 
    Halfedge_2_hprop_map::iterator lookup = 
       m_halfedge_lookup_by_ptr.find( he );
 
    if( lookup == m_halfedge_lookup_by_ptr.end() ) {
-      dgd_echo( "lookup failed" << std::endl );
+      dgd_logger << "lookup failed" << std::endl;
       delta = m_average_halfedge_length;
    } else {
-      dgd_echo( "lookup successfull" << std::endl );
+      dgd_logger << "lookup successfull" << std::endl;
       if( RT(dot( up,  lookup->second.m_facet_normal )) < RT(0) ) {
 	 angle = 2 * Math::PI - angle;
       }
@@ -696,9 +682,9 @@ void Scene::add_rabbit( Halfedge *he,
 
    delta = std::min( delta, m_average_halfedge_length ) / 3.0;
 
-   dgd_echo( dgd_expand(delta) << std::endl
-	     << dgd_expand(up) << std::endl
-	     << dgd_expand(angle) << std::endl );
+   dgd_logger << dgd_expand(delta) << std::endl
+              << dgd_expand(up) << std::endl
+              << dgd_expand(angle) << std::endl;
 
    Matrix next_rotation_begin;
    Matrix next_rotation_end;
@@ -714,8 +700,8 @@ void Scene::add_rabbit( Halfedge *he,
 		 up, 
 		 angle / rabbit_count * (next_rabbit_count+1) );
 
-   dgd_echo( dgd_expand(next_rotation_begin) << std::endl
-	     << dgd_expand(next_rotation_end) << std::endl );
+   dgd_logger << dgd_expand(next_rotation_begin) << std::endl
+              << dgd_expand(next_rotation_end) << std::endl;
 
    
    const Vector nrot = (next_rotation_begin *= next).normalize();
@@ -748,7 +734,7 @@ void Scene::add_rabbit( Halfedge *he,
       p = disp + *bezier++;
       p.cartesian();
 
-      dgd_echo( dgd_expand(p) << std::endl );
+      dgd_echo(p);
 
       coord_vector->value.push_back( vec3f( p.x(), p.y(), p.z() ) );
 
@@ -770,8 +756,6 @@ void Scene::add_rabbit( Halfedge *he,
    coord_index_vector->value.push_back( -1 );
    
    color_index_vector->value.push_back( -1 );   
-
-   dgd_end_scope( dcel );
 }
 
 void Scene::add_halfedge( Halfedge *he,
@@ -782,35 +766,35 @@ void Scene::add_halfedge( Halfedge *he,
    using namespace openvrml;
    using namespace Math;
 
-   dgd_start_scope( dcel, "Scene::add_halfedge()" );
+   dgd_scope;
 
    if( he->is_rabbit() ) {
-      dgd_end_scope_text( dcel, "he is rabbit" );
+      dgd_logger << "he is rabbit" << std::endl;
       return;
    }
 
    Mesh::Halfedge *next_he = he->next();
    Mesh::Halfedge *prev_he = he->prev();
 
-   dgd_echo( dgd_expand(verbose(next_he)) << std::endl 
-	     << dgd_expand(verbose(prev_he)) << std::endl );
+   dgd_logger << dgd_expand(verbose(next_he)) << std::endl 
+              << dgd_expand(verbose(prev_he)) << std::endl;
 
    while( next_he->is_rabbit() ) next_he = next_he->next();
    
    while( prev_he->is_rabbit() ) prev_he = prev_he->prev();
 
-   dgd_echo( dgd_expand(verbose(next_he)) << std::endl 
-	     << dgd_expand(verbose(prev_he)) << std::endl );
+   dgd_logger << dgd_expand(verbose(next_he)) << std::endl 
+              << dgd_expand(verbose(prev_he)) << std::endl;
    
    const Mesh::Vertex *src = he->opposite()->vertex();
    const Mesh::Vertex *dst = he->vertex();
    const Mesh::Vertex *prev_vertex = prev_he->opposite()->vertex();
    const Mesh::Vertex *next_vertex = next_he->vertex();
 
-   dgd_echo( dgd_expand(verbose(src)) << std::endl 
-	     << dgd_expand(verbose(dst)) << std::endl 
-	     << dgd_expand(verbose(prev_vertex)) << std::endl
-	     << dgd_expand(verbose(next_vertex)) << std::endl );
+   dgd_logger << dgd_expand(verbose(src)) << std::endl 
+              << dgd_expand(verbose(dst)) << std::endl 
+              << dgd_expand(verbose(prev_vertex)) << std::endl
+              << dgd_expand(verbose(next_vertex)) << std::endl;
 
    Vector prev = (prev_vertex->coord() - src->coord()).normalize();
    Vector curr = (dst->coord() - src->coord()).normalize();
@@ -819,19 +803,19 @@ void Scene::add_halfedge( Halfedge *he,
    FT delta;
    Vector up(0,0,1);
 
-   dgd_echo( dgd_expand(prev) << std::endl
-	     << dgd_expand(curr) << std::endl 
-	     << dgd_expand(ncurr) << std::endl 
-	     << dgd_expand(next) << std::endl );
-   
+   dgd_logger << dgd_expand(prev) << std::endl
+              << dgd_expand(curr) << std::endl 
+              << dgd_expand(ncurr) << std::endl 
+              << dgd_expand(next) << std::endl;
+
    Halfedge_2_hprop_map::iterator lookup = 
       m_halfedge_lookup_by_ptr.find( he );
 
    if( lookup == m_halfedge_lookup_by_ptr.end() ) {
-      dgd_echo( "lookup failed" << std::endl );
+      dgd_logger << "lookup failed" << std::endl;
       delta = m_average_halfedge_length;
    } else {
-      dgd_echo( "lookup successfull" << std::endl );
+      dgd_logger << "lookup successfull" << std::endl;
       delta = lookup->second.m_delta;
       up = lookup->second.m_facet_normal;
    }
@@ -875,18 +859,18 @@ void Scene::add_halfedge( Halfedge *he,
 	 dst_diagonal_scale = delta / ::sqrt( det );
    }
 
-   dgd_echo( dgd_expand(delta) << std::endl 
-	     << dgd_expand(up) << std::endl 
-	     << dgd_expand(src_orientation) << std::endl 
-	     << dgd_expand(dst_orientation) << std::endl 
-	     << dgd_expand(src_diagonal) << std::endl 
-	     << dgd_expand(dst_diagonal) << std::endl 
-	     << dgd_expand(src_diagonal_len) << std::endl 
-	     << dgd_expand(dst_diagonal_len) << std::endl 
-	     << dgd_expand(src_diagonal_proj) << std::endl 
-	     << dgd_expand(dst_diagonal_proj) << std::endl 
-	     << dgd_expand(src_diagonal_scale) << std::endl 
-	     << dgd_expand(dst_diagonal_scale) << std::endl );
+   dgd_logger << dgd_expand(delta) << std::endl 
+              << dgd_expand(up) << std::endl 
+              << dgd_expand(src_orientation) << std::endl 
+              << dgd_expand(dst_orientation) << std::endl 
+              << dgd_expand(src_diagonal) << std::endl 
+              << dgd_expand(dst_diagonal) << std::endl 
+              << dgd_expand(src_diagonal_len) << std::endl 
+              << dgd_expand(dst_diagonal_len) << std::endl 
+              << dgd_expand(src_diagonal_proj) << std::endl 
+              << dgd_expand(dst_diagonal_proj) << std::endl 
+              << dgd_expand(src_diagonal_scale) << std::endl 
+              << dgd_expand(dst_diagonal_scale) << std::endl;
 
    Point new_src = src->coord() + 
 		   src_diagonal * src_diagonal_scale +
@@ -905,10 +889,10 @@ void Scene::add_halfedge( Halfedge *he,
       lookup->second.m_index = coord_index_vector->value.size();
    }
    
-   dgd_echo( dgd_expand(new_src) << std::endl 
-	     << dgd_expand(new_dst) << std::endl 
-	     << dgd_expand(arrow) << std::endl );
-   
+   dgd_logger << dgd_expand(new_src) << std::endl 
+              << dgd_expand(new_dst) << std::endl 
+              << dgd_expand(arrow) << std::endl;
+
    new_src.cartesian();
    coord_vector->value.push_back( vec3f( new_src.x(),
 					 new_src.y(),
@@ -939,15 +923,13 @@ void Scene::add_halfedge( Halfedge *he,
    coord_index_vector->value.push_back( -1 );
 
    color_index_vector->value.push_back( -1 );
-
-   dgd_end_scope( dcel );
 }
 
 void Scene::reload_halfedges() {
    using namespace openvrml;
    using namespace Math;
 
-   dgd_start_scope( dcel, "Scene::reload_halfedges()" );
+   dgd_scope;
 
    mfvec3f halfedges_coord_vector;
    mfcolor halfedges_color_vector;
@@ -1011,7 +993,7 @@ void Scene::reload_halfedges() {
    for( Mesh::Halfedge_iterator heiter = m_mesh->halfedges_begin();
 	heiter != m_mesh->halfedges_end();
 	++heiter ) {
-      dgd_echo( dgd_expand(*heiter) << std::endl );
+      dgd_echo(*heiter);
 
       if( heiter->opposite() == NULL /* garbage */ )
 	 continue;
@@ -1036,7 +1018,7 @@ void Scene::reload_halfedges() {
    for( Mesh::Halfedge_iterator heiter = m_mesh->halfedges_begin();
 	heiter != m_mesh->halfedges_end();
 	++heiter ) {
-      dgd_echo( dgd_expand(*heiter) << std::endl );
+      dgd_echo(*heiter);
 
       if( heiter->opposite() == NULL /* garbage */ )
 	 continue;
@@ -1053,7 +1035,7 @@ void Scene::reload_halfedges() {
    for( Mesh::Halfedge_iterator heiter = m_mesh->halfedges_begin();
 	heiter != m_mesh->halfedges_end();
 	++heiter ) {
-      dgd_echo( dgd_expand(*heiter) << std::endl );
+      dgd_echo(*heiter);
 
       if( heiter->opposite() == NULL /* garbage */ )
 	 continue;
@@ -1074,7 +1056,7 @@ void Scene::reload_halfedges() {
    for( Mesh::Vertex_iterator viter = m_mesh->vertexes_begin();
 	viter != m_mesh->vertexes_end();
 	++viter ) {
-      dgd_echo( dgd_expand(*viter) << std::endl );
+      dgd_echo(*viter);
 
       add_vertex( &*viter,
 		  &vertexes_coord_vector,
@@ -1108,20 +1090,18 @@ void Scene::reload_halfedges() {
 
    m_vertexes_coord->field( "point", vertexes_coord_vector );
    m_vertexes_color->field( "color", vertexes_color_vector );
-
-   dgd_end_scope( dcel );
 }
 
 Scene::Vertex *Scene::find_vertex( const Line& line ) {
    using namespace Math;
    using namespace openvrml;
 
-   dgd_start_scope( dcel, "Mesh::find_vertex()" );
+   dgd_scope;
 
    Vertex *v = NULL;
    FT dist;
 
-   dgd_echo( dgd_expand(line) << std::endl );
+   dgd_echo(line);
 
    for( Vertex_2_vprop_map::iterator viter = m_vertex_lookup_by_ptr.begin();
 	viter != m_vertex_lookup_by_ptr.end();
@@ -1131,13 +1111,13 @@ Scene::Vertex *Scene::find_vertex( const Line& line ) {
       FT         d = Math::distance( line.origin(), coord );
       FT     delta = m_average_halfedge_length / 5 + d / 50;
 
-      dgd_echo( dgd_expand(coord) << std::endl  
-		<< dgd_expand(d) << std::endl
-		<< dgd_expand(Math::distance( coord, line )) << std::endl );
-
+      dgd_logger << dgd_expand(coord) << std::endl  
+                 << dgd_expand(d) << std::endl
+                 << dgd_expand(Math::distance( coord, line )) << std::endl;
+   
       if( Math::distance( coord, line ) <= RT(delta) ) {	 
 
-	 dgd_echo( dgd_expand(verbose(viter->second.m_vertex)) << std::endl );
+	 dgd_echo( verbose(viter->second.m_vertex));
 
 	 if( v != NULL ) {
 	    if( RT(dist) > RT(d) ) {
@@ -1151,8 +1131,6 @@ Scene::Vertex *Scene::find_vertex( const Line& line ) {
       }
    }
 
-   dgd_end_scope( dcel );
-
    return v;
 }
 
@@ -1160,7 +1138,7 @@ Scene::Halfedge *Scene::find_halfedge( const Line& line ) {
    using namespace Math;
    using namespace openvrml;
 
-   dgd_start_scope( dcel, "Scene::find_halfedge()" );
+   dgd_scope;
 
    Halfedge *he = NULL;
    FT dist;
@@ -1189,7 +1167,7 @@ Scene::Halfedge *Scene::find_halfedge( const Line& line ) {
       const mfint32 *coord_index_vector = NULL;
       unsigned int index = heiter->second.m_index;
 
-      dgd_echo( dgd_expand(index) << std::endl );
+      dgd_echo(index);
 
       if( heiter->second.m_halfedge->is_rabbit() ) {
 	 coord_vector = &rabbits_coord_vector;
@@ -1213,8 +1191,8 @@ Scene::Halfedge *Scene::find_halfedge( const Line& line ) {
 	    unsigned int coord_index_b =
 	       coord_index_vector->value[next_index];
 
-	    dgd_echo( dgd_expand(coord_index_a) << std::endl 
-		      << dgd_expand(coord_index_b) << std::endl );
+	    dgd_logger << dgd_expand(coord_index_a) << std::endl 
+                       << dgd_expand(coord_index_b) << std::endl;
 
 	    vec3f coord_a = coord_vector->value[coord_index_a];
 	    vec3f coord_b = coord_vector->value[coord_index_b];
@@ -1226,11 +1204,11 @@ Scene::Halfedge *Scene::find_halfedge( const Line& line ) {
 	    FT               d = Math::distance( line.origin(), seg.a() );
 	    FT           delta = m_average_halfedge_length / 5 + d / 50;    
 
-	    dgd_echo( dgd_expand(seg) << std::endl 
-		      << dgd_expand(clsup) << std::endl 
-		      << dgd_expand(d) << std::endl
-		      << dgd_expand(delta) << std::endl );
-
+	    dgd_logger << dgd_expand(seg) << std::endl 
+                       << dgd_expand(clsup) << std::endl 
+                       << dgd_expand(d) << std::endl
+                       << dgd_expand(delta) << std::endl;
+         
 	    if( clsup.is_segment() && 
 		RT(clsup.segment().length()) <= RT(delta) ) {
 	       FT d = Math::distance( line.origin(), clsup.segment().b() ); 
@@ -1244,7 +1222,7 @@ Scene::Halfedge *Scene::find_halfedge( const Line& line ) {
 		  dist = d;
 	       }
 
-	       dgd_echo( dgd_expand(verbose(he)) << std::endl );
+	       dgd_echo(verbose(he));
 	    }
 	       
 	 }
@@ -1252,21 +1230,19 @@ Scene::Halfedge *Scene::find_halfedge( const Line& line ) {
       }
    }
 
-   dgd_end_scope( dcel );
-
    return he;
 }
 
 void Scene::reload_selection() {
    using namespace openvrml;
 
-   dgd_start_scope( dcel, "Scene::reload_selection()" );
+   dgd_scope;
 
    const scope_ptr &scope = m_root_node->scope();
    const node_type_ptr &transform_type = scope->find_type( "Transform" );
 
    if( m_selection.size() == 0 ) {
-      dgd_end_scope_text( dcel, "empty selection" );
+      dgd_logger << "empty selection" << std::endl;
       return;
    } else {
       mfnode &root_children = 
@@ -1349,8 +1325,6 @@ void Scene::reload_selection() {
 	 m_sel_root->field( "children", root_children );
       }
    }
-
-   dgd_end_scope( dcel );
 }
 
 void Scene::select( Vertex *v ) {

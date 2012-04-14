@@ -29,7 +29,7 @@
 
 #include <openvrml/browser.h>
 
-#include <dgDebug.h>
+#include <dgd.h>
 
 #include "cr_vrml_scene_map.h"
 
@@ -126,7 +126,7 @@ void Item::transform( const openvrml::mat4f& t ) { m_transform = t;  }
 Builder::Builder( Map *scene_map ) : 
    openvrml::node_traverser(),
    m_scene_map(scene_map) {
-   dgd_start_scope( model, "Builder::Builder()" );
+   dgd_scope;
 
    m_scene_map->insert( Key(NULL, QString()), 
 			Item( 0, 
@@ -137,17 +137,14 @@ Builder::Builder( Map *scene_map ) :
 			      openvrml::mat4f() ) );
    m_nstack.push_back( NULL );
    m_tstack.push_back( openvrml::mat4f() );
-
-   dgd_end_scope( model );
 }
       
 Builder::~Builder() common_throw {
-   dgd_start_scope( model, "Builder::~Builder()" );
-   dgd_end_scope( model );
+   dgd_scope;
 }
 
 void Builder::on_entering(openvrml::node &node) {
-   dgd_start_scope( model, "Builder::on_entering()" );
+   dgd_scope;
 
    openvrml::node* parent = NULL;
    openvrml::mat4f transform;
@@ -157,9 +154,9 @@ void Builder::on_entering(openvrml::node &node) {
 
    QString type = QString::fromStdString( node.type.id );
    
-   dgd_echo( dgd_expand(type.toStdString()) << std::endl
-	     << dgd_expand(&node) << std::endl
-	     << dgd_expand(parent) << std::endl );
+   dgd_logger << dgd_expand(type.toStdString()) << std::endl
+              << dgd_expand(&node) << std::endl
+              << dgd_expand(parent) << std::endl;
 
    Map::iterator parent_item = m_scene_map->find( Key( parent, QString() ) );
 
@@ -173,7 +170,7 @@ void Builder::on_entering(openvrml::node &node) {
 			      Key(parent, QString()),
 			      transform ) );
 
-   dgd_echo( dgd_expand(&*node_item) << std::endl );
+   dgd_echo(&*node_item);
 
    parent_item->add_child( Key(&node, QString()) );
 
@@ -185,10 +182,10 @@ void Builder::on_entering(openvrml::node &node) {
 	 
 	 if( ifc->field_type != openvrml::field_value::sfnode_id && 
 	     ifc->field_type != openvrml::field_value::mfnode_id ) {
-	    dgd_echo( dgd_expand(ifc->type) << std::endl
-		      << dgd_expand(ifc->field_type) << std::endl
-		      << dgd_expand(ifc->id) << std::endl );
-	    Map::iterator field_item = m_scene_map->insert( 
+	    dgd_logger << dgd_expand(ifc->type) << std::endl
+                       << dgd_expand(ifc->field_type) << std::endl
+                       << dgd_expand(ifc->id) << std::endl;
+            Map::iterator field_item = m_scene_map->insert( 
 	       Key( &node, QString::fromStdString(ifc->id) ), 
 	       Item( node_item->children_size(),
 		     false,
@@ -197,7 +194,7 @@ void Builder::on_entering(openvrml::node &node) {
 			 QString::fromStdString(ifc->id)),
 		     Key(&node, QString()),
 		     transform ) );
-	    dgd_echo( dgd_expand(&*field_item) << std::endl );
+	    dgd_echo(&*field_item);
 	    node_item->add_child( 
 	       Key( &node, QString::fromStdString(ifc->id) )
 	    );
@@ -210,30 +207,26 @@ void Builder::on_entering(openvrml::node &node) {
    
    openvrml::transform_node *tn = node.to_transform();
 
-   dgd_echo( dgd_expand(tn) << std::endl );
+   dgd_echo(tn);
 
    if( tn != NULL ) {
       openvrml::mat4f trans = tn->transform();
       trans *= transform;
       m_tstack.push_back( trans );
    }
-
-   dgd_end_scope( model );
 }
 
 void Builder::on_leaving(openvrml::node &node) {
-   dgd_start_scope( model, "Builder::on_leaving()" );
+   dgd_scope;
 
    m_nstack.pop_back();
    openvrml::transform_node *tn = node.to_transform();
 
-   dgd_echo( dgd_expand(tn) << std::endl );
+   dgd_echo(tn);
 
    if( tn != NULL ) {
       m_tstack.pop_back();
    }
-
-   dgd_end_scope( model );
 }
 
 }; // end of namespace scene

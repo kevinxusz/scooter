@@ -48,7 +48,7 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QLayout>
 
-#include <dgDebug.h>
+#include <dgd.h>
 
 #include "cr_cfg.h"
 #include "cr_portal.h"
@@ -174,9 +174,9 @@ void Portal::closeEvent(QCloseEvent *event) {
 }
 
 void Portal::open( const QString& fname ) {
-   dgd_start_scope( gui, "Portal::open(const QString&)" );
+   dgd_scope;
 
-   dgd_echo( dgd_expand(fname.toStdString()) << std::endl );
+   dgd_echo(fname);
 
    QFileInfo finfo( fname );
    
@@ -208,12 +208,10 @@ void Portal::open( const QString& fname ) {
 
       doc->show();
    }
-
-   dgd_end_scope( gui );
 }
 
 void Portal::open( QModelIndex index ) {
-   dgd_start_scope( gui, "Portal::open(QModelIndex)" );
+   dgd_scope;
 
    if( index.isValid() ) {
       cr::vrml::mesh::Editor *editor = 
@@ -235,17 +233,14 @@ void Portal::open( QModelIndex index ) {
 
       editor->reload( index );
    }
-
-   dgd_end_scope( gui );
 }
 
 void Portal::open() {
-   dgd_start_scope( gui, "Portal::open()" );
+   dgd_scope;
 
    QString fname;
 
    if( m_open_dialog->exec() !=  QDialog::Accepted ) {
-      dgd_end_scope( gui );
       return;
    }
       
@@ -254,11 +249,9 @@ void Portal::open() {
    for( QStringList::const_iterator fiter = selected_files.begin();
 	fiter != selected_files.end();
 	++fiter ) {
-      dgd_echo( dgd_expand(fiter->toStdString()) << std::endl );
+      dgd_echo(*fiter);
       this->open( *fiter );
    }
-   
-   dgd_end_scope( gui );
 }
 
 void Portal::close() {
@@ -538,9 +531,9 @@ void Portal::set_geometry( QRect rect ) {
 }
 
 void Portal::update_history( const QString &fname ) {
-   dgd_start_scope( gui, "Portal::update_history()" );
+   dgd_scope;
 
-   dgd_echo( dgd_expand(fname.toStdString()) << std::endl );
+   dgd_echo(fname);
    
    for( QStringList::iterator hiter = m_file_history.begin();
 	hiter != m_file_history.end(); ) {
@@ -550,8 +543,7 @@ void Portal::update_history( const QString &fname ) {
 	 ++hiter;
    }
    
-   dgd_echo(dgd_expand(Config::main()->get( "file::history::size" ).toInt())
-	    << std::endl );
+   dgd_echo(Config::main()->get( "file::history::size" ).toInt());
    
    if( m_file_history.size() >= 
        Config::main()->get( "file::history::size" ).toInt() ) 
@@ -560,17 +552,15 @@ void Portal::update_history( const QString &fname ) {
    m_file_history.push_back( fname );
    
    Config::main()->set( QString("portal::dialogs::open::cwd"), fname );
-   
-   dgd_end_scope( gui );
 }
 
 void Portal::window_activated( QWidget *w ) {
-   dgd_start_scope( gui, "Portal::window_activated" );
+   dgd_scope;
 
    Document *doc = dynamic_cast<Document*>(w);
 
    if( doc != NULL ) {
-      dgd_echo( dgd_expand(doc->windowTitle().toStdString()) << std::endl );
+      dgd_echo(doc->windowTitle());
 
       QWidget *cur_tool_widget = m_tool_docker->widget();
       if( cur_tool_widget != NULL ) 
@@ -585,17 +575,15 @@ void Portal::window_activated( QWidget *w ) {
 	 m_tool_docker->hide();
       }
    }
-
-   dgd_end_scope( gui );
 }
 
 void Portal::handle_glpad_propchange( QWidget *w ) {
-   dgd_start_scope( gui, "Portal::handle_glpad_propchange" );
+   dgd_scope;
 
    Document *doc = dynamic_cast<Document*>(w);
 
    if( doc != NULL ) {
-      dgd_echo( dgd_expand(doc->windowTitle().toStdString()) << std::endl );
+      dgd_echo(doc->windowTitle());
 
       m_flat_action->setChecked( 
 	 doc->glpad_property("shading_mode").toInt() == vrml::Control::FLAT &&
@@ -624,8 +612,6 @@ void Portal::handle_glpad_propchange( QWidget *w ) {
       );
 
    }
-
-   dgd_end_scope( gui );
 }
 
 void Portal::handle_glpad_command() {

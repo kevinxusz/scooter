@@ -32,13 +32,14 @@ my $ruleset  = $toolset->env();
 die if( !defined( $ruleset ) );
 
 $ruleset->{'LDFLAGS'} .= q( -mthreads -Wl,-enable-stdcall-fixup -Wl,-enable-auto-import -Wl,-enable-runtime-pseudo-reloc -Wl,-subsystem,console);
+$ruleset->{'CXXFLAGS'} .= q( -mthreads -isystem %BOOST_INCLUDE);
 
 our $BUILD      = $toolset->option( 'build' );
 our $INCLUDE    = join( ';', 
 			( "..",
 			  "%STLPORT_INCLUDE", 
-			  "%BOOST_INCLUDE",
 			  "%QT_INCLUDE",
+                          "%DGD_INCLUDE",
 			  "$BLIB/include" )
 		       );
 
@@ -52,8 +53,7 @@ our $DEFINE     = [ "%STLPORT_DEFINE",
 		     "%BOOST_LIB", 
 		     "%QT_LIB" ];
 
-our $LIBS       = join( ' ' , qw( -ldgd
-				  -lopenvrml 
+our $LIBS       = join( ' ' , qw( -lopenvrml 
 				  -lantlr
 				  -lqtmain
 				  -lQtCore4
@@ -68,6 +68,10 @@ our $LIBS       = join( ' ' , qw( -ldgd
 				  -lopengl32 
 				  -lglu32
 				  -lboost_regex%BOOST_LIB_SUFFIX
+                                  -lboost_filesystem%BOOST_LIB_SUFFIX
+                                  -lboost_system%BOOST_LIB_SUFFIX
+                                  -lboost_thread%BOOST_LIB_SUFFIX
+                                  -lboost_program_options%BOOST_LIB_SUFFIX
 				  -lzlib ) );
 				  
 our $version    = Cons::VersionControl->open();
@@ -99,7 +103,6 @@ AfterBuild $buildenv $TARGET, q(
 
 Program $buildenv $TARGET, 
   map( "$BUILD/$_", qw( cr_main.cpp
-			cr_cfg_opt.cpp
 			cr_cfg.cpp
 			cr_svg.cpp
 			cr_portal.cpp
@@ -142,17 +145,6 @@ map {
       cr_vrml_scene_tree.h );
 
 Install $buildenv "$BLIB/bin", $TARGET;
-
-
-if( defined($ruleset->{'CLOXXCOM'}) ) {
-    Command $buildenv [ "$BUILD/cr_cfg_opt.h", 
-			"$BUILD/cr_cfg_opt.cpp" ], 
-			  "$BUILD/cr_cfg_opt.xml",
-			    qq(#%CLOXXCOM# -Dcxx_header_file=%<:b.h ) .
-			    qq(-Dcxx_include_files=cr_config.h ) .
-			    qq(-Dcxx_namespace=cr_cfg ) . 
-			    qq(-Dcxx_source_file=%<:b.cpp -o c++ %<);
-}
 
 map {
     my $src = "$BUILD/$_";

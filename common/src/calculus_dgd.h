@@ -27,10 +27,6 @@
 #ifndef _calculus_dgd_h_
 #define _calculus_dgd_h_
 
-#include <dgDebug.h>
-
-#ifdef _TRACE
-
 namespace Math {
 
 template <class FloatValue, class ComparableValue>
@@ -66,7 +62,7 @@ homogeneus( const Vector<FloatValue,ComparableValue>& v ) {
 }
 
 template <class FloatValue, class ComparableValue>
-DGD::channel& operator << (DGD::channel& ds, 
+std::ostream& operator << (std::ostream& ds, 
 			   const Vector<FloatValue,ComparableValue>& v) {
    Vector<FloatValue,ComparableValue> tmp(v);
    tmp.cartesian();
@@ -75,8 +71,8 @@ DGD::channel& operator << (DGD::channel& ds,
 }
 
 template <class FloatValue, class ComparableValue>
-DGD::channel& 
-operator << (DGD::channel& ds, 
+std::ostream& 
+operator << (std::ostream& ds, 
 	     const homogeneus_vector<FloatValue,ComparableValue>& v) {
    ds << "[" << v.x() << "," << v.y() << "," 
       << v.z() << "," << v.w() << "]";
@@ -84,14 +80,12 @@ operator << (DGD::channel& ds,
 }
 
 template <class FloatValue, class ComparableValue>
-DGD::channel& 
-operator << (DGD::channel& ds, 
+std::ostream& 
+operator << (std::ostream& ds, 
 	     const Matrix<FloatValue,ComparableValue>& m) {
-   using namespace DGD;
-
    Matrix<FloatValue,ComparableValue> tmp(m);
    tmp.cartesian();
-   ds << "[" << std::endl << incr 
+   ds << "[" << std::endl << dgd::incr 
       << tmp.m00() << ", " << tmp.m01() << ", "
       << tmp.m02() << ", " << tmp.m03() << ", " << std::endl
       << tmp.m10() << ", " << tmp.m11() << ", "
@@ -99,16 +93,15 @@ operator << (DGD::channel& ds,
       << tmp.m20() << ", " << tmp.m21() << ", "
       << tmp.m22() << ", " << tmp.m23() << ", " << std::endl
       << tmp.m30() << ", " << tmp.m31() << ", "
-      << tmp.m32() << ", " << tmp.m33() << decr << std::endl << "]";
+      << tmp.m32() << ", " << tmp.m33() << dgd::decr << std::endl << "]";
    return ds;
 }
 
 template <class FloatValue, class ComparableValue>
-DGD::channel& 
-operator << (DGD::channel& ds, 
+std::ostream& 
+operator << (std::ostream& ds, 
 	     const homogeneus_matrix<FloatValue,ComparableValue>& m) {
-   using namespace DGD;
-   ds << "[" << std::endl << incr 
+   ds << "[" << std::endl << dgd::incr 
       << m.m00() << ", " << m.m01() << ", "
       << m.m02() << ", " << m.m03() << ", " << std::endl
       << m.m10() << ", " << m.m11() << ", "
@@ -116,14 +109,11 @@ operator << (DGD::channel& ds,
       << m.m20() << ", " << m.m21() << ", "
       << m.m22() << ", " << m.m23() << ", " << std::endl
       << m.m30() << ", " << m.m31() << ", "
-      << m.m32() << ", " << m.m33() << decr << std::endl << "]";
+      << m.m32() << ", " << m.m33() << dgd::decr << std::endl << "]";
    return ds;
 }
 
 }; // end of namespace Math
-
-#endif /* _TRACE */
-
 
 #endif /* _calculus_dgd_h_ */
 

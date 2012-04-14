@@ -121,18 +121,16 @@ class Mesh: public scooter::nmm::Dcel<Vertex_base, Halfedge_base, Facet_base> {
 
 typedef boost::shared_ptr<Mesh> Mesh_pointer;
 
-DGD::channel &operator<<( DGD::channel &ostr, 
-			  const Vertex_base& vtx );
-DGD::channel &operator<<( DGD::channel &ostr, 
-			  const Halfedge_base& vtx );
-DGD::channel &operator<<( DGD::channel &ostr, 
-			  const Facet_base& vtx );
+std::ostream &operator<<( std::ostream &ostr, const Vertex_base& vtx );
+std::ostream &operator<<( std::ostream &ostr, const Halfedge_base& vtx );
+std::ostream &operator<<( std::ostream &ostr, const Facet_base& vtx );
 
 }; // end of namespace mesh
 
 }; // end of namespace vrml
 
 }; // end of namespace cr
+
 
 #endif /* _cr_mesh_h_ */
 

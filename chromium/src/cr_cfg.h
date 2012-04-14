@@ -28,14 +28,16 @@
 #ifndef _cr_cfg_h_
 #define _cr_cfg_h_
 
+#include <string>
+#include <vector>
+
 #include <boost/smart_ptr.hpp>
+#include <boost/program_options.hpp>
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtXml/QDomDocument>
 #include <QtXml/QDomElement>
-
-#include "cr_cfg_opt.h"
 
 namespace cr {
 
@@ -43,8 +45,11 @@ class Config: public QObject {
       Q_OBJECT
 
    public:
-      Config( int argc, char **argv );
+      Config();
       virtual ~Config();
+
+      std::vector<std::string> init(int argc, char **argv);
+      std::vector<std::string> init(std::vector<std::string> args);
 
       QString         path() const;      
 
@@ -68,6 +73,7 @@ class Config: public QObject {
       void revert();
 
    signals:
+      void usage_requested( QString message );
       void bad_option( QString message );
       void bad_xml( QString message );
       void read_denied( QString message );
@@ -77,12 +83,13 @@ class Config: public QObject {
       QString     default_path() const;
       QDomElement find( const QString& k, int *suffix );
       void        load_defaults();
+      std::vector<std::string> init(boost::program_options::command_line_parser &parser);
 
    public:
       typedef boost::shared_ptr<Config> shared_reference;
 
    public:
-      static shared_reference create( int argc, char **argv );
+      static shared_reference create();
       static shared_reference main();
 
    private:
@@ -90,8 +97,6 @@ class Config: public QObject {
       QDomDocument            *m_doc;
       QDomElement              m_cwd;
       bool                     m_dirty;
-      cr_cfg::options          m_args_info;    
-      cr_cfg::option_locations m_args_given;
 
       static shared_reference  m_global_cfg;
 };

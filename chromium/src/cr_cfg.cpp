@@ -33,7 +33,7 @@
 
 #include <QtCore/QDir>
 
-#include <dgDebug.h>
+#include <dgd.h>
 
 #include "cr_cfg.h"
 
@@ -43,34 +43,55 @@ static const QString REG_CONF_LOCATION("Chromium\\CONFPATH");
 static const QString REG_CONF_VERSION("Chromium\\CONFVERS");
 static const QString PATH_CONF_NAME("Chromium/config.xml");
 
-Config::Config( int argc, char **argv ) :
+Config::Config() :
    m_doc(NULL),
    m_dirty(false) {
-   cr_cfg::parser optp;
-
-   try {
-      optp.parse(argc, argv, true);
-      
-      m_args_info = optp.get_options();
-      m_args_given = optp.get_locations();
-   } catch( cr_cfg::option_error& ex ) {
-      emit bad_option( QString(ex.what()) );
-      return;
-   }
-
-   if( m_args_given.config_path ) {
-      this->relocate( QString::fromStdString(m_args_info.config_path) );
-   } else {
-      this->relocate( this->default_path() );
-   }
 }
  
 Config::~Config() {
-   dgd_start_scope( cfg, "Config::~Confg()" );
+   dgd_scope;
    this->flush();
    if( m_doc ) 
       delete( m_doc );
-   dgd_end_scope( cfg );
+}
+
+std::vector<std::string> Config::init(int argc, char **argv) {
+   boost::program_options::command_line_parser parser(argc, argv);
+   return init(parser);
+}
+
+std::vector<std::string> Config::init(std::vector<std::string> args) {
+   boost::program_options::command_line_parser parser(args);
+   return init(parser);
+}
+
+std::vector<std::string> Config::init(boost::program_options::command_line_parser &parser) {
+   namespace po = boost::program_options;
+   po::options_description desc("Chromium Command Line Options");
+   desc.add_options()
+      ("config-help", "show onfiguration command line help")
+      ("config-path", po::value<std::string>(), "configuration file path");
+
+   po::variables_map vm;
+   po::parsed_options parsed_options = parser.options(desc).allow_unregistered().run();
+   po::store( parsed_options, vm);
+   po::notify(vm);    
+
+   if(vm.count("config-help") > 0) {
+      std::ostringstream ostr;
+      ostr << desc << std::endl;
+      emit usage_requested(QString::fromStdString(ostr.str()));
+      return std::vector<std::string>();
+   }
+
+   if(vm.count("config-path") > 0) {
+      this->relocate( QString::fromStdString(vm["config-path"].as<std::string>()) );
+   } else {
+      this->relocate( this->default_path() );
+   }
+
+   return po::collect_unrecognized(parsed_options.options, 
+                                   po::include_positional);
 }
 
 QString Config::path() const {
@@ -78,8 +99,8 @@ QString Config::path() const {
 }
 
 void Config::relocate( const QString &p ) {
-   dgd_start_scope( cfg, "Config::relocate()" );
-   dgd_echo( dgd_expand(p.toStdString()) << std::endl );
+   dgd_scope;
+   dgd_echo(p);
 
    bool rc;
    
@@ -90,13 +111,13 @@ void Config::relocate( const QString &p ) {
    QString dst_file_name = dst_file_info.absoluteFilePath();
    QString dst_file_path( dst_file_info.absolutePath() );
 
-   dgd_echo( dgd_expand(dst_file_name.toStdString()) << std::endl );
+   dgd_echo(dst_file_name);
    if( !QDir().exists(dst_file_path) ) {
       rc = QDir().mkpath( dst_file_path );
       if( !rc ) {
 	 emit write_denied( tr("unable to create directory ") + 
 			    dst_file_path );
-	 dgd_end_scope_text( cfg, "error: mkpath" );
+         dgd_echo("error: mkpath");
 	 return;
       }
    }
@@ -111,15 +132,13 @@ void Config::relocate( const QString &p ) {
 			    tr(" to ") + 
 			    dst_file_name + tr(". Error code: ") + 
 			    QString::number(src_file.error()) );
-	 dgd_end_scope_text( cfg, "error: " << src_file.error() );
+	 dgd_echo(src_file.error());
 	 return;
       }
    }
 
    m_path = dst_file_name;
    this->revert();
-
-   dgd_end_scope( cfg );
 }
 
 bool Config::is_writable() const {
@@ -198,9 +217,9 @@ void Config::remove( const QString& key ) {
 }
 
 void Config::set( const QString &key, const QString& value ) {
-   dgd_start_scope( cfg, "Config::set()" );
-   dgd_echo( dgd_expand(key.toStdString()) << std::endl
-	     << dgd_expand(value.toStdString()) << std::endl );
+   dgd_scope;
+   dgd_logger << dgd_expand(key) << std::endl
+              << dgd_expand(value) << std::endl;
 
    QDomElement cur;
    int suffix = 0;
@@ -209,20 +228,19 @@ void Config::set( const QString &key, const QString& value ) {
    if( m_doc ) {
       cur = this->find( key, &suffix );
 
-      dgd_echo( dgd_expand(cur.isNull()) << std::endl
-		<< dgd_expand(suffix) << std::endl );
+      dgd_logger << dgd_expand(cur.isNull()) << std::endl
+                 << dgd_expand(suffix) << std::endl;
 
       do {
 	 field = key.section( "::", suffix, suffix );
 	 
-	 dgd_echo( dgd_expand(field.toStdString()) << std::endl 
-		   << dgd_expand(field.isNull()) << std::endl );
+	 dgd_logger << dgd_expand(field) << std::endl 
+                    << dgd_expand(field.isNull()) << std::endl;
 	 
 	 if( !field.isNull() ) {
 	    QDomNode node = 
 	       cur.appendChild( m_doc->createElement( field ) ).toElement();
-	    dgd_echo( dgd_expand(m_doc->toString(4).toStdString()) 
-		      << std::endl );
+	    dgd_echo(m_doc->toString(4));
 	    cur = node.toElement();
 	 }
 	 suffix++;
@@ -237,17 +255,15 @@ void Config::set( const QString &key, const QString& value ) {
 	 val.firstChild().toText().setData( value );
       }
 
-      dgd_echo( dgd_expand(m_doc->toString(4).toStdString()) << std::endl );
+      dgd_echo(m_doc->toString(4));
  
       m_dirty = true;
    }
-
-   dgd_end_scope( cfg );
 }
 
 QDomElement Config::find( const QString& k, int* suffix ) {
-   dgd_start_scope( cfg, "Config::find()" );
-   dgd_echo( dgd_expand(k.toStdString()) << std::endl );
+   dgd_scope;
+   dgd_echo(k);
 
    QDomElement cur,next;
    QString field;
@@ -267,8 +283,8 @@ QDomElement Config::find( const QString& k, int* suffix ) {
    while( !next.isNull() ) {
       field = key.section( "::", count, count );
 
-      dgd_echo( dgd_expand(field.toStdString()) << std::endl 
-		<< dgd_expand(field.isNull()) << std::flush << std::endl );
+      dgd_logger << dgd_expand(field) << std::endl 
+                 << dgd_expand(field.isNull()) << std::flush << std::endl;
 
       if( field.isNull() )
 	 break;
@@ -280,8 +296,8 @@ QDomElement Config::find( const QString& k, int* suffix ) {
 	 next = next.firstChildElement( field );
       }
 
-      dgd_echo( dgd_expand(next.tagName().toStdString()) << std::endl
-		<< dgd_expand(next.isNull()) << std::endl );
+      dgd_logger << dgd_expand(next.tagName()) << std::endl
+                 << dgd_expand(next.isNull()) << std::endl;
 
       if( !next.isNull() ) {
 	 cur = next;
@@ -291,10 +307,8 @@ QDomElement Config::find( const QString& k, int* suffix ) {
 
    if( suffix ) *suffix = count;
 
-   dgd_echo( dgd_expand(cur.tagName().toStdString()) << std::endl
-	     << "suffix = " << DGD::dgd << (suffix?*suffix:-1) << std::endl );
-
-   dgd_end_scope( cfg );
+   dgd_logger << dgd_expand(cur.tagName()) << std::endl
+              << "suffix = " << (suffix?*suffix:-1) << std::endl;
    return cur;
 }
 
@@ -335,7 +349,7 @@ QString Config::cwd() const {
 }
 
 void Config::flush() {
-   dgd_start_scope( cfg, "Config::flush()" );
+   dgd_scope;
 
    bool rc;
    qint64 wrc;
@@ -346,24 +360,24 @@ void Config::flush() {
 
 	 rc = xml_file.open( QIODevice::WriteOnly | QIODevice::Text );
 
-	 dgd_echo( "xml_file.open()" << DGD::dgd << std::endl
-		   << dgd_expand(rc) << std::endl
-		   << dgd_expand(xml_file.error()) << std::endl );
+	 dgd_logger << "xml_file.open()" << std::endl
+                    << dgd_expand(rc) << std::endl
+                    << dgd_expand(xml_file.error()) << std::endl;
 
 	 if( !rc ) {
 	    emit write_denied( tr("unable to open file ") + 
 			       m_path + 
 			       tr(" for writing. Error code: ") + 
 			       QString::number(xml_file.error()) );
-	    dgd_end_scope_text( cfg, "write error " << xml_file.error() );
+	    dgd_echo(xml_file.error());
 	    return;
 	 }
 
 	 wrc = xml_file.write( m_doc->toByteArray() );
 
-	 dgd_echo( "xml_file.open()" << DGD::dgd << std::endl
-		   << dgd_expand(wrc) << std::endl
-		   << dgd_expand(xml_file.error()) << std::endl );
+	 dgd_logger << "xml_file.open()" << std::endl
+                    << dgd_expand(wrc) << std::endl
+                    << dgd_expand(xml_file.error()) << std::endl;
 
 
 	 if( wrc < 0 ) {
@@ -372,7 +386,7 @@ void Config::flush() {
 			       tr(" for writing. Error code: ") + 
 			       QString::number(xml_file.error()) );
 	    xml_file.close();
-	    dgd_end_scope_text( cfg, "write error " << xml_file.error() );
+	    dgd_echo(xml_file.error());
 	    return;
 	 }
 
@@ -381,13 +395,11 @@ void Config::flush() {
 
       m_dirty = false;
    }
-
-   dgd_end_scope( cfg );
 }
 
 
 void Config::revert() {
-   dgd_start_scope( cfg, "Config::revert()" );
+   dgd_scope;
 
    QString cwd = this->cwd();
    bool rc;
@@ -407,7 +419,7 @@ void Config::revert() {
 			 m_path + 
 			 tr(" for read. Error code: ") + 
 			 QString::number(xml_file.error()) );
-      dgd_end_scope_text( cfg, "read error " << xml_file.error() );
+      dgd_echo(xml_file.error() );
 
       this->load_defaults();
       return;
@@ -422,9 +434,9 @@ void Config::revert() {
 		    "(" + QString::number(line) + "," + 
 		    QString::number(col) + "): " +
 		    err_msg  );
-      dgd_end_scope_text( cfg, "read error (" 
-			       << line << ":" << col << "): " 
-			       << err_msg.toStdString() );
+      dgd_logger << "read error (" 
+                 << line << ":" << col << "): " 
+                 << err_msg;
 
       this->load_defaults();
       return;
@@ -433,12 +445,10 @@ void Config::revert() {
    m_cwd = m_doc->documentElement();
 
    this->cwd( cwd );
-
-   dgd_end_scope( cfg );
 }
 
 void Config::load_defaults() {
-   dgd_start_scope( cfg, "Config::load_defaults()" );
+   dgd_scope;
 
    bool rc;
 
@@ -454,7 +464,7 @@ void Config::load_defaults() {
    rc = xml_file.open( QIODevice::ReadOnly | QIODevice::Text );
    if( !rc ) {
       emit read_denied( tr("unable to load defaults") );
-      dgd_end_scope_text( cfg, "read error " << xml_file.error() );
+      dgd_echo(xml_file.error());
 
       m_doc->clear();
       m_cwd = 
@@ -470,7 +480,7 @@ void Config::load_defaults() {
 		    "(" + QString::number(line) + "," + 
 		    QString::number(col) + "): " +
 		    err_msg );
-      dgd_end_scope_text( cfg, "read error " << err_msg.toStdString() );
+      dgd_echo(err_msg);
       m_doc->clear();
       m_cwd = 
 	 m_doc->appendChild( m_doc->createElement( "config" ) ).toElement();
@@ -478,8 +488,6 @@ void Config::load_defaults() {
    }
 
    m_cwd = m_doc->documentElement();
-
-   dgd_end_scope( cfg );
 }
 
 /**
@@ -491,8 +499,9 @@ QString Config::default_path() const {
 
 Config::shared_reference  Config::m_global_cfg;
 
-Config::shared_reference Config::create( int argc, char **argv ) {
-   m_global_cfg.reset( new Config( argc, argv ) );
+Config::shared_reference Config::create() {
+   Config *cfg = new Config();
+   m_global_cfg.reset( cfg );
    return m_global_cfg;
 }
 

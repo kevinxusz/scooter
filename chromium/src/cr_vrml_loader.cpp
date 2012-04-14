@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include <dgDebug.h>
+#include <dgd.h>
 
 #include "cr_vrml_loader.h"
 
@@ -57,18 +57,16 @@ Loader::browser_ptr Loader::browser() const {
 }
 
 void Loader::run() {
-   dgd_start_scope( gui, "cr::vrml::Loader::run()" );
+   dgd_scope;
 
    if( m_finfo.isDir()      || 
        !m_finfo.exists()    ||
        !m_finfo.isReadable() ) {
-      dgd_echo( "cant read file: " 
-		<< m_finfo.absoluteFilePath().toStdString()
-		<< std::endl );
+      dgd_logger << "cant read file: " 
+                 << m_finfo.absoluteFilePath()
+                 << std::endl;
       m_errno = Open_Error;
       emit failure();
-
-      dgd_end_scope( gui );
       return;
    }
 
@@ -83,18 +81,15 @@ void Loader::run() {
    } catch( std::exception &ex ) {
       m_errno = Load_Error;
       emit failure();
-      dgd_echo( "got exception in load_url() while loading: " 
-		<< m_finfo.absoluteFilePath().toStdString()
-		<< " , reason was: " << ex.what()
-		<< std::endl );
-      dgd_end_scope( gui );
+      dgd_logger << "got exception in load_url() while loading: " 
+                 << m_finfo.absoluteFilePath()
+                 << " , reason was: " << ex.what()
+                 << std::endl;
       return;
    }
 
    emit progress(100);
    emit success();
-
-   dgd_end_scope( gui );
 }
 
 void Loader::operator () ( unsigned long l, unsigned long c ) {

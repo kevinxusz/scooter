@@ -42,7 +42,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QBoxLayout>
 
-#include <dgDebug.h>
+#include <dgd.h>
 
 #include "cr_svg.h"
 #include "cr_vrml_scene_item.h"
@@ -65,7 +65,7 @@ QSize Delegate::sizeHint( const QStyleOptionViewItem &option,
 }
 
 QRect Delegate::getSensitiveArea( const QRect &rect ) const {
-   dgd_start_scope( gui, "Delegate::getSensitiveArea()" );
+   dgd_scope;
 
    int x = 0, y = 0, width = 0, height = 0, pad = 0;
 
@@ -83,16 +83,15 @@ QRect Delegate::getSensitiveArea( const QRect &rect ) const {
       x = rect.x() + pad;
    }
 
-   dgd_echo( dgd_expand(rect.x()) << std::endl 
-	     << dgd_expand(rect.y()) << std::endl 
-	     << dgd_expand(rect.width()) << std::endl
-	     << dgd_expand(rect.height()) << std::endl 
-	     << dgd_expand(x) << std::endl
-	     << dgd_expand(y) << std::endl
-	     << dgd_expand(width) << std::endl
-	     << dgd_expand(height) << std::endl );
+   dgd_logger << dgd_expand(rect.x()) << std::endl 
+              << dgd_expand(rect.y()) << std::endl 
+              << dgd_expand(rect.width()) << std::endl
+              << dgd_expand(rect.height()) << std::endl 
+              << dgd_expand(x) << std::endl
+              << dgd_expand(y) << std::endl
+              << dgd_expand(width) << std::endl
+              << dgd_expand(height) << std::endl;
    
-   dgd_end_scope( gui );
    return QRect(x,y,width,height);
 }
 
@@ -100,12 +99,12 @@ void Delegate::drawDisplay( QPainter *painter,
 			    const QStyleOptionViewItem &option, 
 			    const QRect &rect, 
 			    const QString &text ) const {
-   dgd_start_scope( gui, "Delegate::drawDisplay()" );
+   dgd_scope;
 
    QItemDelegate::drawDisplay( painter, option, rect, text );
 
    if( (option.state & QStyle::State_Selected) == 0 ) {
-      dgd_end_scope_text( gui, dgd_expand(option.state) << std::endl );
+      dgd_echo(option.state);
       return;
    }
 
@@ -120,8 +119,6 @@ void Delegate::drawDisplay( QPainter *painter,
    painter->restore();
 
    painter->setPen( pen );
-
-   dgd_end_scope( gui );
 }
 
 }; // end of namespace scene

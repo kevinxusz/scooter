@@ -26,9 +26,13 @@
 
 #include "cr_config.h"
 
+#include <iostream>
+#include <string>
 #include <map>
 
 #include <boost/scoped_array.hpp>
+
+#include <dgd.h>
 
 #include <openvrml/field.h>
 
@@ -114,14 +118,14 @@ Mesh::~Mesh() {
 int Mesh::load( const IFS_node *ifs ) {   
    using namespace openvrml;
 
-   dgd_start_scope( dcelbuild, "Mesh::load()" );
+   dgd_scope;
 
    // get coord_vector and coord_index
    const sfnode &coord_node_field =
       dynamic_cast<const sfnode &>( ifs->field("coord") );
 
    if( coord_node_field.value == node_ptr() ) {
-      dgd_end_scope_text( dcel, "coord_node_field.value == NULL" );
+      dgd_logger << "coord_node_field.value == NULL" << std::endl;
       return 1;
    }
 
@@ -129,7 +133,7 @@ int Mesh::load( const IFS_node *ifs ) {
       coord_node_field.value->to_coordinate();
 
    if( coordinate_node == NULL ) {
-      dgd_end_scope_text( dcel, "coordinate_node == NULL" );
+      dgd_logger << "coordinate_node == NULL" << std::endl;
       return 1;
    }
    
@@ -140,7 +144,7 @@ int Mesh::load( const IFS_node *ifs ) {
 
    const std::vector<int32> *coord_index = &(coord_index_node_filed.value);
    if( coord_index == NULL || coord_index->size() < 3 ) {
-      dgd_end_scope_text( dcel, "bad coord_index" );
+      dgd_logger << "bad coord_index" << std::endl;
       return 1;
    }
 
@@ -251,12 +255,12 @@ int Mesh::load( const IFS_node *ifs ) {
 	 }
       }
 
-      dgd_echo( dgd_expand(xdim) << std::endl
-		<< dgd_expand(ydim) << std::endl
-		<< dgd_expand(zdim) << std::endl
-		<< dgd_expand(mindim) << std::endl
-		<< dgd_expand(m_global_scale) << std::endl );
-   }
+      dgd_logger << dgd_expand(xdim) << std::endl
+                 << dgd_expand(ydim) << std::endl
+                 << dgd_expand(zdim) << std::endl
+                 << dgd_expand(mindim) << std::endl
+                 << dgd_expand(m_global_scale) << std::endl;
+}
 
 
    // now create vertexes only setting normal and color if needed
@@ -290,7 +294,7 @@ int Mesh::load( const IFS_node *ifs ) {
    boost::scoped_array<Vertex*> 
       vertex_by_coord_index( new Vertex*[ coord_index->size() ] );
 
-   dgd_echo( dgd_expand(coord_index->size()) << std::endl );
+   dgd_echo(coord_index->size());
 
    for( index_array::const_iterator iter = coord_index->begin();
 	iter != coord_index->end();
@@ -299,8 +303,8 @@ int Mesh::load( const IFS_node *ifs ) {
       unsigned int vindex = *iter;
       I2VMap::iterator findres = i2v.find( vindex );
 
-      dgd_echo( dgd_expand(index) << std::endl 
-		<< dgd_expand(vindex) << std::endl );
+      dgd_logger << dgd_expand(index) << std::endl 
+                 << dgd_expand(vindex) << std::endl;
 
       if( findres == i2v.end() ) {
 	 // -1 or coord_index contains non-existing index. 
@@ -366,15 +370,12 @@ int Mesh::load( const IFS_node *ifs ) {
       if( !facet_has_loop && facet_end - facet_begin > 2 ) {
 	 Facet *f = this->new_facet( facet_begin, facet_end );
 
-	 dgd_echo( dgd_expand(*this) << std::endl );
+	 dgd_echo(*this);
       }
       
       facet_begin = facet_end;
    }
 
-   dgd_flush_all;
-
-   dgd_end_scope( dcel );
    return 0;
 }
 
@@ -382,7 +383,7 @@ int Mesh::save( IFS_node *ifs ) {
    return 0;
 }
 
-DGD::channel &operator<<( DGD::channel &ostr, const Vertex_base& vtx ) {
+std::ostream &operator<<( std::ostream &ostr, const Vertex_base& vtx ) {
    ostr << "(" 
 	<< vtx.coord().x() << "," 
 	<< vtx.coord().y() << "," 
@@ -391,13 +392,13 @@ DGD::channel &operator<<( DGD::channel &ostr, const Vertex_base& vtx ) {
 }
 
 
-DGD::channel &operator<<( DGD::channel &ostr, const Halfedge_base& vtx ) {
+std::ostream &operator<<( std::ostream &ostr, const Halfedge_base& vtx ) {
    
    return ostr;
 }
 
 
-DGD::channel &operator<<( DGD::channel &ostr, const Facet_base& vtx ) {
+std::ostream &operator<<( std::ostream &ostr, const Facet_base& vtx ) {
    
    return ostr;
 }

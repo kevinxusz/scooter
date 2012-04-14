@@ -32,7 +32,7 @@
 #include <fstream>
 #include <cmath>
 
-#include <dgDebug.h>
+#include <dgd.h>
 
 #include <openvrml/browser.h>
 #include <openvrml/scope.h>
@@ -64,15 +64,13 @@ void Control::build() {
    using namespace openvrml;
    using namespace Math;
 
-   dgd_start_scope( editctrl, "Control::build()" );
+   dgd_scope;
 
    m_mesh.reset( new Mesh() );
    m_mesh->load( m_ifs_node );   
 
    m_mesh_scene.reset( new Scene() );
    m_mesh_scene->reload( &browser, m_mesh );
-
-   dgd_end_scope( editctrl );
 }
 
 void Control::select( int x, int y ) {

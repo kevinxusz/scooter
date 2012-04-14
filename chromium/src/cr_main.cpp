@@ -28,70 +28,46 @@
 
 #include <QtGui/QApplication>
 
-#include <dgDebug.h>
-#include <dgOptionFilter.h>
+#include <dgd.h>
 
 #include "cr_cfg.h"
 #include "cr_portal.h"
 
-DGD::Debug::debug_factory_ref dout;
-
 int main( int argc, char **argv ) {
-   using namespace DGD;
-   
-   option_filter of;
-   char* filter[] = { "--trace.*", "--config.*" };
+   std::vector<std::string> args;
 
-   option_filter::option_set_container* option_sets = 
-      of( argc, argv, 2, filter );
-
-   dout = Debug::create_factory( (*option_sets)[0].argc, 
-				 (*option_sets)[0].argv );
-      
-   if( dout.get() != NULL ) {
-      stream main_file = dout->main_file();
-
-      stream f = 
-	 dout->prepend_file( 
-	    stream( new funnel( main_file.get() ? *main_file : std::cerr  ) ) 
-	 );
-      
-      channel& cfg       = dout->create_channel( "cfg" );
-      channel& gui       = dout->create_channel( "gui" );
-      channel& canvas    = dout->create_channel( "canvas" );
-      channel& model     = dout->create_channel( "model" );
-      channel& openvrml  = dout->create_channel( "openvrml" );
-      channel& ifs       = dout->create_channel( "canvas-ifs" );
-      channel& dcel      = dout->create_channel( "dcel" );
-      channel& dcelbuild = dout->create_channel( "dcelbuild" );
-      channel& dcelimpl  = dout->create_channel( "dcelimpl" );
-      channel& editctrl  = dout->create_channel( "editctrl" );
-
-      assoc( f.get(), cfg );
-      assoc( f.get(), gui );
-      assoc( f.get(), canvas );
-      assoc( f.get(), model );
-      assoc( f.get(), ifs );
-      assoc( f.get(), openvrml );
-      assoc( f.get(), dcel );
-      assoc( f.get(), dcelbuild );
-      assoc( f.get(), dcelimpl );
-      assoc( f.get(), editctrl );
+   try {
+      args = dgd::controller<char>::init(argc, argv);
    }
+   catch(dgd::exception &ex) {
+      std::cerr << "Unable to init dgd. Try --trace-help"
+                << std::endl
+                << ex.what() << std::endl;
+      return -1;
+   }
+
+   dgd_scope;
 
    Q_INIT_RESOURCE( chromium );
 
-   cr::Config::create( (*option_sets)[1].argc, 
-		       (*option_sets)[1].argv );
+   cr::Config::shared_reference cfg = cr::Config::create();
 
-   QApplication app( (*option_sets)[2].argc, 
-		     (*option_sets)[2].argv );
+   args =  cfg->init(args);
+   if(args.size() > 0) {
+      std::cerr << "Warning: unrecognized options: " << std::endl;
+      for(std::vector<std::string>::const_iterator iter = args.begin(); iter != args.end(); iter++)
+      {
+         std::cerr << *iter << std::endl;
+      }
+   }
+
+   QApplication app( argc, argv );
 
    cr::Portal portal;
 
    portal.show();
 
-   return app.exec();;
+   return app.exec();
 }
 
 

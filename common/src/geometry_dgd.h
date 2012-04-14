@@ -27,78 +27,69 @@
 #ifndef _geometry_dgd_h_
 #define _geometry_dgd_h_
 
-#include <dgDebug.h>
-
-#include <scooter/calculus_dgd.h>
-
-#ifdef _TRACE
-
 namespace Math {
 
 template <class FloatValue, class ComparableValue>
-DGD::channel& operator << (
-   DGD::channel& ds, 
+std::ostream& operator << (
+   std::ostream& ds, 
    const Bounding_box<FloatValue,ComparableValue>& bbox) 
 {
-   ds << "[" << bbox.valid() << ":" << DGD::dgd
-      << bbox.bottom() << "," << DGD::dgd
+   ds << "[" << bbox.valid() << ":" 
+      << bbox.bottom() << "," 
       << bbox.top() << "]";
    return ds;
 }
 
 template <class FloatValue, class ComparableValue>
-DGD::channel& operator << (
-   DGD::channel& ds, 
+std::ostream& operator << (
+   std::ostream& ds, 
    const Plane<FloatValue,ComparableValue>& plane) 
 {
-   ds << "[plane:O" << DGD::dgd << plane.origin() << ",N" << DGD::dgd
-      << plane.normal() << "]";
+   ds << "[plane:O" << plane.origin() << ",N" << plane.normal() << "]";
    return ds;
 }
 
 template <class FloatValue, class ComparableValue>
-DGD::channel& operator << (
-   DGD::channel& ds, 
+std::ostream& operator << (
+   std::ostream& ds, 
    const Line<FloatValue,ComparableValue>& line) 
 {
-   ds << "[line:O" << DGD::dgd << line.origin() << ",D" << DGD::dgd
-      << line.direction() << "]";
+   ds << "[line:O" << line.origin() << ",D" << line.direction() << "]";
    return ds;
 }
 
 template <class FloatValue, class ComparableValue>
-DGD::channel& operator << (
-   DGD::channel& ds, 
+std::ostream& operator << (
+   std::ostream& ds, 
    const Segment<FloatValue,ComparableValue>& seg) 
 {
-   ds << "[segment:a" << DGD::dgd << seg.a() << ",b" << DGD::dgd
-      << seg.b() << "]";
+   ds << "[segment:a" << seg.a() << ",b" << seg.b() << "]";
    return ds;
 }
 
 template <class FloatValue, class ComparableValue>
-DGD::channel& operator << (
-   DGD::channel& ds, 
+std::ostream& operator << (
+   std::ostream& ds, 
    const Circle<FloatValue,ComparableValue>& circle) 
 {
-   ds << "[circle:O" << DGD::dgd << circle.origin() << ",N" << DGD::dgd
-      << circle.normal() << ",R" << DGD::dgd << circle.radius() << "]";
+   ds << "[circle:O" << circle.origin() << ",N"
+      << circle.normal() << ",R" << circle.radius() << "]";
    return ds;
 }
 
 template <class FloatValue, class ComparableValue>
-DGD::channel& operator << (
-   DGD::channel& ds, 
+std::ostream& operator << (
+   std::ostream& ds, 
    const Triangle<FloatValue,ComparableValue>& tr) 
 {
-   ds << "[triangle:A" << DGD::dgd << tr.a() << ",B" << DGD::dgd
-      << tr.b() << ",C" << DGD::dgd << tr.c() << "]";
+   ds << "[triangle:A" << tr.a() << ",B" 
+      << tr.b() << ",C" << tr.c() << "]";
    return ds;
 }
 
 template <class FloatValue, class ComparableValue>
-DGD::channel& operator << (
-   DGD::channel& ds, 
+std::ostream& operator << (
+   std::ostream& ds, 
    const Intersection<FloatValue,ComparableValue>& intr ) 
 {
    ds << "[intersection:";
@@ -123,13 +114,7 @@ DGD::channel& operator << (
    return ds;
 }
 
-
-
-
 }; // end of namespace Math
-
-#endif /* _TRACE */
-
 
 #endif /* _geometry_dgd_h_ */
 

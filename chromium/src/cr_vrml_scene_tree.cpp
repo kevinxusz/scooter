@@ -29,7 +29,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMouseEvent>
 
-#include <dgDebug.h>
+#include <dgd.h>
 
 #include "cr_vrml_scene_model.h"
 #include "cr_vrml_scene_tree.h"
@@ -72,13 +72,13 @@ void Tree::resize_tree_to_content( const QModelIndex & index ) {
 
 
 void Tree::mousePressEvent ( QMouseEvent *event ) {
-   dgd_start_scope( gui, "Tree::mousePressEvent()" );
+   dgd_scope;
 
    QTreeView::mousePressEvent( event );
 
-   dgd_echo( dgd_expand(event->pos().x()) << std::endl
-	     << dgd_expand(event->pos().y()) << std::endl );
-      
+   dgd_logger << dgd_expand(event->pos().x()) << std::endl
+              << dgd_expand(event->pos().y()) << std::endl;
+
    QModelIndex index = this->indexAt( event->pos() );
    if( index.isValid() && index.column() == Model::SM_NAME_COLUMN ) {
 
@@ -88,7 +88,7 @@ void Tree::mousePressEvent ( QMouseEvent *event ) {
 	 title += tr("...");
       }
 
-      dgd_echo( dgd_expand(title.toStdString()) << std::endl );
+      dgd_echo(title.toStdString());
 
       m_item_menu->setTitle( title );
       m_select_action->setData( QVariant( index.row() ) );
@@ -96,29 +96,29 @@ void Tree::mousePressEvent ( QMouseEvent *event ) {
       m_edit_action->setData( QVariant( index.row() ) );
 
       if( event != NULL && event->button() == Qt::RightButton ) {
-	 dgd_echo( "right button pressed" << std::endl );      
+	 dgd_logger << "right button pressed" << std::endl;      
 	 this->handle_context_action (
 	    m_item_menu->exec( event->globalPos() ),
 	    index
 	 );
       } else if( event != NULL && event->button() == Qt::LeftButton ) {
-	 dgd_echo( "left button pressed" << std::endl );
+	 dgd_logger << "left button pressed" << std::endl;
       
 	 QRect rect =  this->visualRect( index );
       
-	 dgd_echo( dgd_expand(rect.x()) << std::endl 
-		   << dgd_expand(rect.y()) << std::endl 
-		   << dgd_expand(rect.width()) << std::endl 
-		   << dgd_expand(rect.height()) << std::endl );
+	 dgd_logger << dgd_expand(rect.x()) << std::endl 
+                    << dgd_expand(rect.y()) << std::endl 
+                    << dgd_expand(rect.width()) << std::endl 
+                    << dgd_expand(rect.height()) << std::endl;
 
 	 Delegate *delegate = dynamic_cast<Delegate*>( this->itemDelegate() );
 	 if( rect.isValid() && delegate != NULL ) {
 	    QRect sensitive_area = delegate->getSensitiveArea( rect );
 
-	    dgd_echo( dgd_expand(sensitive_area.x()) << std::endl 
-		      << dgd_expand(sensitive_area.y()) << std::endl 
-		      << dgd_expand(sensitive_area.width()) << std::endl 
-		      << dgd_expand(sensitive_area.height()) << std::endl );
+	    dgd_logger << dgd_expand(sensitive_area.x()) << std::endl 
+                       << dgd_expand(sensitive_area.y()) << std::endl 
+                       << dgd_expand(sensitive_area.width()) << std::endl 
+                       << dgd_expand(sensitive_area.height()) << std::endl;
 	 
 	    if( sensitive_area.isValid() && 
 		sensitive_area.contains( event->pos() ) ) {
@@ -130,24 +130,21 @@ void Tree::mousePressEvent ( QMouseEvent *event ) {
 	 }
       }
    }
-
-   dgd_end_scope(gui);
 }
 
 void Tree::handle_context_action( QAction *sender, const QModelIndex& index ) {
-   dgd_start_scope( gui, "Tree::handle_context_action()" );
+   dgd_scope;
 
    if( sender == m_select_action ) {
-      dgd_echo( dgd_expand(sender->text().toStdString()) << std::endl );
+      dgd_echo(sender->text());
       emit select( index );
    } else if( sender == m_focus_action ) {
-      dgd_echo( dgd_expand(sender->text().toStdString()) << std::endl );
+      dgd_echo(sender->text());
       emit focus( index );
    } else if( sender == m_edit_action ) {
-      dgd_echo( dgd_expand(sender->text().toStdString()) << std::endl );
+      dgd_echo(sender->text());
       emit edit( index );
    }
-   dgd_end_scope( gui );
 }
 
 }; // end of namespace scene

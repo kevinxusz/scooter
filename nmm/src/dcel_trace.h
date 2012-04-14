@@ -31,13 +31,8 @@
 
 #include <boost/iterator/transform_iterator.hpp>
 
-#include <dgDebug.h>
-
-
 namespace scooter {
 namespace nmm {
-
-using namespace DGD;
 
 template <class T> 
 class brief_type {
@@ -66,15 +61,15 @@ template <class T>
 verbose_type<T> verbose( const T& base ) { return verbose_type<T>(base); }
 
 template <class Vb, class Hb, class Fb>
-channel &operator << ( channel &ostr, 
-		       const brief_type<Dcel_vertex<Vb,Hb,Fb> > &bv) {
+std::ostream &operator << (std::ostream &ostr, 
+                           const brief_type<Dcel_vertex<Vb,Hb,Fb> > &bv) {
    ostr << (const common_typename Dcel<Vb,Hb,Fb>::Vertex::Parent&)bv.m_base;
    return ostr;
 }
 
 
 template <class Vb, class Hb, class Fb>
-channel &operator << ( channel &ostr, 
+std::ostream &operator << ( std::ostream &ostr, 
 		       const brief_type<Dcel_halfedge<Vb,Hb,Fb> >& bhe ) {
    const common_typename Dcel<Vb,Hb,Fb>::Halfedge& he = bhe.m_base;
    if( he.opposite() == NULL || he.opposite()->vertex() == NULL ) 
@@ -90,11 +85,11 @@ channel &operator << ( channel &ostr,
 }
 
 template <class Vb, class Hb, class Fb>
-channel &operator << ( channel &ostr, 
+std::ostream &operator << ( std::ostream &ostr, 
 		       const brief_type<Dcel_facet<Vb,Hb,Fb> > &bf ) { 
    const common_typename Dcel<Vb,Hb,Fb>::Facet& f = bf.m_base;
    if( f.halfedge() != NULL ) 
-      ostr << "<" << dgd << brief(*f.halfedge()) << ">";
+      ostr << "<" << brief(*f.halfedge()) << ">";
    else
       ostr << "<null_facet>";
    return ostr;
@@ -102,138 +97,138 @@ channel &operator << ( channel &ostr,
 
 
 template <class Vb, class Hb, class Fb>
-channel &operator << ( channel &ostr, 
+std::ostream &operator << ( std::ostream &ostr, 
 		       const brief_type<Dcel<Vb,Hb,Fb> > &bdcel ) {
    const Dcel<Vb,Hb,Fb>& dcel = bdcel.m_base;
-   ostr << "{" << dgd << incr << std::endl
-	<< "vertex list: " << dgd << incr << std::endl;
+   ostr << "{" << dgd::incr << std::endl
+	<< "vertex list: " << dgd::incr << std::endl;
    for( common_typename Dcel<Vb,Hb,Fb>::Vertex_const_iterator 
 	   viter = dcel.vertexes_begin();
 	viter != dcel.vertexes_end();
 	++viter ) {
       ostr << brief( *viter ) << std::endl;
    }
-   ostr << decr 
-	<< "halfedge list: " << dgd << incr << std::endl;
+   ostr << dgd::decr 
+	<< "halfedge list: " << dgd::incr << std::endl;
    for( common_typename Dcel<Vb,Hb,Fb>::Halfedge_const_iterator 
 	   hiter = dcel.halfedges_begin();
 	hiter != dcel.halfedges_end();
 	++hiter ) {
       ostr << brief( *hiter ) << std::endl;
    }
-   ostr << decr 
-	<< "facet list: " << dgd << incr << std::endl;
+   ostr << dgd::decr 
+	<< "facet list: " << dgd::incr << std::endl;
    for( common_typename Dcel<Vb,Hb,Fb>::Facet_const_iterator
 	   fiter = dcel.facets_begin();
 	fiter != dcel.facets_end();
 	++fiter ) {
       ostr << brief( *fiter ) << std::endl;
    }
-   ostr << decr 
-	<< decr << "}" << std::endl;
+   ostr << dgd::decr 
+	<< dgd::decr << "}" << std::endl;
    return ostr;
 }
 
 template <class Vb, class Hb, class Fb>
-channel &operator << ( channel &ostr, 
+std::ostream &operator << ( std::ostream &ostr, 
 		       const verbose_type<Dcel_vertex<Vb,Hb,Fb> > &bvertex ) {
    const common_typename Dcel<Vb,Hb,Fb>::Vertex& vertex = bvertex.m_base;
-   ostr << mem_ref(&vertex) << "[" << dgd 
+   ostr << (int*)&vertex << "[" 
 	<< (const common_typename Dcel<Vb,Hb,Fb>::Vertex::Parent&)vertex
-	<< "," << dgd << mem_ref(vertex.halfedge()) << "]";
+	<< "," << (int*)(vertex.halfedge()) << "]";
    return ostr;
 }
 
 
 template <class Vb, class Hb, class Fb>
-channel &operator << ( channel &ostr, 
+std::ostream &operator << ( std::ostream &ostr, 
 		       const verbose_type<Dcel_halfedge<Vb,Hb,Fb> >& bhe ) {
    const common_typename Dcel<Vb,Hb,Fb>::Halfedge& he = bhe.m_base;
-   ostr << mem_ref(&he) << "(";
+   ostr << (int*)&he << "(";
    if( he.opposite() == NULL || he.opposite()->vertex() == NULL ) 
       ostr << "null";
    else
-      ostr << mem_ref(he.opposite()->vertex()) 
-	   << "[" << dgd << brief(*he.opposite()->vertex()) << "]";
+      ostr << (int*)(he.opposite()->vertex()) 
+	   << "[" << brief(*he.opposite()->vertex()) << "]";
    ostr << "->";
    if( he.vertex() == NULL ) 
       ostr << "null";
    else
-      ostr << mem_ref(he.vertex())
-	   << "[" << dgd << brief(*he.vertex()) << "]";
-   ostr << ", facet:" << dgd << mem_ref(he.facet())
-	<< ", opposite:" << dgd << mem_ref(he.opposite())
-	<< ", next:" << dgd << mem_ref(he.next()) 
-	<< ", prev:" << dgd << mem_ref(he.prev()) << ")";
+      ostr << (int*)(he.vertex())
+	   << "[" << brief(*he.vertex()) << "]";
+   ostr << ", facet:" << (int*)(he.facet())
+	<< ", opposite:" << (int*)(he.opposite())
+	<< ", next:" << (int*)(he.next()) 
+	<< ", prev:" << (int*)(he.prev()) << ")";
    return ostr;
 }
 
 template <class Vb, class Hb, class Fb>
-channel &operator << ( channel &ostr, 
+std::ostream &operator << ( std::ostream &ostr, 
 		       const verbose_type<Dcel_facet<Vb,Hb,Fb> > &bf ) { 
    const common_typename Dcel<Vb,Hb,Fb>::Facet& f = bf.m_base;
    const common_typename Dcel<Vb,Hb,Fb>::Halfedge *he;
 
-   ostr << mem_ref(&f) << "{" << incr << std::endl;
+   ostr << (int*)(&f) << "{" << dgd::incr << std::endl;
    he = f.halfedge();
    do {
       ostr << verbose(*he) << std::endl;
       ostr << verbose(*he->opposite()) << std::endl;
       he = he->next();
    } while( he != NULL && he != f.halfedge() );
-   ostr << decr << "}";
+   ostr << dgd::decr << "}";
    return ostr;
 }
 
 template <class Vb, class Hb, class Fb>
-channel &operator << ( channel &ostr, 
+std::ostream &operator << ( std::ostream &ostr, 
 		       const verbose_type<Dcel<Vb,Hb,Fb> > &bdcel ) {
    const Dcel<Vb,Hb,Fb>& dcel = bdcel.m_base;
-   ostr << "{" << dgd << incr << std::endl
-	<< "vertex list: " << dgd << incr << std::endl;
+   ostr << "{" << dgd::incr << std::endl
+	<< "vertex list: " << dgd::incr << std::endl;
    for( common_typename  Dcel<Vb,Hb,Fb>::Vertex_const_iterator
 	   viter = dcel.vertexes_begin();
 	viter != dcel.vertexes_end();
 	++viter ) {
       ostr << verbose( *viter ) << std::endl;
    }
-   ostr << decr 
-	<< "halfedge list: " << dgd << incr << std::endl;
+   ostr << dgd::decr 
+	<< "halfedge list: " << dgd::incr << std::endl;
    for( common_typename Dcel<Vb,Hb,Fb>::Halfedge_const_iterator
 	   hiter = dcel.halfedges_begin();
 	hiter != dcel.halfedges_end();
 	++hiter ) {
       ostr << verbose( *hiter ) << std::endl;
    }
-   ostr << decr 
-	<< "facet list: " << dgd << incr << std::endl;
+   ostr << dgd::decr 
+	<< "facet list: " << dgd::incr << std::endl;
    for( common_typename Dcel<Vb,Hb,Fb>::Facet_const_iterator 
 	   fiter = dcel.facets_begin();
 	fiter != dcel.facets_end();
 	++fiter ) {
       ostr << verbose( *fiter ) << std::endl;
    }
-   ostr << decr 
-	<< decr << "}" << std::endl;
+   ostr << dgd::decr 
+	<< dgd::decr << "}" << std::endl;
    return ostr;
 }
 
 template <class Vb, class Hb, class Fb>
-channel &operator << ( channel &ostr, 
+std::ostream &operator << ( std::ostream &ostr, 
 		       const Dcel_vertex<Vb,Hb,Fb>& vertex ) {
     ostr << verbose(vertex);
    return ostr;
 }
 
 template <class Vb, class Hb, class Fb>
-channel &operator << ( channel &ostr, 
+std::ostream &operator << ( std::ostream &ostr, 
 		       const Dcel_halfedge<Vb,Hb,Fb>& he ) {
    ostr << verbose(he);
    return ostr;
 }
 
 template <class Vb, class Hb, class Fb>
-channel &operator << ( channel &ostr, 
+std::ostream &operator << ( std::ostream &ostr, 
 		       const Dcel_facet<Vb,Hb,Fb> &f ) { 
    ostr << verbose(f);
    return ostr;   
@@ -241,14 +236,14 @@ channel &operator << ( channel &ostr,
 
 
 template <class Vb, class Hb, class Fb>
-channel &operator << ( channel &ostr, 
+std::ostream &operator << ( std::ostream &ostr, 
 		       const Dcel<Vb,Hb,Fb>& dcel ) {
    ostr << verbose(dcel);
    return ostr;
 }
 
 template <class T>
-channel &operator << ( channel &ostr, const verbose_type<T*> &vf ) { 
+std::ostream &operator << ( std::ostream &ostr, const verbose_type<T*> &vf ) { 
    if( vf.m_base != NULL ) 
       ostr << verbose(*vf.m_base);
    else
@@ -257,7 +252,7 @@ channel &operator << ( channel &ostr, const verbose_type<T*> &vf ) {
 }
 
 template <class T>
-channel &operator << ( channel &ostr, const brief_type<T*> &vf ) { 
+std::ostream &operator << ( std::ostream &ostr, const brief_type<T*> &vf ) { 
    if( vf.m_base != NULL ) 
       ostr << brief(*vf.m_base);
    else

@@ -36,7 +36,7 @@
 #include <openvrml/node.h>
 #include <openvrml/node_ptr.h>
 
-#include <dgDebug.h>
+#include <dgd.h>
 
 #include "cr_svg.h"
 #include "cr_mesh_control.h"
@@ -58,18 +58,18 @@ Editor::Editor( QWidget *parent ) :
 Editor::~Editor() {}
 
 void Editor::reload( QModelIndex index ) {
-   dgd_start_scope( gui, "cr::vrml::mesh::Editor::load()" );
+   dgd_scope;
 
    void *object = index.internalPointer();
    if( object == NULL ) {
-      dgd_end_scope_text( gui, "object == NULL" );
+      dgd_logger << "object == NULL" << std::endl;
       return;
    }
 
    cr::vrml::scene::Item *item = static_cast<cr::vrml::scene::Item*>( object );
 
    if( item == NULL || item->node().node() == NULL ) {
-      dgd_end_scope_text( gui, "item == NULL" );
+      dgd_logger << "item == NULL" << std::endl;
       return;
    }
    
@@ -88,7 +88,7 @@ void Editor::reload( QModelIndex index ) {
       );
 
    if( ifs_node == NULL ) {
-      dgd_end_scope_text( gui, "ifs == NULL" );
+      dgd_logger <<  "ifs == NULL" << std::endl;
       return;
    }
 
@@ -104,12 +104,10 @@ void Editor::reload( QModelIndex index ) {
    m_layout->addWidget( m_status_bar );
 
    m_status_bar->showMessage( tr("Loading mesh... Done."), 2000 );
-
-   dgd_end_scope( gui );
 }
 
 void Editor::construct() {
-   dgd_start_scope( gui, "cr::vrml::mesh::Editor::Editor()" );
+   dgd_scope;
 
    m_layout       = new QVBoxLayout( this );
    m_status_bar   = new QStatusBar( this );
@@ -126,7 +124,6 @@ void Editor::construct() {
    this->setWindowState( Qt::WindowActive );
    this->setWindowIcon( QIcon( Svg_icon( ":/icons/objects.svg", 
 					 QSize(32,32 ) ) ) );
-   dgd_end_scope( gui );
 }
 
 }; // end of namespace mesh

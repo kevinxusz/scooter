@@ -41,7 +41,7 @@
 
 #include <openvrml/browser.h>
 
-#include <dgDebug.h>
+#include <dgd.h>
 
 #include "cr_svg.h"
 #include "cr_document.h"
@@ -70,9 +70,9 @@ Document::Document( const QFileInfo& finfo ) :
    m_glpad(NULL),
    m_selection(NULL) {
 
-   dgd_start_scope( gui, "Document::Document()" );
+   dgd_scope;
 
-   dgd_echo( dgd_expand(finfo.absoluteFilePath().toStdString()) << std::endl );
+   dgd_echo(finfo.absoluteFilePath());
 
    m_layout       = new QVBoxLayout( this );
    m_status_bar   = new QStatusBar( this );
@@ -96,8 +96,6 @@ Document::Document( const QFileInfo& finfo ) :
    construct_toolset();
 
    emit constructed();
-
-   dgd_end_scope( gui );
 }
 
 Document::~Document() {
@@ -113,7 +111,7 @@ Document::~Document() {
 }
 
 void Document::load_start() {
-   dgd_start_scope( gui, "Document::load_start()" );
+   dgd_scope;
 
    if( m_loader == NULL ) {
       m_loader = new vrml::Loader( m_finfo );
@@ -130,14 +128,12 @@ void Document::load_start() {
       m_status_bar->addPermanentWidget( m_progress_bar );
       m_progress_bar->show();
 
-      dgd_echo( "loader constructed" << DGD::dgd << std::endl );
+      dgd_logger << "loader constructed" << std::endl;
    }
-
-   dgd_end_scope( gui );
 }
 
 void Document::load_failure() {   
-   dgd_start_scope( gui, "Document::load_failure()" );
+   dgd_scope;
 
    QMessageBox::critical( this, tr("Load Failed"), 
 			  tr("Unable to load file: %1").
@@ -150,12 +146,10 @@ void Document::load_failure() {
    m_status_bar->showMessage( tr("Load failed"), 2000 );
 
    emit load_failed();
-
-   dgd_end_scope( gui );
 }
 
 void Document::load_success() {
-   dgd_start_scope( gui, "Document::load_success()" );
+   dgd_scope;
 
    m_status_bar->removeWidget( m_progress_bar );
    m_progress_bar->hide();
@@ -175,16 +169,14 @@ void Document::load_success() {
    }
 
    emit load_finished();
-
-   dgd_end_scope( gui );
 }
 
 
 void Document::load_cancel() {
-   dgd_start_scope( gui, "Document::load_cancel()" );
+   dgd_scope;
 
    if( m_loader != NULL ) {
-      dgd_echo( dgd_expand(m_loader->isRunning()) << std::endl );
+      dgd_echo(m_loader->isRunning());
 
       if( m_loader->isRunning() )
 	 m_loader->terminate();
@@ -193,12 +185,10 @@ void Document::load_cancel() {
       delete m_loader;
       m_loader = NULL;      
    }
-
-   dgd_end_scope( gui );
 }
 
 void Document::closeEvent(QCloseEvent *event) {
-   dgd_start_scope( gui, "Document::closeEvent()" );
+   dgd_scope;
 
    this->load_cancel();
 
@@ -206,8 +196,6 @@ void Document::closeEvent(QCloseEvent *event) {
       m_tool_tab->deleteLater();
       m_tool_tab = NULL;
    }
-
-   dgd_end_scope( gui );
 }
 
 
@@ -255,27 +243,27 @@ void Document::glpad_reset() {
 }
 
 void Document::handle_select( QModelIndex index ) {
-   dgd_start_scope( gui, "Document::handle_select()" );
+   dgd_scope;
    
    if( m_glpad == NULL ) {
-      dgd_end_scope_text( gui, "glpad is NULL" );
+      dgd_logger <<  "glpad is NULL" << std::endl;
       return;
    }
 
    if( !index.isValid() ) {
-      dgd_end_scope_text( gui, "index not valid" );
+      dgd_logger << "index not valid" << std::endl;
       return;
    }
 
    void *object = index.internalPointer();
    if( object == NULL ) {
-      dgd_end_scope_text( gui, "object == NULL" );
+      dgd_logger << "object == NULL" << std::endl;
       return;
    }
 
    vrml::scene::Item *item = static_cast<vrml::scene::Item*>( object );
    if( item == NULL ) {
-      dgd_end_scope_text( gui, "item == NULL" );
+      dgd_logger << "item == NULL" << std::endl;
       return;
    }
 
@@ -301,8 +289,8 @@ void Document::handle_select( QModelIndex index ) {
 	 top *= transform;
 	 bottom *= transform;
 	 
-	 dgd_echo( dgd_expand(top) << std::endl 
-		   << dgd_expand(bottom) << std::endl );
+	 dgd_logger << dgd_expand(top) << std::endl 
+                    << dgd_expand(bottom) << std::endl;
 	 	 
 	 m_glpad->bbox( vrml::Control::Point( bottom.x(), 
 					      bottom.y(),
@@ -319,32 +307,30 @@ void Document::handle_select( QModelIndex index ) {
    }
 	
    m_glpad->repaint();
- 
-   dgd_end_scope( gui );
 }
 
 void Document::handle_focus( QModelIndex index ) {
-   dgd_start_scope( gui, "Document::handle_focus()" );
+   dgd_scope;
    
    if( m_glpad == NULL ) {
-      dgd_end_scope_text( gui, "glpad is NULL" );
+      dgd_logger << "glpad is NULL" << std::endl;
       return;
    }
 
    if( !index.isValid() ) {
-      dgd_end_scope_text( gui, "index not valid" );
+      dgd_logger << "index not valid" << std::endl;
       return;
    }
 
    void *object = index.internalPointer();
    if( object == NULL ) {
-      dgd_end_scope_text( gui, "object == NULL" );
+      dgd_logger << "object == NULL" << std::endl;
       return;
    }
 
    vrml::scene::Item *item = static_cast<vrml::scene::Item*>( object );
    if( item == NULL ) {
-      dgd_end_scope_text( gui, "item == NULL" );
+      dgd_logger << "item == NULL";
       return;
    }
 
@@ -360,16 +346,12 @@ void Document::handle_focus( QModelIndex index ) {
    }
 
    this->glpad_reset();
- 
-   dgd_end_scope( gui );
 }
 
 void Document::handle_edit( QModelIndex index ) {
-   dgd_start_scope( gui, "Document::handle_edit()" );
+   dgd_scope;
    
    emit edit( index );
-   
-   dgd_end_scope( gui );
 }
 
 }; // end of namespace cr

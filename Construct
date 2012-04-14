@@ -44,7 +44,7 @@ our $BLIB    = "#blib";
 
 die if( !defined( $toolset ) );
 
-my @liblist = qw(cons/config dgd common chromium) ;
+my @liblist = qw(cons/config common nmm chromium) ;
 
     
 map { 

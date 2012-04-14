@@ -30,9 +30,16 @@
 #include <map>
 #include <sstream>
 
-#include <boost/smart_ptr.hpp>
+#include <QtCore/QObject>
+#include <QtCore/QTime>
+#include <QtCore/QTimer>
 
-#include <dgDebug.h>
+#include <QtGui/QColor>
+#include <QtGui/QMouseEvent>
+
+#include <dgd.h>
+
+#include <boost/smart_ptr.hpp>
 
 #include <openvrml/node_ptr.h>
 #include <openvrml/browser.h>
@@ -43,13 +50,6 @@
 #include <scooter/iterators.h>
 #include <scooter/geometry.h>
 #include <scooter/geometry_dgd.h>
-
-#include <QtCore/QObject>
-#include <QtCore/QTime>
-#include <QtCore/QTimer>
-
-#include <QtGui/QColor>
-#include <QtGui/QMouseEvent>
 
 #include "cr_vrml_control.h"
 
@@ -109,65 +109,61 @@ double Control::frame_rate() {
 
 
 void Control::reset_user_navigation() {
-   dgd_start_scope( canvas, "Control::reset_user_navigation()" );
+   dgd_scope;
    m_permanent_rotation = false;
    m_rotation.set_identity();
    m_translation( 0.0, 0.0, 0.0, 1.0 );
-   dgd_end_scope( canvas );
 }
 
 
 Control::object_t
 Control::begin_object( const char* id, bool retain ) {
-   dgd_start_scope( canvas, "Control::beginObject()" );
-   dgd_echo( (id?id:"id=null") << std::endl );
+   dgd_scope;
+   dgd_echo((id?id:"id=null"));
 
    for( int i = 0; i < m_max_lights; ++i ) {
       if( m_light_info[i].m_type == LightInfo::LIGHT_DIRECTIONAL) {	 
 	 ++m_light_info[i].m_nesting_level;
-	 dgd_echo( "light " << i << " nesting level increased to " 
-		   << m_light_info[i].m_nesting_level << std::endl );
+	 dgd_logger << "light " << i << " nesting level increased to " 
+                    << m_light_info[i].m_nesting_level << std::endl;
       }
    }
 
    m_transform_stack.push_back( Matrix() );
    glGetFloatv( GL_MODELVIEW_MATRIX, m_transform_stack.back() );
 
-   dgd_end_scope( canvas );
    return (object_t)NULL;
 }
 
 
 Control::object_t 
 Control::insert_reference( object_t existing_object ) {
-   dgd_start_scope( canvas, "Control::insert_reference" );
+   dgd_scope;
    apply_local_transform();
 
    glCallList(GLuint(existing_object));
 
    undo_local_transform();
-   dgd_end_scope( canvas );
    return existing_object;
 }
 
 
 void Control::remove_object( object_t ref ) {
-   dgd_start_scope( canvas, "Control::remove_object()" );
+   dgd_scope;
    glDeleteLists( (GLuint)ref, 1 );
-   dgd_end_scope( canvas );
 }
 
 
 void Control::end_object() {
-   dgd_start_scope( canvas, "Control::end_object()" );
+   dgd_scope;
 
    for( int i = 0; i < m_max_lights; ++i ) {
       if( m_light_info[i].m_type == LightInfo::LIGHT_DIRECTIONAL ) {
 	 m_light_info[i].m_nesting_level--;
-	 dgd_echo( "light " << i << " nesting level decreased to " 
-		   << m_light_info[i].m_nesting_level << std::endl );
+	 dgd_logger << "light " << i << " nesting level decreased to " 
+                    << m_light_info[i].m_nesting_level << std::endl;
 	 if( m_light_info[i].m_nesting_level == 0 ) {
-	    dgd_echo( "disabled light " << DGD::dgd << i << std::endl );
+	    dgd_logger << "disabled light " << i << std::endl;
 	    glDisable( (GLenum) (GL_LIGHT0 + i) );
 	    m_light_info[i].m_type = LightInfo::LIGHT_UNUSED;
 	 } 
@@ -176,8 +172,6 @@ void Control::end_object() {
 
    glLoadMatrixf( m_transform_stack.back() );
    m_transform_stack.pop_back();
-      
-   dgd_end_scope( canvas );
 }
 
 
@@ -194,7 +188,7 @@ Control::insert_background(
 
 
 Control::object_t Control::insert_box(const openvrml::vec3f & size) {
-   dgd_start_scope( canvas, "Control::insert_box()" );
+   dgd_scope;
 
    apply_local_transform();
 
@@ -262,7 +256,6 @@ Control::object_t Control::insert_box(const openvrml::vec3f & size) {
 
    undo_local_transform();
 
-   dgd_end_scope( canvas );
    return object_t(glid);
 }
 
@@ -275,7 +268,7 @@ Control::generate_cyllindric_arrays(
    boost::shared_array<Vector>& normals,
    boost::shared_array<Vector>& texture,
    const bool                   is_cone ) {
-   dgd_start_scope( canvas, "Control::generate_cyllindric_arrays()" );
+   dgd_scope;
    // precision is a number of vertices on the bound the last vertex
    // on the cone/cylinder bound is virtually split this is done to
    // make texture mapping to fit exactly [0,1], thus precision is
@@ -293,7 +286,7 @@ Control::generate_cyllindric_arrays(
 
    FT alpha = FT(Math::PI * 2.0 / precision);
    
-   dgd_echo( dgd_expand(alpha) << std::endl );
+   dgd_echo(alpha);
    
    unsigned i, top, bottom;
    FT angle,x,y,z,ny,tx,tz;
@@ -333,17 +326,15 @@ Control::generate_cyllindric_arrays(
       texture[top]( tx, tz, 0 );
       texture[bottom]( -tx, tz, 0);
 
-      dgd_echo( dgd_expand(i) << std::endl
-		<< dgd_expand(angle) << std::endl
-		<< dgd_expand(vertexes[2*i]) << " " << DGD::dgd
-		<< dgd_expand(vertexes[2*i+1]) << std::endl
-		<< dgd_expand(normals[2*i]) << " " << DGD::dgd
-		<< dgd_expand(normals[2*i+1]) << std::endl
-		<< dgd_expand(texture[2*i]) << " " << DGD::dgd
-		<< dgd_expand(texture[2*i+1]) << std::endl );
+      dgd_logger << dgd_expand(i) << std::endl
+                 << dgd_expand(angle) << std::endl
+                 << dgd_expand(vertexes[2*i]) << " " 
+                 << dgd_expand(vertexes[2*i+1]) << std::endl
+                 << dgd_expand(normals[2*i]) << " " 
+                 << dgd_expand(normals[2*i+1]) << std::endl
+                 << dgd_expand(texture[2*i]) << " " 
+                 << dgd_expand(texture[2*i+1]) << std::endl;
    }
-   
-   dgd_end_scope( canvas );
 }
 
 Control::object_t 
@@ -354,7 +345,7 @@ Control::insert_cyllindric_object(float height,
 				  bool  bottom,
 				  bool  side,
 				  bool  is_cone ) {
-   dgd_start_scope( canvas, "Control::insert_cyllindric_object()" );
+   dgd_scope;
 
 
    apply_local_transform();
@@ -431,7 +422,6 @@ Control::insert_cyllindric_object(float height,
 
    undo_local_transform();
 
-   dgd_end_scope( canvas );
    return object_t(glid);
 }
 
@@ -440,26 +430,23 @@ Control::insert_cone(float height,
 		     float radius, 
 		     bool  bottom,
 		     bool  side    ) {
-   dgd_start_scope( canvas, "Control::insert_cone()" );
+   dgd_scope;
 
    object_t rc = insert_cyllindric_object( height, radius, m_cone_precision,
 					   false, bottom, side,
 					   true );
-   dgd_end_scope( canvas );
    return rc;
 }
 
 Control::object_t 
 Control::insert_cylinder( float height, float radius, 
 			  bool bottom, bool side, bool top) {
-   dgd_start_scope( canvas, "Control::insert_cylinder()" );
+   dgd_scope;
 
    object_t rc = insert_cyllindric_object( height, radius, 
 					   m_cylinder_precision,
 					   top, bottom, side,
 					   false );
-
-   dgd_end_scope( canvas );
    return rc;
 }
 
@@ -471,7 +458,7 @@ Control::generate_spheric_arrays(
    boost::shared_array<Vector>&   normals,
    boost::shared_array<Vector>&   texture,
    boost::shared_array<unsigned>& indices ) {
-   dgd_start_scope( canvas, "Control::generate_spheric_arrays()" );
+   dgd_scope;
 
    unsigned nvertexes = (precision + 1) * (precision + 1);
 
@@ -482,7 +469,7 @@ Control::generate_spheric_arrays(
 
    FT alpha = FT(Math::PI * 2.0 / precision);
    
-   dgd_echo( dgd_expand(alpha) << std::endl );
+   dgd_echo(alpha);
    
    unsigned i, j, index, facet;
    FT u_angle,v_angle,x,y,z;
@@ -520,29 +507,27 @@ Control::generate_spheric_arrays(
 	 if( i > 0 && 
 	     j > 0 )          indices[ 4 * (facet-precision-1) + 2 ] = index;
 
-	 dgd_echo( dgd_expand(j) << " " << DGD::dgd
-		   << dgd_expand(i) << " " << std::endl
-		   << dgd_expand(u_angle) << " " << DGD::dgd
-		   << dgd_expand(v_angle) << std::endl
-		   << dgd_expand(index) << std::endl
-		   << dgd_expand(vertexes[index]) << std::endl
-		   << dgd_expand(normals[index]) << std::endl
-		   << dgd_expand(texture[index]) << std::endl );
+	 dgd_logger << dgd_expand(j) << " " 
+                    << dgd_expand(i) << " " << std::endl
+                    << dgd_expand(u_angle) << " " 
+                    << dgd_expand(v_angle) << std::endl
+                    << dgd_expand(index) << std::endl
+                    << dgd_expand(vertexes[index]) << std::endl
+                    << dgd_expand(normals[index]) << std::endl
+                    << dgd_expand(texture[index]) << std::endl;
       }
    }
    
    for( i = 0; i < 4 * precision * precision; ++i ) {
       if( i % 4 == 0 ) 
-	 dgd_echo( std::endl );
-      dgd_echo( indices[i] << " " );
+	 dgd_logger << std::endl;
+      dgd_logger << indices[i] << " ";
    }
-   dgd_echo( std::endl );
-
-   dgd_end_scope( canvas );
+   dgd_logger << std::endl;
 }
 
 Control::object_t Control::insert_sphere(float radius) {
-   dgd_start_scope( canvas, "Control::insert_sphere()" );
+   dgd_scope;
    
    apply_local_transform();
 
@@ -590,7 +575,6 @@ Control::object_t Control::insert_sphere(float radius) {
 
    undo_local_transform();
       
-   dgd_end_scope( canvas );
    return object_t(glid);
 }
 
@@ -610,7 +594,7 @@ Control::generate_elevation_arrays(
    boost::shared_array<Vector>&        normals,
    boost::shared_array<Vector>&        texture,
    boost::shared_array<Vector>&        colors ) {
-   dgd_start_scope( canvas, "Control::generate_elevation_arrays()" );
+   dgd_scope;
 
 //   unsigned int nvertexes = x_dimension * z_dimension;
    unsigned int nfacets   = (x_dimension-1) * (z_dimension-1);
@@ -635,11 +619,11 @@ Control::generate_elevation_arrays(
 	 vertexes[index+2]((i+1)*x_spacing, height[vindex[2]],(j+1)*z_spacing);
 	 vertexes[index+3]( (i+1)*x_spacing, height[vindex[3]], j*z_spacing);
 	 
-	 dgd_echo( "{" << DGD::dgd 
-		   <<  vertexes[index+0] << " " << DGD::dgd
-		   <<  vertexes[index+1] << " " << DGD::dgd
-		   <<  vertexes[index+2] << " " << DGD::dgd
-		   <<  vertexes[index+3] << "}" << std::endl );
+	 dgd_logger << "{" 
+                    <<  vertexes[index+0] << " " 
+                    <<  vertexes[index+1] << " " 
+                    <<  vertexes[index+2] << " " 
+                    <<  vertexes[index+3] << "}" << std::endl;
 
 	 if( normal.size() > 0 ) {
 	    for( int k = 0; k < 4; ++k ) {
@@ -658,11 +642,11 @@ Control::generate_elevation_arrays(
 	    }
 	 }
 
-	 dgd_echo( "{" << DGD::dgd 
-		   <<  normals[index+0] << " " << DGD::dgd
-		   <<  normals[index+1] << " " << DGD::dgd
-		   <<  normals[index+2] << " " << DGD::dgd
-		   <<  normals[index+3] << "}" << std::endl );
+	 dgd_logger << "{" 
+                    <<  normals[index+0] << " " 
+                    <<  normals[index+1] << " " 
+                    <<  normals[index+2] << " " 
+                    <<  normals[index+3] << "}" << std::endl;
 
 
 	 if( tc.size() > 0 ) {
@@ -678,11 +662,11 @@ Control::generate_elevation_arrays(
 	    }
 	 }
 
-	 dgd_echo( "{" << DGD::dgd 
-		   <<  texture[index+0] << " " << DGD::dgd
-		   <<  texture[index+1] << " " << DGD::dgd
-		   <<  texture[index+2] << " " << DGD::dgd
-		   <<  texture[index+3] << "}" << std::endl );
+	 dgd_logger << "{" 
+                    <<  texture[index+0] << " " 
+                    <<  texture[index+1] << " " 
+                    <<  texture[index+2] << " " 
+                    <<  texture[index+3] << "}" << std::endl;
 
 	 if( color.size() > 0 ) {
 	    for( int k = 0; k < 4; ++k ) {
@@ -690,17 +674,15 @@ Control::generate_elevation_arrays(
 		  ( (mask & mask_color_per_vertex) == 0 ) ? facet : vindex[k];
 	       colors[index+k](color[n].r(), color[n].g(), color[n].b()); 
 	    }	    
-	    dgd_echo( "{" << DGD::dgd 
-		      <<  colors[index+0] << " " << DGD::dgd
-		      <<  colors[index+1] << " " << DGD::dgd
-		      <<  colors[index+2] << " " << DGD::dgd
-		      <<  colors[index+3] << "}" << std::endl );
+	    dgd_logger << "{" 
+		      <<  colors[index+0] << " " 
+		      <<  colors[index+1] << " " 
+		      <<  colors[index+2] << " " 
+		      <<  colors[index+3] << "}" << std::endl;
 
 	 }
       }
    }
-
-   dgd_end_scope( canvas );
 }
    
 
@@ -715,7 +697,7 @@ Control::insert_elevation_grid(
    const std::vector<openvrml::color>& color,
    const std::vector<openvrml::vec3f>& normal,
    const std::vector<openvrml::vec2f>& tc) {
-   dgd_start_scope( canvas, "Control::insert_elevation_grid()" );
+   dgd_scope;
    
    apply_local_transform();
 
@@ -771,7 +753,6 @@ Control::insert_elevation_grid(
 
    undo_local_transform();
       
-   dgd_end_scope( canvas );
    return object_t(glid);
 }
 
@@ -799,7 +780,7 @@ Control::generate_line_arrays(
    boost::shared_array<Vector>&        normals,
    boost::shared_array<Vector>&        colors,
    boost::shared_array<unsigned int>&  indexes ) {
-   dgd_start_scope( canvas, "Control::generate_line_arrays()" );
+   dgd_scope;
 
    nvertexes = 0;
    nstrips = 0;
@@ -813,8 +794,8 @@ Control::generate_line_arrays(
 	 nstrips++;
    if( nvertexes > 0 && nstrips == 0 ) nstrips = 1 ;
 
-   dgd_echo( dgd_expand(nvertexes) << std::endl
-	     << dgd_expand(nstrips) << std::endl );
+   dgd_echo(nvertexes);
+   dgd_echo(nstrips);
 
    vertexes.reset( new Vector[nvertexes] );
    normals.reset( new Vector[nvertexes] );
@@ -830,14 +811,14 @@ Control::generate_line_arrays(
    for( iter = coord_index.begin(); iter != coord_index.end(); ++iter ) {
       unsigned int index = std::distance( coord_index.begin(), iter );
 
-      dgd_echo( dgd_expand(index) << std::endl 
-		<< dgd_expand(*iter) << std::endl 
-		<< dgd_expand(i) << std::endl );
-
+      dgd_logger << dgd_expand(index) << std::endl 
+                 << dgd_expand(*iter) << std::endl 
+                 << dgd_expand(i) << std::endl;
+   
       if( *iter >= 0 ) {	 
 	 vertexes[i]( coord[*iter].x(), coord[*iter].y(), coord[*iter].z() );
 	 bbox.expand( vertexes[i] );
-	 dgd_echo( dgd_expand(vertexes[i]) << std::endl );
+	 dgd_echo(vertexes[i]);
 	 if( !color.empty() ) {
 	    unsigned int idx;
 	    if( color_per_vertex ) 
@@ -848,8 +829,8 @@ Control::generate_line_arrays(
 		     color_index[facet] : index;
 
 	    colors[i]( color[ idx ].r(), color[ idx ].g(), color[ idx ].b() );
-	    dgd_echo( dgd_expand(colors[i]) << std::endl
-		      << dgd_expand(idx) << std::endl );
+	    dgd_logger << dgd_expand(colors[i]) << std::endl
+                       << dgd_expand(idx) << std::endl;
 	 }
 	 i++;
       } else {
@@ -860,7 +841,7 @@ Control::generate_line_arrays(
    // handle situation when the index array ends with non -1 
    if( i > 0 && facet == 0 ) indexes[facet++] = i;
 
-   dgd_echo( dgd_expand(bbox) << std::endl );
+   dgd_echo(bbox);
 
    if( bbox.valid() ) {
       i = 0;
@@ -870,19 +851,17 @@ Control::generate_line_arrays(
 	 unsigned int begin = index;
 	 unsigned int end = indexes[facet];
 	 
-	 dgd_echo( dgd_expand(begin) << std::endl
-		   << dgd_expand(end) << std::endl );
+	 dgd_logger << dgd_expand(begin) << std::endl
+                    << dgd_expand(end) << std::endl;
 
 	 while( index < end ) {
 	    normals[i++] = 
 	       (vertexes[index]-bbox_center).normalize().cartesian();
-	    dgd_echo( dgd_expand(normals[i-1]) << std::endl );
+	    dgd_echo(normals[i-1]);
 	    index++;
 	 }
       }
    }
-
-   dgd_end_scope( canvas );
 }
 
 Control::object_t 
@@ -892,7 +871,7 @@ Control::insert_line_set(
    bool                                color_per_vertex,
    const std::vector<openvrml::color>& color,
    const std::vector<openvrml::int32>& color_index) {
-   dgd_start_scope( canvas, "Control::insert_line_set()" );
+   dgd_scope;
    
    apply_local_transform();
 
@@ -945,7 +924,6 @@ Control::insert_line_set(
 
    undo_local_transform();
       
-   dgd_end_scope( canvas );
    return object_t(glid);
 }
 
@@ -953,7 +931,7 @@ Control::insert_line_set(
 Control::object_t 
 Control::insert_point_set(const std::vector<openvrml::vec3f>& coord,
 			  const std::vector<openvrml::color>& color) {
-   dgd_start_scope( canvas, "Control::insert_point_set()" );
+   dgd_scope;
    
    apply_local_transform();
 
@@ -997,7 +975,6 @@ Control::insert_point_set(const std::vector<openvrml::vec3f>& coord,
 
    undo_local_transform();
       
-   dgd_end_scope( canvas );
    return object_t(glid);
 }
 
@@ -1018,7 +995,7 @@ void Control::generate_ifs_arrays(
    boost::shared_array<Vector>&        		   colors,		 
    boost::shared_array<Vector>&        		   texture, 
    std::vector< std::pair< unsigned, unsigned > >& indexes ) {
-   dgd_start_scope( canvas-ifs, "Control::generate_ifs_arrays()" );
+   dgd_scope;
 
    typedef std::vector<openvrml::int32>::const_iterator index_const_iterator;
    typedef scooter::circulator<index_const_iterator> index_const_circulator;
@@ -1101,8 +1078,8 @@ void Control::generate_ifs_arrays(
 	 break;
    }
 
-   dgd_echo( dgd_expand(nvertexes) << std::endl
-	     << dgd_expand(nfacets) << std::endl );
+   dgd_logger << dgd_expand(nvertexes) << std::endl
+              << dgd_expand(nfacets) << std::endl;
 
    vertexes.reset( new Vector[nvertexes] );
    normals.reset( new Vector[nvertexes] );
@@ -1127,15 +1104,15 @@ void Control::generate_ifs_arrays(
 					     facet_turnover.base() );
 	 unsigned int idx;
 
-	 dgd_echo( dgd_expand(index) << std::endl 
-		   << dgd_expand(*facet_turnover) << std::endl 
-		   << dgd_expand(i) << std::endl );
-
+	 dgd_logger << dgd_expand(index) << std::endl 
+                    << dgd_expand(*facet_turnover) << std::endl 
+                    << dgd_expand(i) << std::endl;
+      
 	 vertexes[i]( coord[*facet_turnover].x(), 
 		      coord[*facet_turnover].y(), 
 		      coord[*facet_turnover].z() );	 
 
-	 dgd_echo( dgd_expand(vertexes[i]) << std::endl );
+	 dgd_echo(vertexes[i]);
 
 	 if( !color.empty() ) {
 	    if( mask & mask_color_per_vertex ) 
@@ -1147,8 +1124,8 @@ void Control::generate_ifs_arrays(
 
 	    colors[i]( color[idx].r(), color[idx].g(), color[idx].b() );
 
-	    dgd_echo( dgd_expand(colors[i]) << std::endl
-		      << dgd_expand(idx) << std::endl );
+	    dgd_logger << dgd_expand(colors[i]) << std::endl
+                       << dgd_expand(idx) << std::endl;
 	 }
 
 	 if( !normal.empty() ) {
@@ -1179,7 +1156,7 @@ void Control::generate_ifs_arrays(
 
 	 normals[i].normalize().cartesian();
 
-	 dgd_echo( dgd_expand(normals[i]) << std::endl );
+	 dgd_echo(normals[i]);
 
 	 if( (mask & mask_ccw) == 0 )
 	    normals[i] = -normals[i];
@@ -1213,7 +1190,7 @@ void Control::generate_ifs_arrays(
 			0 );
 	 }
 
-	 dgd_echo( dgd_expand(texture[i]) << std::endl );
+	 dgd_echo(texture[i]);
 
 	 ++i;
 
@@ -1226,9 +1203,6 @@ void Control::generate_ifs_arrays(
       else
 	 break;
    }
-   
-
-   dgd_end_scope( canvas-ifs );
 }
 
 Control::object_t Control::insert_shell( 
@@ -1242,7 +1216,7 @@ Control::object_t Control::insert_shell(
    const std::vector<openvrml::vec2f>& tex_coord,
    const std::vector<openvrml::int32>& tex_coord_index)
 {
-   dgd_start_scope( canvas, "Control::insert_shell()" );
+   dgd_scope;
    
    typedef std::vector< std::pair<unsigned,unsigned> > index_type;
    typedef index_type::const_iterator index_const_iterator;
@@ -1329,7 +1303,6 @@ Control::object_t Control::insert_shell(
 
    undo_local_transform();
       
-   dgd_end_scope( canvas );
    return object_t(glid);
 }
 
@@ -1339,17 +1312,17 @@ Control::object_t Control::insert_dir_light(
    float                  intensity,
    const openvrml::color& color,
    const openvrml::vec3f& direction) {
-   dgd_start_scope( canvas, "Control::insert_dir_light()" );
+   dgd_scope;
 
-   dgd_echo( dgd_expand(ambient_intensity) << std::endl
-	     << dgd_expand(intensity) << std::endl 
-	     << dgd_expand(color[0]) << std::endl
-	     << dgd_expand(color[1]) << std::endl
-	     << dgd_expand(color[2]) << std::endl
-	     << dgd_expand(direction[0]) << std::endl 
-	     << dgd_expand(direction[1]) << std::endl 
-	     << dgd_expand(direction[2]) << std::endl );
-   
+   dgd_logger << dgd_expand(ambient_intensity) << std::endl
+              << dgd_expand(intensity) << std::endl 
+              << dgd_expand(color[0]) << std::endl
+              << dgd_expand(color[1]) << std::endl
+              << dgd_expand(color[2]) << std::endl
+              << dgd_expand(direction[0]) << std::endl 
+              << dgd_expand(direction[1]) << std::endl 
+              << dgd_expand(direction[2]) << std::endl;
+
    float amb[4] = { ambient_intensity * color[0],
 		    ambient_intensity * color[1],
 		    ambient_intensity * color[2],
@@ -1366,7 +1339,7 @@ Control::object_t Control::insert_dir_light(
       if( m_light_info[i].m_type == LightInfo::LIGHT_UNUSED)
 	 break;
    if( i == m_max_lights ) {
-      dgd_end_scope_text( canvas, "i == " << dgd_expand(m_max_lights) );
+      dgd_logger <<  "i == " << dgd_expand(m_max_lights) << std::endl;
       return 0;
    }
   
@@ -1386,8 +1359,6 @@ Control::object_t Control::insert_dir_light(
    glLightf(light, GL_SPOT_CUTOFF, 180.0);
    glLightf(light, GL_SPOT_EXPONENT, 0.0);
 
-   dgd_end_scope( canvas );
-
    return (object_t)NULL;
 }
 
@@ -1399,7 +1370,7 @@ Control::object_t Control::insert_point_light(
    float                  intensity,
    const openvrml::vec3f& location,
    float                  radius) {
-   dgd_start_scope( canvas, "Control::insert_point_light()" );
+   dgd_scope;
    
    apply_local_transform();
    
@@ -1419,7 +1390,7 @@ Control::object_t Control::insert_point_light(
       if( m_light_info[i].m_type == LightInfo::LIGHT_UNUSED )
 	 break;
    if ( i == m_max_lights ) {
-      dgd_end_scope_text( canvas,  "i == "  << dgd_expand(m_max_lights)  );
+      dgd_logger <<  "i == " << dgd_expand(m_max_lights) << std::endl;
       return 0;
    }
   
@@ -1443,8 +1414,6 @@ Control::object_t Control::insert_point_light(
 
    undo_local_transform();
    
-   dgd_end_scope( canvas );
-
    return (object_t)NULL;
 }
 
@@ -1459,7 +1428,7 @@ Control::object_t Control::insert_spot_light(
    float                  intensity,
    const openvrml::vec3f& location,
    float                  radius) {
-   dgd_start_scope( canvas,  "Control::insert_spot_light()" );
+   dgd_scope;
 
    apply_local_transform();
 
@@ -1480,7 +1449,7 @@ Control::object_t Control::insert_spot_light(
       if( m_light_info[i].m_type == LightInfo::LIGHT_UNUSED )
 	 break;   
    if( i == m_max_lights ) {
-      dgd_end_scope_text( canvas, "i == " << dgd_expand(m_max_lights) );
+      dgd_logger << "i == " << dgd_expand(m_max_lights) << std::endl;
       return 0;
    }
   
@@ -1505,22 +1474,20 @@ Control::object_t Control::insert_spot_light(
 
    undo_local_transform();
 
-   dgd_end_scope( canvas );
    return (object_t)NULL;
 }
 
 
 void Control::enable_lighting(bool val) {
-   dgd_start_scope( canvas, "Control::enable_lighting()" );
+   dgd_scope;
    m_enable_lighting = val;
-   dgd_end_scope( view );
 }
 
 
 void Control::set_fog( const openvrml::color& color, 
 		       float                  visibility_range,
 		       const char*            type) {
-   dgd_start_scope( canvas, "Control::set_fog()" );
+   dgd_scope;
 
    GLfloat fog_color[4] = { color[0], color[1], color[2], 1.0 };
    GLint fog_mode;
@@ -1546,8 +1513,6 @@ void Control::set_fog( const openvrml::color& color,
    glFogi( GL_FOG_MODE, fog_mode );
    glFogfv( GL_FOG_COLOR, fog_color );
    glFogf(GL_FOG_DENSITY, density);
-
-   dgd_end_scope( canvas );
 }
 
 
@@ -1561,21 +1526,21 @@ void Control::set_material( float                  ambient_intensity,
 			    float                  shininess,
 			    const openvrml::color& specular_color,
 			    float                  transparency) {
-   dgd_start_scope( canvas,  "Control::set_material()" );
+   dgd_scope;
    typedef Vector::RT RT;
 
-   dgd_echo( dgd_expand(ambient_intensity) << std::endl
-	     << dgd_expand(diffuse_color[0]) << std::endl
-	     << dgd_expand(diffuse_color[1]) << std::endl
-	     << dgd_expand(diffuse_color[2]) << std::endl
-	     << dgd_expand(emissive_color[0]) << std::endl
-	     << dgd_expand(emissive_color[1]) << std::endl
-	     << dgd_expand(emissive_color[2]) << std::endl
-	     << dgd_expand(shininess) << std::endl
-	     << dgd_expand(specular_color[0]) << std::endl
-	     << dgd_expand(specular_color[1]) << std::endl
-	     << dgd_expand(specular_color[2]) << std::endl
-	     << dgd_expand(transparency) << std::endl );
+   dgd_logger << dgd_expand(ambient_intensity) << std::endl
+              << dgd_expand(diffuse_color[0]) << std::endl
+              << dgd_expand(diffuse_color[1]) << std::endl
+              << dgd_expand(diffuse_color[2]) << std::endl
+              << dgd_expand(emissive_color[0]) << std::endl
+              << dgd_expand(emissive_color[1]) << std::endl
+              << dgd_expand(emissive_color[2]) << std::endl
+              << dgd_expand(shininess) << std::endl
+              << dgd_expand(specular_color[0]) << std::endl
+              << dgd_expand(specular_color[1]) << std::endl
+              << dgd_expand(specular_color[2]) << std::endl
+              << dgd_expand(transparency) << std::endl;
    
    float alpha = 1.0f - transparency;
 
@@ -1615,14 +1580,12 @@ void Control::set_material( float                  ambient_intensity,
       glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emission);
       glColor4fv( emission );
    }
-
-   dgd_end_scope( canvas );
 }
 
 
 void Control::set_material_mode( size_t tex_components,
 				 bool   geometry_color) {
-   dgd_start_scope( canvas, "Control::set_material_mode()" );
+   dgd_scope;
 
    if (tex_components && 
        m_enable_texture_mapping && 
@@ -1643,8 +1606,6 @@ void Control::set_material_mode( size_t tex_components,
       glEnable( GL_COLOR_MATERIAL );
    else
       glDisable( GL_COLOR_MATERIAL );
-
-   dgd_end_scope( view );
 }
 
 
@@ -1658,15 +1619,15 @@ void Control::scale_texture( size_t         w,
 			     size_t         newH,
 			     size_t         nc,
 			     unsigned char* pixels) {
-   dgd_start_scope( canvas, "Control::scale_texture()" );
+   dgd_scope;
 
-   dgd_echo( dgd_expand(w) << std::endl
-	     << dgd_expand(h) << std::endl
-	     << dgd_expand(newW) << std::endl 
-	     << dgd_expand(newH) << std::endl
-	     << dgd_expand(nc) << std::endl );
-   
-   GLenum fmt[] = { GL_LUMINANCE,	// single component
+   dgd_logger << dgd_expand(w) << std::endl
+              << dgd_expand(h) << std::endl
+              << dgd_expand(newW) << std::endl 
+              << dgd_expand(newH) << std::endl
+              << dgd_expand(nc) << std::endl;
+
+GLenum fmt[] = { GL_LUMINANCE,	// single component
 		    GL_LUMINANCE_ALPHA,	// 2 components
 		    GL_RGB,		// 3 components
 		    GL_RGBA		// 4 components
@@ -1681,8 +1642,6 @@ void Control::scale_texture( size_t         w,
       memcpy(pixels, newpix, nc*newW*newH);
    
    delete [] newpix;
-
-   dgd_end_scope( canvas );
 }
 
 
@@ -1694,16 +1653,15 @@ Control::insert_texture( size_t               w,
 			 bool                 repeat_t,
 			 const unsigned char* pixels,
 			 bool                 retainHint ) {
-   dgd_start_scope( canvas,  "Control::insert_texture()" );
+   dgd_scope;
 
-   dgd_echo( dgd_expand(w) << std::endl
-	     << dgd_expand(h) << std::endl 
-	     << dgd_expand(nc) << std::endl
-	     << dgd_expand(repeat_s) << std::endl
-	     << dgd_expand(repeat_t) << std::endl );
-
+   dgd_logger << dgd_expand(w) << std::endl
+              << dgd_expand(h) << std::endl 
+              << dgd_expand(nc) << std::endl
+              << dgd_expand(repeat_s) << std::endl
+              << dgd_expand(repeat_t) << std::endl;
+   
    if( !m_enable_texture_mapping ) {
-      dgd_end_scope( canvas);
       return (object_t)NULL;
    }
 
@@ -1714,7 +1672,6 @@ Control::insert_texture( size_t               w,
    };
 
    if ( m_select_mode != draw_mode ) {
-      dgd_end_scope( canvas);
       return (object_t)NULL;
    }
 
@@ -1735,8 +1692,6 @@ Control::insert_texture( size_t               w,
    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 
-   dgd_end_scope( canvas );
-
    return (object_t)NULL;
 }
 
@@ -1754,7 +1709,7 @@ void Control::set_texture_transform(const openvrml::vec2f& center,
 				    float                  rotation,
 				    const openvrml::vec2f& scale,
 				    const openvrml::vec2f& translation) {
-   dgd_start_scope( canvas, "Control::set_texture_transform()" );
+   dgd_scope;
 
    glMatrixMode(GL_TEXTURE);
    glLoadIdentity();
@@ -1768,9 +1723,6 @@ void Control::set_texture_transform(const openvrml::vec2f& center,
    glTranslatef(translation[0], translation[1], 0.0);
 
    glMatrixMode(GL_MODELVIEW);
-
-   dgd_end_scope( canvas );
-
 }
 
 static
@@ -1809,7 +1761,7 @@ void Control::set_viewpoint(const openvrml::vec3f&    position,
 			    float                     field_of_view,
 			    float                     avatar_size,
 			    float                     visibility_limit) {
-   dgd_start_scope( canvas, "Control::set_viewpoint()" );
+   dgd_scope;
 
    float fow;
    float aspect;
@@ -1824,7 +1776,7 @@ void Control::set_viewpoint(const openvrml::vec3f&    position,
    Vector scene_center;
    float scene_max_size = 0;
 
-   dgd_echo( dgd_expand(scene_centering) << std::endl );
+   dgd_echo(scene_centering);
 
    if( scene_centering ) {      
       if( get_scene_bounds( scene_center, scene_max_size ) ) {
@@ -1832,24 +1784,24 @@ void Control::set_viewpoint(const openvrml::vec3f&    position,
 	 fow = 45; // degrees
 	 aspect = ((float) m_width) / m_height;
 
-	 dgd_echo( dgd_expand(aspect) << std::endl );
+	 dgd_echo(aspect);
 
 	 float tg_fov = (float)tan( fow * Math::PI / 180.0 / 2 );
 	 znear = scene_max_size / 10.0;
 	 zfar  = scene_max_size * 100.0;
-	 dgd_echo( dgd_expand(znear) << std::endl 
-		   << dgd_expand(zfar) << std::endl
-		   << dgd_expand(tg_fov) << std::endl );
-	 
+	 dgd_logger << dgd_expand(znear) << std::endl 
+                    << dgd_expand(zfar) << std::endl
+                    << dgd_expand(tg_fov) << std::endl;
+      
 	 d = (float)scene_max_size / (2.0f * tg_fov);
 	 
-	 dgd_echo( dgd_expand(d) << std::endl );
+	 dgd_echo(d);
 
 	 v_pos = Vector( scene_center[0], 
 			 scene_center[1], 
 			 scene_center[2] + scene_max_size / 2.0 + d );
 
-	 dgd_echo( dgd_expand(v_pos) << std::endl );
+	 dgd_echo(v_pos);
 	 
 	 v_orient( 0.0, 0.0, 1.0, 0 );
 	 
@@ -1887,9 +1839,9 @@ void Control::set_viewpoint(const openvrml::vec3f&    position,
 				    v_orient.w() ), 
 		d, target, up);
 
-   dgd_echo( dgd_expand(v_pos) << std::endl
-	     << dgd_expand(Math::homogeneus(v_orient)) << std::endl
-	     << dgd_expand(d) << std::endl );
+   dgd_logger << dgd_expand(v_pos) << std::endl
+              << dgd_expand(Math::homogeneus(v_orient)) << std::endl
+              << dgd_expand(d) << std::endl;
 
    gluLookAt(v_pos.x(), v_pos.y(), v_pos.z(),
 	     target[0], target[1], target[2],
@@ -1900,15 +1852,13 @@ void Control::set_viewpoint(const openvrml::vec3f&    position,
 
    glLoadIdentity();
 
-   dgd_echo( dgd_expand(m_view_transform) << std::endl );
-   dgd_end_scope( canvas );
+   dgd_echo(m_view_transform);
 }
 
 
 void Control::transform(const openvrml::mat4f & mat) {
-   dgd_start_scope( canvas, "Control::transform()" );
+   dgd_scope;
    glMultMatrixf(&mat[0][0]);
-   dgd_end_scope( canvas );
 }
 
 
@@ -1923,7 +1873,7 @@ void Control::draw_bounding_sphere(
 }
 
 void Control::draw_bbox() {
-   dgd_start_scope( canvas, "Control::draw_bbox()" );
+   dgd_scope;
    if( m_show_bbox ) {
       apply_local_transform();
 
@@ -1988,22 +1938,20 @@ void Control::draw_bbox() {
 
       undo_local_transform();
    }
-   dgd_end_scope( canvas );
 }
 
 
 void Control::resizeGL( int width, int height ) {
-   dgd_start_scope( canvas, "Control::resize()" );
-   dgd_echo( dgd_expand(width) << std::endl
-	     << dgd_expand(height) << std::endl );
+   dgd_scope;
+   dgd_logger << dgd_expand(width) << std::endl
+              << dgd_expand(height) << std::endl;
    m_width = width;
    m_height = height;
    glViewport(0, 0, width, height);
-   dgd_end_scope( canvas );
 }
 
 void Control::initialize() {
-   dgd_start_scope( canvas, "Control::initialize()" );
+   dgd_scope;
 
    if( !m_initialized ) {
       m_initialized = true;
@@ -2024,13 +1972,11 @@ void Control::initialize() {
 	 m_light_info.reset( new LightInfo[m_max_lights] );
       }
    }
-
-   dgd_end_scope( canvas );
 }
 
 
 void Control::apply_local_transform() {
-   dgd_start_scope( canvas,  "Control::apply_local_transform()" );
+   dgd_scope;
 
    Matrix user_navigation;
    Matrix modelview;
@@ -2043,9 +1989,9 @@ void Control::apply_local_transform() {
    glGetIntegerv (GL_VIEWPORT, viewport);
    glGetDoublev( GL_PROJECTION_MATRIX, projection );
 
-   dgd_echo( dgd_expand(m_rotation) << std::endl 
-	     << dgd_expand(Math::homogeneus(viewport)) << std::endl
-	     << dgd_expand(Math::homogeneus(projection)) << std::endl );
+   dgd_logger << dgd_expand(m_rotation) << std::endl 
+              << dgd_expand(Math::homogeneus(viewport)) << std::endl
+              << dgd_expand(Math::homogeneus(projection)) << std::endl;
 
    glPushMatrix();
    
@@ -2059,23 +2005,22 @@ void Control::apply_local_transform() {
 	 Math::translate( Matrix::identity(), m_translation * radius );
 
 
-      dgd_echo( dgd_expand(m_translation) << std::endl
-		<< dgd_expand(modelview) << std::endl
-		<< dgd_expand(user_navigation) << std::endl );
-
+      dgd_logger << dgd_expand(m_translation) << std::endl
+                 << dgd_expand(modelview) << std::endl
+                 << dgd_expand(user_navigation) << std::endl;
+   
       user_navigation *= Math::translate( Matrix::identity(),  scene_center );
       user_navigation *= m_rotation;
       user_navigation *= Math::translate( Matrix::identity(), -scene_center );
 
-      dgd_echo( dgd_expand(m_rotation) << std::endl
-		<< dgd_expand(user_navigation) << std::endl );
+      dgd_logger << dgd_expand(m_rotation) << std::endl
+                 << dgd_expand(user_navigation) << std::endl;
 
       user_navigation *= modelview;
 
       user_navigation.transpose();
       glLoadMatrixf( user_navigation );
    }
-   dgd_end_scope( canvas );
 }
 
 void Control::undo_local_transform() {
@@ -2095,7 +2040,7 @@ Control::scene_root_nodes() const {
 }
 
 bool Control::get_scene_bounds( Vector& center, FT& radius ) {
-   dgd_start_scope( canvas, "Control::get_scene_bounds()" );
+   dgd_scope;
    
    const Node_list& root_nodes = this->scene_root_nodes();
    openvrml::bounding_sphere global_bvol;
@@ -2104,12 +2049,12 @@ bool Control::get_scene_bounds( Vector& center, FT& radius ) {
 	root_node_iter != root_nodes.end();
 	++root_node_iter ) {
       const openvrml::node_ptr root = *root_node_iter;
-      dgd_echo( dgd_expand((void*)root.get()) << std::endl );
+      dgd_echo((void*)root.get());
       if( root.get() != NULL ) {
 	 const openvrml::bounding_volume &bvol = root->bounding_volume();
 	 const openvrml::bounding_sphere *bounding_sphere =
 	    dynamic_cast<const openvrml::bounding_sphere*>( &bvol );
-	 dgd_echo( dgd_expand((void*)bounding_sphere) << std::endl );
+	 dgd_echo((void*)bounding_sphere);
 	 if( bounding_sphere != NULL ) {
 	    global_bvol.extend(*bounding_sphere);
 	 }
@@ -2125,10 +2070,8 @@ bool Control::get_scene_bounds( Vector& center, FT& radius ) {
       center( c[0], c[1], c[2] );
    }
    
-   dgd_echo( dgd_expand(center) << std::endl
-	     << dgd_expand(radius) << std::endl );
-
-   dgd_end_scope( canvas );
+   dgd_logger << dgd_expand(center) << std::endl
+              << dgd_expand(radius) << std::endl;
 
    return true;
 }
@@ -2190,13 +2133,13 @@ void Control::render_mode( rendering_mode val ) {
 }
 
 void Control::paintGL() {
-   dgd_start_scope( canvas, "Control::paintGL()" );
+   dgd_scope;
    if( !m_initialized ) 
       initialize();
 
    if( m_enable_permanent_rotation && m_permanent_rotation ) {
-      dgd_echo( "m_enable_permanent_rotation " 
-		<< Math::homogeneus(m_permanent_rotation_delta) << std::endl );
+      dgd_logger << "m_enable_permanent_rotation " 
+                 << Math::homogeneus(m_permanent_rotation_delta) << std::endl;
 
       m_rotation = m_permanent_rotation_delta * m_rotation;
    }
@@ -2255,15 +2198,13 @@ void Control::paintGL() {
 
    browser.render(*this);
    draw_bbox();
-
-   dgd_end_scope( canvas );
 }
 
 
 Control::Line 
 Control::unproject( int x, int y ) {
    using namespace Math;
-   dgd_start_scope( canvas, "Control::unproject()" );
+   dgd_scope;
 
    Math::Vector<int,int> viewport;
    Math::Matrix<double>  projection;
@@ -2279,11 +2220,11 @@ Control::unproject( int x, int y ) {
    projection.transpose().invert();
    modelview.transpose().invert();
 
-   dgd_echo( dgd_expand(x) << std::endl
-	     << dgd_expand(y) << std::endl
-	     << dgd_expand(Math::homogeneus(viewport)) << std::endl
-	     << dgd_expand(Math::homogeneus(projection)) << std::endl
-	     << dgd_expand(Math::homogeneus(modelview)) << std::endl );
+   dgd_logger << dgd_expand(x) << std::endl
+              << dgd_expand(y) << std::endl
+              << dgd_expand(Math::homogeneus(viewport)) << std::endl
+              << dgd_expand(Math::homogeneus(projection)) << std::endl
+              << dgd_expand(Math::homogeneus(modelview)) << std::endl;
 
    double width = viewport.z()-viewport.x();
    double height = viewport.w()-viewport.y();
@@ -2308,16 +2249,15 @@ Control::unproject( int x, int y ) {
 
    res = Line( pnear, pfar-pnear );
 
-   dgd_echo( dgd_expand(screen_coord) << std::endl
-	     << dgd_expand(space_coord_near) << std::endl
-	     << dgd_expand(space_coord_far) << std::endl
-	     << dgd_expand(pfar) << std::endl
-	     << dgd_expand(pnear) << std::endl 
-	     << dgd_expand(res) << std::endl );
+   dgd_logger << dgd_expand(screen_coord) << std::endl
+              << dgd_expand(space_coord_near) << std::endl
+              << dgd_expand(space_coord_far) << std::endl
+              << dgd_expand(pfar) << std::endl
+              << dgd_expand(pnear) << std::endl 
+              << dgd_expand(res) << std::endl;
 
    undo_local_transform();
 
-   dgd_end_scope( canvas );
    return res;
 }
 
@@ -2373,25 +2313,25 @@ void Control::mouseMoveEvent( QMouseEvent *event ) {
 }
 
 void Control::input( QMouseEvent *event ) {
-   dgd_start_scope( canvas, "Control::input()" );
+   dgd_scope;
 
    Qt::MouseButton button = event->button(); 
 
-   dgd_echo( dgd_expand(event->type()) << std::endl
-	     << dgd_expand(button) << std::endl );
+   dgd_logger << dgd_expand(event->type()) << std::endl
+              << dgd_expand(button) << std::endl;
 
    if( event->type() == QEvent::MouseMove ) {
       continue_user_action( m_user_state.m_state, 
 			    QTime::currentTime().msecsTo( QTime(0,0) ), 
 			    event->x(), event->y() );
-      dgd_end_scope_text( canvas, "drag buton:" << button );
+      dgd_logger << "drag buton:" << button << std::endl;
       return;
    }
   
    if( event->type() == QEvent::MouseButtonPress && button != Qt::NoButton ) {
       // button press
       
-      dgd_echo( "button down: " << button << std::endl );
+      dgd_logger << "button down: " << button << std::endl;
 
       finish_user_action( m_user_state.m_state, 
 			  QTime::currentTime().msecsTo( QTime(0,0) ), 
@@ -2442,22 +2382,21 @@ void Control::input( QMouseEvent *event ) {
    if( (event->type() == QEvent::MouseButtonRelease && 
 	button != Qt::NoButton) || 
        event->type() == QEvent::Leave ) {   
-      dgd_echo( "button up: " << button << std::endl );
+      dgd_logger << "button up: " << button << std::endl;
       finish_user_action( m_user_state.m_state, 
 			  QTime::currentTime().msecsTo( QTime(0,0) ), 
 			  event->x(), event->y()  );
       
       m_user_state.m_state = Interaction::NONE;
    }
-   dgd_end_scope( canvas );
 }
 
 void Control::start_user_action( Interaction::UserAction action, 
 				 long time,
 				 long x, long y ) {
-   dgd_start_scope( canvas, "Control::start_user_action()" );
+   dgd_scope;
 
-   dgd_echo( dgd_expand(time) << std::endl );
+   dgd_echo(time);
 
    if( m_enable_permanent_rotation ) {
       m_permanent_rotation = false;
@@ -2468,7 +2407,7 @@ void Control::start_user_action( Interaction::UserAction action,
 
    switch( action ) {
       case Interaction::ROTATE: {
-	 dgd_echo( "ROTATE " << x << " " << y << std::endl );
+	 dgd_logger << "ROTATE " << x << " " << y << std::endl;
 	 m_user_state.m_rot_start = time;
 	 m_user_state.m_rot_start_x = x;
 	 m_user_state.m_rot_start_y = y;
@@ -2478,38 +2417,37 @@ void Control::start_user_action( Interaction::UserAction action,
 	 m_user_state.m_rot_y = y;
       } break;
       case Interaction::TRANSLATE: {
-	 dgd_echo( "TRANSLATE " << x << " " << y << std::endl );
+	 dgd_logger << "TRANSLATE " << x << " " << y << std::endl;
 	 m_user_state.m_trans_x = x;
 	 m_user_state.m_trans_y = y;
       } break;
       case Interaction::ZOOM: {
-	 dgd_echo( "ZOOM " << x << " " << y << std::endl );
+	 dgd_logger << "ZOOM " << x << " " << y << std::endl;
 	 m_user_state.m_zoom_x = x;
 	 m_user_state.m_zoom_y = y;
       } break;
       case Interaction::SELECT: {
-	 dgd_echo( "SELECT " << x << " " << y << std::endl );
+	 dgd_logger << "SELECT " << x << " " << y << std::endl;
  	 select( x, y );
       } break;
       default:
 	 break;
    }
-   dgd_end_scope( canvas );
 }
 
 void Control::continue_user_action( Interaction::UserAction action, 
 				    long time,
 				    long x, long y ){
-   dgd_start_scope( canvas,  "Control::continue_user_action()" );
+   dgd_scope;
    Vector viewport;
 
-   dgd_echo( dgd_expand(time) << std::endl );
+   dgd_echo(time);
 
    glGetFloatv( GL_VIEWPORT, viewport );
    
    switch( action ) {
       case Interaction::ROTATE: {	 
-	 dgd_echo( "ROTATE " << x << " " << y << std::endl );
+	 dgd_logger << "ROTATE " << x << " " << y << std::endl;
 	 
 	 if( m_enable_permanent_rotation &&
 	     time != m_user_state.m_rot_start ) {
@@ -2524,7 +2462,7 @@ void Control::continue_user_action( Interaction::UserAction action,
 			  (FT)y-(FT)m_user_state.m_rot_start_y,
 			  0.0 ).length() / 
 		  (FT)(time-m_user_state.m_rot_start);
-	       dgd_echo( dgd_expand(m_user_state.m_rot_speed) << std::endl );
+	       dgd_echo(m_user_state.m_rot_speed);
 	    }
 	 }
 
@@ -2563,7 +2501,7 @@ void Control::continue_user_action( Interaction::UserAction action,
 	 m_user_state.m_rot_y = y;
       } break;
       case Interaction::TRANSLATE: {	 
-	 dgd_echo( "TRANSLATE " << x << " " << y << std::endl );
+	 dgd_logger << "TRANSLATE " << x << " " << y << std::endl;
 	 if( x == m_user_state.m_rot_x && y == m_user_state.m_rot_y )
 	    break;
 	 
@@ -2571,9 +2509,9 @@ void Control::continue_user_action( Interaction::UserAction action,
 			 viewport.w()-(float)m_user_state.m_trans_y, 0 );
 	 Vector new_pos( (FT)x, viewport.w()-(FT)y, 0 );
 
-	 dgd_echo( dgd_expand(Math::homogeneus(viewport)) << std::endl 
-		   << dgd_expand(Math::homogeneus(old_pos)) << std::endl 
-		   << dgd_expand(Math::homogeneus(new_pos)) << std::endl ); 
+	 dgd_logger << dgd_expand(Math::homogeneus(viewport)) << std::endl 
+                    << dgd_expand(Math::homogeneus(old_pos)) << std::endl 
+                    << dgd_expand(Math::homogeneus(new_pos)) << std::endl; 
 
 	 m_translation += (new_pos - old_pos) * 0.01f * m_mouse_sensitivity;
 
@@ -2581,7 +2519,7 @@ void Control::continue_user_action( Interaction::UserAction action,
 	 m_user_state.m_trans_y = y;
       } break;
       case Interaction::ZOOM: {	 
-	 dgd_echo( "ZOOM " << x << " " << y << std::endl );
+	 dgd_logger << "ZOOM " << x << " " << y << std::endl;
 	 if( x == m_user_state.m_zoom_x && y == m_user_state.m_zoom_y )
 	    break;
 
@@ -2595,27 +2533,26 @@ void Control::continue_user_action( Interaction::UserAction action,
 	 m_user_state.m_zoom_y = y;
       } break;
       case Interaction::SELECT: {
-	 dgd_echo( "SELECT " << x << " " << y << std::endl );
+	 dgd_logger << "SELECT " << x << " " << y << std::endl;
  	 select( x, y );
       } break;
       default:
 	 break;
    }
-   dgd_end_scope( view );
 }
 
 void Control::finish_user_action( Interaction::UserAction action, 
 				  long time,
 				  long x, long y ) {
-   dgd_start_scope( canvas, "Control::finish_user_action()" );
+   dgd_scope;
 
-   dgd_echo( dgd_expand(time) << std::endl );
+   dgd_echo(time);
 
    switch( action ) {
       case Interaction::ROTATE: {
 	 if( m_enable_permanent_rotation ) {
 	    if( fabs(m_user_state.m_rot_speed) >= 0.2f ) {
-	       dgd_echo( "m_permanent_rotation_enabled" << std::endl );
+	       dgd_logger << "m_permanent_rotation_enabled" << std::endl;
 	       m_permanent_rotation = true;
 	       m_permanent_rotation_timer.start( 50 );
 	    }
@@ -2635,7 +2572,6 @@ void Control::finish_user_action( Interaction::UserAction action,
       default:
 	 break;
    }
-   dgd_end_scope( canvas );
 }
 
 

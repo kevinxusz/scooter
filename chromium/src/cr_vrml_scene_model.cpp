@@ -28,7 +28,6 @@
 
 #include <sstream>
 
-#include <QtCore/QString>
 #include <QtCore/QMap>
 
 #include <openvrml/browser.h>
@@ -36,7 +35,7 @@
 #include <openvrml/node.h>
 #include <openvrml/node_ptr.h>
 
-#include <dgDebug.h>
+#include <dgd.h>
 
 #include "cr_vrml_scene_model.h"
 
@@ -51,78 +50,70 @@ Model::Model( QObject * parent, browser_ptr browser ) :
    m_browser(browser),
    m_scene_map(NULL) {
 
-   dgd_start_scope( model, "Model::Model()" );
+   dgd_scope;
 
    m_scene_map = new Map;
    this->reset();
-
-   dgd_end_scope( model );
 }
 
 Model::~Model() {
-   dgd_start_scope( model, "Model::~Model()" );
+   dgd_scope;
 
    if( m_scene_map != NULL ) {
       delete m_scene_map;
       m_scene_map = NULL;
    }
-
-   dgd_end_scope( model );
 }
 
 void Model::reset() {
-   dgd_start_scope( model, "Model::reset()" );
+   dgd_scope;
 
    m_scene_map->clear();
    Builder builder( m_scene_map );
    builder.traverse( m_browser->root_nodes() );
-
-   dgd_end_scope();
 }
 
 QModelIndex Model::buddy( const QModelIndex & index ) const {
-   dgd_start_scope( model, "Model::buddy()" );
-   dgd_echo( dgd_expand(index.row()) << std::endl
-	     << dgd_expand(index.column()) << std::endl
-	     << dgd_expand(index.internalPointer()) << std::endl );
-   dgd_end_scope( model );
+   dgd_scope;
+   dgd_logger << dgd_expand(index.row()) << std::endl
+              << dgd_expand(index.column()) << std::endl
+              << dgd_expand(index.internalPointer()) << std::endl;
    return index;
 }
 
 
 int Model::columnCount( const QModelIndex & parent ) const {
-   dgd_start_scope( model, "Model::columnCount()" );
-   dgd_echo( dgd_expand(parent.row()) << std::endl
-	     << dgd_expand(parent.column()) << std::endl
-	     << dgd_expand(parent.internalPointer()) << std::endl );
+   dgd_scope;
+   dgd_logger << dgd_expand(parent.row()) << std::endl
+              << dgd_expand(parent.column()) << std::endl
+              << dgd_expand(parent.internalPointer()) << std::endl;
    // tree, value, type(node,field), editable, modified, statistics
-   dgd_end_scope( model );
    return SM_LAST_COLUMN;
 }
 
 QVariant Model::data( const QModelIndex & index, int role ) const {
-   dgd_start_scope( model, "Model::data()" );
+   dgd_scope;
 
-   dgd_echo( dgd_expand(role) << std::endl
-	     << dgd_expand(index.row()) << std::endl
-	     << dgd_expand(index.column()) << std::endl
-	     << dgd_expand(index.internalPointer()) << std::endl );
+   dgd_logger << dgd_expand(role) << std::endl
+              << dgd_expand(index.row()) << std::endl
+              << dgd_expand(index.column()) << std::endl
+              << dgd_expand(index.internalPointer()) << std::endl;
 
    QVariant rc;
 
    if( !index.isValid() ) {
-      dgd_end_scope_text( model, "index not valid" );
+      dgd_logger << "index not valid" << std::endl;
       return rc;
    }
 
    if( role != Qt::DisplayRole ) {
-      dgd_end_scope_text( model, "foreign role" );
+      dgd_logger << "foreign role" << std::endl;
       return rc;
    }
 
    void *object = index.internalPointer();
    if( object == NULL ) {
-      dgd_end_scope_text( model, "object == NULL" );
+      dgd_logger << "object == NULL" << std::endl;
       return rc;
    }
 
@@ -142,9 +133,9 @@ QVariant Model::data( const QModelIndex & index, int role ) const {
 	       item->node().node()->to_geometry()
 	    );
 
-	 dgd_echo( dgd_expand(type.toStdString()) << std::endl
-		   << dgd_expand(id.toStdString()) << std::endl 
-		   << ifs << std::endl );      
+	 dgd_logger << dgd_expand(type.toStdString()) << std::endl
+                    << dgd_expand(id.toStdString()) << std::endl 
+                    << ifs << std::endl;      
 	 
 	 switch( index.column() ) {
 	    case SM_NAME_COLUMN:
@@ -172,8 +163,8 @@ QVariant Model::data( const QModelIndex & index, int role ) const {
 
 	 QString type = QString::fromStdString( out.str() );
 
-	 dgd_echo( dgd_expand(type.toStdString()) << std::endl
-		   << dgd_expand(id.toStdString()) << std::endl );      
+	 dgd_logger << dgd_expand(type.toStdString()) << std::endl
+                    << dgd_expand(id.toStdString()) << std::endl; 
 	 
 	 QString val;
 
@@ -215,66 +206,63 @@ QVariant Model::data( const QModelIndex & index, int role ) const {
       }
    } 
 
-   dgd_end_scope( model );
    return rc;
 }
 
 
 Qt::ItemFlags Model::flags( const QModelIndex & index ) const {
-   dgd_start_scope( model, "Model::flags()" );
+   dgd_scope;
 
    Qt::ItemFlags flags = Qt::ItemIsSelectable;
    
-   dgd_end_scope( model );
    return flags;
 }
 
 bool Model::hasChildren( const QModelIndex & parent ) const {
-   dgd_start_scope( model, "Model::hasChildren()" );
+   dgd_scope;
 
-   dgd_echo( dgd_expand(parent.row()) << std::endl
-	     << dgd_expand(parent.column()) << std::endl
-	     << dgd_expand(parent.internalPointer()) << std::endl );
+   dgd_logger << dgd_expand(parent.row()) << std::endl
+              << dgd_expand(parent.column()) << std::endl
+              << dgd_expand(parent.internalPointer()) << std::endl;
 
    if( !parent.isValid() ) {
-      dgd_end_scope_text( model, "parent not valid" );
+      dgd_logger << "parent not valid" << std::endl;
       return false;
    }
 
    void *object = parent.internalPointer();
    if( object == NULL ) {
-      dgd_end_scope_text( model, "object == NULL" );
+      dgd_logger << "object == NULL" << std::endl;
       return false;
    }
 
    Item *item = static_cast<Item*>( object );
    if( item == NULL ) {
-      dgd_end_scope_text( model, "item == NULL" );
+      dgd_logger << "item == NULL" << std::endl;
       return false;
    }
 
    if( item->children_size() == 0 ) {
-      dgd_end_scope_text( model, "children_size == 0" );
+      dgd_logger << "children_size == 0" << std::endl;
       return false;
    }
 
-   dgd_end_scope( model );
    return true;
 }
 
 QVariant Model::headerData( int section, 
 			    Qt::Orientation orientation, 
 			    int role ) const {
-   dgd_start_scope( model, "Model::headerData()" );
+   dgd_scope;
 
-   dgd_echo( dgd_expand(section) << std::endl
-	     << dgd_expand(orientation) << std::endl
-	     << dgd_expand(role) << std::endl );
+   dgd_logger << dgd_expand(section) << std::endl
+              << dgd_expand(orientation) << std::endl
+              << dgd_expand(role) << std::endl;
 
    QVariant rc;
 
    if( role != Qt::DisplayRole ) {
-      dgd_end_scope_text( model, "foreign role" );
+      dgd_logger << "foreign role" << std::endl;
       return rc;
    }
 
@@ -301,19 +289,18 @@ QVariant Model::headerData( int section,
 	 break;
    }
 
-   dgd_end_scope( model );
    return rc;
 }
 
 QModelIndex Model::index( int row, int column, 
 			  const QModelIndex & parent ) const {
-   dgd_start_scope( model, "Model::index()" );
+   dgd_scope;
 
-   dgd_echo( dgd_expand(row) << std::endl
-	     << dgd_expand(column) << std::endl
-	     << dgd_expand(parent.row()) << std::endl
-	     << dgd_expand(parent.column()) << std::endl
-	     << dgd_expand(parent.internalPointer()) << std::endl );
+   dgd_logger << dgd_expand(row) << std::endl
+              << dgd_expand(column) << std::endl
+              << dgd_expand(parent.row()) << std::endl
+              << dgd_expand(parent.column()) << std::endl
+              << dgd_expand(parent.internalPointer()) << std::endl;
 
    QModelIndex rc;
 
@@ -321,120 +308,115 @@ QModelIndex Model::index( int row, int column,
       Map::iterator root_item = 
 	 m_scene_map->find( Key( NULL, QString() ) );
       if( root_item == m_scene_map->end() ) {
-	 dgd_end_scope_text( model, "item_iter == m_scene_map->end()" );
+	 dgd_logger << "item_iter == m_scene_map->end()" << std::endl;
 	 return rc;
       }
 								
-      dgd_end_scope( model );
       return this->createIndex( root_item->row(), column, &*root_item );
    }
 
    void *object = parent.internalPointer();
    if( object == NULL ) {
-      dgd_end_scope_text( model, "object == NULL" );
+      dgd_logger <<  "object == NULL" << std::endl;
       return rc;
    }
    
    Item *item = static_cast<Item*>( object );
    if( item == NULL ) {
-      dgd_end_scope_text( model, "item == NULL" );
+      dgd_logger <<  "item == NULL" << std::endl;
       return rc;
    }
 
    Key child_key = item->child( row );
    Map::iterator child_item = m_scene_map->find( child_key );
    if( child_item == m_scene_map->end() ) {
-      dgd_end_scope_text( model, "child_item == m_scene_map->end()" );
+      dgd_logger << "child_item == m_scene_map->end()" << std::endl;
       return rc;
    }
 
-   dgd_echo( dgd_expand(&*child_item) << std::endl );
+   dgd_echo(&*child_item);
 
-   dgd_end_scope( model );
    return this->createIndex( child_item->row(), column, &*child_item );
 }
 
 
 QModelIndex Model::parent( const QModelIndex & index ) const {
-   dgd_start_scope( model, "Model::parent()" );
+   dgd_scope;
 
-   dgd_echo( dgd_expand(index.row()) << std::endl
-	     << dgd_expand(index.column()) << std::endl
-	     << dgd_expand(index.internalPointer()) << std::endl );
+   dgd_logger << dgd_expand(index.row()) << std::endl
+              << dgd_expand(index.column()) << std::endl
+              << dgd_expand(index.internalPointer()) << std::endl;
 
    QModelIndex rc;
 
    if( !index.isValid() ) {
-      dgd_end_scope_text( model, "index not valid" );
+      dgd_logger << "index not valid" << std::endl;
       return rc;
    }
 
    void *object = index.internalPointer();
    if( object == NULL ) {
-       dgd_end_scope_text( model, "object == NULL" );
+      dgd_logger << "object == NULL" << std::endl;
       return rc;
    }
 
    Item *item = static_cast<Item*>( object );
    if( item == NULL ) {
-      dgd_end_scope_text( model, "item == NULL" );
+      dgd_logger << "item == NULL" << std::endl;
       return rc;
    }
 
    if( item->node().node() == NULL ) {
-      dgd_end_scope_text( model, "item->parent() == NULL" );
+      dgd_logger << "item->parent() == NULL" << std::endl;
       return rc;
    }
 
    Map::iterator iter = m_scene_map->find( item->parent() );
    if( iter == m_scene_map->end() ) {
-      dgd_end_scope_text( model, "iter == m_scene_map->end()" );
+      dgd_logger << "iter == m_scene_map->end()" << std::endl;
       return rc;   
    }
 
-   dgd_echo( dgd_expand(iter->row()) << std::endl
-	     << dgd_expand(&*iter) << std::endl );
+   dgd_logger << dgd_expand(iter->row()) << std::endl
+              << dgd_expand(&*iter) << std::endl;
 
-   dgd_end_scope( model );
    return this->createIndex( iter->row(), index.column(), &*iter );
 }
 
 
 int Model::rowCount( const QModelIndex & parent ) const {
-   dgd_start_scope( model, "Model::rowCount()" );
+   dgd_scope;
 
-   dgd_echo( dgd_expand(parent.row()) << std::endl
-	     << dgd_expand(parent.column()) << std::endl
-	     << dgd_expand(parent.internalPointer()) << std::endl );
+   dgd_logger << dgd_expand(parent.row()) << std::endl
+              << dgd_expand(parent.column()) << std::endl
+              << dgd_expand(parent.internalPointer()) << std::endl;
 
    if( !parent.isValid() ) {
       Map::iterator root_item = m_scene_map->find( Key( NULL, QString() ) );
       if( root_item != m_scene_map->end() ) {
-	 dgd_echo( dgd_expand(root_item->children_size()) << std::endl );
-	 dgd_end_scope( model );
+	 dgd_echo(root_item->children_size());
 	 return root_item->children_size();
       }
       
-      dgd_end_scope_text( model, "root_item == NULL" );
+      dgd_logger << "root_item == NULL" << std::endl;
       return 0;
    }
 
    void *object = parent.internalPointer();
    if( object == NULL ) {
-      dgd_end_scope_text( model, "object == NULL" );
+      dgd_logger << "object == NULL" << std::endl;
       return 0;
    }
 
    Item *item = static_cast<Item*>( object );
    if( item == NULL ) {
-      dgd_end_scope_text( model, "item == NULL" );
+      dgd_logger << "item == NULL" << std::endl;
       return 0;
    }
 
 
-   dgd_echo( dgd_expand(item->children_size()) << std::endl );
+   dgd_echo(item->children_size());
 
-   dgd_end_scope( model );
    return item->children_size();
 }
 
