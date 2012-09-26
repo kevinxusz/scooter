@@ -37,11 +37,14 @@ env = dgscons.setup_environment(tools = ['textfile', boost])
 version = dgscons.version.version()
 version.incr()
 
+env['CRSHPREFIX'] = 'cr{0}'.format(version.version['stable'])
+
 #print "Version: " + str(version)
 #print "Env: " + str(env.Dump())
 
 Export('env', 'version')
 
-SConscript( ['zlib/SConscript'] )
+SConscript( ['zlib/SConscript' ,
+             'libpng/SConscript'] )
 
 atexit.register(dgscons.build_status.handle_build_atexit, version)

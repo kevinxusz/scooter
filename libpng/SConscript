@@ -16,7 +16,7 @@
 #
 # This file is a part of the Scooter project (http://sctr.sf.net). 
 #
-# zlib/SConscript -- construction file for zlib
+# libpng/SConscript -- construction file for libpng
 #
 
 import os 
@@ -27,7 +27,7 @@ Import('env', 'version')
 env = env.Clone()
 
 env.Append(CPPPATH = ['#blib/include'])
-env.Append(CPPDEFINES = [ 'ZLIB_DLL' ])
+env.Append(CPPDEFINES = [ 'PNG_BUILD_DLL' ])
 
 env.Append(CFLAGS = ['-mthreads'])
 
@@ -35,38 +35,43 @@ env.Append(LIBPATH = ['#blib/lib'])
 env.Append(LDFLAGS = ['-mthreads', '-mconsole'])
 
 variant = env.subst('$VARIANT')
-env.VariantDir(variant, '../ext/zlib')
+env.VariantDir(variant, '../ext/libpng')
 
+pnglibconf = env.Substfile(
+    source = '../ext/libpng/scripts/pnglibconf.h.prebuilt',
+    target = os.path.join(variant, 'pnglibconf.h') )
 
 srclist = map( lambda fname: os.path.join(variant,fname), 
-               [ 'adler32.c',
-                 'compress.c',
-                 'crc32.c',
-                 'deflate.c',
-                 'gzclose.c',
-                 'gzlib.c',
-                 'gzread.c',
-                 'gzwrite.c',
-                 'infback.c',
-                 'inffast.c',
-                 'inflate.c',
-                 'inftrees.c',
-                 'trees.c',
-                 'uncompr.c',
-                 'zutil.c' ] )
+               [ 'png.c',
+                 'pngerror.c',
+                 'pngget.c',
+                 'pngmem.c',
+                 'pngpread.c',
+                 'pngread.c',
+                 'pngrio.c',
+                 'pngrtran.c',
+                 'pngrutil.c',
+                 'pngset.c',
+                 'pngtrans.c',
+                 'pngwio.c',
+                 'pngwrite.c',
+                 'pngwtran.c',
+                 'pngwutil.c' ] )
 
 inclist =  map( lambda fname: os.path.join(variant,fname), 
-               [ 'zconf.h', 'zlib.h' ] )
+               [ 'png.h', 'pngconf.h', 'pnglibconf.h' ] )
 
 zlib_name = env.subst('${CRSHPREFIX}zlib')
+libpng_name = env.subst('${CRSHPREFIX}libpng')
 
-zlib = env.SharedLibrary(
-    target = os.path.join(variant,zlib_name), 
-    source = srclist
+libpng = env.SharedLibrary(
+    target = os.path.join(variant,libpng_name), 
+    source = srclist,
+    LIBS = [ zlib_name ]
 )
 
-env.Install('#blib/bin', zlib[0])
-env.Install('#blib/lib', zlib[1])
+env.Install('#blib/bin', libpng[0])
+env.Install('#blib/lib', libpng[1])
 env.Install('#blib/include', inclist)
 
 #
