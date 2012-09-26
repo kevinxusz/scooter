@@ -40,11 +40,12 @@ version.incr()
 env['CRSHPREFIX'] = 'cr{0}'.format(version.version['stable'])
 
 #print "Version: " + str(version)
-#print "Env: " + str(env.Dump())
+print "Env: " + str(env.Dump())
 
 Export('env', 'version')
 
 SConscript( ['zlib/SConscript' ,
-             'libpng/SConscript'] )
+             'libpng/SConscript',
+             'libjpeg/SConscript'] )
 
 atexit.register(dgscons.build_status.handle_build_atexit, version)

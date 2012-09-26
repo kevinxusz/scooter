@@ -1,0 +1,112 @@
+# -*- mode:python -*-
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# This file is a part of the Scooter project (http://sctr.sf.net). 
+#
+# libjpeg/SConscript -- construction file for libjpeg
+#
+
+import os 
+import sys
+import string
+
+Import('env', 'version')
+
+env = env.Clone()
+
+env.Append(CPPPATH = ['#blib/include'])
+env.Append(CPPDEFINES = [ 'JPEG_DLL' ])
+
+env.Append(CFLAGS = ['-mthreads'])
+
+env.Append(LIBPATH = ['#blib/lib'])
+env.Append(LDFLAGS = ['-mthreads', '-mconsole'])
+
+variant = env.subst('$VARIANT')
+env.VariantDir(variant, '../ext/libjpeg')
+
+pnglibconf = env.Substfile(
+    source = 'src/jconfig.mingw.h',
+    target = os.path.join(variant, 'jconfig.h') )
+
+srclist = map( lambda fname: os.path.join(variant,fname), 
+               [ 'jcapimin.c',
+                 'jcapistd.c',
+                 'jccoefct.c',
+                 'jccolor.c',
+                 'jcdctmgr.c',
+                 'jchuff.c',
+                 'jcinit.c',
+                 'jcmainct.c',
+                 'jcmarker.c',
+                 'jcmaster.c',
+                 'jcomapi.c',
+                 'jcparam.c',
+                 'jcphuff.c',
+                 'jcprepct.c',
+                 'jcsample.c',
+                 'jctrans.c',
+                 'jdapimin.c',
+                 'jdapistd.c',
+                 'jdatadst.c',
+                 'jdatasrc.c',
+                 'jdcoefct.c',
+                 'jdcolor.c',
+                 'jddctmgr.c',
+                 'jdhuff.c',
+                 'jdinput.c',
+                 'jdmainct.c',
+                 'jdmarker.c',
+                 'jdmaster.c',
+                 'jdmerge.c',
+                 'jdphuff.c',
+                 'jdpostct.c',
+                 'jdsample.c',
+                 'jdtrans.c',
+                 'jerror.c',
+                 'jfdctflt.c',
+                 'jfdctfst.c',
+                 'jfdctint.c',
+                 'jidctflt.c',
+                 'jidctfst.c',
+                 'jidctint.c',
+                 'jidctred.c',
+                 'jquant1.c',
+                 'jquant2.c',
+                 'jutils.c',
+                 'jmemmgr.c',
+                 'jmemnobs.c' ] )
+
+inclist =  map( lambda fname: os.path.join(variant,fname), 
+               [ 'jerror.h', 'jmorecfg.h', 'jpeglib.h' ] )
+
+zlib_name = env.subst('${CRSHPREFIX}zlib')
+libjpeg_name = env.subst('${CRSHPREFIX}libjpeg')
+
+libjpeg = env.SharedLibrary(
+    target = os.path.join(variant,libjpeg_name), 
+    source = srclist,
+#    LIBS = [ zlib_name ]
+)
+
+env.Install('#blib/bin', libjpeg[0])
+env.Install('#blib/lib', libjpeg[1])
+env.Install('#blib/include', inclist)
+
+#
+# SConscript -- end of file
+#
+
