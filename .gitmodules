@@ -10,3 +10,6 @@
 [submodule "ext/openvrml"]
 	path = ext/openvrml
 	url = git@github.com:kloper/openvrml.git
+[submodule "dgscons"]
+	path = dgscons
+	url = git@github.com:kloper/dgscons.git
