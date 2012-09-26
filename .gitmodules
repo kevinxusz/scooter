@@ -1,0 +1,12 @@
+[submodule "ext/zlib"]
+	path = ext/zlib
+	url = git@github.com:kloper/zlib.git
+[submodule "ext/libjpeg"]
+	path = ext/libjpeg
+	url = git@github.com:kloper/libjpeg.git
+[submodule "ext/libpng"]
+	path = ext/libpng
+	url = git://libpng.git.sourceforge.net/gitroot/libpng/libpng
+[submodule "ext/openvrml"]
+	path = ext/openvrml
+	url = git@github.com:kloper/openvrml.git
