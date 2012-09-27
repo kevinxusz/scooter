@@ -1,0 +1,110 @@
+# -*- mode:python -*-
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# This file is a part of the Scooter project (http://sctr.sf.net). 
+#
+# openvrml/SConscript -- construction file for openvrml
+#
+
+import os 
+import sys
+import string
+
+Import('env', 'version')
+
+env = env.Clone()
+
+variant = env.subst('$VARIANT')
+env.VariantDir(variant, '../ext/openvrml/src')
+
+env.Append(CPPPATH = ['#blib/include', 
+                      os.path.join(variant, 'libopenvrml'),
+                      os.path.join(variant, 'local/libopenvrml-dl')
+                      ])
+env.Append(CPPDEFINES = { 'OPENVRML_BUILD_DLL': None, 
+                          'BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS': None,
+                          'BOOST_MPL_LIMIT_VECTOR_SIZE': 30,
+                          'BOOST_FILESYSTEM_VERSION3': 3,
+                          'PACKAGE_VERSION': '\\"{}\\"'.format(str(version)),
+                          'HAVE_LIBXML2': None
+                          })
+
+env.Append(CXXFLAGS = ['-mthreads', '-isystem', '$BOOSTINCDIR' ])
+
+env.Append(LIBPATH = ['#blib/lib', '$BOOSTLIBDIR'])
+env.Append(LDFLAGS = ['-mthreads', '-mconsole'])
+
+# pnglibconf = env.Substfile(
+#     source = 'src/jconfig.mingw.h',
+#     target = os.path.join(variant, 'jconfig.h') )
+
+srclist = map( lambda fname: os.path.join(variant,fname), 
+               [ 'libopenvrml/openvrml/bad_url.cpp',
+                 'libopenvrml/openvrml/vrml97_grammar.cpp',
+                 'libopenvrml/openvrml/x3d_vrml_grammar.cpp',
+                 'libopenvrml/openvrml/basetypes.cpp',
+                 'libopenvrml/openvrml/field_value.cpp',
+                 'libopenvrml/openvrml/event.cpp',
+                 'libopenvrml/openvrml/exposedfield.cpp',
+                 'libopenvrml/openvrml/scope.cpp',
+                 'libopenvrml/openvrml/node.cpp',
+                 'libopenvrml/openvrml/script.cpp',
+                 'libopenvrml/openvrml/bounding_volume.cpp',
+                 'libopenvrml/openvrml/scene.cpp',
+                 'libopenvrml/openvrml/browser.cpp',
+                 'libopenvrml/openvrml/viewer.cpp',
+                 'libopenvrml/openvrml/rendering_context.cpp',
+                 'libopenvrml/openvrml/frustum.cpp',
+                 'libopenvrml/openvrml/node_impl_util.cpp',
+                 'libopenvrml/openvrml/local/conf.cpp',
+                 'libopenvrml/openvrml/local/error.cpp',
+                 'libopenvrml/openvrml/local/uri.cpp',
+                 'libopenvrml/openvrml/local/xml_reader.cpp',
+                 'libopenvrml/openvrml/local/parse_vrml.cpp',
+                 'libopenvrml/openvrml/local/component.cpp',
+                 'libopenvrml/openvrml/local/proto.cpp',
+                 'libopenvrml/openvrml/local/externproto.cpp',
+                 'libopenvrml/openvrml/local/node_metatype_registry_impl.cpp' 
+                 ] )
+
+# inclist =  map( lambda fname: os.path.join(variant,fname), 
+#                [ 'jerror.h', 'jmorecfg.h', 'jpeglib.h' ] )
+
+zlib_name = env.subst('${CRSHPREFIX}zlib')
+libjpeg_name = env.subst('${CRSHPREFIX}libjpeg')
+libpng_name = env.subst('${CRSHPREFIX}libpng')
+libxml2_name = env.subst('${CRSHPREFIX}libxml2')
+libopenvrml_name = env.subst('${CRSHPREFIX}openvrml')
+
+boost_libs = map( lambda lib: lib + '$BOOST_LIB_SUFFIX',
+                              [ 'boost_filesystem',
+                                'boost_system',
+                                'boost_thread' ])
+
+openvrml = env.SharedLibrary(
+    target = os.path.join(variant,libopenvrml_name), 
+    source = srclist,
+    LIBS = [ zlib_name, libpng_name, libjpeg_name, libxml2_name ] + boost_libs
+)
+
+env.Install('#blib/bin', openvrml[0])
+env.Install('#blib/lib', openvrml[1])
+# env.Install('#blib/include', inclist)
+
+#
+# SConscript -- end of file
+#
+

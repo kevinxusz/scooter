@@ -23,14 +23,14 @@ import os
 import sys
 import atexit
 
-dgscons_path=os.path.join('.', 'dgscons')
+dgscons_path=os.path.join('..', 'dgscons')
 sys.path.append(dgscons_path)
 
 import dgscons
 import dgscons.version
 import dgscons.build_status
 
-boost = Tool('boost', [ os.path.join('.', 'dgscons') ])
+boost = Tool('boost', [ os.path.join(dgscons_path, 'tools')])
 
 env = dgscons.setup_environment(tools = ['textfile', boost])
 
@@ -39,13 +39,14 @@ version.incr()
 
 env['CRSHPREFIX'] = 'cr{0}'.format(version.version['stable'])
 
-#print "Version: " + str(version)
-print "Env: " + str(env.Dump())
+#print "Env: " + str(env.Dump())
 
 Export('env', 'version')
 
 SConscript( ['zlib/SConscript' ,
              'libpng/SConscript',
-             'libjpeg/SConscript'] )
+             'libjpeg/SConscript',
+             'libxml2/SConscript',
+             'openvrml/SConscript'] )
 
 atexit.register(dgscons.build_status.handle_build_atexit, version)
