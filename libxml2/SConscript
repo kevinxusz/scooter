@@ -46,9 +46,9 @@ env.Append(LDFLAGS = ['-mthreads', '-mconsole'])
 xmlversion = env.Substfile(
     source =  os.path.join(variant, 'include', 'libxml', 'xmlversion.h.in'),
     SUBST_DICT = {
-        '@VERSION@': '0.0.0',
-        '@LIBXML_VERSION_NUMBER@': '000000',
-        '@LIBXML_VERSION_EXTRA@': str(version),
+        '@VERSION@': '2.9.0',
+        '@LIBXML_VERSION_NUMBER@': '20900',
+        '@LIBXML_VERSION_EXTRA@': '',
         '@WITH_OUTPUT@': 1,
         '@WITH_TRIO@': 0,
         '@WITH_THREADS@': 1,

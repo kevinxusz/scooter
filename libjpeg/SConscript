@@ -91,7 +91,7 @@ srclist = map( lambda fname: os.path.join(variant,fname),
                  'jmemnobs.c' ] )
 
 inclist =  map( lambda fname: os.path.join(variant,fname), 
-               [ 'jerror.h', 'jmorecfg.h', 'jpeglib.h' ] )
+               [ 'jconfig.h', 'jerror.h', 'jmorecfg.h', 'jpeglib.h' ] )
 
 zlib_name = env.subst('${CRSHPREFIX}zlib')
 libjpeg_name = env.subst('${CRSHPREFIX}libjpeg')

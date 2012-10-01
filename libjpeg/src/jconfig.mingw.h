@@ -104,7 +104,9 @@
 #undef RIGHT_SHIFT_IS_UNSIGNED
 
 /* Define to 1 if you have the ANSI C header files. */
+#ifndef STDC_HEADERS
 #define STDC_HEADERS
+#endif 
 
 /* cjpeg/djpeg support the Targa file format. */
 #undef TARGA_SUPPORTED

@@ -38,8 +38,11 @@ env.Append(CPPDEFINES = { 'OPENVRML_BUILD_DLL': None,
                           'BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS': None,
                           'BOOST_MPL_LIMIT_VECTOR_SIZE': 30,
                           'BOOST_FILESYSTEM_VERSION3': 3,
-                          'PACKAGE_VERSION': '\\"{}\\"'.format(str(version)),
-                          'HAVE_LIBXML2': None
+                          'PACKAGE_VERSION': '\\"0.18.9\\"',
+                          'HAVE_LIBXML2': None,
+                          'OPENVRML_ENABLE_PNG_TEXTURES': 1,
+                          'OPENVRML_ENABLE_JPEG_TEXTURES': 1,
+                          'WINVER': '0x0502'
                           })
 
 env.Append(CXXFLAGS = ['-mthreads', '-isystem', '$BOOSTINCDIR' ])
@@ -51,7 +54,11 @@ env.Append(LDFLAGS = ['-mthreads', '-mconsole'])
 #     source = 'src/jconfig.mingw.h',
 #     target = os.path.join(variant, 'jconfig.h') )
 
-srclist = map( lambda fname: os.path.join(variant,fname), 
+
+openvrml_dl_srclist = map( lambda fname: os.path.join(variant,fname), 
+               [ 'local/libopenvrml-dl/openvrml/local/dl.cpp' ])
+
+openvrml_srclist = map( lambda fname: os.path.join(variant,fname), 
                [ 'libopenvrml/openvrml/bad_url.cpp',
                  'libopenvrml/openvrml/vrml97_grammar.cpp',
                  'libopenvrml/openvrml/x3d_vrml_grammar.cpp',
@@ -80,13 +87,201 @@ srclist = map( lambda fname: os.path.join(variant,fname),
                  'libopenvrml/openvrml/local/node_metatype_registry_impl.cpp' 
                  ] )
 
+node_libs_srclist = {
+    'vrml97': [
+        'node/vrml97/register_node_metatypes.cpp',
+        'node/vrml97/image_stream_listener.cpp',
+        'node/vrml97/anchor.cpp',
+        'node/vrml97/appearance.cpp',
+        'node/vrml97/audio_clip.cpp',
+        'node/vrml97/background.cpp',
+        'node/vrml97/billboard.cpp',
+        'node/vrml97/box.cpp',
+        'node/vrml97/collision.cpp',
+        'node/vrml97/color.cpp',
+        'node/vrml97/color_interpolator.cpp',
+        'node/vrml97/cone.cpp',
+        'node/vrml97/coordinate.cpp',
+        'node/vrml97/coordinate_interpolator.cpp',
+        'node/vrml97/cylinder.cpp',
+        'node/vrml97/cylinder_sensor.cpp',
+        'node/vrml97/directional_light.cpp',
+        'node/vrml97/elevation_grid.cpp',
+        'node/vrml97/extrusion.cpp',
+        'node/vrml97/fog.cpp',
+        'node/vrml97/font_style.cpp',
+        'node/vrml97/group.cpp',
+        'node/vrml97/image_texture.cpp',
+        'node/vrml97/indexed_face_set.cpp',
+        'node/vrml97/indexed_line_set.cpp',
+        'node/vrml97/inline.cpp',
+        'node/vrml97/lod.cpp',
+        'node/vrml97/material.cpp',
+        'node/vrml97/movie_texture.cpp',
+        'node/vrml97/navigation_info.cpp',
+        'node/vrml97/normal.cpp',
+        'node/vrml97/normal_interpolator.cpp',
+        'node/vrml97/orientation_interpolator.cpp',
+        'node/vrml97/pixel_texture.cpp',
+        'node/vrml97/plane_sensor.cpp',
+        'node/vrml97/point_light.cpp',
+        'node/vrml97/point_set.cpp',
+        'node/vrml97/position_interpolator.cpp',
+        'node/vrml97/proximity_sensor.cpp',
+        'node/vrml97/scalar_interpolator.cpp',
+        'node/vrml97/shape.cpp',
+        'node/vrml97/sound.cpp',
+        'node/vrml97/sphere.cpp',
+        'node/vrml97/sphere_sensor.cpp',
+        'node/vrml97/spot_light.cpp',
+        'node/vrml97/switch.cpp',
+        'node/vrml97/text.cpp',
+        'node/vrml97/texture_coordinate.cpp',
+        'node/vrml97/texture_transform.cpp',
+        'node/vrml97/time_sensor.cpp',
+        'node/vrml97/touch_sensor.cpp',
+        'node/vrml97/transform.cpp',
+        'node/vrml97/viewpoint.cpp',
+        'node/vrml97/visibility_sensor.cpp',
+        'node/vrml97/world_info.cpp',
+        'node/vrml97/cad_layer.cpp',
+        'node/vrml97/cad_assembly.cpp'
+        ],
+    'x3d-core': [
+        'node/x3d-core/register_node_metatypes.cpp',
+        'node/x3d-core/metadata_double.cpp',
+        'node/x3d-core/metadata_float.cpp',
+        'node/x3d-core/metadata_integer.cpp',
+        'node/x3d-core/metadata_set.cpp',
+        'node/x3d-core/metadata_string.cpp',
+        ],
+    'x3d-networking': [
+        'node/x3d-networking/register_node_metatypes.cpp',
+        'node/x3d-networking/load_sensor.cpp'
+        ],
+    'x3d-grouping': [
+        'node/x3d-grouping/register_node_metatypes.cpp',
+        'node/x3d-grouping/static_group.cpp'
+        ],
+    'x3d-rendering': [
+        'node/x3d-rendering/register_node_metatypes.cpp',
+        'node/x3d-rendering/color_rgba.cpp',
+        'node/x3d-rendering/indexed_triangle_fan_set.cpp',
+        'node/x3d-rendering/indexed_triangle_set.cpp',
+        'node/x3d-rendering/indexed_triangle_strip_set.cpp',
+        'node/x3d-rendering/triangle_fan_set.cpp',
+        'node/x3d-rendering/triangle_set.cpp',
+        'node/x3d-rendering/triangle_strip_set.cpp'
+        ],
+    'x3d-shape': [
+        'node/x3d-shape/register_node_metatypes.cpp',
+        'node/x3d-shape/fill_properties.cpp',
+        'node/x3d-shape/line_properties.cpp',
+        ],
+    'x3d-geometry2d': [
+        'node/x3d-geometry2d/register_node_metatypes.cpp',
+        'node/x3d-geometry2d/arc2d.cpp',
+        'node/x3d-geometry2d/arc_close2d.cpp',
+        'node/x3d-geometry2d/circle2d.cpp',
+        'node/x3d-geometry2d/disk2d.cpp',
+        'node/x3d-geometry2d/polyline2d.cpp',
+        'node/x3d-geometry2d/polypoint2d.cpp',
+        'node/x3d-geometry2d/rectangle2d.cpp',
+        'node/x3d-geometry2d/triangle_set2d.cpp',
+        ],
+    'x3d-texturing': [
+        'node/x3d-texturing/register_node_metatypes.cpp',
+        'node/x3d-texturing/multi_texture.cpp',
+        'node/x3d-texturing/multi_texture_coordinate.cpp',
+        'node/x3d-texturing/multi_texture_transform.cpp',
+        'node/x3d-texturing/texture_coordinate_generator.cpp',
+        ],
+    'x3d-interpolation': [
+        'node/x3d-interpolation/register_node_metatypes.cpp',
+        'node/x3d-interpolation/coordinate_interpolator2d.cpp',
+        'node/x3d-interpolation/position_interpolator2d.cpp',
+        ],
+    'x3d-key-device-sensor': [
+        'node/x3d-key-device-sensor/register_node_metatypes.cpp',
+        'node/x3d-key-device-sensor/key_sensor.cpp',
+        'node/x3d-key-device-sensor/string_sensor.cpp',
+        ],
+    'x3d-event-utilities': [
+        'node/x3d-event-utilities/register_node_metatypes.cpp',
+        'node/x3d-event-utilities/boolean_filter.cpp',
+        'node/x3d-event-utilities/boolean_sequencer.cpp',
+        'node/x3d-event-utilities/boolean_toggle.cpp',
+        'node/x3d-event-utilities/boolean_trigger.cpp',
+        'node/x3d-event-utilities/integer_sequencer.cpp',
+        'node/x3d-event-utilities/integer_trigger.cpp',
+        'node/x3d-event-utilities/time_trigger.cpp',
+        ],
+    'x3d-dis': [
+        'node/x3d-dis/register_node_metatypes.cpp',
+        'node/x3d-dis/espdu_transform.cpp',
+        'node/x3d-dis/receiver_pdu.cpp',
+        'node/x3d-dis/signal_pdu.cpp',
+        'node/x3d-dis/transmitter_pdu.cpp',
+        ],
+    'x3d-environmental-effects': [
+        'node/x3d-environmental-effects/register_node_metatypes.cpp',
+        'node/x3d-environmental-effects/texture_background.cpp',
+        ],
+    'x3d-geospatial': [
+        'node/x3d-geospatial/register_node_metatypes.cpp',
+        'node/x3d-geospatial/geospatial-common.cpp',
+        'node/x3d-geospatial/geo_coordinate.cpp',
+        'node/x3d-geospatial/geo_elevation_grid.cpp',
+        'node/x3d-geospatial/geo_location.cpp',
+        'node/x3d-geospatial/geo_lod.cpp',
+        'node/x3d-geospatial/geo_metadata.cpp',
+        'node/x3d-geospatial/geo_origin.cpp',
+        'node/x3d-geospatial/geo_position_interpolator.cpp',
+        'node/x3d-geospatial/geo_touch_sensor.cpp',
+        'node/x3d-geospatial/geo_viewpoint.cpp',
+        ],
+    'x3d-h-anim': [
+        'node/x3d-h-anim/register_node_metatypes.cpp',
+        'node/x3d-h-anim/h_anim_displacer.cpp',
+        'node/x3d-h-anim/h_anim_humanoid.cpp',
+        'node/x3d-h-anim/h_anim_joint.cpp',
+        'node/x3d-h-anim/h_anim_segment.cpp',
+        'node/x3d-h-anim/h_anim_site.cpp',
+        ],
+    'x3d-nurbs': [
+        'node/x3d-nurbs/register_node_metatypes.cpp',
+        'node/x3d-nurbs/contour2d.cpp',
+        'node/x3d-nurbs/contour_polyline2d.cpp',
+        'node/x3d-nurbs/coordinate_double.cpp',
+        'node/x3d-nurbs/nurbs_curve.cpp',
+        'node/x3d-nurbs/nurbs_curve2d.cpp',
+        'node/x3d-nurbs/nurbs_orientation_interpolator.cpp',
+        'node/x3d-nurbs/nurbs_patch_surface.cpp',
+        'node/x3d-nurbs/nurbs_position_interpolator.cpp',
+        'node/x3d-nurbs/nurbs_set.cpp',
+        'node/x3d-nurbs/nurbs_surface_interpolator.cpp',
+        'node/x3d-nurbs/nurbs_swept_surface.cpp',
+        'node/x3d-nurbs/nurbs_swung_surface.cpp',
+        'node/x3d-nurbs/nurbs_texture_coordinate.cpp',
+        'node/x3d-nurbs/nurbs_trimmed_surface.cpp',
+        ],
+    'x3d-cad-geomet': [
+        'node/x3d-cad-geometry/register_node_metatypes.cpp',
+        'node/x3d-cad-geometry/cad_face.cpp',
+        'node/x3d-cad-geometry/indexed_quad_set.cpp',
+        ]
+    }
+
 # inclist =  map( lambda fname: os.path.join(variant,fname), 
-#                [ 'jerror.h', 'jmorecfg.h', 'jpeglib.h' ] )
+#                 [ 'libopenvrml/openvrml-common.h' ] )
+
+# env.Install('#blib/include', inclist)
 
 zlib_name = env.subst('${CRSHPREFIX}zlib')
 libjpeg_name = env.subst('${CRSHPREFIX}libjpeg')
 libpng_name = env.subst('${CRSHPREFIX}libpng')
 libxml2_name = env.subst('${CRSHPREFIX}libxml2')
+libopenvrml_dl_name = env.subst('${CRSHPREFIX}openvrml-dl')
 libopenvrml_name = env.subst('${CRSHPREFIX}openvrml')
 
 boost_libs = map( lambda lib: lib + '$BOOST_LIB_SUFFIX',
@@ -94,15 +289,40 @@ boost_libs = map( lambda lib: lib + '$BOOST_LIB_SUFFIX',
                                 'boost_system',
                                 'boost_thread' ])
 
+openvrml_dl = env.SharedLibrary(
+    target = os.path.join(variant,libopenvrml_dl_name), 
+    source = openvrml_dl_srclist,
+    LIBS = boost_libs
+)
+
 openvrml = env.SharedLibrary(
     target = os.path.join(variant,libopenvrml_name), 
-    source = srclist,
-    LIBS = [ zlib_name, libpng_name, libjpeg_name, libxml2_name ] + boost_libs
+    source = openvrml_srclist,
+    LIBS = [ zlib_name, 
+             libpng_name, 
+             libjpeg_name, 
+             libxml2_name, 
+             libopenvrml_dl_name ] + boost_libs
 )
+
+env.Install('#blib/bin', openvrml_dl[0])
+env.Install('#blib/lib', openvrml_dl[1])
 
 env.Install('#blib/bin', openvrml[0])
 env.Install('#blib/lib', openvrml[1])
-# env.Install('#blib/include', inclist)
+
+for shared_lib_name, srclist in node_libs_srclist.iteritems():
+    shared_lib = env.SharedLibrary(
+        target = os.path.join(variant,shared_lib_name), 
+        source = map( lambda fname: os.path.join(variant,fname), srclist ),
+        LIBS = [ zlib_name, 
+                 libpng_name, 
+                 libjpeg_name, 
+                 libxml2_name, 
+                 libopenvrml_name ] + boost_libs
+    )
+    env.Install('#blib/bin', shared_lib[0])
+    env.Install('#blib/lib', shared_lib[1])
 
 #
 # SConscript -- end of file
