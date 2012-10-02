@@ -53,19 +53,19 @@ Bounding_box<FloatValue,ComparableValue>::Bounding_box(
 
 
 template <class FloatValue, class ComparableValue>
-const common_typename Bounding_box<FloatValue,ComparableValue>::Vector& 
+const typename Bounding_box<FloatValue,ComparableValue>::Vector& 
 Bounding_box<FloatValue,ComparableValue>::top() const {
    return m_top;
 }
 
 template <class FloatValue, class ComparableValue>
-const common_typename Bounding_box<FloatValue,ComparableValue>::Vector& 
+const typename Bounding_box<FloatValue,ComparableValue>::Vector& 
 Bounding_box<FloatValue,ComparableValue>::bottom() const {
    return m_bottom;
 }
 
 template <class FloatValue, class ComparableValue>
-common_typename Bounding_box<FloatValue,ComparableValue>::Vector 
+typename Bounding_box<FloatValue,ComparableValue>::Vector 
 Bounding_box<FloatValue,ComparableValue>::center() const {
    return median( m_bottom, m_top, 0.5 ) ;
 }
@@ -115,13 +115,13 @@ Plane<FloatValue,ComparableValue>::Plane( const Plane& peer ) :
 
 
 template <class FloatValue, class ComparableValue>
-const common_typename Plane<FloatValue,ComparableValue>::Point&
+const typename Plane<FloatValue,ComparableValue>::Point&
 Plane<FloatValue,ComparableValue>::origin() const {
    return m_origin;
 }
 
 template <class FloatValue, class ComparableValue>
-const common_typename Plane<FloatValue,ComparableValue>::Vector&
+const typename Plane<FloatValue,ComparableValue>::Vector&
 Plane<FloatValue,ComparableValue>::normal() const {
    return m_normal;
 }
@@ -142,13 +142,13 @@ Line<FloatValue,ComparableValue>::Line( const Line& peer ) :
    m_origin(peer.m_origin), m_direction(peer.m_direction) {}
 
 template <class FloatValue, class ComparableValue>
-const common_typename Line<FloatValue,ComparableValue>::Point&
+const typename Line<FloatValue,ComparableValue>::Point&
 Line<FloatValue,ComparableValue>::origin() const {
    return m_origin;
 }
 
 template <class FloatValue, class ComparableValue>
-const common_typename Line<FloatValue,ComparableValue>::Vector&
+const typename Line<FloatValue,ComparableValue>::Vector&
 Line<FloatValue,ComparableValue>::direction() const {
    return m_direction;
 }
@@ -169,19 +169,19 @@ Segment<FloatValue,ComparableValue>::Segment( const Segment& peer ) :
    m_a(peer.m_a), m_b(peer.m_b) {}
 
 template <class FloatValue, class ComparableValue>
-const common_typename Segment<FloatValue,ComparableValue>::Point&
+const typename Segment<FloatValue,ComparableValue>::Point&
 Segment<FloatValue,ComparableValue>::a() const {
    return m_a;
 }
 
 template <class FloatValue, class ComparableValue>
-const common_typename Segment<FloatValue,ComparableValue>::Point&
+const typename Segment<FloatValue,ComparableValue>::Point&
 Segment<FloatValue,ComparableValue>::b() const {
    return m_b;
 }
 
 template <class FloatValue, class ComparableValue>
-common_typename Segment<FloatValue,ComparableValue>::FT
+typename Segment<FloatValue,ComparableValue>::FT
 Segment<FloatValue,ComparableValue>::length() const {
    return distance(m_a,m_b);
 }
@@ -199,19 +199,19 @@ Circle<FloatValue,ComparableValue>::Circle( const Point& center,
    m_center(center), m_normal(normal.normalize()), m_radius(radius) {}
 
 template <class FloatValue, class ComparableValue>
-const common_typename Circle<FloatValue,ComparableValue>::Point&
+const typename Circle<FloatValue,ComparableValue>::Point&
 Circle<FloatValue,ComparableValue>::center() const {
    return m_center;
 }
 
 template <class FloatValue, class ComparableValue>
-const common_typename Circle<FloatValue,ComparableValue>::Vector&
+const typename Circle<FloatValue,ComparableValue>::Vector&
 Circle<FloatValue,ComparableValue>::normal() const {
    return m_normal;
 }
 
 template <class FloatValue, class ComparableValue>
-common_typename Circle<FloatValue,ComparableValue>::FT
+typename Circle<FloatValue,ComparableValue>::FT
 Circle<FloatValue,ComparableValue>::radius() const {
    return m_radius;
 }
@@ -234,27 +234,27 @@ Triangle<FloatValue,ComparableValue>::Triangle( const Triangle& peer) :
 
 
 template <class FloatValue, class ComparableValue>
-const common_typename Triangle<FloatValue,ComparableValue>::Point&
+const typename Triangle<FloatValue,ComparableValue>::Point&
 Triangle<FloatValue,ComparableValue>::a() const {
    return m_a;
 }
 
 template <class FloatValue, class ComparableValue>
-const common_typename Triangle<FloatValue,ComparableValue>::Point&
+const typename Triangle<FloatValue,ComparableValue>::Point&
 Triangle<FloatValue,ComparableValue>::b() const {
    return m_b;
 }
 
 
 template <class FloatValue, class ComparableValue>
-const common_typename Triangle<FloatValue,ComparableValue>::Point&
+const typename Triangle<FloatValue,ComparableValue>::Point&
 Triangle<FloatValue,ComparableValue>::c() const {
    return m_c;
 }
 
 
 template <class FloatValue, class ComparableValue>
-common_typename Triangle<FloatValue,ComparableValue>::Circle
+typename Triangle<FloatValue,ComparableValue>::Circle
 Triangle<FloatValue,ComparableValue>::inbound_circle() const {
    const Vector n = m_c - m_b;
    const Vector m = m_a - m_b;
@@ -281,7 +281,7 @@ Triangle<FloatValue,ComparableValue>::inbound_circle() const {
 }
 
 template <class FloatValue, class ComparableValue>
-common_typename Triangle<FloatValue,ComparableValue>::Circle
+typename Triangle<FloatValue,ComparableValue>::Circle
 Triangle<FloatValue,ComparableValue>::outbound_circle() const {
    const Vector n = m_c - m_b;
    const Vector m = m_a - m_b;
@@ -355,25 +355,25 @@ Intersection<FloatValue,ComparableValue>::is_segment() const {
 }
 
 template <class FloatValue, class ComparableValue>
-common_typename Intersection<FloatValue,ComparableValue>::Point
+typename Intersection<FloatValue,ComparableValue>::Point
 Intersection<FloatValue,ComparableValue>::point() const {
    return boost::any_cast<Point>( m_intersection );
 }
 
 template <class FloatValue, class ComparableValue>
-common_typename Intersection<FloatValue,ComparableValue>::Plane
+typename Intersection<FloatValue,ComparableValue>::Plane
 Intersection<FloatValue,ComparableValue>::plane() const {
    return boost::any_cast<Plane>( m_intersection );
 }
 
 template <class FloatValue, class ComparableValue>
-common_typename Intersection<FloatValue,ComparableValue>::Line
+typename Intersection<FloatValue,ComparableValue>::Line
 Intersection<FloatValue,ComparableValue>::line() const {
    return boost::any_cast<Line>( m_intersection );
 }
 
 template <class FloatValue, class ComparableValue>
-common_typename Intersection<FloatValue,ComparableValue>::Segment
+typename Intersection<FloatValue,ComparableValue>::Segment
 Intersection<FloatValue,ComparableValue>::segment() const {
    return boost::any_cast<Segment>( m_intersection );
 }
@@ -420,8 +420,8 @@ template < class FloatValue, class ComparableValue>
 FloatValue distance( const Line<FloatValue,ComparableValue>& l, 
 		     const Segment<FloatValue,ComparableValue>& s ) {
    typedef  Math::Vector<FloatValue,ComparableValue> Vector;
-   typedef common_typename Vector::RT RT;
-   typedef common_typename Vector::FT FT;
+   typedef typename Vector::RT RT;
+   typedef typename Vector::FT FT;
    Line<FloatValue,ComparableValue> seg_line( s.a(), s.b()-s.a() );
 
    Intersection<FloatValue,ComparableValue> clsup = closeup( l, seg_line );

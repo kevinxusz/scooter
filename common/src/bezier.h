@@ -30,7 +30,6 @@
 
 #include <boost/iterator/iterator_facade.hpp>
 
-#include <scooter/common_config.h>
 #include <scooter/calculus.h>
 
 namespace scooter {
@@ -44,11 +43,11 @@ class Bezier_iterator:
    boost::forward_traversal_tag> 
 {
    public:
-      typedef common_typename Math::Matrix<FloatValue,ComparableValue> Matrix;
-      typedef common_typename Math::Vector<FloatValue,ComparableValue> Vector;
-      typedef common_typename Math::Vector<FloatValue,ComparableValue> Point;
-      typedef common_typename Vector::FT                               FT;
-      typedef common_typename Vector::RT                               RT;
+      typedef typename Math::Matrix<FloatValue,ComparableValue> Matrix;
+      typedef typename Math::Vector<FloatValue,ComparableValue> Vector;
+      typedef typename Math::Vector<FloatValue,ComparableValue> Point;
+      typedef typename Vector::FT                               FT;
+      typedef typename Vector::RT                               RT;
 
       Bezier_iterator()  :	 
 	 m_precision( 0 ),	 

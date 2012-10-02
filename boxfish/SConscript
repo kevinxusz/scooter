@@ -1,0 +1,114 @@
+# -*- mode:python -*-
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# This file is a part of the Scooter project (http://sctr.sf.net). 
+#
+# boxfish/SConscript -- construction file for boxfish3d
+#
+
+import os 
+import sys
+import string
+
+Import('env', 'version')
+
+env = env.Clone()
+
+variant = env.subst('$VARIANT')
+env.VariantDir(variant, 'src')
+
+env.Append(CPPPATH = ['#blib/include', '$DGDINC'] )
+env.Append(CPPDEFINES = {
+    'UNICODE': None,
+    'QT_LARGEFILE_SUPPORT': None,
+    'QT_DLL': None,
+    'QT_SVG_LIB': None,
+    'QT_GUI_LIB': None,
+    'QT_CORE_LIB': None,
+    'QT_THREAD_SUPPORT': None,
+    'QT_XML_LIB': None,
+    'QT_OPENGL_LIB': None,
+    'WINVER': '0x0502',
+    'OPENVRML_USE_DLL': None
+   })
+
+env.Append(CXXFLAGS = ['-mthreads', 
+                       '-isystem', '$BOOSTINCDIR',
+                       '-isystem', '$QT_CPPPATH'])
+
+env.Append(LIBPATH = ['#blib/lib', '$BOOSTLIBDIR', '$QT_LIBPATH'])
+env.Append(LDFLAGS = ['-mthreads', '-mconsole'])
+
+conf = env.Substfile(
+    source = 'src/boxfish_config.h.in',
+    target = os.path.join(variant, 'boxfish_config.h'),
+    SUBST_DICT = {
+        '@version_string@': '{}.{}.{}'.format(version.version['stable'],
+                                              version.version['major'],
+                                              version.version['build']),
+        '@version_comma@': '{},{},{},0'.format(version.version['stable'],
+                                              version.version['major'],
+                                              version.version['build']),
+       }
+   )
+
+srclist = map( lambda fname: os.path.join(variant,fname), 
+               [ 'boxfish_cfg.cpp',
+                 'boxfish_document.cpp',
+                 'boxfish_main.cpp',
+                 'boxfish_mesh.cpp',
+                 'boxfish_mesh_control.cpp',
+                 'boxfish_mesh_editor.cpp',
+                 'boxfish_mesh_scene.cpp',
+                 'boxfish_portal.cpp',
+                 'boxfish_svg.cpp',
+                 'boxfish_vrml_control.cpp',
+                 'boxfish_vrml_loader.cpp',
+                 'boxfish_vrml_scene_item.cpp',
+                 'boxfish_vrml_scene_map.cpp',
+                 'boxfish_vrml_scene_model.cpp',
+                 'boxfish_vrml_scene_tree.cpp'] )
+
+
+zlib_name = env.subst('${CRSHPREFIX}zlib')
+libjpeg_name = env.subst('${CRSHPREFIX}libjpeg')
+libpng_name = env.subst('${CRSHPREFIX}libpng')
+libxml2_name = env.subst('${CRSHPREFIX}libxml2')
+libopenvrml_dl_name = env.subst('${CRSHPREFIX}openvrml-dl')
+libopenvrml_name = env.subst('${CRSHPREFIX}openvrml')
+
+boost_libs = map( lambda lib: lib + '$BOOST_LIB_SUFFIX',
+                              [ 'boost_filesystem',
+                                'boost_system',
+                                'boost_thread' ])
+
+boxfish = env.Program(
+    target = os.path.join(variant, 'boxfish3d'), 
+    source = srclist,
+    LIBS = [ zlib_name, 
+             libpng_name, 
+             libjpeg_name, 
+             libxml2_name, 
+             libopenvrml_name,
+             libopenvrml_dl_name ] + boost_libs
+)
+
+env.Install('#blib/bin', boxfish[0])
+
+#
+# SConscript -- end of file
+#
+

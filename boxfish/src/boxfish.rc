@@ -1,0 +1,69 @@
+// -*- C++ -*-
+//
+// $Id$
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+// This file is a part of the Scooter project. 
+//
+// Copyright (c) 2002-2012. Dimitry Kloper <kloper@users.sf.net> . 
+//
+// boxfish.rc -- windows resource file for boxfish
+//
+
+#include <windows.h>
+
+#include <boxfish_config.h>
+
+boxfish                 ICON    "../../icons/logo-new-icon.ico"
+
+// this stuff is from 
+// http://msdn.microsoft.com/library/en-us/tools/tools/versioninfo_resource.asp
+
+
+1 VERSIONINFO
+  FILEVERSION    BOXFISH_COMMA_VERSION
+  PRODUCTVERSION BOXFISH_COMMA_VERSION
+  FILEFLAGSMASK  0x3fL
+#ifdef _DEBUG
+  FILEFLAGS VS_FF_DEBUG
+#else
+  FILEFLAGS 0x0L
+#endif
+  FILEOS VOS_NT_WINDOWS32
+  FILETYPE VFT_APP
+  FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "04090000"
+        BEGIN
+            VALUE "Comments", BOXFISH_DESCRIPTION "\0"
+            VALUE "CompanyName", BOXFISH_CREATOR_NAME "\0"
+            VALUE "FileDescription", BOXFISH_DESCRIPTION "\0"
+            VALUE "FileVersion", BOXFISH_VERSION_STRING "\0"
+            VALUE "InternalName", BOXFISH_APPNAME "\0"
+            VALUE "LegalCopyright", BOXFISH_COPYRIGHT "\0"
+            VALUE "LegalTrademarks", BOXFISH_COPYRIGHT "\0"
+            VALUE "OriginalFilename", BOXFISH_APPNAME ".exe\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", BOXFISH_DESCRIPTION "\0"
+            VALUE "ProductVersion", BOXFISH_VERSION_STRING "\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+END
+
+

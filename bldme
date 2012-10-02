@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 export BLDME_DIRNAME="$( cd "$( dirname "$0" )" && cygpath -a -m `pwd` )"
 export SCONS_DIR=$BLDME_DIRNAME/ext/scons-2.2.0
@@ -20,7 +20,7 @@ perl -I cons ./cons/cons.pl $2 -- --toolset=gcc,cygwin,boost,stlport,clo,zlib,jp
 (consming|consmingw)
 /c/perl64/bin/perl -I cons ./cons/cons.pl $2 -- --toolset=mingw,cygwin,boost,qt4,dgd2 -v3 --cygwin-root-dir=c:/cygwin --mingw-root-dir=c:/personal/mingw --qt4-root-dir=c:/personal/qt-4.8.0-src/qt-everywhere-opensource-src-4.8.0 --boost-root-dir=c:/personal/boost-1.47 --dgd2-root=c:/personal/dgd $3 $4 $5 $6;;
 (ming|mingw|*)
-/c/python-2.7.3/python.exe $SCONS_DIR/script/scons --compiler=mingw mingwbin=d:/s/mingw-4.6/bin boostinc=d:/s/boost-1.47/include/boost-1_47 boostlib=d:/s/boost-1.47/lib boostlibsuf="-mgw45-mt-d-1_47" $2 $3 $4 $5 $6 $7 $8 $9;;
+/c/python-2.7.3/python.exe $SCONS_DIR/script/scons --compiler=mingw mingwbin=d:/s/mingw-4.6/bin boostinc=d:/s/boost-1.47/include/boost-1_47 boostlib=d:/s/boost-1.47/lib boostlibsuf="-mgw45-mt-d-1_47" qtroot="d:/s/qt-4.8.0-src/qt-everywhere-opensource-src-4.8.0" dgdinc="d:/s/dgd/blib/include" $2 $3 $4 $5 $6 $7 $8 $9;;
 esac
 
 # 

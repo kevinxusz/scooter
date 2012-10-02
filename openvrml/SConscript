@@ -272,10 +272,26 @@ node_libs_srclist = {
         ]
     }
 
-# inclist =  map( lambda fname: os.path.join(variant,fname), 
-#                 [ 'libopenvrml/openvrml-common.h' ] )
+inclist =  map( lambda fname: os.path.join(variant,fname), 
+                 [ 'libopenvrml/openvrml-common.h',
+                   'libopenvrml/openvrml-config-win32.h'] )
 
-# env.Install('#blib/include', inclist)
+openvrml_inclist =  map( lambda fname: os.path.join(variant,fname), 
+                 [ 'libopenvrml/openvrml-common.h',
+                   'libopenvrml/openvrml/browser.h',
+                   'libopenvrml/openvrml/script.h',
+                   'libopenvrml/openvrml/bad_url.h',
+                   'libopenvrml/openvrml/node.h',
+                   'libopenvrml/openvrml/field_value.h',
+                   'libopenvrml/openvrml/basetypes.h',
+                   'libopenvrml/openvrml/rendering_context.h',
+                   'libopenvrml/openvrml/bounding_volume.h',
+                   'libopenvrml/openvrml/event.h',
+                   'libopenvrml/openvrml/viewer.h',
+                   'libopenvrml/openvrml/frustum.h'] )
+
+env.Install('#blib/include', inclist)
+env.Install('#blib/include/openvrml', openvrml_inclist)
 
 zlib_name = env.subst('${CRSHPREFIX}zlib')
 libjpeg_name = env.subst('${CRSHPREFIX}libjpeg')
