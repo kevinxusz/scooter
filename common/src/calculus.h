@@ -32,12 +32,12 @@ static const double PI = 3.1415926535897932384626433832795;
 
 template <int Mantis>
 struct Epsilon {
-      static const double value = Epsilon<Mantis-1>::value / 10.0;
+   static const double value = Epsilon<Mantis-1>::value / 10.0;
 };
 
 template <>
 struct Epsilon<0> {
-      static const double value = 1.0;
+   static const double value = 1.0;
 };
 
 /**
@@ -51,118 +51,118 @@ struct Epsilon<0> {
 
 template <typename D, const unsigned int EpsilonMantis = 8> 
 class Comparable_double {
-   protected:
-      static const double EpsilonValue;
+protected:
+   static const double EpsilonValue;
 
-      /*!
-	\brief floating point value
-      */
-      D val;
-   public:
+   /*!
+     \brief floating point value
+   */
+   D val;
+public:
 
-      /*!
-	\brief default constructor. Sets the value to 0.
-      */
-      Comparable_double() : val(0) {}
-      /*!
-	\brief floating point -> Comparable_double constructor
-      */
-      Comparable_double(const D& v) { val = v; }
+   /*!
+     \brief default constructor. Sets the value to 0.
+   */
+   Comparable_double() : val(0) {}
+   /*!
+     \brief floating point -> Comparable_double constructor
+   */
+   Comparable_double(const D& v) { val = v; }
 
-      Comparable_double(int iv) { val = (D)iv; }
-      /*!
-	\brief copy constructor
-      */
-      Comparable_double(const Comparable_double& e) { val = e.val; }
+   Comparable_double(int iv) { val = (D)iv; }
+   /*!
+     \brief copy constructor
+   */
+   Comparable_double(const Comparable_double& e) { val = e.val; }
 
-      Comparable_double& operator = (const Comparable_double& e) {
-	 val = e.val;
-	 return *this;
-      }
+   Comparable_double& operator = (const Comparable_double& e) {
+      val = e.val;
+      return *this;
+   }
 
-      double epsilon() const { return EpsilonValue; }
+   double epsilon() const { return EpsilonValue; }
 
-      bool is_valid(const Comparable_double& e) const {
-	 return true;
-      }
+   bool is_valid(const Comparable_double& e) const {
+      return true;
+   }
       
-      bool is_finite(const Comparable_double& e) const {
-	 return true;
-      }
+   bool is_finite(const Comparable_double& e) const {
+      return true;
+   }
 
       
-      bool  operator == (const Comparable_double& e) const {
-	 return ((val-e.val) < EpsilonValue ) && ((val-e.val) > -EpsilonValue);
-      }
+   bool  operator == (const Comparable_double& e) const {
+      return ((val-e.val) < EpsilonValue ) && ((val-e.val) > -EpsilonValue);
+   }
 
-      bool operator != (const Comparable_double& e) const {
-	 return ((val-e.val) >= EpsilonValue) || ((val-e.val) <= -EpsilonValue);
-      }
+   bool operator != (const Comparable_double& e) const {
+      return ((val-e.val) >= EpsilonValue) || ((val-e.val) <= -EpsilonValue);
+   }
 
-      bool operator < (const Comparable_double& e) const {
-	 return ((val-e.val) <= -EpsilonValue);
-      }
+   bool operator < (const Comparable_double& e) const {
+      return ((val-e.val) <= -EpsilonValue);
+   }
 
-      bool operator > (const Comparable_double& e) const {
-	 return ((val-e.val) >= EpsilonValue);
-      }
+   bool operator > (const Comparable_double& e) const {
+      return ((val-e.val) >= EpsilonValue);
+   }
 
-      bool operator <= (const Comparable_double& e) const {
-	 return ((val-e.val) < EpsilonValue);
-      }
+   bool operator <= (const Comparable_double& e) const {
+      return ((val-e.val) < EpsilonValue);
+   }
 
-      bool operator >= (const Comparable_double& e) const {
-	 return ((val-e.val) > -EpsilonValue);
-      }
+   bool operator >= (const Comparable_double& e) const {
+      return ((val-e.val) > -EpsilonValue);
+   }
 
-      Comparable_double operator + (const Comparable_double& e) const {	 
-	 return Comparable_double(val+e.val);
-      }
+   Comparable_double operator + (const Comparable_double& e) const {	 
+      return Comparable_double(val+e.val);
+   }
 
-      Comparable_double& operator += (const Comparable_double& e) {
-	 val += e.val;
-	 return *this;
-      }
+   Comparable_double& operator += (const Comparable_double& e) {
+      val += e.val;
+      return *this;
+   }
 
-      Comparable_double operator - (const Comparable_double& e) const {	 
-	 return Comparable_double(val-e.val);
-      }
+   Comparable_double operator - (const Comparable_double& e) const {	 
+      return Comparable_double(val-e.val);
+   }
 
-      Comparable_double& operator -= (const Comparable_double& e) {
-	 val -= e.val;
-	 return *this;
-      }
+   Comparable_double& operator -= (const Comparable_double& e) {
+      val -= e.val;
+      return *this;
+   }
 
-      Comparable_double operator * (const Comparable_double& e) const {	 
-	 return Comparable_double(val*e.val);
-      }
+   Comparable_double operator * (const Comparable_double& e) const {	 
+      return Comparable_double(val*e.val);
+   }
 
-      Comparable_double& operator *= (const Comparable_double& e) {
-	 val *= e.val;
-	 return *this;
-      }
+   Comparable_double& operator *= (const Comparable_double& e) {
+      val *= e.val;
+      return *this;
+   }
 
-      Comparable_double operator / (const Comparable_double& e) const {	 
-	 return Comparable_double(val/e.val);
-      }
+   Comparable_double operator / (const Comparable_double& e) const {	 
+      return Comparable_double(val/e.val);
+   }
 
-      Comparable_double& operator /= (const Comparable_double& e) {
-	 val /= e.val;
-	 return *this;
-      }
+   Comparable_double& operator /= (const Comparable_double& e) {
+      val /= e.val;
+      return *this;
+   }
 
-      Comparable_double operator -() const {
-	 return Comparable_double(-val);
-      }
+   Comparable_double operator -() const {
+      return Comparable_double(-val);
+   }
 
  
-      double  to_double (const Comparable_double& e) const {
-	 return (double)val;
-      }
+   double  to_double (const Comparable_double& e) const {
+      return (double)val;
+   }
 
-      operator D () const {
-	 return val;
-      }
+   operator D () const {
+      return val;
+   }
 };
 
 template <typename D, const unsigned int EpsilonMantis> 
@@ -172,71 +172,71 @@ const double Comparable_double<D,EpsilonMantis>::EpsilonValue =
 // Vector
 
 template < class FloatValue, 
-	   class ComparableValue = Comparable_double<FloatValue> >
+           class ComparableValue = Comparable_double<FloatValue> >
 class Vector {
-   public:
-      typedef FloatValue      FT;
-      typedef ComparableValue RT;
+public:
+   typedef FloatValue      FT;
+   typedef ComparableValue RT;
 
-   public:
-      Vector();
-      Vector( const FT& x, const FT& y, const FT& z );
-      Vector( const FT& x, const FT& y, const FT& z, const FT& w );
-      Vector( const Vector& peer );
+public:
+   Vector();
+   Vector( const FT& x, const FT& y, const FT& z );
+   Vector( const FT& x, const FT& y, const FT& z, const FT& w );
+   Vector( const Vector& peer );
 
-      FT& x();
-      FT  x() const;
-      FT& y();
-      FT  y() const;
-      FT& z();
-      FT  z() const;
-      FT& w();
-      FT  w() const;
+   FT& x();
+   FT  x() const;
+   FT& y();
+   FT  y() const;
+   FT& z();
+   FT  z() const;
+   FT& w();
+   FT  w() const;
 
-      operator FT*();
+   operator FT*();
 
-      Vector& operator = ( const Vector& peer );
-      bool    operator ==( const Vector& peer ) const;
-      bool    operator !=( const Vector& peer ) const;
-      bool    operator < ( const Vector& peer ) const;
-      Vector& operator ()( const FT& x, const FT& y, const FT& z );
-      Vector& operator ()( const FT& x, const FT& y, const FT& z, 
-			   const FT& w );
+   Vector& operator = ( const Vector& peer );
+   bool    operator ==( const Vector& peer ) const;
+   bool    operator !=( const Vector& peer ) const;
+   bool    operator < ( const Vector& peer ) const;
+   Vector& operator ()( const FT& x, const FT& y, const FT& z );
+   Vector& operator ()( const FT& x, const FT& y, const FT& z, 
+                        const FT& w );
       
-      Vector  operator - () const;
+   Vector  operator - () const;
 
-      Vector& cartesian();
-      Vector  cartesian()   const;
+   Vector& cartesian();
+   Vector  cartesian()   const;
 
-      Vector& normalize();
-      Vector  normalize()   const;
+   Vector& normalize();
+   Vector  normalize()   const;
 
-      FT      length()      const;
-      FT      squared_length() const;
+   FT      length()      const;
+   FT      squared_length() const;
       
-      Vector& operator += ( const Vector& peer );
-      Vector& operator -= ( const Vector& peer );
+   Vector& operator += ( const Vector& peer );
+   Vector& operator -= ( const Vector& peer );
 
-      Vector& add_scaled( const Vector& peer, const FT& scale );
-      Vector  add_scaled( const Vector& peer, const FT& scale ) const;
+   Vector& add_scaled( const Vector& peer, const FT& scale );
+   Vector  add_scaled( const Vector& peer, const FT& scale ) const;
 
-      Vector& sub_scaled( const Vector& peer, const FT& scale );
-      Vector  sub_scaled( const Vector& peer, const FT& scale ) const;
+   Vector& sub_scaled( const Vector& peer, const FT& scale );
+   Vector  sub_scaled( const Vector& peer, const FT& scale ) const;
 
-      Vector& operator *= ( const FT& scale );
+   Vector& operator *= ( const FT& scale );
 
-   private:
-      FT _x;
-      FT _y;
-      FT _z;
-      FT _w;
+private:
+   FT _x;
+   FT _y;
+   FT _z;
+   FT _w;
 };
 
 template < class FloatValue1, class ComparableValue1, 
-	   class FloatValue2, class ComparableValue2 >
+           class FloatValue2, class ComparableValue2 >
 Vector<FloatValue1,ComparableValue1>& 
 assign ( Vector<FloatValue1,ComparableValue1>& a, 
-	 const Vector<FloatValue2,ComparableValue2>& b);
+         const Vector<FloatValue2,ComparableValue2>& b);
 
 template <class FloatValue, class ComparableValue>
 Vector<FloatValue,ComparableValue> operator + ( 
@@ -295,90 +295,90 @@ int orientation(
 // Matrix
 
 template < class FloatValue, 
-	   class ComparableValue = Comparable_double<FloatValue> >
+           class ComparableValue = Comparable_double<FloatValue> >
 class Matrix {
-   public:
-      typedef FloatValue      FT;
-      typedef ComparableValue RT;
-      typedef Math::Vector<FloatValue,ComparableValue> Vector;
-   public:
-      Matrix();
-      Matrix( const FT* ft );
-      Matrix( const Matrix& peer );
-      Matrix( const FT& m00, const FT& m01, const FT& m02, const FT& m03,
-	      const FT& m10, const FT& m11, const FT& m12, const FT& m13,
-	      const FT& m20, const FT& m21, const FT& m22, const FT& m23,
-	      const FT& m30, const FT& m31, const FT& m32, const FT& m33 ); 
-      Matrix( const Vector& center,
-	      const Vector& rotation,
-	      const FT&     rotationAngle,
-	      const Vector& scale,
-	      const Vector& scaleOrientation,
-	      const FT&     scaleOrientationAngle,
-	      const Vector& translation);
+public:
+   typedef FloatValue      FT;
+   typedef ComparableValue RT;
+   typedef Math::Vector<FloatValue,ComparableValue> Vector;
+public:
+   Matrix();
+   Matrix( const FT* ft );
+   Matrix( const Matrix& peer );
+   Matrix( const FT& m00, const FT& m01, const FT& m02, const FT& m03,
+           const FT& m10, const FT& m11, const FT& m12, const FT& m13,
+           const FT& m20, const FT& m21, const FT& m22, const FT& m23,
+           const FT& m30, const FT& m31, const FT& m32, const FT& m33 ); 
+   Matrix( const Vector& center,
+           const Vector& rotation,
+           const FT&     rotationAngle,
+           const Vector& scale,
+           const Vector& scaleOrientation,
+           const FT&     scaleOrientationAngle,
+           const Vector& translation);
 
-      Matrix& operator () (
-	 const FT& m00, const FT& m01, const FT& m02, const FT& m03,
-	 const FT& m10, const FT& m11, const FT& m12, const FT& m13,
-	 const FT& m20, const FT& m21, const FT& m22, const FT& m23,
-	 const FT& m30, const FT& m31, const FT& m32, const FT& m033 );
+   Matrix& operator () (
+      const FT& m00, const FT& m01, const FT& m02, const FT& m03,
+      const FT& m10, const FT& m11, const FT& m12, const FT& m13,
+      const FT& m20, const FT& m21, const FT& m22, const FT& m23,
+      const FT& m30, const FT& m31, const FT& m32, const FT& m033 );
 
-      operator FT* () ;
+   operator FT* () ;
 
-      FT& m00(); FT& m01(); FT& m02(); FT& m03(); 
-      FT& m10(); FT& m11(); FT& m12(); FT& m13(); 
-      FT& m20(); FT& m21(); FT& m22(); FT& m23(); 
-      FT& m30(); FT& m31(); FT& m32(); FT& m33(); 
+   FT& m00(); FT& m01(); FT& m02(); FT& m03(); 
+   FT& m10(); FT& m11(); FT& m12(); FT& m13(); 
+   FT& m20(); FT& m21(); FT& m22(); FT& m23(); 
+   FT& m30(); FT& m31(); FT& m32(); FT& m33(); 
 
-      FT m00() const; FT m01() const; FT m02() const; FT m03() const; 
-      FT m10() const; FT m11() const; FT m12() const; FT m13() const; 
-      FT m20() const; FT m21() const; FT m22() const; FT m23() const; 
-      FT m30() const; FT m31() const; FT m32() const; FT m33() const; 
+   FT m00() const; FT m01() const; FT m02() const; FT m03() const; 
+   FT m10() const; FT m11() const; FT m12() const; FT m13() const; 
+   FT m20() const; FT m21() const; FT m22() const; FT m23() const; 
+   FT m30() const; FT m31() const; FT m32() const; FT m33() const; 
 
-      FT& element( int i, int j );
+   FT& element( int i, int j );
 
-      Matrix& transpose();
-      Matrix  transpose() const;
+   Matrix& transpose();
+   Matrix  transpose() const;
       
-      Matrix& invert();
-      Matrix  invert() const;
+   Matrix& invert();
+   Matrix  invert() const;
       
-      Matrix& cartesian();
-      Matrix  cartesian() const;
+   Matrix& cartesian();
+   Matrix  cartesian() const;
 
-      FT determinant() const;
+   FT determinant() const;
       
-      Matrix& operator *= ( const Matrix& peer );
-      Vector& operator *= (       Vector& peer ) const;
-      Vector  operator *= ( const Vector& peer ) const;
-      Matrix& operator += ( const Matrix& peer );
-      Matrix& operator =  ( const Matrix& peer );
-      bool    operator == ( const Matrix& peer );
-      bool    operator != ( const Matrix& peer );
+   Matrix& operator *= ( const Matrix& peer );
+   Vector& operator *= (       Vector& peer ) const;
+   Vector  operator *= ( const Vector& peer ) const;
+   Matrix& operator += ( const Matrix& peer );
+   Matrix& operator =  ( const Matrix& peer );
+   bool    operator == ( const Matrix& peer );
+   bool    operator != ( const Matrix& peer );
 
-      Matrix& set_identity();
-      Matrix& set_perspective(const FT& d);
+   Matrix& set_identity();
+   Matrix& set_perspective(const FT& d);
 
-      static Matrix identity();
+   static Matrix identity();
 
-   private:
-      FT _m00,_m01,_m02,_m03;
-      FT _m10,_m11,_m12,_m13;
-      FT _m20,_m21,_m22,_m23;
-      FT _m30,_m31,_m32,_m33;
+private:
+   FT _m00,_m01,_m02,_m03;
+   FT _m10,_m11,_m12,_m13;
+   FT _m20,_m21,_m22,_m23;
+   FT _m30,_m31,_m32,_m33;
       
-      void determinant( FT &d00,FT &d01,FT &d02,FT &d03,
-			FT &d10,FT &d11,FT &d12,FT &d13,
-			FT &d20,FT &d21,FT &d22,FT &d23,
-			FT &d30,FT &d31,FT &d32,FT &d33,
-			FT &det) const;
+   void determinant( FT &d00,FT &d01,FT &d02,FT &d03,
+                     FT &d10,FT &d11,FT &d12,FT &d13,
+                     FT &d20,FT &d21,FT &d22,FT &d23,
+                     FT &d30,FT &d31,FT &d32,FT &d33,
+                     FT &det) const;
 };
 
 template < class FloatValue1, class ComparableValue1, 
-	   class FloatValue2, class ComparableValue2 >
+           class FloatValue2, class ComparableValue2 >
 Matrix<FloatValue1,ComparableValue1>& 
 assign ( Matrix<FloatValue1,ComparableValue1>& a, 
-	  const Matrix<FloatValue2,ComparableValue2>& b);
+         const Matrix<FloatValue2,ComparableValue2>& b);
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue> operator *( 
@@ -399,23 +399,23 @@ translate(
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>& 
 translate( 
-         Matrix<FloatValue,ComparableValue>& m, 
+   Matrix<FloatValue,ComparableValue>& m, 
    const typename Matrix<FloatValue,ComparableValue>::Vector& v );
 
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue> 
 rotate( const Matrix<FloatValue,ComparableValue>& m, 
-	const typename Matrix<FloatValue,ComparableValue>::FT& angleX,
-	const typename Matrix<FloatValue,ComparableValue>::FT& angleY,
-	const typename Matrix<FloatValue,ComparableValue>::FT& angleZ );
+        const typename Matrix<FloatValue,ComparableValue>::FT& angleX,
+        const typename Matrix<FloatValue,ComparableValue>::FT& angleY,
+        const typename Matrix<FloatValue,ComparableValue>::FT& angleZ );
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>& 
 rotate( Matrix<FloatValue,ComparableValue>& m, 
-	const typename Matrix<FloatValue,ComparableValue>::FT& angleX,
-	const typename Matrix<FloatValue,ComparableValue>::FT& angleY,
-	const typename Matrix<FloatValue,ComparableValue>::FT& angleZ );
+        const typename Matrix<FloatValue,ComparableValue>::FT& angleX,
+        const typename Matrix<FloatValue,ComparableValue>::FT& angleY,
+        const typename Matrix<FloatValue,ComparableValue>::FT& angleZ );
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue> rotate( 
@@ -425,7 +425,7 @@ Matrix<FloatValue,ComparableValue> rotate(
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>& rotate( 
-         Matrix<FloatValue,ComparableValue>& m, 
+   Matrix<FloatValue,ComparableValue>& m, 
    const typename Matrix<FloatValue,ComparableValue>::Vector& axis,
    const typename Matrix<FloatValue,ComparableValue>::FT& angle );
 
@@ -452,7 +452,7 @@ scale( const Matrix<FloatValue,ComparableValue>& m,
 
 template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>& scale( 
-         Matrix<FloatValue,ComparableValue>& m, 
+   Matrix<FloatValue,ComparableValue>& m, 
    const typename Matrix<FloatValue,ComparableValue>::FT& scale );
 
 // general
@@ -460,14 +460,14 @@ Matrix<FloatValue,ComparableValue>& scale(
 
 template <class FloatValue>
 inline FloatValue determinant( const FloatValue& m00, 
-			       const FloatValue& m01, 
-			       const FloatValue& m02, 
-			       const FloatValue& m10, 
-			       const FloatValue& m11, 
-			       const FloatValue& m12, 
-			       const FloatValue& m20, 
-			       const FloatValue& m21, 
-			       const FloatValue& m22 );
+                               const FloatValue& m01, 
+                               const FloatValue& m02, 
+                               const FloatValue& m10, 
+                               const FloatValue& m11, 
+                               const FloatValue& m12, 
+                               const FloatValue& m20, 
+                               const FloatValue& m21, 
+                               const FloatValue& m22 );
 
 template <class FloatValue, class ComparableValue>
 Vector<FloatValue,ComparableValue>

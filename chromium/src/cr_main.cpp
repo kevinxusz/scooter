@@ -55,7 +55,9 @@ int main( int argc, char **argv ) {
    args =  cfg->init(args);
    if(args.size() > 0) {
       std::cerr << "Warning: unrecognized options: " << std::endl;
-      for(std::vector<std::string>::const_iterator iter = args.begin(); iter != args.end(); iter++)
+      for(std::vector<std::string>::const_iterator iter = args.begin(); 
+          iter != args.end(); 
+          iter++)
       {
          std::cerr << *iter << std::endl;
       }

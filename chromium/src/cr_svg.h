@@ -34,11 +34,11 @@
 namespace cr {
 
 class Svg_icon: public QPixmap {
-   public:
-      Svg_icon();
-      Svg_icon(const QSize &size);
-      Svg_icon(const QString &path, const QSize &size);
-      virtual ~Svg_icon();
+public:
+   Svg_icon();
+   Svg_icon(const QSize &size);
+   Svg_icon(const QString &path, const QSize &size);
+   virtual ~Svg_icon();
 };
 
 }; // end of namespace cr

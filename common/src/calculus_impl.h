@@ -477,11 +477,11 @@ Matrix<FloatValue,ComparableValue>::Matrix(
     
       if (RT(scaleOrientationAngle) != RT(0.0)) 
 	 rotate( tmp, scaleOrientation, -scaleOrientationAngle);
-  }
+   }
   
-  translate( tmp, -center );
+   translate( tmp, -center );
   
-  *this = tmp;
+   *this = tmp;
 }
 
 template <class FloatValue, class ComparableValue>
@@ -821,7 +821,7 @@ template <class FloatValue, class ComparableValue>
 typename Matrix<FloatValue,ComparableValue>::Vector 
 Matrix<FloatValue,ComparableValue>::operator *= ( 
    const typename 
-                 Matrix<FloatValue,ComparableValue>::Vector& peer ) const {
+   Matrix<FloatValue,ComparableValue>::Vector& peer ) const {
    return typename Matrix<FloatValue,ComparableValue>::Vector( 
       peer.x()*_m00 + peer.y()*_m01 + peer.z()*_m02 + peer.w()*_m03,
       peer.x()*_m10 + peer.y()*_m11 + peer.z()*_m12 + peer.w()*_m13,
@@ -928,40 +928,40 @@ void Matrix<FloatValue,ComparableValue>::determinant( FT &d00,
 						      FT &d33,
 						      FT &det) const {
    d00=_m11*_m22*_m33-_m11*_m23*_m32+
-      _m12*_m23*_m31-_m12*_m21*_m33+_m13*_m21*_m32-_m13*_m22*_m31;
+       _m12*_m23*_m31-_m12*_m21*_m33+_m13*_m21*_m32-_m13*_m22*_m31;
    d01=_m10*_m22*_m33-_m10*_m23*_m32+
-      _m12*_m23*_m30-_m12*_m20*_m33+_m13*_m20*_m32-_m13*_m22*_m30;
+       _m12*_m23*_m30-_m12*_m20*_m33+_m13*_m20*_m32-_m13*_m22*_m30;
    d02=_m10*_m21*_m33-_m10*_m23*_m31+
-      _m11*_m23*_m30-_m11*_m20*_m33+_m13*_m20*_m31-_m13*_m21*_m30;
+       _m11*_m23*_m30-_m11*_m20*_m33+_m13*_m20*_m31-_m13*_m21*_m30;
    d03=_m10*_m21*_m32-_m10*_m22*_m31+
-      _m11*_m22*_m30-_m11*_m20*_m32+_m12*_m20*_m31-_m12*_m21*_m30;
+       _m11*_m22*_m30-_m11*_m20*_m32+_m12*_m20*_m31-_m12*_m21*_m30;
 
    d10=_m01*_m22*_m33-_m01*_m23*_m32+
-      _m02*_m23*_m31-_m02*_m21*_m33+_m03*_m21*_m32-_m03*_m22*_m31;
+       _m02*_m23*_m31-_m02*_m21*_m33+_m03*_m21*_m32-_m03*_m22*_m31;
    d11=_m00*_m22*_m33-_m00*_m23*_m32+
-      _m02*_m23*_m30-_m02*_m20*_m33+_m03*_m20*_m32-_m03*_m22*_m30;
+       _m02*_m23*_m30-_m02*_m20*_m33+_m03*_m20*_m32-_m03*_m22*_m30;
    d12=_m00*_m21*_m33-_m00*_m23*_m31+
-      _m01*_m23*_m30-_m01*_m20*_m33+_m03*_m20*_m31-_m03*_m21*_m30;
+       _m01*_m23*_m30-_m01*_m20*_m33+_m03*_m20*_m31-_m03*_m21*_m30;
    d13=_m00*_m21*_m32-_m00*_m22*_m31+
-      _m01*_m22*_m30-_m01*_m20*_m32+_m02*_m20*_m31-_m02*_m21*_m30;
+       _m01*_m22*_m30-_m01*_m20*_m32+_m02*_m20*_m31-_m02*_m21*_m30;
 
    d20=_m01*_m12*_m33-_m01*_m13*_m32+
-      _m02*_m13*_m31-_m02*_m11*_m33+_m03*_m11*_m32-_m03*_m12*_m31;
+       _m02*_m13*_m31-_m02*_m11*_m33+_m03*_m11*_m32-_m03*_m12*_m31;
    d21=_m00*_m12*_m33-_m00*_m13*_m32+
-      _m02*_m13*_m30-_m02*_m10*_m33+_m03*_m10*_m32-_m03*_m12*_m30;
+       _m02*_m13*_m30-_m02*_m10*_m33+_m03*_m10*_m32-_m03*_m12*_m30;
    d22=_m00*_m11*_m33-_m00*_m13*_m31+
-      _m01*_m13*_m30-_m01*_m10*_m33+_m03*_m10*_m31-_m03*_m11*_m30;
+       _m01*_m13*_m30-_m01*_m10*_m33+_m03*_m10*_m31-_m03*_m11*_m30;
    d23=_m00*_m11*_m32-_m00*_m12*_m31+
-      _m01*_m12*_m30-_m01*_m10*_m32+_m02*_m10*_m31-_m02*_m11*_m30;
+       _m01*_m12*_m30-_m01*_m10*_m32+_m02*_m10*_m31-_m02*_m11*_m30;
 
    d30=_m01*_m12*_m23-_m01*_m13*_m22+
-      _m02*_m13*_m21-_m02*_m11*_m23+_m03*_m11*_m22-_m03*_m12*_m21;
+       _m02*_m13*_m21-_m02*_m11*_m23+_m03*_m11*_m22-_m03*_m12*_m21;
    d31=_m00*_m12*_m23-_m00*_m13*_m22+
-      _m02*_m13*_m20-_m02*_m10*_m23+_m03*_m10*_m22-_m03*_m12*_m20;
+       _m02*_m13*_m20-_m02*_m10*_m23+_m03*_m10*_m22-_m03*_m12*_m20;
    d32=_m00*_m11*_m23-_m00*_m13*_m21+
-      _m01*_m13*_m20-_m01*_m10*_m23+_m03*_m10*_m21-_m03*_m11*_m20;
+       _m01*_m13*_m20-_m01*_m10*_m23+_m03*_m10*_m21-_m03*_m11*_m20;
    d33=_m00*_m11*_m22-_m00*_m12*_m21+
-      _m01*_m12*_m20-_m01*_m10*_m22+_m02*_m10*_m21-_m02*_m11*_m20;
+       _m01*_m12*_m20-_m01*_m10*_m22+_m02*_m10*_m21-_m02*_m11*_m20;
 
    det = 
       _m00*d00-_m01*d01+_m02*d02-_m03*d03;
@@ -971,7 +971,7 @@ void Matrix<FloatValue,ComparableValue>::determinant( FT &d00,
 template < class FloatValue1, class ComparableValue1, 
 	   class FloatValue2, class ComparableValue2 >
 Matrix<FloatValue1,ComparableValue1> assign ( 
-         Matrix<FloatValue1,ComparableValue1>& a, 
+   Matrix<FloatValue1,ComparableValue1>& a, 
    const Matrix<FloatValue2,ComparableValue2>& b ) {
    typedef typename Matrix<FloatValue1,ComparableValue1>::FT ftype;
    a( (ftype)b.m00(), (ftype)b.m01(), 
@@ -997,7 +997,7 @@ template <class FloatValue, class ComparableValue>
 typename Matrix<FloatValue,ComparableValue>::Vector 
 operator *( const Matrix<FloatValue,ComparableValue>& m, 
 	    const typename 
-	                Matrix<FloatValue,ComparableValue>::Vector& v ) {
+            Matrix<FloatValue,ComparableValue>::Vector& v ) {
    return Matrix<FloatValue,ComparableValue>(m) *= 
       typename Matrix<FloatValue,ComparableValue>::Vector(v);
 }
@@ -1006,7 +1006,7 @@ template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue> 
 translate( const Matrix<FloatValue,ComparableValue>& m, 
 	   const typename 
-	                Matrix<FloatValue,ComparableValue>::Vector& v ) {
+           Matrix<FloatValue,ComparableValue>::Vector& v ) {
    Matrix<FloatValue,ComparableValue> tmp(m);
    Matrix<FloatValue,ComparableValue> trans( v.w(), 0.0, 0.0, v.x(),
 					     0.0, v.w(), 0.0, v.y(),
@@ -1020,7 +1020,7 @@ template <class FloatValue, class ComparableValue>
 Matrix<FloatValue,ComparableValue>& 
 translate( Matrix<FloatValue,ComparableValue>& m, 
 	   const typename 
-	                Matrix<FloatValue,ComparableValue>::Vector& v ) {
+           Matrix<FloatValue,ComparableValue>::Vector& v ) {
    Matrix<FloatValue,ComparableValue> trans( v.w(), 0.0, 0.0, v.x(),
 					     0.0, v.w(), 0.0, v.y(),
 					     0.0, 0.0, v.w(), v.z(),

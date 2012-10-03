@@ -36,22 +36,22 @@ namespace nmm {
 
 template <class T> 
 class brief_type {
-   public:
-      typedef T value_type;
+public:
+   typedef T value_type;
 
-      brief_type( const T& b ) : m_base( b ) {}
-      brief_type( const brief_type& peer ) : m_base( peer.m_base ) {}
-      const T& m_base;
+   brief_type( const T& b ) : m_base( b ) {}
+   brief_type( const brief_type& peer ) : m_base( peer.m_base ) {}
+   const T& m_base;
 };
 
 template <class T> 
 class verbose_type {
-   public:
-      typedef T value_type;
+public:
+   typedef T value_type;
 
-      verbose_type( const T& b ) : m_base( b ) {};
-      verbose_type( const verbose_type& peer ) : m_base( peer.m_base ) {}
-      const T& m_base;
+   verbose_type( const T& b ) : m_base( b ) {};
+   verbose_type( const verbose_type& peer ) : m_base( peer.m_base ) {}
+   const T& m_base;
 };
 
 template <class T>
@@ -70,7 +70,7 @@ std::ostream &operator << (std::ostream &ostr,
 
 template <class Vb, class Hb, class Fb>
 std::ostream &operator << ( std::ostream &ostr, 
-		       const brief_type<Dcel_halfedge<Vb,Hb,Fb> >& bhe ) {
+                            const brief_type<Dcel_halfedge<Vb,Hb,Fb> >& bhe ) {
    const common_typename Dcel<Vb,Hb,Fb>::Halfedge& he = bhe.m_base;
    if( he.opposite() == NULL || he.opposite()->vertex() == NULL ) 
       ostr << "null";
@@ -86,7 +86,7 @@ std::ostream &operator << ( std::ostream &ostr,
 
 template <class Vb, class Hb, class Fb>
 std::ostream &operator << ( std::ostream &ostr, 
-		       const brief_type<Dcel_facet<Vb,Hb,Fb> > &bf ) { 
+                            const brief_type<Dcel_facet<Vb,Hb,Fb> > &bf ) { 
    const common_typename Dcel<Vb,Hb,Fb>::Facet& f = bf.m_base;
    if( f.halfedge() != NULL ) 
       ostr << "<" << brief(*f.halfedge()) << ">";
@@ -98,7 +98,7 @@ std::ostream &operator << ( std::ostream &ostr,
 
 template <class Vb, class Hb, class Fb>
 std::ostream &operator << ( std::ostream &ostr, 
-		       const brief_type<Dcel<Vb,Hb,Fb> > &bdcel ) {
+                            const brief_type<Dcel<Vb,Hb,Fb> > &bdcel ) {
    const Dcel<Vb,Hb,Fb>& dcel = bdcel.m_base;
    ostr << "{" << dgd::incr << std::endl
 	<< "vertex list: " << dgd::incr << std::endl;
@@ -131,7 +131,7 @@ std::ostream &operator << ( std::ostream &ostr,
 
 template <class Vb, class Hb, class Fb>
 std::ostream &operator << ( std::ostream &ostr, 
-		       const verbose_type<Dcel_vertex<Vb,Hb,Fb> > &bvertex ) {
+                            const verbose_type<Dcel_vertex<Vb,Hb,Fb> > &bvertex ) {
    const common_typename Dcel<Vb,Hb,Fb>::Vertex& vertex = bvertex.m_base;
    ostr << (int*)&vertex << "[" 
 	<< (const common_typename Dcel<Vb,Hb,Fb>::Vertex::Parent&)vertex
@@ -142,7 +142,7 @@ std::ostream &operator << ( std::ostream &ostr,
 
 template <class Vb, class Hb, class Fb>
 std::ostream &operator << ( std::ostream &ostr, 
-		       const verbose_type<Dcel_halfedge<Vb,Hb,Fb> >& bhe ) {
+                            const verbose_type<Dcel_halfedge<Vb,Hb,Fb> >& bhe ) {
    const common_typename Dcel<Vb,Hb,Fb>::Halfedge& he = bhe.m_base;
    ostr << (int*)&he << "(";
    if( he.opposite() == NULL || he.opposite()->vertex() == NULL ) 
@@ -165,7 +165,7 @@ std::ostream &operator << ( std::ostream &ostr,
 
 template <class Vb, class Hb, class Fb>
 std::ostream &operator << ( std::ostream &ostr, 
-		       const verbose_type<Dcel_facet<Vb,Hb,Fb> > &bf ) { 
+                            const verbose_type<Dcel_facet<Vb,Hb,Fb> > &bf ) { 
    const common_typename Dcel<Vb,Hb,Fb>::Facet& f = bf.m_base;
    const common_typename Dcel<Vb,Hb,Fb>::Halfedge *he;
 
@@ -182,7 +182,7 @@ std::ostream &operator << ( std::ostream &ostr,
 
 template <class Vb, class Hb, class Fb>
 std::ostream &operator << ( std::ostream &ostr, 
-		       const verbose_type<Dcel<Vb,Hb,Fb> > &bdcel ) {
+                            const verbose_type<Dcel<Vb,Hb,Fb> > &bdcel ) {
    const Dcel<Vb,Hb,Fb>& dcel = bdcel.m_base;
    ostr << "{" << dgd::incr << std::endl
 	<< "vertex list: " << dgd::incr << std::endl;
@@ -215,21 +215,21 @@ std::ostream &operator << ( std::ostream &ostr,
 
 template <class Vb, class Hb, class Fb>
 std::ostream &operator << ( std::ostream &ostr, 
-		       const Dcel_vertex<Vb,Hb,Fb>& vertex ) {
-    ostr << verbose(vertex);
+                            const Dcel_vertex<Vb,Hb,Fb>& vertex ) {
+   ostr << verbose(vertex);
    return ostr;
 }
 
 template <class Vb, class Hb, class Fb>
 std::ostream &operator << ( std::ostream &ostr, 
-		       const Dcel_halfedge<Vb,Hb,Fb>& he ) {
+                            const Dcel_halfedge<Vb,Hb,Fb>& he ) {
    ostr << verbose(he);
    return ostr;
 }
 
 template <class Vb, class Hb, class Fb>
 std::ostream &operator << ( std::ostream &ostr, 
-		       const Dcel_facet<Vb,Hb,Fb> &f ) { 
+                            const Dcel_facet<Vb,Hb,Fb> &f ) { 
    ostr << verbose(f);
    return ostr;   
 }
@@ -237,7 +237,7 @@ std::ostream &operator << ( std::ostream &ostr,
 
 template <class Vb, class Hb, class Fb>
 std::ostream &operator << ( std::ostream &ostr, 
-		       const Dcel<Vb,Hb,Fb>& dcel ) {
+                            const Dcel<Vb,Hb,Fb>& dcel ) {
    ostr << verbose(dcel);
    return ostr;
 }

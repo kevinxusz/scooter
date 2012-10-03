@@ -43,22 +43,22 @@ namespace mesh {
 class Control;
 
 class Editor: public QWidget {
-      Q_OBJECT
+   Q_OBJECT
 
-   public:
-      Editor( QWidget *parent );
-      virtual ~Editor();
+public:
+   Editor( QWidget *parent );
+   virtual ~Editor();
 
-   public slots:
-      void reload( QModelIndex index );
+public slots:
+   void reload( QModelIndex index );
 
-   private:
-      void construct();
+private:
+   void construct();
 
-   private:      
-      Control     *m_mesh_control;
-      QVBoxLayout *m_layout;
-      QStatusBar  *m_status_bar;
+private:      
+   Control     *m_mesh_control;
+   QVBoxLayout *m_layout;
+   QStatusBar  *m_status_bar;
 };
 
 }; // end of namespace mesh

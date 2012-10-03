@@ -429,8 +429,8 @@ void Scene::init_halfedge_properties() {
 }
 
 void Scene::add_vertex( Vertex *v,
-				openvrml::mfvec3f *coord_vector,
-				openvrml::mfcolor *color_vector ) {
+                        openvrml::mfvec3f *coord_vector,
+                        openvrml::mfcolor *color_vector ) {
    using namespace openvrml;
    using namespace Math;
 
@@ -453,10 +453,10 @@ void Scene::add_vertex( Vertex *v,
 }
 
 void Scene::add_opposite( Halfedge *he,
-				  openvrml::mfvec3f *coord_vector,
-				  openvrml::mfint32 *coord_index_vector,
-				  openvrml::int32    color_index,
-				  openvrml::mfint32 *color_index_vector ) {
+                          openvrml::mfvec3f *coord_vector,
+                          openvrml::mfint32 *coord_index_vector,
+                          openvrml::int32    color_index,
+                          openvrml::mfint32 *color_index_vector ) {
    using namespace openvrml;
    using namespace Math;
 
@@ -524,10 +524,10 @@ void Scene::add_opposite( Halfedge *he,
 }
 
 void Scene::add_next( Halfedge *he,
-			      openvrml::mfvec3f *coord_vector,
-			      openvrml::mfint32 *coord_index_vector,
-			      openvrml::int32    color_index,
-			      openvrml::mfint32 *color_index_vector ) {
+                      openvrml::mfvec3f *coord_vector,
+                      openvrml::mfint32 *coord_index_vector,
+                      openvrml::int32    color_index,
+                      openvrml::mfint32 *color_index_vector ) {
    using namespace openvrml;
    using namespace Math;
 
@@ -619,10 +619,10 @@ void Scene::add_next( Halfedge *he,
 
 
 void Scene::add_rabbit( Halfedge *he,
-				openvrml::mfvec3f *coord_vector,
-				openvrml::mfint32 *coord_index_vector,
-				openvrml::int32    color_index,
-				openvrml::mfint32 *color_index_vector ) {
+                        openvrml::mfvec3f *coord_vector,
+                        openvrml::mfint32 *coord_index_vector,
+                        openvrml::int32    color_index,
+                        openvrml::mfint32 *color_index_vector ) {
    using namespace openvrml;
    using namespace Math;
 
@@ -649,9 +649,9 @@ void Scene::add_rabbit( Halfedge *he,
    }
 
    const Vector prev = ( prev_he->opposite()->vertex()->coord() -
-		   prev_he->vertex()->coord() ).normalize();
+                         prev_he->vertex()->coord() ).normalize();
    const Vector next = ( next_he->vertex()->coord() -
-		   next_he->opposite()->vertex()->coord() ).normalize();
+                         next_he->opposite()->vertex()->coord() ).normalize();
    Vector up = cross( next.normalize(), prev.normalize() );
    // up.length() can be 1.0000000001 because of numeric errors
    FT angle = ::asin( std::min( (FT)1.0, (FT)up.length() ) );
@@ -716,9 +716,9 @@ void Scene::add_rabbit( Halfedge *he,
 
       if( lookup != m_halfedge_lookup_by_ptr.end() ) {
 	 lookup->second.m_src_disp = prev_lookup->second.m_dst_disp + 
-				      prot * delta;
+                                     prot * delta;
 	 lookup->second.m_dst_disp = prev_lookup->second.m_dst_disp + 
-				      nrot * delta;
+                                     nrot * delta;
       }
 
    }
@@ -759,10 +759,10 @@ void Scene::add_rabbit( Halfedge *he,
 }
 
 void Scene::add_halfedge( Halfedge *he,
-				  openvrml::mfvec3f *coord_vector,
-				  openvrml::mfint32 *coord_index_vector,
-				  openvrml::int32    color_index,
-				  openvrml::mfint32 *color_index_vector ) {
+                          openvrml::mfvec3f *coord_vector,
+                          openvrml::mfint32 *coord_index_vector,
+                          openvrml::int32    color_index,
+                          openvrml::mfint32 *color_index_vector ) {
    using namespace openvrml;
    using namespace Math;
 
@@ -1159,7 +1159,7 @@ Scene::Halfedge *Scene::find_halfedge( const Line& line ) {
       dynamic_cast<const mfint32&>(m_rabbits->field( "coordIndex" ));
 
    for( Halfedge_2_hprop_map::iterator heiter = 
-	                                     m_halfedge_lookup_by_ptr.begin();
+           m_halfedge_lookup_by_ptr.begin();
 	heiter != m_halfedge_lookup_by_ptr.end();
 	++heiter ) {
    
@@ -1181,8 +1181,8 @@ Scene::Halfedge *Scene::find_halfedge( const Line& line ) {
       }
 
       if( index >= 0 && 
-	     coord_index_vector->value.size() > index &&
-	     coord_index_vector->value[index] >= 0 ) {
+          coord_index_vector->value.size() > index &&
+          coord_index_vector->value[index] >= 0 ) {
 	 unsigned int next_index = index+1;
 	 if( coord_index_vector->value.size() > next_index &&
 	     coord_index_vector->value[next_index] >= 0 ) {
@@ -1294,7 +1294,7 @@ void Scene::reload_selection() {
 	    
 	    sfvec3f he_translation( vec3f( he_center.x(),
 					   he_center.y(), 
-					he_center.z() ));
+                                           he_center.z() ));
 	    
 	    he_transform_node->field( "translation", he_translation );
 	    he_transform_node->field( "children", 

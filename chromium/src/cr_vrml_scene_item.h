@@ -39,19 +39,19 @@ namespace vrml {
 namespace scene {
 
 class Delegate: public QItemDelegate {
-   public:
-      Delegate();
-      virtual ~Delegate();
+public:
+   Delegate();
+   virtual ~Delegate();
 
-      QRect getSensitiveArea( const QRect &rect ) const;
+   QRect getSensitiveArea( const QRect &rect ) const;
 
-      QSize sizeHint( const QStyleOptionViewItem &option, 
-		      const QModelIndex &index ) const;
-   private:
-      void drawDisplay( QPainter *painter, 
-			const QStyleOptionViewItem &option, 
-			const QRect &rect, 
-			const QString &text ) const;
+   QSize sizeHint( const QStyleOptionViewItem &option, 
+                   const QModelIndex &index ) const;
+private:
+   void drawDisplay( QPainter *painter, 
+                     const QStyleOptionViewItem &option, 
+                     const QRect &rect, 
+                     const QString &text ) const;
 };
 
 }; // end of namespace scene

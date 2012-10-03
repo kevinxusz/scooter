@@ -39,32 +39,32 @@ namespace vrml {
 namespace mesh {
 
 class Control: public cr::vrml::Control {
-      Q_OBJECT
-   public:
-      typedef cr::vrml::Control   Parent;
-      typedef Parent::Vector      Vector;
-      typedef Parent::Point       Point;
-      typedef Parent::Matrix      Matrix;
-      typedef Parent::Line        Line;
-      typedef Parent::FT          FT;
-      typedef Parent::RT          RT;
-      typedef Parent::browser_ptr browser_ptr;
-      typedef Mesh::IFS_node      IFS_node;
+   Q_OBJECT
+public:
+   typedef cr::vrml::Control   Parent;
+   typedef Parent::Vector      Vector;
+   typedef Parent::Point       Point;
+   typedef Parent::Matrix      Matrix;
+   typedef Parent::Line        Line;
+   typedef Parent::FT          FT;
+   typedef Parent::RT          RT;
+   typedef Parent::browser_ptr browser_ptr;
+   typedef Mesh::IFS_node      IFS_node;
 
 
-   public:
-      Control( QWidget    *parent, 
-	       browser_ptr browser, 
-	       IFS_node   *ifs_node );
-      ~Control();
+public:
+   Control( QWidget    *parent, 
+            browser_ptr browser, 
+            IFS_node   *ifs_node );
+   ~Control();
 
-      void build();
-      void select( int x, int y );
+   void build();
+   void select( int x, int y );
 
-   private:
-      IFS_node        *m_ifs_node;
-      Mesh_pointer     m_mesh;
-      Scene_pointer    m_mesh_scene;
+private:
+   IFS_node        *m_ifs_node;
+   Mesh_pointer     m_mesh;
+   Scene_pointer    m_mesh_scene;
 };
 
 }; // end of namespace mesh

@@ -45,79 +45,79 @@ class QActionGroup;
 namespace boxfish {
 
 class Portal: public QMainWindow {
-      Q_OBJECT
+   Q_OBJECT
       
-   public:
+public:
       
-      Portal();
-      virtual ~Portal();
+   Portal();
+   virtual ~Portal();
 
-   protected:
+protected:
       
-      void closeEvent(QCloseEvent *event);
+   void closeEvent(QCloseEvent *event);
       
-   public slots:
+public slots:
 
-      void open( const QString& fname );
-      void open();
-      void open( QModelIndex index );
-      void close();
-      void save();
-      void saveas();
-      void help();
+   void open( const QString& fname );
+   void open();
+   void open( QModelIndex index );
+   void close();
+   void save();
+   void saveas();
+   void help();
 
-   private slots:
+private slots:
 
-      void construct_filehist_menu();
-      void construct_window_menu();
-      void update_history( const QString& fname );
-      void window_activated( QWidget *w );
-      void handle_glpad_command();
-      void handle_glpad_propchange( QWidget *doc );
+   void construct_filehist_menu();
+   void construct_window_menu();
+   void update_history( const QString& fname );
+   void window_activated( QWidget *w );
+   void handle_glpad_command();
+   void handle_glpad_propchange( QWidget *doc );
 
-   protected:
-      void construct_actions();
-      void construct_dialogs();
-      void construct_menus();
-      void construct_toolbars();
-      void construct_dockers();
-      QRect default_geometry() const;
-      void set_geometry( QRect rect = QRect() );
+protected:
+   void construct_actions();
+   void construct_dialogs();
+   void construct_menus();
+   void construct_toolbars();
+   void construct_dockers();
+   QRect default_geometry() const;
+   void set_geometry( QRect rect = QRect() );
 
-   private:
-      QWorkspace     *m_workspace;
-      QSignalMapper  *m_open_mapper;
-      QSignalMapper  *m_history_mapper;
-      QSignalMapper  *m_activation_mapper;
-      QSignalMapper  *m_properties_mapper;
+private:
+   QWorkspace     *m_workspace;
+   QSignalMapper  *m_open_mapper;
+   QSignalMapper  *m_history_mapper;
+   QSignalMapper  *m_activation_mapper;
+   QSignalMapper  *m_properties_mapper;
 
-      QMenu          *m_filehist_menu;
-      QMenu          *m_file_menu;
-      QMenu          *m_window_menu;
-      QMenu          *m_help_menu;
+   QMenu          *m_filehist_menu;
+   QMenu          *m_file_menu;
+   QMenu          *m_window_menu;
+   QMenu          *m_help_menu;
 
-      QToolBar       *m_file_toolbar;
-      QToolBar       *m_render_toolbar;
+   QToolBar       *m_file_toolbar;
+   QToolBar       *m_render_toolbar;
 
-      QAction        *m_open_action;
-      QAction        *m_save_action;
-      QAction        *m_saveas_action;
-      QAction        *m_help_action;
-      QAction        *m_exit_action;
-      QAction        *m_tile_action;
-      QAction        *m_cascade_action;
-      QAction        *m_close_action;
-      QAction        *m_flat_action;
-      QAction        *m_phong_action;
-      QAction        *m_wireframe_action;
-      QAction        *m_center_action;
-      QAction        *m_culling_action;
-      QAction        *m_texture_action;
-      QActionGroup   *m_shading_actions;
-      QFileDialog    *m_open_dialog;
-      QDockWidget    *m_tool_docker;
+   QAction        *m_open_action;
+   QAction        *m_save_action;
+   QAction        *m_saveas_action;
+   QAction        *m_help_action;
+   QAction        *m_exit_action;
+   QAction        *m_tile_action;
+   QAction        *m_cascade_action;
+   QAction        *m_close_action;
+   QAction        *m_flat_action;
+   QAction        *m_phong_action;
+   QAction        *m_wireframe_action;
+   QAction        *m_center_action;
+   QAction        *m_culling_action;
+   QAction        *m_texture_action;
+   QActionGroup   *m_shading_actions;
+   QFileDialog    *m_open_dialog;
+   QDockWidget    *m_tool_docker;
 
-      QStringList     m_file_history;
+   QStringList     m_file_history;
 };
 
 }; // end of namespace boxfish

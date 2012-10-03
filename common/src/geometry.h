@@ -36,183 +36,183 @@ namespace Math {
 template < class FloatValue, 
 	   class ComparableValue = Comparable_double<FloatValue> >
 class Bounding_box {
-   public:
-      typedef FloatValue      FT;
-      typedef ComparableValue RT;
-      typedef Math::Vector<FloatValue,ComparableValue> Vector;
-   public:
-      Bounding_box();
-      Bounding_box( const Vector& bottom, const Vector& top );
-      Bounding_box( const Bounding_box& peer );
+public:
+   typedef FloatValue      FT;
+   typedef ComparableValue RT;
+   typedef Math::Vector<FloatValue,ComparableValue> Vector;
+public:
+   Bounding_box();
+   Bounding_box( const Vector& bottom, const Vector& top );
+   Bounding_box( const Bounding_box& peer );
 
-   public:
-      const Vector& top()    const;
-      const Vector& bottom() const;
-      Vector        center() const;
+public:
+   const Vector& top()    const;
+   const Vector& bottom() const;
+   Vector        center() const;
 
-      bool          valid() const;
-      Bounding_box &expand( const Vector& p );
+   bool          valid() const;
+   Bounding_box &expand( const Vector& p );
 
-   private:
-      bool m_valid;
-      Vector m_top;
-      Vector m_bottom;
+private:
+   bool m_valid;
+   Vector m_top;
+   Vector m_bottom;
 };
 
 
 template < class FloatValue, 
 	   class ComparableValue = Comparable_double<FloatValue> >
 class Plane {
-   public:
-      typedef FloatValue      FT;
-      typedef ComparableValue RT;
-      typedef Math::Vector<FloatValue,ComparableValue> Vector;
-      typedef Math::Vector<FloatValue,ComparableValue> Point;
+public:
+   typedef FloatValue      FT;
+   typedef ComparableValue RT;
+   typedef Math::Vector<FloatValue,ComparableValue> Vector;
+   typedef Math::Vector<FloatValue,ComparableValue> Point;
 
-   public:
-      Plane();
-      Plane( const Point& origin, const Vector& normal );
-      Plane( const Plane& peer );
+public:
+   Plane();
+   Plane( const Point& origin, const Vector& normal );
+   Plane( const Plane& peer );
 
-      const Point  &origin() const;
-      const Vector &normal() const;
+   const Point  &origin() const;
+   const Vector &normal() const;
 
-   private:
-      Point  m_origin;
-      Vector m_normal;
+private:
+   Point  m_origin;
+   Vector m_normal;
 };
 
 template < class FloatValue, 
 	   class ComparableValue = Comparable_double<FloatValue> >
 class Line {
-   public:
-      typedef FloatValue      FT;
-      typedef ComparableValue RT;
-      typedef Math::Vector<FloatValue,ComparableValue> Vector;
-      typedef Math::Vector<FloatValue,ComparableValue> Point;
+public:
+   typedef FloatValue      FT;
+   typedef ComparableValue RT;
+   typedef Math::Vector<FloatValue,ComparableValue> Vector;
+   typedef Math::Vector<FloatValue,ComparableValue> Point;
 
-   public:
-      Line();
-      Line( const Point& origin, const Vector& direction );
-      Line( const Line& peer );
+public:
+   Line();
+   Line( const Point& origin, const Vector& direction );
+   Line( const Line& peer );
 
-      const Point& origin() const;
-      const Vector& direction() const;
+   const Point& origin() const;
+   const Vector& direction() const;
 
-   private:
-      Point m_origin;
-      Vector m_direction;
+private:
+   Point m_origin;
+   Vector m_direction;
 };
 
 template < class FloatValue, 
 	   class ComparableValue = Comparable_double<FloatValue> >
 class Segment {
-   public:
-      typedef FloatValue      FT;
-      typedef ComparableValue RT;
-      typedef Math::Vector<FloatValue,ComparableValue> Vector;
-      typedef Math::Vector<FloatValue,ComparableValue> Point;
+public:
+   typedef FloatValue      FT;
+   typedef ComparableValue RT;
+   typedef Math::Vector<FloatValue,ComparableValue> Vector;
+   typedef Math::Vector<FloatValue,ComparableValue> Point;
 
-   public:
-      Segment();
-      Segment( const Point& a, const Point& b );
-      Segment( const Segment& peer );
+public:
+   Segment();
+   Segment( const Point& a, const Point& b );
+   Segment( const Segment& peer );
 
-      const Point& a() const;
-      const Point& b() const;
-      FT           length() const;
+   const Point& a() const;
+   const Point& b() const;
+   FT           length() const;
 
-   private:
-      Point m_a;
-      Point m_b;
+private:
+   Point m_a;
+   Point m_b;
 };
 
 template < class FloatValue, 
 	   class ComparableValue = Comparable_double<FloatValue> >
 class Circle {
-   public:
-      typedef FloatValue      FT;
-      typedef ComparableValue RT;
-      typedef Math::Vector<FloatValue,ComparableValue> Vector;
-      typedef Math::Vector<FloatValue,ComparableValue> Point;
+public:
+   typedef FloatValue      FT;
+   typedef ComparableValue RT;
+   typedef Math::Vector<FloatValue,ComparableValue> Vector;
+   typedef Math::Vector<FloatValue,ComparableValue> Point;
 
-   public: 
-      Circle();
-      Circle( const Point& center, const Vector& normal, const FT radius );
-      Circle( const Circle& peer );
+public: 
+   Circle();
+   Circle( const Point& center, const Vector& normal, const FT radius );
+   Circle( const Circle& peer );
 
-      const Point& center() const;
-      const Vector& normal() const;
-      FT            radius() const;
+   const Point& center() const;
+   const Vector& normal() const;
+   FT            radius() const;
 
-   private:
-      Point  m_center;
-      Vector m_normal;
-      FT     m_radius;
+private:
+   Point  m_center;
+   Vector m_normal;
+   FT     m_radius;
 };
 
 template < class FloatValue, 
 	   class ComparableValue = Comparable_double<FloatValue> >
 class Triangle {
-   public:
-      typedef FloatValue      FT;
-      typedef ComparableValue RT;
-      typedef Math::Vector<FloatValue,ComparableValue> Vector;
-      typedef Math::Vector<FloatValue,ComparableValue> Point;
-      typedef Math::Circle<FloatValue,ComparableValue> Circle;
+public:
+   typedef FloatValue      FT;
+   typedef ComparableValue RT;
+   typedef Math::Vector<FloatValue,ComparableValue> Vector;
+   typedef Math::Vector<FloatValue,ComparableValue> Point;
+   typedef Math::Circle<FloatValue,ComparableValue> Circle;
 
-   public:
+public:
 
-      Triangle();
-      Triangle( const Point& a, const Point& b, const Point& c );
-      Triangle( const Triangle& peer );
+   Triangle();
+   Triangle( const Point& a, const Point& b, const Point& c );
+   Triangle( const Triangle& peer );
       
-      const Point& a() const;
-      const Point& b() const;
-      const Point& c() const;
+   const Point& a() const;
+   const Point& b() const;
+   const Point& c() const;
 
-      Circle inbound_circle() const;
-      Circle outbound_circle() const;
+   Circle inbound_circle() const;
+   Circle outbound_circle() const;
 
-   private:
-      Point m_a;
-      Point m_b;
-      Point m_c;
+private:
+   Point m_a;
+   Point m_b;
+   Point m_c;
 };
 
 template < class FloatValue, 
 	   class ComparableValue = Comparable_double<FloatValue> >
 class Intersection {
-   public:
-      typedef FloatValue      FT;
-      typedef ComparableValue RT;
-      typedef Math::Vector<FloatValue,ComparableValue>  Vector;
-      typedef Math::Vector<FloatValue,ComparableValue>  Point;
-      typedef Math::Plane<FloatValue,ComparableValue>   Plane;
-      typedef Math::Line<FloatValue,ComparableValue>    Line;
-      typedef Math::Segment<FloatValue,ComparableValue> Segment;
+public:
+   typedef FloatValue      FT;
+   typedef ComparableValue RT;
+   typedef Math::Vector<FloatValue,ComparableValue>  Vector;
+   typedef Math::Vector<FloatValue,ComparableValue>  Point;
+   typedef Math::Plane<FloatValue,ComparableValue>   Plane;
+   typedef Math::Line<FloatValue,ComparableValue>    Line;
+   typedef Math::Segment<FloatValue,ComparableValue> Segment;
 
-   public:
-      Intersection();
-      Intersection( const Point& point );
-      Intersection( const Line& line  );
-      Intersection( const Plane& plane );
-      Intersection( const Segment& segment );
-      Intersection( const Intersection& peer );
+public:
+   Intersection();
+   Intersection( const Point& point );
+   Intersection( const Line& line  );
+   Intersection( const Plane& plane );
+   Intersection( const Segment& segment );
+   Intersection( const Intersection& peer );
 
-      bool is_empty()   const;
-      bool is_point()   const;
-      bool is_line()    const;
-      bool is_plane()   const;
-      bool is_segment() const;
+   bool is_empty()   const;
+   bool is_point()   const;
+   bool is_line()    const;
+   bool is_plane()   const;
+   bool is_segment() const;
 
-      Point   point()   const;
-      Plane   plane()   const;
-      Line    line()    const;
-      Segment segment() const;
+   Point   point()   const;
+   Plane   plane()   const;
+   Line    line()    const;
+   Segment segment() const;
 
-   private:
-      boost::any m_intersection;
+private:
+   boost::any m_intersection;
 };
 
 template < class FloatValue, class ComparableValue>

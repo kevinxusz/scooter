@@ -31,22 +31,22 @@ namespace Math {
 
 template <class FloatValue, class ComparableValue>
 class homogeneus_vector: public Vector<FloatValue,ComparableValue> {
-   public:
-      homogeneus_vector( const 
-			 homogeneus_vector<FloatValue,ComparableValue>& peer ):
-	 Vector<FloatValue,ComparableValue>(peer) {}
-      homogeneus_vector( const Vector<FloatValue,ComparableValue>& peer ) :
-	 Vector<FloatValue,ComparableValue>(peer) {}
+public:
+   homogeneus_vector( const 
+                      homogeneus_vector<FloatValue,ComparableValue>& peer ):
+      Vector<FloatValue,ComparableValue>(peer) {}
+   homogeneus_vector( const Vector<FloatValue,ComparableValue>& peer ) :
+      Vector<FloatValue,ComparableValue>(peer) {}
 };
 
 template <class FloatValue, class ComparableValue>
 class homogeneus_matrix: public Matrix<FloatValue,ComparableValue> {
-   public:
-      homogeneus_matrix( const 
-			 homogeneus_matrix<FloatValue,ComparableValue>& peer ):
-	 Matrix<FloatValue,ComparableValue>(peer) {}
-      homogeneus_matrix( const Matrix<FloatValue,ComparableValue>& peer ) :
-	 Matrix<FloatValue,ComparableValue>(peer) {}
+public:
+   homogeneus_matrix( const 
+                      homogeneus_matrix<FloatValue,ComparableValue>& peer ):
+      Matrix<FloatValue,ComparableValue>(peer) {}
+   homogeneus_matrix( const Matrix<FloatValue,ComparableValue>& peer ) :
+      Matrix<FloatValue,ComparableValue>(peer) {}
 };
 
 template <class FloatValue, class ComparableValue>

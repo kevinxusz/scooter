@@ -42,81 +42,81 @@ namespace vrml {
 namespace mesh {
 
 class Vertex_base {
-   public:
-      typedef Math::Vector<float>       Vector;  
-      typedef Math::Vector<float>   	Point;   
-      typedef Math::Vector<float>   	Color;   
-      typedef Math::Matrix<float>   	Matrix;  
-      typedef Math::Line<float>     	Line;    
-      typedef Math::Plane<float>    	Plane;   
-      typedef Math::Circle<float>   	Circle;  
-      typedef Math::Triangle<float> 	Triangle;
-      typedef Math::Segment<float> 	Segment;
-      typedef Math::Bounding_box<float> BBox;
-      typedef Math::Intersection<float> Intersection;
+public:
+   typedef Math::Vector<float>       Vector;  
+   typedef Math::Vector<float>   	Point;   
+   typedef Math::Vector<float>   	Color;   
+   typedef Math::Matrix<float>   	Matrix;  
+   typedef Math::Line<float>     	Line;    
+   typedef Math::Plane<float>    	Plane;   
+   typedef Math::Circle<float>   	Circle;  
+   typedef Math::Triangle<float> 	Triangle;
+   typedef Math::Segment<float> 	Segment;
+   typedef Math::Bounding_box<float> BBox;
+   typedef Math::Intersection<float> Intersection;
 
-   public:
-      Vertex_base();
-      Vertex_base( const Vertex_base& peer );
-      ~Vertex_base();
+public:
+   Vertex_base();
+   Vertex_base( const Vertex_base& peer );
+   ~Vertex_base();
 
-      Point  coord() const;
-      void   coord( const Point& p );
+   Point  coord() const;
+   void   coord( const Point& p );
       
-      Vector normal() const;
-      void   normal( const Vector& v );
+   Vector normal() const;
+   void   normal( const Vector& v );
       
-      Color  color() const;
-      void   color( const Color& c );
+   Color  color() const;
+   void   color( const Color& c );
       
-      Vector tex_coord() const;
-      void   tex_coord( const Vector& v );
+   Vector tex_coord() const;
+   void   tex_coord( const Vector& v );
 
-   private:
-      Point  m_coord;
-      Vector m_normal;
-      Color  m_color;
-      Vector m_tex_coord;
+private:
+   Point  m_coord;
+   Vector m_normal;
+   Color  m_color;
+   Vector m_tex_coord;
 };
 
 class Halfedge_base {
-   public:
-      Halfedge_base();
-      ~Halfedge_base();
+public:
+   Halfedge_base();
+   ~Halfedge_base();
 };
 
 class Facet_base {
-   public:
-      Facet_base();
-      ~Facet_base();
+public:
+   Facet_base();
+   ~Facet_base();
 };
 
 class Mesh: public scooter::nmm::Dcel<Vertex_base, Halfedge_base, Facet_base> {
-   public:
-      typedef scooter::nmm::Dcel<Vertex_base,Halfedge_base,Facet_base> Parent;
-      typedef openvrml::vrml97_node::indexed_face_set_node  IFS_node;
-      typedef Parent::Vertex::Vector                        Vector;
-      typedef Parent::Vertex::Matrix                        Matrix;
-      typedef Parent::Vertex::Point                         Point;
-      typedef Parent::Vertex::Color                         Color;
-      typedef Parent::Vertex::Line                          Line;
-      typedef Parent::Vertex::Plane                         Plane;
-      typedef Parent::Vertex::Segment                       Segment;
-      typedef Parent::Vertex::BBox                          BBox;
-      typedef Parent::Vertex::Intersection                  Intersection;
-      typedef Vector::FT FT;
-      typedef Vector::FT RT;
+public:
+   typedef scooter::nmm::Dcel<Vertex_base,Halfedge_base,Facet_base> Parent;
+   typedef openvrml::vrml97_node::indexed_face_set_node  IFS_node;
+   typedef Parent::Vertex::Vector                        Vector;
+   typedef Parent::Vertex::Matrix                        Matrix;
+   typedef Parent::Vertex::Point                         Point;
+   typedef Parent::Vertex::Color                         Color;
+   typedef Parent::Vertex::Line                          Line;
+   typedef Parent::Vertex::Plane                         Plane;
+   typedef Parent::Vertex::Segment                       Segment;
+   typedef Parent::Vertex::BBox                          BBox;
+   typedef Parent::Vertex::Intersection                  Intersection;
+   typedef Vector::FT FT;
+   typedef Vector::FT RT;
 
-   public:
+public:
 
-      Mesh();
-      ~Mesh();
+   Mesh();
+   ~Mesh();
 
-      int load( const IFS_node *ifs );
-      int save( IFS_node *ifs );
+   int load( const IFS_node *ifs );
+   int save( IFS_node *ifs );
 
-   private:
-      FT m_global_scale;
+private:
+   FT m_global_scale;
 };
 
 typedef boost::shared_ptr<Mesh> Mesh_pointer;

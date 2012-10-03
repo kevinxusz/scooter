@@ -42,63 +42,64 @@
 namespace cr {
 
 class Config: public QObject {
-      Q_OBJECT
+   Q_OBJECT
 
-   public:
-      Config();
-      virtual ~Config();
+public:
+   Config();
+   virtual ~Config();
 
-      std::vector<std::string> init(int argc, char **argv);
-      std::vector<std::string> init(std::vector<std::string> args);
+   std::vector<std::string> init(int argc, char **argv);
+   std::vector<std::string> init(std::vector<std::string> args);
 
-      QString         path() const;      
+   QString         path() const;      
 
-      bool is_writable() const;
-      bool is_readable() const;
+   bool is_writable() const;
+   bool is_readable() const;
 
-      bool    defined( const QString &key );
+   bool    defined( const QString &key );
 
-      QString get( const QString &key );      
-      QString cwd() const;
-      bool    cwd( const QString &key );
-      QString undef( const QString &key );
+   QString get( const QString &key );      
+   QString cwd() const;
+   bool    cwd( const QString &key );
+   QString undef( const QString &key );
       
 
-   public slots:
-      void relocate( const QString &p );      
+public slots:
+   void relocate( const QString &p );      
 
-      void set( const QString &key, const QString& value );
-      void remove( const QString& key );
-      void flush();
-      void revert();
+   void set( const QString &key, const QString& value );
+   void remove( const QString& key );
+   void flush();
+   void revert();
 
-   signals:
-      void usage_requested( QString message );
-      void bad_option( QString message );
-      void bad_xml( QString message );
-      void read_denied( QString message );
-      void write_denied( QString message );
+signals:
+   void usage_requested( QString message );
+   void bad_option( QString message );
+   void bad_xml( QString message );
+   void read_denied( QString message );
+   void write_denied( QString message );
       
-   protected:
-      QString     default_path() const;
-      QDomElement find( const QString& k, int *suffix );
-      void        load_defaults();
-      std::vector<std::string> init(boost::program_options::command_line_parser &parser);
+protected:
+   QString     default_path() const;
+   QDomElement find( const QString& k, int *suffix );
+   void        load_defaults();
+   std::vector<std::string> init(
+      boost::program_options::command_line_parser &parser);
 
-   public:
-      typedef boost::shared_ptr<Config> shared_reference;
+public:
+   typedef boost::shared_ptr<Config> shared_reference;
 
-   public:
-      static shared_reference create();
-      static shared_reference main();
+public:
+   static shared_reference create();
+   static shared_reference main();
 
-   private:
-      QString                  m_path;
-      QDomDocument            *m_doc;
-      QDomElement              m_cwd;
-      bool                     m_dirty;
+private:
+   QString                  m_path;
+   QDomDocument            *m_doc;
+   QDomElement              m_cwd;
+   bool                     m_dirty;
 
-      static shared_reference  m_global_cfg;
+   static shared_reference  m_global_cfg;
 };
 
 

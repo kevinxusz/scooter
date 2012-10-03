@@ -460,7 +460,7 @@ intersection( const Plane<FloatValue,ComparableValue>& p1,
 
       Vector<FloatValue,ComparableValue> p =  
 	 solve( Vector<FloatValue,ComparableValue>( 
-		   n1.x(), n1.y(), n1.z(), d1 ),
+                                     n1.x(), n1.y(), n1.z(), d1 ),
 		Vector<FloatValue,ComparableValue>( 
 		   n2.x(), n2.y(), n2.z(), d2 ),
 		Vector<FloatValue,ComparableValue>( 
@@ -595,7 +595,7 @@ closeup( const Line<FloatValue,ComparableValue>& l1,
 template < class FloatValue, class ComparableValue>
 Intersection<FloatValue,ComparableValue> 
 closeup( const Line<FloatValue,ComparableValue>& l, 
-	  const Segment<FloatValue,ComparableValue>& s ) {
+         const Segment<FloatValue,ComparableValue>& s ) {
    Line<FloatValue,ComparableValue> seg_line( s.a(), s.b()-s.a() );
 
    Intersection<FloatValue,ComparableValue> clsup = closeup( l, seg_line );

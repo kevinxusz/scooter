@@ -38,64 +38,64 @@ namespace vrml {
 namespace scene {
 
 class Model: public QAbstractItemModel {
-      Q_OBJECT
-   public:
-      typedef Loader::browser_ptr browser_ptr;
+   Q_OBJECT
+public:
+   typedef Loader::browser_ptr browser_ptr;
 
-      enum {
-	 SM_NAME_COLUMN     = 0,
-	 SM_VALUE_COLUMN    = 1,
-	 SM_TYPE_COLUMN     = 2,
-	 SM_PROP_COLUMN     = 3,
-	 SM_MODIFIED_COLUMN = 4,
-	 SM_STATS_COLUMN    = 5,
-	 SM_LAST_COLUMN     = 6
-      };
+   enum {
+      SM_NAME_COLUMN     = 0,
+      SM_VALUE_COLUMN    = 1,
+      SM_TYPE_COLUMN     = 2,
+      SM_PROP_COLUMN     = 3,
+      SM_MODIFIED_COLUMN = 4,
+      SM_STATS_COLUMN    = 5,
+      SM_LAST_COLUMN     = 6
+   };
 
-   public:
-      Model( QObject *parent, browser_ptr browser );
-      virtual ~Model();
+public:
+   Model( QObject *parent, browser_ptr browser );
+   virtual ~Model();
 
-      void reset();
+   void reset();
 
-      QModelIndex buddy( const QModelIndex &index ) const;
+   QModelIndex buddy( const QModelIndex &index ) const;
 
-      int columnCount( const QModelIndex &parent = QModelIndex() ) const;
+   int columnCount( const QModelIndex &parent = QModelIndex() ) const;
 
-      QVariant data( const QModelIndex &index, 
-		     int role = Qt::DisplayRole ) const;
+   QVariant data( const QModelIndex &index, 
+                  int role = Qt::DisplayRole ) const;
 
-      Qt::ItemFlags flags( const QModelIndex &index ) const;
+   Qt::ItemFlags flags( const QModelIndex &index ) const;
 
-      bool hasChildren( const QModelIndex &parent = QModelIndex() ) const;
+   bool hasChildren( const QModelIndex &parent = QModelIndex() ) const;
 
-      QVariant headerData( int section, 
-			   Qt::Orientation orientation, 
-			   int role = Qt::DisplayRole ) const;
+   QVariant headerData( int section, 
+                        Qt::Orientation orientation, 
+                        int role = Qt::DisplayRole ) const;
 
-      QModelIndex index( int row, int column, 
-			 const QModelIndex &parent = QModelIndex() ) const;
+   QModelIndex index( int row, int column, 
+                      const QModelIndex &parent = QModelIndex() ) const;
 
-      QModelIndex parent( const QModelIndex &index ) const;
+   QModelIndex parent( const QModelIndex &index ) const;
 
-      int rowCount( const QModelIndex &parent = QModelIndex() ) const;
+   int rowCount( const QModelIndex &parent = QModelIndex() ) const;
 
-      bool setData( const QModelIndex &index, 
-		    const QVariant &value, 
-		    int role = Qt::EditRole );
+   bool setData( const QModelIndex &index, 
+                 const QVariant &value, 
+                 int role = Qt::EditRole );
 
-      bool setHeaderData( int section, 
-			  Qt::Orientation orientation, 
-			  const QVariant &value, 
-			  int role = Qt::EditRole );
+   bool setHeaderData( int section, 
+                       Qt::Orientation orientation, 
+                       const QVariant &value, 
+                       int role = Qt::EditRole );
 
-      bool setItemData( const QModelIndex &index, 
-			const QMap<int, QVariant> &roles );
+   bool setItemData( const QModelIndex &index, 
+                     const QMap<int, QVariant> &roles );
       
 
-   private:
-      browser_ptr  m_browser;
-      Map         *m_scene_map;
+private:
+   browser_ptr  m_browser;
+   Map         *m_scene_map;
 
 }; // end of class Model
 

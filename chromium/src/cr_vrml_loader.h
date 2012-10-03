@@ -39,39 +39,39 @@ namespace cr {
 namespace vrml {
 
 class Loader: public QThread, openvrml::browser::load_progress_callback_t {
-      Q_OBJECT
+   Q_OBJECT
 
-   public:
-      enum ErrorCode {
-	 None,
-	 Open_Error,
-	 Load_Error
-      };
+public:
+   enum ErrorCode {
+      None,
+      Open_Error,
+      Load_Error
+   };
 	
-      typedef boost::shared_ptr<openvrml::browser> browser_ptr;
+   typedef boost::shared_ptr<openvrml::browser> browser_ptr;
 
-   public:
-      Loader( const QFileInfo &finfo );
-      virtual ~Loader();
+public:
+   Loader( const QFileInfo &finfo );
+   virtual ~Loader();
 
-      ErrorCode   error() const;
-      browser_ptr browser() const;
+   ErrorCode   error() const;
+   browser_ptr browser() const;
 
-   private:
-      void run();
-      void operator () ( unsigned long l, unsigned long c );
+private:
+   void run();
+   void operator () ( unsigned long l, unsigned long c );
       
-   signals:
-      void progress( int percent );
-      void failure();
-      void success();
+signals:
+   void progress( int percent );
+   void failure();
+   void success();
 
-   private:
-      unsigned long m_count;
-      int           m_prev;
-      QFileInfo     m_finfo;
-      ErrorCode     m_errno;      
-      browser_ptr   m_browser;
+private:
+   unsigned long m_count;
+   int           m_prev;
+   QFileInfo     m_finfo;
+   ErrorCode     m_errno;      
+   browser_ptr   m_browser;
 };
 
 }; // end of namespace vrml

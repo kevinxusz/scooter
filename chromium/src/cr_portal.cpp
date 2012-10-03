@@ -292,7 +292,7 @@ void Portal::construct_actions() {
    connect(m_open_action, SIGNAL(triggered()), this, SLOT(open()));
 
    m_close_action = new QAction( Svg_icon( ":/icons/close.svg", 
-					  this->iconSize() ), 
+                                           this->iconSize() ), 
 				 tr("&Close"), 
 				 this);
    m_close_action->setShortcut(tr("Ctrl+F4"));
@@ -331,9 +331,9 @@ void Portal::construct_actions() {
 	   (QApplication*)QApplication::instance(), SLOT(closeAllWindows()));
 
    m_tile_action = new QAction( Svg_icon( ":/icons/tile_horiz.svg", 
-					   this->iconSize() ), 
-				 tr("&Tile"), 
-				 this);
+                                          this->iconSize() ), 
+                                tr("&Tile"), 
+                                this);
    m_tile_action->setStatusTip(tr("Tile windows"));
    connect(m_tile_action, SIGNAL(triggered()), m_workspace, SLOT(tile()));
 
@@ -356,9 +356,9 @@ void Portal::construct_actions() {
 	    this, SLOT(handle_glpad_command()) );
 
    m_phong_action = new QAction( Svg_icon( ":/icons/phong.svg",
-					  this->iconSize() ),
-				tr("&Phong"),
-				this );
+                                           this->iconSize() ),
+                                 tr("&Phong"),
+                                 this );
    m_phong_action->setCheckable( true );
    m_phong_action->setChecked( true );
    m_phong_action->setStatusTip(tr("Phong shading"));
@@ -436,19 +436,19 @@ void Portal::construct_menus() {
 }
 
 void Portal::construct_toolbars() {
-    m_file_toolbar = this->addToolBar(tr("File"));
-    m_file_toolbar->addAction( m_open_action );
-    m_file_toolbar->addAction( m_save_action );
-    m_file_toolbar->addSeparator();
-    m_file_toolbar->addAction( m_close_action );
+   m_file_toolbar = this->addToolBar(tr("File"));
+   m_file_toolbar->addAction( m_open_action );
+   m_file_toolbar->addAction( m_save_action );
+   m_file_toolbar->addSeparator();
+   m_file_toolbar->addAction( m_close_action );
 
-    m_render_toolbar = this->addToolBar(tr("Render"));
-    m_render_toolbar->addAction( m_center_action );
-    m_render_toolbar->addSeparator();
-    m_render_toolbar->addActions( m_shading_actions->actions() );
-    m_render_toolbar->addSeparator();
-    m_render_toolbar->addAction( m_culling_action );
-    m_render_toolbar->addAction( m_texture_action );
+   m_render_toolbar = this->addToolBar(tr("Render"));
+   m_render_toolbar->addAction( m_center_action );
+   m_render_toolbar->addSeparator();
+   m_render_toolbar->addActions( m_shading_actions->actions() );
+   m_render_toolbar->addSeparator();
+   m_render_toolbar->addAction( m_culling_action );
+   m_render_toolbar->addAction( m_texture_action );
 }
 
 void Portal::construct_filehist_menu() {   
@@ -547,7 +547,7 @@ void Portal::update_history( const QString &fname ) {
    
    if( m_file_history.size() >= 
        Config::main()->get( "file::history::size" ).toInt() ) 
-	 m_file_history.pop_front();
+      m_file_history.pop_front();
    
    m_file_history.push_back( fname );
    
@@ -588,19 +588,19 @@ void Portal::handle_glpad_propchange( QWidget *w ) {
       m_flat_action->setChecked( 
 	 doc->glpad_property("shading_mode").toInt() == vrml::Control::FLAT &&
 	 doc->glpad_property("polygon_mode").toInt() != 
-	                                              vrml::Control::WIREFRAME 
+         vrml::Control::WIREFRAME 
       );
 
       m_phong_action->setChecked( 
 	 doc->glpad_property("shading_mode").toInt() == vrml::Control::SMOOTH 
 	 &&
 	 doc->glpad_property("polygon_mode").toInt() != 
-	                                              vrml::Control::WIREFRAME
+         vrml::Control::WIREFRAME
       );
 
       m_wireframe_action->setChecked( 
 	 doc->glpad_property("polygon_mode").toInt() == 
-	                                           vrml::Control::WIREFRAME 
+         vrml::Control::WIREFRAME 
       );
 
       m_culling_action->setChecked( 

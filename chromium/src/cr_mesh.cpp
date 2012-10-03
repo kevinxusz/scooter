@@ -260,7 +260,7 @@ int Mesh::load( const IFS_node *ifs ) {
                  << dgd_expand(zdim) << std::endl
                  << dgd_expand(mindim) << std::endl
                  << dgd_expand(m_global_scale) << std::endl;
-}
+   }
 
 
    // now create vertexes only setting normal and color if needed
@@ -352,7 +352,7 @@ int Mesh::load( const IFS_node *ifs ) {
 	 }
 	 if( tex_coord_index != NULL && tex_coord_index->size() > index ) {
 	    const vec2f& tc =
-	      tex_coord_vector->operator[](tex_coord_index->operator[](index));
+               tex_coord_vector->operator[](tex_coord_index->operator[](index));
 	    (*facet_end)->tex_coord( Vector( tc.x(), tc.y(), 0 ) );
 	 }
 

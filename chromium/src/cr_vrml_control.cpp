@@ -675,10 +675,10 @@ Control::generate_elevation_arrays(
 	       colors[index+k](color[n].r(), color[n].g(), color[n].b()); 
 	    }	    
 	    dgd_logger << "{" 
-		      <<  colors[index+0] << " " 
-		      <<  colors[index+1] << " " 
-		      <<  colors[index+2] << " " 
-		      <<  colors[index+3] << "}" << std::endl;
+                       <<  colors[index+0] << " " 
+                       <<  colors[index+1] << " " 
+                       <<  colors[index+2] << " " 
+                       <<  colors[index+3] << "}" << std::endl;
 
 	 }
       }
@@ -1627,7 +1627,7 @@ void Control::scale_texture( size_t         w,
               << dgd_expand(newH) << std::endl
               << dgd_expand(nc) << std::endl;
 
-GLenum fmt[] = { GL_LUMINANCE,	// single component
+   GLenum fmt[] = { GL_LUMINANCE,	// single component
 		    GL_LUMINANCE_ALPHA,	// 2 components
 		    GL_RGB,		// 3 components
 		    GL_RGBA		// 4 components
@@ -2266,20 +2266,20 @@ void Control::select( int x, int y ) {
 }
 
 class Toucher: public openvrml::node_traverser {
-   public:
-      Toucher() {};      
-      virtual ~Toucher() common_throw {};
+public:
+   Toucher() {};      
+   virtual ~Toucher() common_throw {};
 
-   private:
-      void on_entering(openvrml::node &node) {
-	 try {
-	    openvrml::vrml97_node::abstract_geometry_node &geom = 
-	       dynamic_cast< openvrml::vrml97_node::
-	                        abstract_geometry_node&>(node);
-	    geom.modified(true);
-	 } catch( std::bad_cast ) {	    
-	 }
+private:
+   void on_entering(openvrml::node &node) {
+      try {
+         openvrml::vrml97_node::abstract_geometry_node &geom = 
+            dynamic_cast< openvrml::vrml97_node::
+            abstract_geometry_node&>(node);
+         geom.modified(true);
+      } catch( std::bad_cast ) {	    
       }
+   }
 };
 
 

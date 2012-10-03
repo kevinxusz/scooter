@@ -37,32 +37,32 @@ namespace vrml {
 namespace scene {
 
 class Tree: public QTreeView {
-      Q_OBJECT
+   Q_OBJECT
 
-   private:
-      enum { CTX_MAX_TITLE_WIDTH = 20 };
+private:
+   enum { CTX_MAX_TITLE_WIDTH = 20 };
 
-   public:
-      Tree( QWidget * parent = 0 );
-      virtual ~Tree();
+public:
+   Tree( QWidget * parent = 0 );
+   virtual ~Tree();
       
-   signals:
-      void select( QModelIndex );
-      void focus( QModelIndex );
-      void edit( QModelIndex );
+signals:
+   void select( QModelIndex );
+   void focus( QModelIndex );
+   void edit( QModelIndex );
 
-   private slots:
-      void resize_tree_to_content( const QModelIndex &index );
+private slots:
+   void resize_tree_to_content( const QModelIndex &index );
 
-   private:
-      void mousePressEvent ( QMouseEvent * event );
-      void handle_context_action( QAction *action, const QModelIndex &index);
+private:
+   void mousePressEvent ( QMouseEvent * event );
+   void handle_context_action( QAction *action, const QModelIndex &index);
 
-   private:
-      QMenu   *m_item_menu;
-      QAction *m_select_action;
-      QAction *m_focus_action;
-      QAction *m_edit_action;
+private:
+   QMenu   *m_item_menu;
+   QAction *m_select_action;
+   QAction *m_focus_action;
+   QAction *m_edit_action;
 };
 
 }; // end of namespace scene

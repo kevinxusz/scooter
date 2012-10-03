@@ -44,82 +44,82 @@ namespace vrml {
 namespace scene {
 
 class Key {
-   public:
-      Key();
-      Key( openvrml::node* node, const QString& field );
-      Key( const Key& peer );
+public:
+   Key();
+   Key( openvrml::node* node, const QString& field );
+   Key( const Key& peer );
 
-      Key &operator = (const Key& peer );
-      bool operator == ( const Key& peer ) const;
-      bool operator < ( const Key& peer ) const;
+   Key &operator = (const Key& peer );
+   bool operator == ( const Key& peer ) const;
+   bool operator < ( const Key& peer ) const;
       
-      openvrml::node *node() const;
-      QString         field() const;
+   openvrml::node *node() const;
+   QString         field() const;
 
-   private:
-      openvrml::node *m_node;
-      QString         m_field;     
+private:
+   openvrml::node *m_node;
+   QString         m_field;     
 };
 
 
 class Item {
-   public: 
-      typedef QVector<Key> children_list;
-      typedef children_list::const_iterator children_const_iterator;
+public: 
+   typedef QVector<Key> children_list;
+   typedef children_list::const_iterator children_const_iterator;
 
-   public:
-      Item( int  row,
-	    bool editable,
-	    bool modified,
-	    Key node,
-	    Key parent,
-	    const openvrml::mat4f& transform );
+public:
+   Item( int  row,
+         bool editable,
+         bool modified,
+         Key node,
+         Key parent,
+         const openvrml::mat4f& transform );
 
-      int             row()       const;
-      bool            editable()  const;
-      bool            modified()  const;
-      Key             node()      const;
-      Key             parent()    const;
-      openvrml::mat4f transform() const;
+   int             row()       const;
+   bool            editable()  const;
+   bool            modified()  const;
+   Key             node()      const;
+   Key             parent()    const;
+   openvrml::mat4f transform() const;
       
-      children_const_iterator children_begin() const;
-      children_const_iterator children_end() const;
-      Key  child( int index ) const;
-      int  children_size() const;
+   children_const_iterator children_begin() const;
+   children_const_iterator children_end() const;
+   Key  child( int index ) const;
+   int  children_size() const;
 
-      void add_child( const Key &key );
-      void modified( bool val );
-      void transform( const openvrml::mat4f& t );
+   void add_child( const Key &key );
+   void modified( bool val );
+   void transform( const openvrml::mat4f& t );
       
-   private:
-      int             m_row;
-      bool            m_editable;
-      bool            m_modified;
-      Key             m_node;
-      Key             m_parent;
-      openvrml::mat4f m_transform;
-      children_list   m_children;
+private:
+   int             m_row;
+   bool            m_editable;
+   bool            m_modified;
+   Key             m_node;
+   Key             m_parent;
+   openvrml::mat4f m_transform;
+   children_list   m_children;
 }; 
 
 typedef QMap<Key, Item> Map;
 
 class Builder: public openvrml::node_traverser {
-   public:
-      typedef QList<openvrml::node*> node_stack;
-      typedef QList<openvrml::mat4f> transform_stack;
+public:
+   typedef QList<openvrml::node*> node_stack;
+   typedef QList<openvrml::mat4f> transform_stack;
 
-      Builder( Map *scene_map );
+   Builder( Map *scene_map );
       
-      virtual ~Builder() throw();
+   virtual ~Builder() throw();
 
-   private:
-      void on_entering(openvrml::node &node);
-      void on_leaving(openvrml::node &node);
+private:
+   void on_entering(openvrml::node &node);
+   void on_leaving(openvrml::node &node);
 
-   private:
-      node_stack       m_nstack;
-      transform_stack  m_tstack;
-      Map             *m_scene_map;
+private:
+   node_stack       m_nstack;
+   transform_stack  m_tstack;
+   Map             *m_scene_map;
 };
 
 }; // end of namespace scene

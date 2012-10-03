@@ -419,9 +419,9 @@ void Config::revert() {
    rc = xml_file.open( QIODevice::ReadOnly | QIODevice::Text );
    if( !rc ) {
       emit read_denied( tr("unable to open file ") + 
-			 m_path + 
-			 tr(" for read. Error code: ") + 
-			 QString::number(xml_file.error()) );
+                        m_path + 
+                        tr(" for read. Error code: ") + 
+                        QString::number(xml_file.error()) );
       dgd_echo(xml_file.error() );
 
       this->load_defaults();

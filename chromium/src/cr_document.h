@@ -52,52 +52,52 @@ class Tree;
 }; // end of namespace vrml
 
 class Document: public QWidget {
-      Q_OBJECT
+   Q_OBJECT
       
-   public:      
-      Document( const QFileInfo& finfo );
-      virtual ~Document();
+public:      
+   Document( const QFileInfo& finfo );
+   virtual ~Document();
 
-      QWidget *toolset() const;
-      QVariant glpad_property( const char *name );
+   QWidget *toolset() const;
+   QVariant glpad_property( const char *name );
 
-   public slots:
-      bool glpad_property( const char *name, const QVariant &val );
-      void glpad_reset();
+public slots:
+   bool glpad_property( const char *name, const QVariant &val );
+   void glpad_reset();
 
-   private slots:
-      void load_failure();
-      void load_success();
-      void load_cancel();
-      void load_start();
+private slots:
+   void load_failure();
+   void load_success();
+   void load_cancel();
+   void load_start();
 
-      void handle_select( QModelIndex index );
-      void handle_focus( QModelIndex index );
-      void handle_edit( QModelIndex index );
+   void handle_select( QModelIndex index );
+   void handle_focus( QModelIndex index );
+   void handle_edit( QModelIndex index );
 
-   private:
-      void closeEvent(QCloseEvent *event);
+private:
+   void closeEvent(QCloseEvent *event);
 
-   signals:
-      void constructed();
-      void load_finished();
-      void load_failed();
-      void edit( QModelIndex index );
+signals:
+   void constructed();
+   void load_finished();
+   void load_failed();
+   void edit( QModelIndex index );
 
-   private:
-      void construct_toolset();
+private:
+   void construct_toolset();
 
-   private:
-      QFileInfo           m_finfo;
-      QStatusBar         *m_status_bar;
-      QProgressBar       *m_progress_bar;
-      QVBoxLayout        *m_layout;
-      QTabWidget         *m_tool_tab;
-      vrml::Loader       *m_loader;      
-      vrml::scene::Model *m_scene_model;
-      vrml::scene::Tree  *m_scene_tree;
-      vrml::Control      *m_glpad;
-      void               *m_selection;
+private:
+   QFileInfo           m_finfo;
+   QStatusBar         *m_status_bar;
+   QProgressBar       *m_progress_bar;
+   QVBoxLayout        *m_layout;
+   QTabWidget         *m_tool_tab;
+   vrml::Loader       *m_loader;      
+   vrml::scene::Model *m_scene_model;
+   vrml::scene::Tree  *m_scene_tree;
+   vrml::Control      *m_glpad;
+   void               *m_selection;
 };
 
 }; // end of namespace cr

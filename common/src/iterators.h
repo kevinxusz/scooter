@@ -33,106 +33,106 @@ namespace scooter {
 
 template <class Base_iterator>
 class circulator : 
-	 public boost::iterator_adaptor< circulator<Base_iterator>,
-					 Base_iterator >
+      public boost::iterator_adaptor< circulator<Base_iterator>,
+                                      Base_iterator >
 {
-   private:
+private:
 
-      friend class boost::iterator_core_access;
+   friend class boost::iterator_core_access;
       
-      typedef boost::iterator_adaptor< circulator<Base_iterator>, 
-				       Base_iterator > parent_type;
-   public:
+   typedef boost::iterator_adaptor< circulator<Base_iterator>, 
+                                    Base_iterator > parent_type;
+public:
 
-      typedef typename parent_type::difference_type difference_type;
+   typedef typename parent_type::difference_type difference_type;
 
-   public:
-      circulator() : parent_type() {}
+public:
+   circulator() : parent_type() {}
 
-      circulator( const Base_iterator& begin,
-		  const Base_iterator& end ) :
-	 m_begin( begin ), m_end( end ) {
-	 this->base_reference() =  m_begin;
-      }
+   circulator( const Base_iterator& begin,
+               const Base_iterator& end ) :
+      m_begin( begin ), m_end( end ) {
+      this->base_reference() =  m_begin;
+   }
 
-      circulator begin() const { return circulator(m_begin,m_end); }
-      circulator end() const   { 
-	 circulator tmp(m_begin,m_end);
-	 tmp.base_reference() = m_end; 
-	 --tmp.base_reference();
-	 return tmp;
-      }
+   circulator begin() const { return circulator(m_begin,m_end); }
+   circulator end() const   { 
+      circulator tmp(m_begin,m_end);
+      tmp.base_reference() = m_end; 
+      --tmp.base_reference();
+      return tmp;
+   }
 
-      difference_type size() const { return std::distance(m_begin, m_end); }
+   difference_type size() const { return std::distance(m_begin, m_end); }
       
-   private:
+private:
 
-      void advance(difference_type n) {
-	 difference_type size = std::distance( m_begin, m_end );
-	 difference_type d = std::distance( m_begin, this->base() );
-	 this->base_reference() = m_begin;
-	 std::advance( this->base_reference() , (d + n % size + size) % size );
-      }
+   void advance(difference_type n) {
+      difference_type size = std::distance( m_begin, m_end );
+      difference_type d = std::distance( m_begin, this->base() );
+      this->base_reference() = m_begin;
+      std::advance( this->base_reference() , (d + n % size + size) % size );
+   }
       
-      void increment() { 
-	 ++this->base_reference();
-	 if( this->base() == m_end ) this->base_reference() = m_begin;
-      }
-      void decrement() {
-	 if( this->base() == m_begin ) this->base_reference() = m_end;
-	 --this->base_reference();
-      }
+   void increment() { 
+      ++this->base_reference();
+      if( this->base() == m_end ) this->base_reference() = m_begin;
+   }
+   void decrement() {
+      if( this->base() == m_begin ) this->base_reference() = m_end;
+      --this->base_reference();
+   }
 
-      difference_type  distance_to( circulator const& y) const {
-	 difference_type size = std::distance( m_begin, m_end );
-	 difference_type d = std::distance( this->base(), y.base() );
-	 return( (d + size) % size );
-      }
+   difference_type  distance_to( circulator const& y) const {
+      difference_type size = std::distance( m_begin, m_end );
+      difference_type d = std::distance( this->base(), y.base() );
+      return( (d + size) % size );
+   }
 
-   private:
-      Base_iterator m_begin;
-      Base_iterator m_end;
+private:
+   Base_iterator m_begin;
+   Base_iterator m_end;
 };
 
 template <class Base_iterator, unsigned int count>
 class sampler :  public boost::iterator_adaptor< sampler<Base_iterator,count>,
 						 Base_iterator > {
-   private:
+private:
 
-      friend class boost::iterator_core_access;
+   friend class boost::iterator_core_access;
       
-      typedef boost::iterator_adaptor< sampler<Base_iterator,count>, 
-				       Base_iterator > parent_type;
+   typedef boost::iterator_adaptor< sampler<Base_iterator,count>, 
+                                    Base_iterator > parent_type;
 
-   public:
+public:
 
-      typedef typename parent_type::difference_type difference_type;
+   typedef typename parent_type::difference_type difference_type;
 
-   public:
-      sampler() : parent_type() {}
+public:
+   sampler() : parent_type() {}
 
-      sampler( const Base_iterator& base) {
-	 this->base_reference() =  base;
-      }
+   sampler( const Base_iterator& base) {
+      this->base_reference() =  base;
+   }
 
-   private:
+private:
 
-      void advance(difference_type n) {
-	 std::advance( this->base_reference(), n * (difference_type)count );
-      }
+   void advance(difference_type n) {
+      std::advance( this->base_reference(), n * (difference_type)count );
+   }
       
-      void increment() { 
-	 difference_type c = (difference_type)count;
-	 std::advance( this->base_reference(), c );
-      }
-      void decrement() {
-	 difference_type c = (difference_type)count;
-	 std::advance( this->base_reference(), -c );
-      }
+   void increment() { 
+      difference_type c = (difference_type)count;
+      std::advance( this->base_reference(), c );
+   }
+   void decrement() {
+      difference_type c = (difference_type)count;
+      std::advance( this->base_reference(), -c );
+   }
 
-      difference_type  distance_to( sampler const& y) const {
-	 return(std::distance(this->base(),y.base()) / (difference_type)count);
-      }
+   difference_type  distance_to( sampler const& y) const {
+      return(std::distance(this->base(),y.base()) / (difference_type)count);
+   }
 
 
 };

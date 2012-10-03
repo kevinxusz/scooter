@@ -415,7 +415,7 @@ Dcel<Vb,Hb,Fb>::new_facet( Vertex** const begin, Vertex** const end ) {
 
    dgd_logger << "vertexes: ";
    for(Vertex** i = begin; i != end; i++) {
-       dgd_logger << **i << std::endl;
+      dgd_logger << **i << std::endl;
    }
 
    Facet *f = new_disjoint_facet( begin, end );
