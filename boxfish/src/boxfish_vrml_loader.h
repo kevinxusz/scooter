@@ -34,20 +34,21 @@
 #include <openvrml/browser.h>
 
 namespace boxfish {
-
+  
 namespace vrml {
 
-class Loader: public QThread, openvrml::browser::load_progress_callback_t {
-      Q_OBJECT
-
+class Loader: public QThread {
+   Q_OBJECT
+   
    public:
       enum ErrorCode {
 	 None,
 	 Open_Error,
 	 Load_Error
       };
-	
+   
       typedef boost::shared_ptr<openvrml::browser> browser_ptr;
+      typedef boost::shared_ptr<openvrml::resource_fetcher> resource_fetcher_ptr;
 
    public:
       Loader( const QFileInfo &finfo );
@@ -55,7 +56,6 @@ class Loader: public QThread, openvrml::browser::load_progress_callback_t {
 
       ErrorCode   error() const;
       browser_ptr browser() const;
-
    private:
       void run();
       void operator () ( unsigned long l, unsigned long c );
@@ -66,11 +66,12 @@ class Loader: public QThread, openvrml::browser::load_progress_callback_t {
       void success();
 
    private:
-      unsigned long m_count;
-      int           m_prev;
-      QFileInfo     m_finfo;
-      ErrorCode     m_errno;      
-      browser_ptr   m_browser;
+      unsigned long        m_count;
+      int                  m_prev;
+      QFileInfo            m_finfo;
+      ErrorCode            m_errno;  
+      resource_fetcher_ptr m_fetcher;    
+      browser_ptr          m_browser;
 };
 
 }; // end of namespace vrml

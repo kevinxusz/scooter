@@ -138,7 +138,7 @@ Builder::Builder( Map *scene_map ) :
    m_tstack.push_back( openvrml::mat4f() );
 }
       
-Builder::~Builder() common_throw {
+Builder::~Builder() throw() {
    dgd_scope;
 }
 
@@ -151,7 +151,7 @@ void Builder::on_entering(openvrml::node &node) {
    parent = m_nstack.back();
    transform = m_tstack.back();
 
-   QString type = QString::fromStdString( node.type.id );
+   QString type = QString::fromStdString( node.type().id() );
    
    dgd_logger << dgd_expand(type.toStdString()) << std::endl
               << dgd_expand(&node) << std::endl
@@ -173,7 +173,7 @@ void Builder::on_entering(openvrml::node &node) {
 
    parent_item->add_child( Key(&node, QString()) );
 
-   const openvrml::node_interface_set &ifcs = node.type.interfaces();
+   const openvrml::node_interface_set &ifcs = node.type().interfaces();
    openvrml::node_interface_set::const_iterator ifc;
    for ( ifc = ifcs.begin(); ifc != ifcs.end(); ++ifc ) {
       if( ifc->type == openvrml::node_interface::field_id ||
@@ -204,7 +204,8 @@ void Builder::on_entering(openvrml::node &node) {
    
    m_nstack.push_back( &node );
    
-   openvrml::transform_node *tn = node.to_transform();
+   openvrml::transform_node *tn = 
+      dynamic_cast<openvrml::transform_node*>(&node);
 
    dgd_echo(tn);
 
@@ -219,7 +220,8 @@ void Builder::on_leaving(openvrml::node &node) {
    dgd_scope;
 
    m_nstack.pop_back();
-   openvrml::transform_node *tn = node.to_transform();
+   openvrml::transform_node *tn = 
+      dynamic_cast<openvrml::transform_node*>(&node);
 
    dgd_echo(tn);
 

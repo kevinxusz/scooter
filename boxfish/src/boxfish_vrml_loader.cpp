@@ -69,7 +69,8 @@ void Loader::run() {
       return;
    }
 
-   m_browser.reset( new openvrml::browser( std::cout, std::cerr ) );
+   m_fetcher.reset( new openvrml::resource_fetcher() );
+   m_browser.reset( new openvrml::browser( *m_fetcher, std::cout, std::cerr ) );
 
    std::vector<std::string> urls,params;
    urls.push_back( std::string( m_finfo.absoluteFilePath().toStdString() ) );

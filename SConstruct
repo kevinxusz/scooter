@@ -34,14 +34,12 @@ dgscons_tools_path = os.path.join(dgscons_path, 'tools')
 boost = Tool('boost', [ dgscons_tools_path ])
 hardlink = Tool('hardlink', [ dgscons_tools_path ])
 
-env = dgscons.setup_environment(tools = ['textfile', 'qt', boost, hardlink])
+env = dgscons.setup_environment(tools = ['textfile', boost, hardlink])
 
 version = dgscons.version.version()
 version.incr()
 
 env['CRSHPREFIX'] = 'cr{0}'.format(version.version['stable'])
-
-#print "Env: " + str(env.Dump())
 
 Export('env', 'version')
 

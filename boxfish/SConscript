@@ -27,6 +27,8 @@ Import('env', 'version')
 
 env = env.Clone()
 
+env.Tool('qt')
+
 variant = env.subst('$VARIANT')
 env.VariantDir(variant, 'src')
 
@@ -46,6 +48,7 @@ env.Append(CPPDEFINES = {
    })
 
 env.Append(CXXFLAGS = ['-mthreads', 
+                       '-Wno-attributes',
                        '-isystem', '$BOOSTINCDIR',
                        '-isystem', '$QT_CPPPATH'])
 
@@ -67,20 +70,17 @@ conf = env.Substfile(
 
 srclist = map( lambda fname: os.path.join(variant,fname), 
                [ 'boxfish_cfg.cpp',
-                 'boxfish_document.cpp',
-                 'boxfish_main.cpp',
-                 'boxfish_mesh.cpp',
-                 'boxfish_mesh_control.cpp',
-                 'boxfish_mesh_editor.cpp',
-                 'boxfish_mesh_scene.cpp',
-                 'boxfish_portal.cpp',
                  'boxfish_svg.cpp',
-                 'boxfish_vrml_control.cpp',
-                 'boxfish_vrml_loader.cpp',
+                 'boxfish_main.cpp',
                  'boxfish_vrml_scene_item.cpp',
                  'boxfish_vrml_scene_map.cpp',
-                 'boxfish_vrml_scene_model.cpp',
-                 'boxfish_vrml_scene_tree.cpp'] )
+                 'boxfish_vrml_loader.cpp',
+                 #'boxfish_vrml_scene_model.cpp',
+                 # 'boxfish_document.cpp',
+                 # 'boxfish_portal.cpp',
+                 # 'boxfish_vrml_control.cpp',
+                 # 'boxfish_vrml_scene_tree.cpp'
+                 ] )
 
 
 zlib_name = env.subst('${CRSHPREFIX}zlib')

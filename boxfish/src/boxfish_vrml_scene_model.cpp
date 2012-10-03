@@ -30,9 +30,7 @@
 #include <QtCore/QMap>
 
 #include <openvrml/browser.h>
-#include <openvrml/vrml97node.h>
 #include <openvrml/node.h>
-#include <openvrml/node_ptr.h>
 
 #include <dgd.h>
 

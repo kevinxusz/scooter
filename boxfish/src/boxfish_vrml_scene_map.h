@@ -110,7 +110,7 @@ class Builder: public openvrml::node_traverser {
 
       Builder( Map *scene_map );
       
-      virtual ~Builder() common_throw;
+      virtual ~Builder() throw();
 
    private:
       void on_entering(openvrml::node &node);
