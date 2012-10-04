@@ -1,7 +1,5 @@
 # -*- CPerl -*-
 #
-# %cvsid
-#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -16,10 +14,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# This file is a part of the Scooter project. 
+# Copyright (c) Dimitry Kloper <kloper@users.sf.net> 2002-2012
 #
-# Copyright (c) %y. %a . 
-# Technion, Israel Institute of Technology. Computer Science Department.
+# This file is a part of the Scooter project. 
 #
 # %f -- %[Describe: %]
 #
