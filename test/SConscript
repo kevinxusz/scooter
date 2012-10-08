@@ -25,6 +25,8 @@ import os
 import sys
 import string
 
+from SCons.Defaults import Link
+
 Import('env', 'version')
 
 env = env.Clone()
@@ -59,20 +61,23 @@ env.Append(CXXFLAGS = ['-mthreads',
 env.Append(LIBPATH = ['#blib/lib', '$BOOSTLIBDIR', '$QT_LIBPATH'])
 env.Append(LDFLAGS = ['-mthreads', '-mconsole'])
 
-dmgr_h = env.Substfile(
+dmgr_h = env.Command(
     source = '../boxfish/src/boxfish_download_manager.h',
     target = os.path.join(variant, 'boxfish_download_manager.h'),
-   )
+    action = Link("$TARGET", "$SOURCE")
+    )
 
-dmgr_cpp = env.Substfile(
+dmgr_cpp = env.Command(
     source = '../boxfish/src/boxfish_download_manager.cpp',
     target = os.path.join(variant, 'boxfish_download_manager.cpp'),
-   )
+    action = Link("$TARGET", "$SOURCE")
+    )
 
-trace_h = env.Substfile(
+trace_h = env.Command(
     source = '../boxfish/src/boxfish_trace.h',
     target = os.path.join(variant, 'boxfish_trace.h'),
-   )
+    action = Link("$TARGET", "$SOURCE")
+    )
 
 conf = env.Substfile(
     source = '../boxfish/src/boxfish_config.h.in',
@@ -81,11 +86,15 @@ conf = env.Substfile(
         '@version_string@': "test",
         '@version_comma@': "test"
         }
-   )
+    )
+
+moc_dmgr_cpp = env.Moc(dmgr_h)
 
 srclist = map( lambda fname: os.path.join(variant,fname), 
                [ 'boxfish_download_manager.cpp',
-                 'test_boxfish_vrml_source.cpp' ] )
+                 'test_boxfish_vrml_source.cpp' ] ) + moc_dmgr_cpp,
+
+
 
 
 zlib_name = env.subst('${CRSHPREFIX}zlib')
