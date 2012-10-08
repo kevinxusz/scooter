@@ -35,41 +35,43 @@
 #include <dgd.h>
 
 #include "boxfish_download_manager.h"
+#include "boxfish_download_source.h"
 
 
-struct reader {
+struct download_manager_reader {
    boxfish::download_manager *m_manager;
       
-   reader(boxfish::download_manager *manager): 
+   download_manager_reader(boxfish::download_manager *manager): 
       m_manager(manager) {}
 
-   reader(const reader& peer): 
+   download_manager_reader(const download_manager_reader& peer): 
       m_manager(peer.m_manager) {}
 
    void operator()() {
+      namespace io = boost::iostreams;
+
       dgd_scope;
 
-      bool rc = m_manager->open(10000);      
+      bool rc = m_manager->end_open(10000);      
       dgd_echo(rc);
       if(!rc) {
          dgd_echo(m_manager->error_string());
       } else {
-         char buffer[1024];
-         int rc;
-         do {
-            rc = m_manager->read(buffer, sizeof(buffer), 10000);
-            dgd_echo(rc);
-         } while(rc > 0);
+         io::stream<boxfish::download_source> in(m_manager);
+
+         while(!in.eof()) {
+            char buffer[1024];
+            in.getline(buffer, sizeof(buffer));
+            dgd_echo(buffer);
+         } 
       }
 
       m_manager->close();
    }
 };
 
-void test_source_open(const std::string &url)
+void test_download_manager(const std::string &url)
 {
-   namespace io = boost::iostreams;
-
    dgd_scope;
 
    int i;
@@ -80,8 +82,13 @@ void test_source_open(const std::string &url)
 
    QNetworkAccessManager manager;
    boxfish::download_manager dm(&manager, url);
-      
-   reader r(&dm);
+
+   if(!dm.begin_open()) {
+      dgd_echo(dm.error_string());
+      return;
+   }      
+   
+   download_manager_reader r(&dm);
    boost::thread reader_thread(r);
 
    app.connect(&dm, SIGNAL(closed()), SLOT(quit()));
@@ -92,14 +99,29 @@ void test_source_open(const std::string &url)
    dgd_logger << "Exit" << std::endl;
 }
 
+
 bool init_test()
 {
 
    ::boost::unit_test::framework::master_test_suite().
-      add( BOOST_TEST_CASE( boost::bind( &test_source_open, 
-//                                         "http://127.0.0.1:8080/wiki/css/Hlb.css" 
-                                         "file:///D:/s/scooter/COPYING"
-                            ) ) );
+      add( BOOST_TEST_CASE( 
+              boost::bind( &test_download_manager, 
+                           "file:///D:/s/scooter/COPYING" ) ) );
+
+   ::boost::unit_test::framework::master_test_suite().
+      add( BOOST_TEST_CASE( 
+              boost::bind( &test_download_manager, 
+                           "http://127.0.0.1:8080/wiki/css/Hlb.css" ) ) );
+
+   ::boost::unit_test::framework::master_test_suite().
+      add( BOOST_TEST_CASE( 
+              boost::bind( &test_download_manager, 
+                           "ljasdlsj lsadjasd lskdj" ) ) );
+
+   ::boost::unit_test::framework::master_test_suite().
+      add( BOOST_TEST_CASE( 
+              boost::bind( &test_download_manager, 
+                           "kuku://mumu" ) ) );
            
    return true;
 }

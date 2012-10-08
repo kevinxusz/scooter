@@ -40,23 +40,21 @@ class download_manager: public QObject {
    Q_OBJECT
 
 public:
-   enum {
-      default_buffer_size = 1024 * 1024
-   };
-public:
    download_manager(QNetworkAccessManager *manager, const std::string& url);
 
    virtual ~download_manager();
       
-   std::streamsize read(char* s, std::streamsize n, int timeout);
+   std::streamsize read(char* s, std::streamsize n);
 
-   bool open(int timeout_msec);
+   bool begin_open();
+   bool end_open(int timeout_msec);
 
    void close();
 
    QString error_string() const { return m_error_string; }
 
 signals:
+   void opened();
    void closed();
 
 private slots:

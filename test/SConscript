@@ -37,6 +37,7 @@ variant = env.subst('$VARIANT')
 env.VariantDir(variant, 'src')
 
 env['QT_DEBUG'] = 1
+env['QT_AUTOSCAN'] = 0
 
 env.Append(CPPPATH = ['#blib/include', '$DGDINC'] )
 env.Append(CPPDEFINES = {
@@ -64,6 +65,12 @@ env.Append(LDFLAGS = ['-mthreads', '-mconsole'])
 dmgr_h = env.Command(
     source = '../boxfish/src/boxfish_download_manager.h',
     target = os.path.join(variant, 'boxfish_download_manager.h'),
+    action = Link("$TARGET", "$SOURCE")
+    )
+
+source_h = env.Command(
+    source = '../boxfish/src/boxfish_download_source.h',
+    target = os.path.join(variant, 'boxfish_download_source.h'),
     action = Link("$TARGET", "$SOURCE")
     )
 

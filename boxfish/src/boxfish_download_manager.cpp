@@ -40,35 +40,51 @@
 namespace boxfish 
 {
 
-download_manager::download_manager(QNetworkAccessManager  *manager, 
+download_manager::download_manager(QNetworkAccessManager  *manager,
                                    const std::string& url) :
    m_network_manager(manager),
-   m_reply(NULL)
-{
+   m_reply(NULL) {
    dgd_scopef(download);
 
    dgd_echo(url);
-   m_url.setUrl(QString::fromStdString(url));
-
-   if(!m_url.isValid()) {
-      m_error_string = QString("URL '%1' is not valid: %2").
-                       arg(QString(m_url.toEncoded())).
-                       arg(m_url.errorString());
-   } else {
-      QNetworkRequest request(m_url);
-      
-      m_reply = m_network_manager->get(request);
-      
-      connect(m_reply, SIGNAL(metaDataChanged()), SLOT(metadata_changed()));
-      connect(m_reply, SIGNAL(finished()), SLOT(reply_ready()));
-   }
+   m_url.setUrl(QString::fromStdString(url));   
 }
 
 download_manager::~download_manager() {
    close();
 }
 
-bool download_manager::open(int timeout_msec) 
+bool download_manager::begin_open()
+{
+   dgd_scopef(download);
+
+   if(!m_url.isValid()) {
+      m_error_string = QString("URL '%1' is not valid: %2").
+                       arg(QString(m_url.toEncoded())).
+                       arg(m_url.errorString());
+      return false;
+   } else {
+      QNetworkRequest request(m_url);
+      
+      m_reply = m_network_manager->get(request);
+      
+      if(m_reply->error() != 0) {
+          m_error_string = QString("Failed to download from URL '%1'. "
+                                   "Error code : %2. Description: %3").
+                           arg(QString(m_url.toEncoded())).
+                           arg(m_reply->error()).
+                           arg(m_reply->errorString());
+          return false;
+      }
+      
+      connect(m_reply, SIGNAL(metaDataChanged()), SLOT(metadata_changed()));
+      connect(m_reply, SIGNAL(finished()), SLOT(reply_ready()));
+   }
+
+   return true;
+}
+
+bool download_manager::end_open(int timeout_msec) 
 {
    dgd_scopef(download);
 
@@ -100,14 +116,10 @@ bool download_manager::open(int timeout_msec)
    return true;
 }
 
-std::streamsize download_manager::read(char* s, std::streamsize n, int timeout) 
+std::streamsize download_manager::read(char* s, std::streamsize n) 
 {
-   dgd_scopef(download);
-
    if(m_reply != NULL) {
       std::streamsize rc =  m_reply->read(s, n);
-      dgd_echo(m_reply->isOpen());
-      dgd_echo(m_reply->errorString());
       return rc;
    }
    return -1;
@@ -148,6 +160,8 @@ void download_manager::metadata_changed() {
 
 void download_manager::reply_ready() {
    dgd_scopef(download);
+
+   emit opened();
 
    m_open_guard.release();
 }
