@@ -1,0 +1,126 @@
+# -*- mode:python -*-
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Copyright (c) Dimitry Kloper <kloper@users.sf.net> 2002-2012
+#
+# This file is a part of the Scooter project. 
+#
+# test/SConscript -- build for various scooter tests
+#
+
+import os 
+import sys
+import string
+
+Import('env', 'version')
+
+env = env.Clone()
+
+env.Tool('qt')
+
+variant = env.subst('$VARIANT')
+env.VariantDir(variant, 'src')
+
+env['QT_DEBUG'] = 1
+
+env.Append(CPPPATH = ['#blib/include', '$DGDINC'] )
+env.Append(CPPDEFINES = {
+    'UNICODE': None,
+    'QT_LARGEFILE_SUPPORT': None,
+    'QT_DLL': None,
+    'QT_SVG_LIB': None,
+    'QT_GUI_LIB': None,
+    'QT_CORE_LIB': None,
+    'QT_THREAD_SUPPORT': None,
+    'QT_XML_LIB': None,
+    'QT_OPENGL_LIB': None,
+    'WINVER': '0x0502',
+    'BOOST_TEST_DYN_LINK': None
+   })
+
+env.Append(CXXFLAGS = ['-mthreads', 
+                       '-Wno-attributes',
+                       '-isystem', '$BOOSTINCDIR',
+                       '-isystem', '$QT_CPPPATH'])
+
+env.Append(LIBPATH = ['#blib/lib', '$BOOSTLIBDIR', '$QT_LIBPATH'])
+env.Append(LDFLAGS = ['-mthreads', '-mconsole'])
+
+dmgr_h = env.Substfile(
+    source = '../boxfish/src/boxfish_download_manager.h',
+    target = os.path.join(variant, 'boxfish_download_manager.h'),
+   )
+
+dmgr_cpp = env.Substfile(
+    source = '../boxfish/src/boxfish_download_manager.cpp',
+    target = os.path.join(variant, 'boxfish_download_manager.cpp'),
+   )
+
+trace_h = env.Substfile(
+    source = '../boxfish/src/boxfish_trace.h',
+    target = os.path.join(variant, 'boxfish_trace.h'),
+   )
+
+conf = env.Substfile(
+    source = '../boxfish/src/boxfish_config.h.in',
+    target = os.path.join(variant, 'boxfish_config.h'),
+    SUBST_DICT = {
+        '@version_string@': "test",
+        '@version_comma@': "test"
+        }
+   )
+
+srclist = map( lambda fname: os.path.join(variant,fname), 
+               [ 'boxfish_download_manager.cpp',
+                 'test_boxfish_vrml_source.cpp' ] )
+
+
+zlib_name = env.subst('${CRSHPREFIX}zlib')
+libjpeg_name = env.subst('${CRSHPREFIX}libjpeg')
+libpng_name = env.subst('${CRSHPREFIX}libpng')
+libxml2_name = env.subst('${CRSHPREFIX}libxml2')
+libopenvrml_dl_name = env.subst('${CRSHPREFIX}openvrml-dl')
+libopenvrml_name = env.subst('${CRSHPREFIX}openvrml')
+
+boost_libs = map( lambda lib: lib + '$BOOST_LIB_SUFFIX',
+                              [ 'boost_unit_test_framework',
+                                'boost_program_options',
+                                'boost_filesystem',
+                                'boost_system',
+                                'boost_thread' ])
+
+qt_libs = [ 'QtCore4', 'QtNetwork4' ]
+
+test_boxfish_vrml_source = env.Program(
+    target = os.path.join(variant, 'test_boxfish_vrml_source'), 
+    source = srclist,
+    LIBS = [ zlib_name, 
+             libpng_name, 
+             libjpeg_name, 
+             libxml2_name, 
+             libopenvrml_name,
+             libopenvrml_dl_name ] + 
+    boost_libs +
+    qt_libs
+)
+
+env.Install('#blib/test/bin', test_boxfish_vrml_source[0])
+
+
+#
+# SConscript -- end of file
+#
+

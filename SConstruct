@@ -51,6 +51,7 @@ SConscript( ['zlib/SConscript' ,
              'libxml2/SConscript',
              'openvrml/SConscript',
              'common/SConscript',
-             'boxfish/SConscript'] )
+             'boxfish/SConscript',
+             'test/SConscript'] )
 
 atexit.register(dgscons.build_status.handle_build_atexit, version)

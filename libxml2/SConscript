@@ -45,8 +45,13 @@ env.Append(CFLAGS = ['-mthreads'])
 env.Append(LIBPATH = ['#blib/lib'])
 env.Append(LDFLAGS = ['-mthreads', '-mconsole'])
 
+config = env.Substfile(
+    source = os.path.join(variant, 'include', 'win32config.h'),
+    target = os.path.join(variant, 'include', 'config.h')
+    )
+
 xmlversion = env.Substfile(
-    source =  os.path.join(variant, 'include', 'libxml', 'xmlversion.h.in'),
+    source = os.path.join(variant, 'include', 'libxml', 'xmlversion.h.in'),
     SUBST_DICT = {
         '@VERSION@': '2.9.0',
         '@LIBXML_VERSION_NUMBER@': '20900',

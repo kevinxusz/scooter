@@ -29,7 +29,8 @@ namespace boxfish {
 enum component_id {
    cfg            = 0x00000001,
    vrml_scene_map = 0x00000002,
-   vrml_control   = 0x00000004
+   vrml_control   = 0x00000004,
+   download       = 0x00000008
 };
 
 }; // end of namespace boxfish
