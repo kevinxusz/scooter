@@ -26,6 +26,8 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QThread>
 
+#include <QtNetwork/QNetworkAccessManager>
+
 #include <QtGui/QWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QProgressBar>
@@ -50,13 +52,13 @@
 
 namespace boxfish {
 
-Document::Document( const QFileInfo& finfo ) :
+Document::Document( QNetworkAccessManager *manager, const QUrl& url ) :
    QWidget( NULL, Qt::Window                   | 
 		  Qt::WindowTitleHint          |
 		  Qt::WindowSystemMenuHint     |
 		  Qt::WindowMinimizeButtonHint |
 		  Qt::WindowMaximizeButtonHint ),
-   m_finfo(finfo),
+   m_url(url),
    m_status_bar(NULL),  
    m_progress_bar(NULL),
    m_layout(NULL),
@@ -65,11 +67,12 @@ Document::Document( const QFileInfo& finfo ) :
    m_scene_model(NULL),
    m_scene_tree(NULL),
    m_glpad(NULL),
-   m_selection(NULL) {
+   m_selection(NULL),
+   m_network_access_manager(manager) {
 
    dgd_scope;
 
-   dgd_echo(finfo.absoluteFilePath());
+   dgd_echo(QString(url.toEncoded()));
 
    m_layout       = new QVBoxLayout( this );
    m_status_bar   = new QStatusBar( this );
@@ -83,7 +86,7 @@ Document::Document( const QFileInfo& finfo ) :
    sbpolicy.setVerticalPolicy( QSizePolicy::Maximum );
    m_status_bar->setSizePolicy( sbpolicy );
    
-   this->setWindowTitle( finfo.baseName() );
+   this->setWindowTitle( url.toEncoded() );
    this->setWindowState( Qt::WindowActive );
    this->setWindowIcon( QIcon( Svg_icon( ":/icons/objects.svg", 
 					 QSize(32,32 ) ) ) );
@@ -111,7 +114,7 @@ void Document::load_start() {
    dgd_scope;
 
    if( m_loader == NULL ) {
-      m_loader = new vrml::Loader( m_finfo );
+      m_loader = new vrml::Loader( m_network_access_manager, m_url );
 
       m_loader->start( QThread::LowPriority );
 
@@ -134,7 +137,7 @@ void Document::load_failure() {
 
    QMessageBox::critical( this, tr("Load Failed"), 
 			  tr("Unable to load file: %1").
-			  arg(m_finfo.absoluteFilePath()),
+			  arg(QString(m_url.toEncoded())),
 			  QMessageBox::Ok,
 			  QMessageBox::NoButton );
 
@@ -269,38 +272,39 @@ void Document::handle_select( QModelIndex index ) {
        item->node().field().isNull() ) {
       openvrml::node *node = item->node().node();
 
-      if( node != m_selection ) {
-	 m_selection = node;
+      // TBD
+      // if( node != m_selection ) {
+      //    m_selection = node;
 
-	 openvrml::mat4f transform = item->transform();
+      //    openvrml::mat4f transform = item->transform();
 	 
-	 const openvrml::bounding_sphere &bvol = 
-	    dynamic_cast<const openvrml::bounding_sphere&>(
-	       node->bounding_volume()
-	    );
+      //    const openvrml::bounding_sphere &bvol = 
+      //       dynamic_cast<const openvrml::bounding_sphere&>(
+      //          node->bounding_volume()
+      //       );
 	 
-	 // float radius = bvol.radius();
-	 openvrml::vec3f top = bvol.top();
-	 openvrml::vec3f bottom = bvol.bottom();
+      //    // float radius = bvol.radius();
+      //    openvrml::vec3f top = bvol.top();
+      //    openvrml::vec3f bottom = bvol.bottom();
 	 
-	 top *= transform;
-	 bottom *= transform;
+      //    top *= transform;
+      //    bottom *= transform;
 	 
-	 dgd_logger << dgd_expand(top) << std::endl 
-                    << dgd_expand(bottom) << std::endl;
+      //    dgd_logger << dgd_expand(top) << std::endl 
+      //               << dgd_expand(bottom) << std::endl;
 	 	 
-	 m_glpad->bbox( vrml::Control::Point( bottom.x(), 
-					      bottom.y(),
-					      bottom.z() ),
-			vrml::Control::Point( top.x(), 
-					      top.y(),
-					      top.z() ),
-			Qt::white );
-	 m_glpad->bbox( true );      
-      } else {
-	 m_selection = NULL;
-	 m_glpad->bbox( false );     
-      }
+      //    m_glpad->bbox( vrml::Control::Point( bottom.x(), 
+      //   				      bottom.y(),
+      //   				      bottom.z() ),
+      //   		vrml::Control::Point( top.x(), 
+      //   				      top.y(),
+      //   				      top.z() ),
+      //   		Qt::white );
+      //    m_glpad->bbox( true );      
+      // } else {
+      //    m_selection = NULL;
+      //    m_glpad->bbox( false );     
+      // }
    }
 	
    m_glpad->repaint();

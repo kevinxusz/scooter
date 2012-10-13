@@ -29,7 +29,7 @@
 #define BOXFISH_VERSION_INFO   1
 #define BOXFISH_APPNAME        "Boxfish3d"
 #define BOXFISH_VERSION_STRING "@version_string@"
-#define BOXFISH_COMMA_VERSION  "@version_comma@"
+#define BOXFISH_COMMA_VERSION  @version_comma@
 #define BOXFISH_CREATOR_NAME   "Dimitry Kloper <kloper@users.sf.net>"
 #define BOXFISH_DESCRIPTION    "Boxfish -- VRML and X3D viewer"
 #define BOXFISH_COPYRIGHT "Copyright (C) 2002-2012. " \

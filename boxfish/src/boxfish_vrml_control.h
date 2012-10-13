@@ -66,7 +66,7 @@ public:
    typedef Vector::RT                RT;
    typedef Loader::browser_ptr       browser_ptr;
 
-   typedef std::vector<openvrml::node*> Node_list;
+   typedef std::vector<boost::intrusive_ptr<openvrml::node> > Node_list;
    typedef std::map<const openvrml::node*,GLuint> Node_GLList_map;
 
    enum PolygonMode {
@@ -135,6 +135,7 @@ public:
 protected: // openvrml::viewer interface
    rendering_mode do_mode();
    double         do_frame_rate();
+   void           do_reset_user_navigation();
 
    void           do_begin_object(const char * id, bool retain = false);
    void           do_end_object();
@@ -273,7 +274,7 @@ protected: // openvrml::viewer interface
    void          do_transform_points(size_t nPoints, 
                                      openvrml::vec3f * point) const;
 
-   void           do_draw_bounding_sphere(
+   void          do_draw_bounding_sphere(
       const openvrml::bounding_sphere& bs,
       openvrml::bounding_volume::intersection intersection);
 
@@ -298,10 +299,9 @@ public slots:
    void permanent_rotation( bool val );
    void stop_permanent_rotation( bool val );
    void render_mode( rendering_mode val );
-   void reset_user_navigation();
 
 public:
-   const Node_list&          scene_root_nodes()   const;
+   Node_list                 scene_root_nodes()   const;
    bool                      bbox()               const;
    QColor                    bbox_color()         const;
    QColor                    clear_color()        const;

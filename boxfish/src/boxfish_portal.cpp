@@ -32,6 +32,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
+#include <QtNetwork/QNetworkAccessManager>
+
 #include <QtGui/QMainWindow>
 #include <QtGui/QWorkspace>
 #include <QtGui/QMenu>
@@ -72,10 +74,13 @@ Portal::Portal() :
    m_help_action(NULL),
    m_exit_action(NULL),
    m_open_dialog(NULL),
-   m_tool_docker(NULL) {
+   m_tool_docker(NULL),
+   m_network_access_manager(NULL) {
 
    m_workspace = new QWorkspace;
    m_workspace->setScrollBarsEnabled(true);
+
+   m_network_access_manager = new QNetworkAccessManager();
 
    connect( m_workspace, SIGNAL(windowActivated(QWidget*)),
 	    this, SLOT(window_activated(QWidget*)) );
@@ -174,10 +179,10 @@ void Portal::open( const QString& fname ) {
 
    dgd_echo(fname);
 
-   QFileInfo finfo( fname );
+   QUrl url( fname );
    
-   if( finfo.exists() && finfo.isFile() && finfo.isReadable() ) {
-      Document *doc = new Document( finfo );
+   if( url.isValid() ) {
+      Document *doc = new Document( m_network_access_manager, url );
 
       QRect wsgeom = m_workspace->geometry();
       QRect mygeom;
@@ -197,7 +202,7 @@ void Portal::open( const QString& fname ) {
       connect( doc, SIGNAL(edit(QModelIndex)),
 	       this, SLOT(open(QModelIndex)) );
 
-      m_history_mapper->setMapping( doc, finfo.absoluteFilePath() );
+      m_history_mapper->setMapping( doc, QString(url.toEncoded()) );
       m_properties_mapper->setMapping( doc, doc );
 
       m_workspace->addWindow( doc );

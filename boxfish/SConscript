@@ -70,6 +70,17 @@ conf = env.Substfile(
        }
    )
 
+resfile = env.RES(os.path.join(variant, 'boxfish.rc'))
+
+qrcfile = os.path.join(variant, 'boxfish.qrc')
+env.Depends(qrcfile, os.path.join(variant, 'boxfish_cfg_def.xml'))
+
+qresfile = env.Command(
+    source = qrcfile,
+    target = os.path.join(variant, 'boxfish-qres.cpp'),
+    action = '$QT_BINPATH/rcc -name boxfish $SOURCE -o $TARGET'
+    )
+
 srclist = map( lambda fname: os.path.join(variant,fname), 
                [ 'boxfish_cfg.cpp',
                  'boxfish_svg.cpp',
@@ -81,9 +92,9 @@ srclist = map( lambda fname: os.path.join(variant,fname),
                  'boxfish_vrml_scene_tree.cpp',
                  'boxfish_vrml_scene_model.cpp',
                  'boxfish_vrml_control.cpp',
-                 #'boxfish_portal.cpp',
-                 #'boxfish_document.cpp',
-                 ] )
+                 'boxfish_portal.cpp',
+                 'boxfish_document.cpp' ]) 
+
 
 
 zlib_name = env.subst('${CRSHPREFIX}zlib')
@@ -94,19 +105,27 @@ libopenvrml_dl_name = env.subst('${CRSHPREFIX}openvrml-dl')
 libopenvrml_name = env.subst('${CRSHPREFIX}openvrml')
 
 boost_libs = map( lambda lib: lib + '$BOOST_LIB_SUFFIX',
-                              [ 'boost_filesystem',
-                                'boost_system',
-                                'boost_thread' ])
+                  [ 'boost_program_options',
+                    'boost_filesystem',
+                    'boost_system',
+                    'boost_thread' ])
+
+qt_libs = [ 'QtCore4', 'QtNetwork4', 'QtGui4', 'QtXml4', 'QtSvg4', 'QtOpenGL4' ]
+
+windows_libs = [ 'wsock32', 'opengl32', 'glu32' ]
 
 boxfish = env.Program(
     target = os.path.join(variant, 'boxfish3d'), 
-    source = srclist,
+    source = srclist + resfile + qresfile,
     LIBS = [ zlib_name, 
              libpng_name, 
              libjpeg_name, 
              libxml2_name, 
              libopenvrml_name,
-             libopenvrml_dl_name ] + boost_libs
+             libopenvrml_dl_name ] + 
+    boost_libs +
+    qt_libs +
+    windows_libs
 )
 
 env.Install('#blib/bin', boxfish[0])

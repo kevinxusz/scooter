@@ -25,7 +25,7 @@
 
 #include <windows.h>
 
-#include <boxfish_config.h>
+#include "boxfish_config.h"
 
 boxfish                 ICON    "../../icons/logo-new-icon.ico"
 

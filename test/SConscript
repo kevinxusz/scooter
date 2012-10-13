@@ -63,6 +63,12 @@ env.Append(LIBPATH = ['#blib/lib', '$BOOSTLIBDIR', '$QT_LIBPATH'])
 env.Append(LDFLAGS = ['-mthreads', '-mconsole'])
 
 dmgr_h = env.Command(
+    source = '../boxfish/src/boxfish_download_exception.h',
+    target = os.path.join(variant, 'boxfish_download_exception.h'),
+    action = Link("$TARGET", "$SOURCE")
+    )
+
+dmgr_h = env.Command(
     source = '../boxfish/src/boxfish_download_manager.h',
     target = os.path.join(variant, 'boxfish_download_manager.h'),
     action = Link("$TARGET", "$SOURCE")

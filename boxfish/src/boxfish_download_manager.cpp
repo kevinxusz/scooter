@@ -30,8 +30,6 @@
 
 #include <QtNetwork/QNetworkRequest>
 
-#include <boost/test/unit_test.hpp>
-
 #include <dgd.h>
 
 #include "boxfish_trace.h"

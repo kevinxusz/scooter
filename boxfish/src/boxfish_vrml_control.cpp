@@ -41,6 +41,7 @@
 #include <openvrml/browser.h>
 #include <openvrml/node.h>
 #include <openvrml/viewer.h>
+#include <openvrml/scene.h>
 
 #include <scooter/calculus.h>
 #include <scooter/calculus_dgd.h>
@@ -84,7 +85,9 @@ Control::Control( QWidget *parent, browser_ptr b ):
 			QSizePolicy::Ignored );
    this->setSizePolicy( spolicy );
    this->setMinimumSize( 50, 40 );
-   
+
+   m_browser->viewer(this);
+
    connect( &m_permanent_rotation_timer, SIGNAL(timeout()),
 	    this, SLOT(updateGL()) );
 }
@@ -134,7 +137,7 @@ double Control::do_frame_rate() {
 }
 
 
-void Control::reset_user_navigation() {
+void Control::do_reset_user_navigation() {
    dgd_scope;
    m_permanent_rotation = false;
    m_rotation.set_identity();
@@ -1873,11 +1876,21 @@ void Control::do_set_viewpoint(const openvrml::vec3f&    position,
 
    openvrml::vec3f target, up;
    v_pos.cartesian();
-   compute_view(openvrml::vec3f( v_pos.x(), v_pos.y(), v_pos.z() ), 
-		openvrml::rotation( v_orient.x(), 
-				    v_orient.y(), 
-				    v_orient.z(),
-				    v_orient.w() ), 
+   
+   openvrml::vec3f pos;
+   openvrml::rotation orient;
+
+   pos.x(v_pos.x()); 
+   pos.y(v_pos.y()); 
+   pos.z(v_pos.z());
+
+   orient.x(v_orient.x()); 
+   orient.y(v_orient.y()); 
+   orient.z(v_orient.z());
+   orient.angle(v_orient.w());
+
+   compute_view(pos,
+		orient, 
 		d, target, up);
 
    dgd_logger << dgd_expand(v_pos) << std::endl
@@ -2073,34 +2086,35 @@ void Control::scene_root_nodes( const Node_list& ptr ) {
    m_root_nodes = ptr;
 }
 
-const Control::Node_list&  
+Control::Node_list  
 Control::scene_root_nodes() const {
-   if( m_root_nodes.size() == 0 )
-      return browser.root_nodes();
+   if( m_root_nodes.size() == 0 ) 
+      return m_browser->root_scene()->nodes();
    return m_root_nodes;
 }
 
 bool Control::get_scene_bounds( Vector& center, FT& radius ) {
    dgd_scope;
    
-   const Node_list& root_nodes = this->scene_root_nodes();
+   Node_list root_nodes = this->scene_root_nodes();
    openvrml::bounding_sphere global_bvol;
 
-   for( Node_list::const_iterator root_node_iter = root_nodes.begin();
-	root_node_iter != root_nodes.end();
-	++root_node_iter ) {
-      const openvrml::node_ptr root = *root_node_iter;
-      dgd_echo((void*)root.get());
-      if( root.get() != NULL ) {
-	 const openvrml::bounding_volume &bvol = root->bounding_volume();
-	 const openvrml::bounding_sphere *bounding_sphere =
-	    dynamic_cast<const openvrml::bounding_sphere*>( &bvol );
-	 dgd_echo((void*)bounding_sphere);
-	 if( bounding_sphere != NULL ) {
-	    global_bvol.extend(*bounding_sphere);
-	 }
-      }
-   }
+   // TBD
+   // for( Node_list::const_iterator root_node_iter = root_nodes.begin();
+   //      root_node_iter != root_nodes.end();
+   //      ++root_node_iter ) {
+   //    const Node_list::value_type root = *root_node_iter;
+   //    dgd_echo((void*)root.get());
+   //    if( root.get() != NULL ) {
+   //       const openvrml::bounding_volume &bvol = root->bounding_volume();
+   //       const openvrml::bounding_sphere *bounding_sphere =
+   //          dynamic_cast<const openvrml::bounding_sphere*>( &bvol );
+   //       dgd_echo((void*)bounding_sphere);
+   //       if( bounding_sphere != NULL ) {
+   //          global_bvol.extend(*bounding_sphere);
+   //       }
+   //    }
+   // }
 
    if( global_bvol.radius() < 0 ) {
       global_bvol.radius( 1 );
@@ -2237,8 +2251,8 @@ void Control::paintGL() {
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
 
-   browser.render(*this);
-   draw_bbox();
+   m_browser->render();
+   do_draw_bbox();
 }
 
 
@@ -2309,14 +2323,13 @@ void Control::select( int x, int y ) {
 class Toucher: public openvrml::node_traverser {
 public:
    Toucher() {};      
-   virtual ~Toucher() common_throw {};
+   virtual ~Toucher() throw() {};
 
 private:
    void on_entering(openvrml::node &node) {
       try {
-         openvrml::vrml97_node::abstract_geometry_node &geom = 
-            dynamic_cast< openvrml::vrml97_node::
-            abstract_geometry_node&>(node);
+         openvrml::geometry_node &geom = 
+            dynamic_cast< openvrml::geometry_node&>(node);
          geom.modified(true);
       } catch( std::bad_cast ) {	    
       }
@@ -2327,7 +2340,7 @@ private:
 void Control::touch_scene() {
    Toucher t;
 
-   t.traverse( m_browser->root_nodes() );
+   t.traverse( m_browser->root_scene()->nodes() );
 }
 
 QSize Control::minimumSizeHint() const {

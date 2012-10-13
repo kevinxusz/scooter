@@ -39,6 +39,7 @@ class QAction;
 class QFileDialog;
 class QDockWidget;
 class QActionGroup;
+class QNetworkAccessManager;
 
 namespace boxfish {
 
@@ -58,7 +59,6 @@ public slots:
 
    void open( const QString& fname );
    void open();
-   void open( QModelIndex index );
    void close();
    void save();
    void saveas();
@@ -114,6 +114,8 @@ private:
    QActionGroup   *m_shading_actions;
    QFileDialog    *m_open_dialog;
    QDockWidget    *m_tool_docker;
+
+   QNetworkAccessManager *m_network_access_manager;
 
    QStringList     m_file_history;
 };

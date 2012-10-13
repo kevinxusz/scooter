@@ -26,6 +26,7 @@
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QModelIndex>
+#include <QtCore/QUrl>
 
 #include <QtGui/QWidget>
 
@@ -34,6 +35,7 @@ class QStatusBar;
 class QProgressBar;
 class QVBoxLayout;
 class QTabWidget;
+class QNetworkAccessManager;
 
 namespace boxfish {
 
@@ -52,7 +54,7 @@ class Document: public QWidget {
    Q_OBJECT
       
 public:      
-   Document( const QFileInfo& finfo );
+   Document( QNetworkAccessManager *manager, const QUrl& url );
    virtual ~Document();
 
    QWidget *toolset() const;
@@ -85,7 +87,7 @@ private:
    void construct_toolset();
 
 private:
-   QFileInfo           m_finfo;
+   QUrl                m_url;
    QStatusBar         *m_status_bar;
    QProgressBar       *m_progress_bar;
    QVBoxLayout        *m_layout;
@@ -95,6 +97,7 @@ private:
    vrml::scene::Tree  *m_scene_tree;
    vrml::Control      *m_glpad;
    void               *m_selection;
+   QNetworkAccessManager *m_network_access_manager;
 };
 
 }; // end of namespace boxfish
