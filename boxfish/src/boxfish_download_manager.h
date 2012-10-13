@@ -40,6 +40,15 @@ class download_manager: public QObject {
    Q_OBJECT
 
 public:
+   typedef enum {
+      initialized = 0,
+      open_started,
+      open_completed,
+      close_completed,
+      error
+   } manager_state;
+
+public:
    download_manager(QNetworkAccessManager *manager, const std::string& url);
 
    virtual ~download_manager();
@@ -52,6 +61,9 @@ public:
    void close();
 
    QString error_string() const { return m_error_string; }
+   QString type() const { return m_type.isValid() ? m_type.toString() : ""; }
+   QUrl    url() const { return m_url; }
+   manager_state state() const { return m_state; }
 
 signals:
    void opened();
@@ -63,6 +75,7 @@ private slots:
 
 private:
    QUrl m_url;
+   manager_state m_state;
    QNetworkAccessManager *m_network_manager;
    QNetworkReply *m_reply;
    

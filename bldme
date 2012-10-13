@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash -x
 
 export BLDME_DIRNAME="$( cd "$( dirname "$0" )" && cygpath -a -m `pwd` )"
 export SCONS_DIR=$BLDME_DIRNAME/ext/scons-2.2.0

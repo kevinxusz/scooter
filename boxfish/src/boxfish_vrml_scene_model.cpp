@@ -29,6 +29,7 @@
 
 #include <openvrml/browser.h>
 #include <openvrml/node.h>
+#include <openvrml/scene.h>
 
 #include <dgd.h>
 
@@ -65,7 +66,7 @@ void Model::reset() {
 
    m_scene_map->clear();
    Builder builder( m_scene_map );
-   builder.traverse( m_browser->root_nodes() );
+   builder.traverse( m_browser->root_scene()->nodes() );
 }
 
 QModelIndex Model::buddy( const QModelIndex & index ) const {
@@ -116,21 +117,24 @@ QVariant Model::data( const QModelIndex & index, int role ) const {
 
    if( item != NULL && item->node().node() != NULL ) {
       if( item->node().field().isNull() ) {
-	 QString type = QString::fromStdString( item->node().node()->type.id );
-	 QString id   = QString::fromStdString( item->node().node()->id() );
+	 QString type = 
+            QString::fromStdString( item->node().node()->type().id() );
+	 QString id =
+            QString::fromStdString( item->node().node()->id() );
 	 
 	 if( id.isEmpty() ) {
 	    id = type;
 	 }
 
-	 const openvrml::vrml97_node::indexed_face_set_node *ifs = 
-	    dynamic_cast<openvrml::vrml97_node::indexed_face_set_node*>(
-	       item->node().node()->to_geometry()
-	    );
+         // TBD
+	 // const openvrml::vrml97_node::indexed_face_set_node *ifs = 
+	 //    dynamic_cast<openvrml::vrml97_node::indexed_face_set_node*>(
+	 //       item->node().node()->to_geometry()
+	 //    );
 
 	 dgd_logger << dgd_expand(type.toStdString()) << std::endl
-                    << dgd_expand(id.toStdString()) << std::endl 
-                    << ifs << std::endl;      
+                    << dgd_expand(id.toStdString()) << std::endl ;
+//                    << ifs << std::endl;      
 	 
 	 switch( index.column() ) {
 	    case SM_NAME_COLUMN:
@@ -140,10 +144,11 @@ QVariant Model::data( const QModelIndex & index, int role ) const {
 	       rc = QVariant::fromValue( type );
 	       break;
 	    case SM_PROP_COLUMN:
-	       if( ifs != NULL )
-		  rc = QVariant::fromValue( tr("Editable") );
-	       else
-		  rc = QVariant::fromValue( tr("Read Only") );
+               // TBD
+	       // if( ifs != NULL )
+	       //    rc = QVariant::fromValue( tr("Editable") );
+	       // else
+	       //    rc = QVariant::fromValue( tr("Read Only") );
 	       break;
 	    default:
 	       break;
@@ -151,8 +156,10 @@ QVariant Model::data( const QModelIndex & index, int role ) const {
       } else {
 	 std::ostringstream out;
 	 QString id = item->node().field();
+         openvrml::node_interface target_ifc;
+         target_ifc.id = id.toStdString();
 	 openvrml::node_interface_set::const_iterator node_ifc = 
-	    item->node().node()->type.interfaces().find( id.toStdString() );
+	    item->node().node()->type().interfaces().find( target_ifc );
 
 	 out << node_ifc->field_type;
 
@@ -177,7 +184,7 @@ QVariant Model::data( const QModelIndex & index, int role ) const {
             case openvrml::field_value::sfvec2f_id:
             case openvrml::field_value::sfvec3f_id:
 	       out.str( std::string() );
-	       out << item->node().node()->field( id.toStdString() );
+	       out << *(item->node().node()->field( id.toStdString() ));
 	       val = QString::fromStdString( out.str() );
 	       break;
 	    default:

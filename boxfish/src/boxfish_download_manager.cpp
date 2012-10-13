@@ -42,6 +42,7 @@ namespace boxfish
 
 download_manager::download_manager(QNetworkAccessManager  *manager,
                                    const std::string& url) :
+   m_state(download_manager::initialized),
    m_network_manager(manager),
    m_reply(NULL) {
    dgd_scopef(download);
@@ -62,6 +63,7 @@ bool download_manager::begin_open()
       m_error_string = QString("URL '%1' is not valid: %2").
                        arg(QString(m_url.toEncoded())).
                        arg(m_url.errorString());
+      m_state =download_manager::error;
       return false;
    } else {
       QNetworkRequest request(m_url);
@@ -74,6 +76,7 @@ bool download_manager::begin_open()
                            arg(QString(m_url.toEncoded())).
                            arg(m_reply->error()).
                            arg(m_reply->errorString());
+          m_state =download_manager::error;
           return false;
       }
       
@@ -81,6 +84,7 @@ bool download_manager::begin_open()
       connect(m_reply, SIGNAL(finished()), SLOT(reply_ready()));
    }
 
+   m_state =download_manager::open_started;
    return true;
 }
 
@@ -101,6 +105,7 @@ bool download_manager::end_open(int timeout_msec)
                                "after %2 millisecons").
                        arg(QString(m_url.toEncoded())).
                        arg(timeout_msec);
+      m_state =download_manager::error;
       return false;
    }
 
@@ -110,9 +115,11 @@ bool download_manager::end_open(int timeout_msec)
                        arg(QString(m_url.toEncoded())).
                        arg(m_reply->error()).
                        arg(m_reply->errorString());
+      m_state =download_manager::error;
       return false;
    }
 
+   m_state =download_manager::open_completed;
    return true;
 }
 
@@ -133,6 +140,7 @@ void download_manager::close() {
       m_reply = NULL;
    }
 
+   m_state =download_manager::close_completed;
    emit closed();
 }
 

@@ -25,28 +25,95 @@
 #include <string>
 #include <vector>
 
+#include <boost/iostreams/concepts.hpp> 
+#include <boost/iostreams/stream.hpp>
+
+#include <openvrml/browser.h>
+
 #include <dgd.h>
 
+#include "boxfish_download_exception.h"
+#include "boxfish_download_manager.h"
+#include "boxfish_download_source.h"
 #include "boxfish_vrml_loader.h"
 
 namespace boxfish {
 
 namespace vrml {
 
-Loader::Loader( const QFileInfo &finfo ) :
+namespace local {
+
+class download_istream : public openvrml::resource_istream {
+public:
+   typedef
+   boost::iostreams::stream_buffer<boxfish::download_source> stream_buffer_t;
+
+public:
+   download_istream(QNetworkAccessManager *manager, const std::string& url):
+      m_manager(manager, url),
+      m_streambuf(&m_manager),
+      openvrml::resource_istream(&m_streambuf)
+   {      
+      if(!m_manager.begin_open())
+         throw download_exception(m_manager.error_string());              
+   }
+
+   ~download_istream() {
+   }
+
+private:
+   const std::string do_url() const {
+      return QString(m_manager.url().toEncoded()).toStdString();
+   }
+
+   const std::string do_type() const {
+      return m_manager.type().toStdString();
+   }
+
+   bool do_data_available() const {
+      return m_manager.state() == download_manager::open_completed;
+   }
+
+private:
+   boxfish::download_manager m_manager;
+   stream_buffer_t m_streambuf;
+};
+
+class download_fetcher: public openvrml::resource_fetcher {
+public:
+   download_fetcher(QNetworkAccessManager *manager):
+      openvrml::resource_fetcher(),
+      m_manager(manager)
+   {
+   }
+   
+   ~download_fetcher() {
+   }
+   
+private:
+   std::auto_ptr<openvrml::resource_istream> 
+   do_get_resource(const std::string & uri) {
+      std::auto_ptr<openvrml::resource_istream> str;
+      str.reset(new download_istream(m_manager, uri));      
+      return str;
+   }
+
+private:
+   QNetworkAccessManager *m_manager;
+};
+
+} // end of namespace local
+
+Loader::Loader( QNetworkAccessManager *manager, const QUrl &url ) :
    QThread(),
+   m_manager(manager),
    m_count(0),   
    m_prev(0),
-   m_finfo(finfo),
-   m_errno(None) {
+   m_url(url) {
    this->setTerminationEnabled();
 }
 
 Loader::~Loader() {
-}
-
-Loader::ErrorCode Loader::error() const {
-   return m_errno;
 }
 
 Loader::browser_ptr Loader::browser() const {
@@ -56,31 +123,20 @@ Loader::browser_ptr Loader::browser() const {
 void Loader::run() {
    dgd_scope;
 
-   if( m_finfo.isDir()      || 
-       !m_finfo.exists()    ||
-       !m_finfo.isReadable() ) {
-      dgd_logger << "cant read file: " 
-                 << m_finfo.absoluteFilePath()
-                 << std::endl;
-      m_errno = Open_Error;
-      emit failure();
-      return;
-   }
-
-   m_fetcher.reset( new openvrml::resource_fetcher() );
-   m_browser.reset( new openvrml::browser( *m_fetcher, std::cout, std::cerr ) );
+   local::download_fetcher fetcher(m_manager);
+   m_browser.reset( new openvrml::browser( fetcher, std::cout, std::cerr ) );
 
    std::vector<std::string> urls,params;
-   urls.push_back( std::string( m_finfo.absoluteFilePath().toStdString() ) );
+   urls.push_back( QString(m_url.toEncoded()).toStdString() );
 	    
 	    
    try {
-      m_browser->load_url( urls, params, this );
+      m_browser->load_url( urls, params );
    } catch( std::exception &ex ) {
-      m_errno = Load_Error;
+      m_error_string += ex.what();
       emit failure();
       dgd_logger << "got exception in load_url() while loading: " 
-                 << m_finfo.absoluteFilePath()
+                 << QString(m_url.toEncoded())
                  << " , reason was: " << ex.what()
                  << std::endl;
       return;
@@ -93,11 +149,11 @@ void Loader::run() {
 void Loader::operator () ( unsigned long l, unsigned long c ) {
    m_count++;
 
-   int val = (int)(m_count * 100.0 / m_finfo.size());
-   if( val >= m_prev + 10 ) {
-      m_prev = val;
-      emit progress(val);
-   }	   
+   // int val = (int)(m_count * 100.0 / m_finfo.size());
+   // if( val >= m_prev + 10 ) {
+   //    m_prev = val;
+   //    emit progress(val);
+   // }	   
 }
 
 }; // end of namespace vrml

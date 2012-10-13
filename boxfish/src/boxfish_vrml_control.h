@@ -27,6 +27,7 @@
 
 #include <list>
 #include <vector>
+#include <map>
 
 #include <boost/smart_ptr.hpp>
 
@@ -65,7 +66,8 @@ public:
    typedef Vector::RT                RT;
    typedef Loader::browser_ptr       browser_ptr;
 
-   typedef std::vector<openvrml::node_ptr> Node_list;
+   typedef std::vector<openvrml::node*> Node_list;
+   typedef std::map<const openvrml::node*,GLuint> Node_GLList_map;
 
    enum PolygonMode {
       WIREFRAME,
@@ -130,30 +132,28 @@ public:
    Control( QWidget *parent, browser_ptr b );      
    virtual ~Control();
 
-public: // openvrml::viewer interface
-   rendering_mode mode();
-   double         frame_rate();
+protected: // openvrml::viewer interface
+   rendering_mode do_mode();
+   double         do_frame_rate();
 
-   object_t       begin_object(const char * id, bool retain = false);
-   void           end_object();
+   void           do_begin_object(const char * id, bool retain = false);
+   void           do_end_object();
 
-   object_t       insert_background(
-      const std::vector<float> & ground_angle,
-      const std::vector<openvrml::color> & ground_color,
-      const std::vector<float> & sky_angle,
-      const std::vector<openvrml::color> & sky_color,
-      size_t * whc,
-      unsigned char ** pixels);
+   void           do_insert_background(const openvrml::background_node& n);
 
-   object_t       insert_box(const openvrml::vec3f & size);
+   void           do_insert_box(const openvrml::geometry_node& n,
+                                const openvrml::vec3f& size);
 
-   object_t       insert_cone(float height, float radius, bool bottom,
-                              bool side);
+   void           do_insert_cone(const openvrml::geometry_node& n,
+                                 float height, float radius, bool bottom,
+                                 bool side);
 
-   object_t       insert_cylinder(float height, float radius, bool bottom, 
-                                  bool side, bool top);
+   void           do_insert_cylinder(const openvrml::geometry_node & n,
+                                     float height, float radius, bool bottom, 
+                                     bool side, bool top);
 
-   object_t       insert_elevation_grid(
+   void           do_insert_elevation_grid(
+      const openvrml::geometry_node& n,
       unsigned int mask,
       const std::vector<float> & height,
       openvrml::int32 x_dimension, 
@@ -164,25 +164,29 @@ public: // openvrml::viewer interface
       const std::vector<openvrml::vec3f>& normal,
       const std::vector<openvrml::vec2f>& tc);
 
-   object_t       insert_extrusion(
-      unsigned int,
+   void           do_insert_extrusion(
+      const openvrml::geometry_node& n,
+      unsigned int mask,
       const std::vector<openvrml::vec3f>&  spine,
       const std::vector<openvrml::vec2f>&  cross_section,
       const std::vector<openvrml::rotation>& orientation,
       const std::vector<openvrml::vec2f>&  scale);
 
-   object_t       insert_line_set(
+   void           do_insert_line_set(
+      const openvrml::geometry_node& n,
       const std::vector<openvrml::vec3f> & coord,
       const std::vector<openvrml::int32> & coord_index,
       bool color_per_vertex,
       const std::vector<openvrml::color> & color,
       const std::vector<openvrml::int32> & color_index);
 
-   object_t       insert_point_set(
+   void           do_insert_point_set(
+      const openvrml::geometry_node& n,
       const std::vector<openvrml::vec3f> & coord,
       const std::vector<openvrml::color> & color);
 
-   object_t       insert_shell(
+   void           do_insert_shell(
+      const openvrml::geometry_node& n,
       unsigned int mask,
       const std::vector<openvrml::vec3f> & coord,
       const std::vector<openvrml::int32> & coord_index,
@@ -193,90 +197,87 @@ public: // openvrml::viewer interface
       const std::vector<openvrml::vec2f> & tex_coord,
       const std::vector<openvrml::int32> & tex_coord_index);
 
-   object_t       insert_sphere(float radius);
+   void          do_insert_sphere(const openvrml::geometry_node & n, 
+                                  float radius);
 
-   object_t       insert_dir_light(float ambient_intensity,
-                                   float intensity,
-                                   const openvrml::color & color,
-                                   const openvrml::vec3f & direction);
-
-   object_t       insert_point_light(float ambient_intensity,
-                                     const openvrml::vec3f & attenuation,
-                                     const openvrml::color & color,
+   void          do_insert_dir_light(float ambient_intensity,
                                      float intensity,
-                                     const openvrml::vec3f & location,
-                                     float radius);
+                                     const openvrml::color & color,
+                                     const openvrml::vec3f & direction);
 
-   object_t       insert_spot_light(float ambient_intensity,
-                                    const openvrml::vec3f & attenuation,
-                                    float beam_width,
-                                    const openvrml::color & color,
-                                    float cut_off_angle,
-                                    const openvrml::vec3f & direction,
-                                    float intensity,
-                                    const openvrml::vec3f & location,
-                                    float radius);
+   void          do_insert_point_light(float ambient_intensity,
+                                       const openvrml::vec3f & attenuation,
+                                       const openvrml::color & color,
+                                       float intensity,
+                                       const openvrml::vec3f & location,
+                                       float radius);
 
-   object_t       insert_reference(object_t existing_object);
+   void          do_insert_spot_light(float ambient_intensity,
+                                      const openvrml::vec3f & attenuation,
+                                      float beam_width,
+                                      const openvrml::color & color,
+                                      float cut_off_angle,
+                                      const openvrml::vec3f & direction,
+                                      float intensity,
+                                      const openvrml::vec3f & location,
+                                      float radius);
 
-   void           remove_object(object_t ref);
+   void          do_remove_object(const openvrml::node& n);
 
-   void           enable_lighting(bool val);
+   void          do_enable_lighting(bool val);
 
-   void           set_fog(const openvrml::color & color, 
-                          float visibility_range,
-                          const char * type);
+   void          do_set_fog(const openvrml::color & color, 
+                            float visibility_range,
+                            const char * type);
+   
+   void          do_set_color(const openvrml::color & rgb, float a = 1.0);
 
-   void           set_color(const openvrml::color & rgb, float a = 1.0);
+   void          do_set_material(float ambient_intensity,
+                                 const openvrml::color & diffuse_color,
+                                 const openvrml::color & emissive_color,
+                                 float shininess,
+                                 const openvrml::color & specular_color,
+                                 float transparency);
 
-   void           set_material(float ambient_intensity,
-                               const openvrml::color & diffuse_color,
-                               const openvrml::color & emissive_color,
-                               float shininess,
-                               const openvrml::color & specular_color,
-                               float transparency);
+   void          do_set_material_mode(size_t tex_components,
+                                      bool geometry_color);
 
-   void           set_material_mode(size_t tex_components,
-                                    bool geometry_color);
+   void          do_set_sensitive(openvrml::node * object);
 
-   void           set_sensitive(openvrml::node * object);
+   void          scale_texture(size_t w, size_t h,
+                               size_t newW, size_t newH,
+                               size_t nc,
+                               unsigned char * pixels);
+   
+   void          do_insert_texture(const openvrml::texture_node & n,
+                                   bool retainHint);
+   
+   void          do_remove_texture_object(const openvrml::texture_node & n);
 
-   void           scale_texture(size_t w, size_t h,
-                                size_t newW, size_t newH,
-                                size_t nc,
-                                unsigned char * pixels);
+   void          do_set_texture_transform(const openvrml::vec2f & center,
+                                          float rotation,
+                                          const openvrml::vec2f & scale,
+                                          const openvrml::vec2f & translation);
 
-   texture_object_t 
-   insert_texture(size_t w, size_t h, size_t nc,
-                  bool repeat_s,
-                  bool repeat_t,
-                  const unsigned char * pixels,
-                  bool retainHint = false);
-      
-   void           insert_texture_reference(texture_object_t ref,
-                                           size_t components);
-   void           remove_texture_object(texture_object_t ref);
-
-   void           set_texture_transform(const openvrml::vec2f & center,
-                                        float rotation,
-                                        const openvrml::vec2f & scale,
-                                        const openvrml::vec2f & translation);
-   void           set_viewpoint(const openvrml::vec3f & position,
-                                const openvrml::rotation & orientation,
-                                float field_of_view,
+   void          do_set_frustum(float field_of_view,
                                 float avatar_size,
                                 float visibility_limit);
 
-   void           transform(const openvrml::mat4f & mat);
+   void          do_set_viewpoint(const openvrml::vec3f & position,
+                                  const openvrml::rotation & orientation,
+                                  float avatar_size,
+                                  float visibility_limit);
 
-   void           transform_points(size_t nPoints, 
-                                   openvrml::vec3f * point) const;
+   void          do_transform(const openvrml::mat4f & mat);
 
-   void           draw_bounding_sphere(
+   void          do_transform_points(size_t nPoints, 
+                                     openvrml::vec3f * point) const;
+
+   void           do_draw_bounding_sphere(
       const openvrml::bounding_sphere& bs,
       openvrml::bounding_volume::intersection intersection);
 
-   void           draw_bbox();
+   void           do_draw_bbox();
 
 public slots: 
 
@@ -355,6 +356,9 @@ protected:
    void input( QMouseEvent *mouse_event );
       
 protected:
+   void update_list(const openvrml::node* n, GLuint list_id);
+   bool execute_list(const openvrml::node* n);
+
    void initialize();
    Line unproject( int x, int y );
    void apply_local_transform();
@@ -376,13 +380,14 @@ protected:
                                     boost::shared_array<Vector>& normals,
                                     boost::shared_array<Vector>& texture,
                                     const bool                   is_cone );
-   object_t insert_cyllindric_object(float height, 
-                                     float radius,
-                                     unsigned precision,
-                                     bool  top, 
-                                     bool  bottom,
-                                     bool  side,
-                                     bool  is_cone );
+   void insert_cyllindric_object(   const openvrml::geometry_node& n,
+                                    float height, 
+                                    float radius,
+                                    unsigned precision,
+                                    bool  top, 
+                                    bool  bottom,
+                                    bool  side,
+                                    bool  is_cone );
    void generate_spheric_arrays( const float                    radius, 
                                  const unsigned                 precision,
                                  boost::shared_array<Vector>&   vertexes,
@@ -481,6 +486,8 @@ private:
 
    Node_list   m_root_nodes;
    browser_ptr m_browser;
+
+   Node_GLList_map m_gl_list;
 };
 
 }; // end of namespace vrml 

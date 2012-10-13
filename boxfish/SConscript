@@ -74,14 +74,15 @@ srclist = map( lambda fname: os.path.join(variant,fname),
                [ 'boxfish_cfg.cpp',
                  'boxfish_svg.cpp',
                  'boxfish_main.cpp',
+                 'boxfish_download_manager.cpp',
                  'boxfish_vrml_scene_item.cpp',
                  'boxfish_vrml_scene_map.cpp',
                  'boxfish_vrml_loader.cpp',
-                 #'boxfish_vrml_scene_model.cpp',
-                 # 'boxfish_document.cpp',
-                 # 'boxfish_portal.cpp',
-                 # 'boxfish_vrml_control.cpp',
-                 # 'boxfish_vrml_scene_tree.cpp'
+                 'boxfish_vrml_scene_tree.cpp',
+                 'boxfish_vrml_scene_model.cpp',
+                 'boxfish_vrml_control.cpp',
+                 #'boxfish_portal.cpp',
+                 #'boxfish_document.cpp',
                  ] )
 
 

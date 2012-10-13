@@ -28,6 +28,9 @@
 
 #include <QtCore/QThread>
 #include <QtCore/QFileInfo>
+#include <QtCore/QUrl>
+
+#include <QtNetwork/QNetworkAccessManager>
 
 #include <openvrml/browser.h>
 
@@ -39,20 +42,13 @@ class Loader: public QThread {
    Q_OBJECT
    
 public:
-   enum ErrorCode {
-      None,
-      Open_Error,
-      Load_Error
-   };
-   
    typedef boost::shared_ptr<openvrml::browser> browser_ptr;
-   typedef boost::shared_ptr<openvrml::resource_fetcher> resource_fetcher_ptr;
 
 public:
-   Loader( const QFileInfo &finfo );
+   Loader( QNetworkAccessManager *manager, const QUrl &finfo );
    virtual ~Loader();
 
-   ErrorCode   error() const;
+   QString     error_string() const { return m_error_string; }
    browser_ptr browser() const;
 private:
    void run();
@@ -64,12 +60,12 @@ signals:
    void success();
 
 private:
+   QNetworkAccessManager *m_manager;
    unsigned long        m_count;
    int                  m_prev;
-   QFileInfo            m_finfo;
-   ErrorCode            m_errno;  
-   resource_fetcher_ptr m_fetcher;    
+   QUrl                 m_url;
    browser_ptr          m_browser;
+   QString              m_error_string;
 };
 
 }; // end of namespace vrml

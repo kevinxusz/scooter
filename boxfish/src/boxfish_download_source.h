@@ -42,6 +42,14 @@ public:
       m_manager(manager) {}
 
    std::streamsize read(char* s, std::streamsize n) {
+      if( m_manager->state() == download_manager::open_started ) {
+         if( !m_manager->end_open(15000) )
+            throw download_exception(m_manager->error_string());
+      } else if( m_manager->state() != download_manager::open_completed ) {
+         throw 
+            download_exception("trying to read from closed download manager.");
+      }
+      
       return m_manager->read(s, n);
    }
 

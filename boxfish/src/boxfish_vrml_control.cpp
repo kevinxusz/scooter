@@ -38,9 +38,9 @@
 
 #include <boost/smart_ptr.hpp>
 
-#include <openvrml/node_ptr.h>
 #include <openvrml/browser.h>
-#include <openvrml/vrml97node.h>
+#include <openvrml/node.h>
+#include <openvrml/viewer.h>
 
 #include <scooter/calculus.h>
 #include <scooter/calculus_dgd.h>
@@ -56,7 +56,7 @@ namespace vrml {
 
 Control::Control( QWidget *parent, browser_ptr b ):
    QGLWidget(parent),
-   openvrml::viewer(*b),
+   openvrml::viewer(),
    m_initialized(false),
    m_enable_face_culling(true),
    m_enable_scene_centering(true),
@@ -94,13 +94,42 @@ Control::~Control() {
       m_permanent_rotation_timer.stop();
 }
 
+bool Control::execute_list( const openvrml::node* n ) {
+   dgd_scope;
 
-Control::rendering_mode Control::mode() {
+   Node_GLList_map::const_iterator item = m_gl_list.find(n);
+   if (item != m_gl_list.end()) {
+      apply_local_transform();
+
+      glCallList(item->second);
+
+      undo_local_transform();
+      
+      return true;
+   }
+
+   return false;
+}
+
+
+void Control::update_list( const openvrml::node *n, GLuint list_id ) {
+   dgd_scope;
+
+   Node_GLList_map::const_iterator item = m_gl_list.find(n);
+   if (item != m_gl_list.end()) {
+      glDeleteLists( (GLuint)item->second, 1 );
+   }
+
+   if (list_id != 0) 
+      m_gl_list.insert( std::make_pair( n, list_id ) );
+}
+
+Control::rendering_mode Control::do_mode() {
    return m_select_mode;
 }
 
 
-double Control::frame_rate() {
+double Control::do_frame_rate() {
    return 0;
 }
 
@@ -112,9 +141,7 @@ void Control::reset_user_navigation() {
    m_translation( 0.0, 0.0, 0.0, 1.0 );
 }
 
-
-Control::object_t
-Control::begin_object( const char* id, bool retain ) {
+void Control::do_begin_object( const char* id, bool retain ) {
    dgd_scope;
    dgd_echo((id?id:"id=null"));
 
@@ -128,30 +155,9 @@ Control::begin_object( const char* id, bool retain ) {
 
    m_transform_stack.push_back( Matrix() );
    glGetFloatv( GL_MODELVIEW_MATRIX, m_transform_stack.back() );
-
-   return (object_t)NULL;
 }
 
-
-Control::object_t 
-Control::insert_reference( object_t existing_object ) {
-   dgd_scope;
-   apply_local_transform();
-
-   glCallList(GLuint(existing_object));
-
-   undo_local_transform();
-   return existing_object;
-}
-
-
-void Control::remove_object( object_t ref ) {
-   dgd_scope;
-   glDeleteLists( (GLuint)ref, 1 );
-}
-
-
-void Control::end_object() {
+void Control::do_end_object() {
    dgd_scope;
 
    for( int i = 0; i < m_max_lights; ++i ) {
@@ -171,21 +177,19 @@ void Control::end_object() {
    m_transform_stack.pop_back();
 }
 
-
-Control::object_t 
-Control::insert_background( 
-   const std::vector<float>&           ground_angle,
-   const std::vector<openvrml::color>& ground_color,
-   const std::vector<float>&           sky_angle,
-   const std::vector<openvrml::color>& sky_color,
-   size_t*                             whc,
-   unsigned char**                     pixels) {
-   return (object_t)NULL;
+void
+Control::do_insert_background( const openvrml::background_node& n )
+{
 }
 
-
-Control::object_t Control::insert_box(const openvrml::vec3f & size) {
+void 
+Control::do_insert_box(const openvrml::geometry_node& gn, 
+                       const openvrml::vec3f & size) {
    dgd_scope;
+
+   if (execute_list(&gn)) {
+      return;
+   }
 
    apply_local_transform();
 
@@ -249,11 +253,12 @@ Control::object_t Control::insert_box(const openvrml::vec3f & size) {
    glEnd();
    glPopAttrib();
 
-   if (glid) { glEndList(); }
+   if (glid) { 
+      glEndList(); 
+      update_list( &gn, glid );
+   }
 
    undo_local_transform();
-
-   return object_t(glid);
 }
 
 void 
@@ -334,16 +339,21 @@ Control::generate_cyllindric_arrays(
    }
 }
 
-Control::object_t 
-Control::insert_cyllindric_object(float height, 
-				  float radius,
-				  unsigned precision,
-				  bool  top, 
-				  bool  bottom,
-				  bool  side,
-				  bool  is_cone ) {
+void
+Control::insert_cyllindric_object(
+   const openvrml::geometry_node& n,
+   float height, 
+   float radius,
+   unsigned precision,
+   bool  top, 
+   bool  bottom,
+   bool  side,
+   bool  is_cone ) {
    dgd_scope;
 
+   if (execute_list(&n)) {
+      return;
+   }
 
    apply_local_transform();
 
@@ -415,36 +425,41 @@ Control::insert_cyllindric_object(float height,
 
    glPopAttrib();
 
-   if (glid) { glEndList(); }
+   if (glid) { 
+      glEndList(); 
+      update_list( &n, glid );
+   }
 
    undo_local_transform();
-
-   return object_t(glid);
 }
 
-Control::object_t 
-Control::insert_cone(float height, 
-		     float radius, 
-		     bool  bottom,
-		     bool  side    ) {
+void
+Control::do_insert_cone(
+   const openvrml::geometry_node& n,
+   float height, 
+   float radius, 
+   bool  bottom,
+   bool  side    ) {
    dgd_scope;
 
-   object_t rc = insert_cyllindric_object( height, radius, m_cone_precision,
-					   false, bottom, side,
-					   true );
-   return rc;
+   insert_cyllindric_object( 
+      n,
+      height, radius, m_cone_precision,
+      false, bottom, side,
+      true );
 }
 
-Control::object_t 
-Control::insert_cylinder( float height, float radius, 
-			  bool bottom, bool side, bool top) {
+void
+Control::do_insert_cylinder( const openvrml::geometry_node & n,
+                             float height, float radius, 
+                             bool bottom, bool side, bool top) {
    dgd_scope;
 
-   object_t rc = insert_cyllindric_object( height, radius, 
-					   m_cylinder_precision,
-					   top, bottom, side,
-					   false );
-   return rc;
+   insert_cyllindric_object( n,
+                             height, radius, 
+                             m_cylinder_precision,
+                             top, bottom, side,
+                             false );
 }
 
 void 
@@ -523,9 +538,14 @@ Control::generate_spheric_arrays(
    dgd_logger << std::endl;
 }
 
-Control::object_t Control::insert_sphere(float radius) {
+void
+Control::do_insert_sphere(const openvrml::geometry_node & n, float radius) {
    dgd_scope;
    
+   if (execute_list(&n)) {
+      return;
+   }
+
    apply_local_transform();
 
    GLuint glid = 0;
@@ -568,11 +588,12 @@ Control::object_t Control::insert_sphere(float radius) {
    glDisableClientState( GL_NORMAL_ARRAY );
    glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 
-   if (glid) { glEndList(); }
+   if (glid) { 
+      glEndList(); 
+      update_list( &n, glid );
+   }
 
    undo_local_transform();
-      
-   return object_t(glid);
 }
 
 
@@ -683,8 +704,9 @@ Control::generate_elevation_arrays(
 }
    
 
-Control::object_t 
-Control::insert_elevation_grid( 
+void
+Control::do_insert_elevation_grid( 
+   const openvrml::geometry_node& n,
    unsigned int                        mask,
    const std::vector<float>&           height,
    openvrml::int32                     x_dimension, 
@@ -696,6 +718,10 @@ Control::insert_elevation_grid(
    const std::vector<openvrml::vec2f>& tc) {
    dgd_scope;
    
+   if (execute_list(&n)) {
+      return;
+   }
+
    apply_local_transform();
 
    GLuint glid = 0;
@@ -746,22 +772,22 @@ Control::insert_elevation_grid(
 
    glPopAttrib();
 
-   if (glid) { glEndList(); }
+   if (glid) { 
+      glEndList(); 
+      update_list( &n, glid );
+   }
 
    undo_local_transform();
-      
-   return object_t(glid);
 }
 
-
-Control::object_t 
-Control::insert_extrusion( 
+void
+Control::do_insert_extrusion( 
+   const openvrml::geometry_node& n,
    unsigned int,
    const std::vector<openvrml::vec3f>&    spine,
    const std::vector<openvrml::vec2f>&    cross_section,
    const std::vector<openvrml::rotation>& orientation,
    const std::vector<openvrml::vec2f>&    scale ) {
-   return (object_t)NULL;
 }
 
 void 
@@ -861,8 +887,9 @@ Control::generate_line_arrays(
    }
 }
 
-Control::object_t 
-Control::insert_line_set( 
+void
+Control::do_insert_line_set( 
+   const openvrml::geometry_node& n,
    const std::vector<openvrml::vec3f>& coord,
    const std::vector<openvrml::int32>& coord_index,
    bool                                color_per_vertex,
@@ -870,6 +897,10 @@ Control::insert_line_set(
    const std::vector<openvrml::int32>& color_index) {
    dgd_scope;
    
+   if(execute_list(&n)) {
+      return;
+   }
+
    apply_local_transform();
 
    GLuint glid = 0;
@@ -917,18 +948,24 @@ Control::insert_line_set(
    if( colors.get() ) 
       glDisableClientState( GL_COLOR_ARRAY );
 
-   if (glid) { glEndList(); }
+   if (glid) { 
+      glEndList();
+      update_list( &n, glid );
+   }
 
    undo_local_transform();
-      
-   return object_t(glid);
 }
 
-
-Control::object_t 
-Control::insert_point_set(const std::vector<openvrml::vec3f>& coord,
-			  const std::vector<openvrml::color>& color) {
+void
+Control::do_insert_point_set(
+   const openvrml::geometry_node& n,
+   const std::vector<openvrml::vec3f>& coord,
+   const std::vector<openvrml::color>& color) {
    dgd_scope;
+
+   if (execute_list(&n)) {
+      return;
+   }
    
    apply_local_transform();
 
@@ -968,11 +1005,12 @@ Control::insert_point_set(const std::vector<openvrml::vec3f>& coord,
    }
    glEnd();
 
-   if (glid) { glEndList(); }
+   if (glid) { 
+      glEndList(); 
+      update_list( &n, glid );
+   }
 
    undo_local_transform();
-      
-   return object_t(glid);
 }
 
 void Control::generate_ifs_arrays(
@@ -1202,7 +1240,9 @@ void Control::generate_ifs_arrays(
    }
 }
 
-Control::object_t Control::insert_shell( 
+void
+Control::do_insert_shell( 
+   const openvrml::geometry_node&                n,
    unsigned int                        mask,
    const std::vector<openvrml::vec3f>& coord,
    const std::vector<openvrml::int32>& coord_index,
@@ -1215,6 +1255,10 @@ Control::object_t Control::insert_shell(
 {
    dgd_scope;
    
+   if (execute_list(&n)) {
+      return;
+   }
+
    typedef std::vector< std::pair<unsigned,unsigned> > index_type;
    typedef index_type::const_iterator index_const_iterator;
 
@@ -1296,15 +1340,16 @@ Control::object_t Control::insert_shell(
       glDisableClientState( GL_COLOR_ARRAY );
    glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 
-   if (glid) { glEndList(); }
+   if (glid) { 
+      glEndList(); 
+      update_list( &n, glid );
+   }
 
    undo_local_transform();
-      
-   return object_t(glid);
 }
 
-
-Control::object_t Control::insert_dir_light( 
+void
+Control::do_insert_dir_light( 
    float                  ambient_intensity,
    float                  intensity,
    const openvrml::color& color,
@@ -1337,7 +1382,7 @@ Control::object_t Control::insert_dir_light(
 	 break;
    if( i == m_max_lights ) {
       dgd_logger <<  "i == " << dgd_expand(m_max_lights) << std::endl;
-      return 0;
+      return;
    }
   
    m_light_info[i].m_type = LightInfo::LIGHT_DIRECTIONAL;
@@ -1355,12 +1400,10 @@ Control::object_t Control::insert_dir_light(
 
    glLightf(light, GL_SPOT_CUTOFF, 180.0);
    glLightf(light, GL_SPOT_EXPONENT, 0.0);
-
-   return (object_t)NULL;
 }
 
-
-Control::object_t Control::insert_point_light(
+void
+Control::do_insert_point_light(
    float                  ambient_intensity,
    const openvrml::vec3f& attenuation,
    const openvrml::color& color,
@@ -1388,7 +1431,7 @@ Control::object_t Control::insert_point_light(
 	 break;
    if ( i == m_max_lights ) {
       dgd_logger <<  "i == " << dgd_expand(m_max_lights) << std::endl;
-      return 0;
+      return;
    }
   
    m_light_info[i].m_type = LightInfo::LIGHT_POSITIONAL;
@@ -1410,12 +1453,10 @@ Control::object_t Control::insert_point_light(
    glLightf(light, GL_SPOT_EXPONENT, 0.0);
 
    undo_local_transform();
-   
-   return (object_t)NULL;
 }
 
-
-Control::object_t Control::insert_spot_light( 
+void
+Control::do_insert_spot_light( 
    float                  ambient_intensity,
    const openvrml::vec3f& attenuation,
    float                  beam_width,
@@ -1447,7 +1488,7 @@ Control::object_t Control::insert_spot_light(
 	 break;   
    if( i == m_max_lights ) {
       dgd_logger << "i == " << dgd_expand(m_max_lights) << std::endl;
-      return 0;
+      return;
    }
   
    m_light_info[i].m_type = LightInfo::LIGHT_POSITIONAL;
@@ -1470,18 +1511,18 @@ Control::object_t Control::insert_spot_light(
    glLightf(light, GL_SPOT_EXPONENT, beam_width < cut_off_angle ? 1.0f : 0.0f);
 
    undo_local_transform();
-
-   return (object_t)NULL;
 }
 
+void Control::do_remove_object(const openvrml::node& n) {
+   update_list( &n, 0 );
+}
 
-void Control::enable_lighting(bool val) {
+void Control::do_enable_lighting(bool val) {
    dgd_scope;
    m_enable_lighting = val;
 }
 
-
-void Control::set_fog( const openvrml::color& color, 
+void Control::do_set_fog( const openvrml::color& color, 
 		       float                  visibility_range,
 		       const char*            type) {
    dgd_scope;
@@ -1513,16 +1554,16 @@ void Control::set_fog( const openvrml::color& color,
 }
 
 
-void Control::set_color(const openvrml::color & rgb, float a) {
+void Control::do_set_color(const openvrml::color & rgb, float a) {
 }
 
 
-void Control::set_material( float                  ambient_intensity,
-			    const openvrml::color& diffuse_color,
-			    const openvrml::color& emissive_color,
-			    float                  shininess,
-			    const openvrml::color& specular_color,
-			    float                  transparency) {
+void Control::do_set_material( float                  ambient_intensity,
+                               const openvrml::color& diffuse_color,
+                               const openvrml::color& emissive_color,
+                               float                  shininess,
+                               const openvrml::color& specular_color,
+                               float                  transparency) {
    dgd_scope;
    typedef Vector::RT RT;
 
@@ -1580,8 +1621,8 @@ void Control::set_material( float                  ambient_intensity,
 }
 
 
-void Control::set_material_mode( size_t tex_components,
-				 bool   geometry_color) {
+void Control::do_set_material_mode( size_t tex_components,
+                                    bool   geometry_color) {
    dgd_scope;
 
    if (tex_components && 
@@ -1606,7 +1647,7 @@ void Control::set_material_mode( size_t tex_components,
 }
 
 
-void Control::set_sensitive(openvrml::node * object) {
+void Control::do_set_sensitive(openvrml::node * object) {
 }
 
 
@@ -1641,16 +1682,17 @@ void Control::scale_texture( size_t         w,
    delete [] newpix;
 }
 
-
-Control::texture_object_t 
-Control::insert_texture( size_t               w, 
-			 size_t               h, 
-			 size_t               nc,
-			 bool                 repeat_s,
-			 bool                 repeat_t,
-			 const unsigned char* pixels,
-			 bool                 retainHint ) {
+void
+Control::do_insert_texture( const openvrml::texture_node & n,
+                            bool retainHint ) {
    dgd_scope;
+
+   size_t w = n.image().x();
+   size_t h = n.image().y(); 
+   size_t nc = n.image().comp();
+   bool repeat_s = n.repeat_s();
+   bool repeat_t = n.repeat_t();
+   const std::vector<unsigned char> &pixels = n.image().array();
 
    dgd_logger << dgd_expand(w) << std::endl
               << dgd_expand(h) << std::endl 
@@ -1659,7 +1701,7 @@ Control::insert_texture( size_t               w,
               << dgd_expand(repeat_t) << std::endl;
    
    if( !m_enable_texture_mapping ) {
-      return (object_t)NULL;
+      return;
    }
 
    GLenum fmt[] = { GL_LUMINANCE,	// single component
@@ -1669,7 +1711,7 @@ Control::insert_texture( size_t               w,
    };
 
    if ( m_select_mode != draw_mode ) {
-      return (object_t)NULL;
+      return;
    }
 
    // Enable blending if needed
@@ -1679,8 +1721,9 @@ Control::insert_texture( size_t               w,
    // Texturing is enabled in setMaterialMode
    glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 
-   glTexImage2D( GL_TEXTURE_2D, 0, nc, w, h, 0,
-		 fmt[nc-1], GL_UNSIGNED_BYTE, pixels);
+// TBD
+//   glTexImage2D( GL_TEXTURE_2D, 0, nc, w, h, 0,
+//		 fmt[nc-1], GL_UNSIGNED_BYTE, pixels);
 
    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
 		    repeat_s ? GL_REPEAT : GL_CLAMP );
@@ -1688,24 +1731,18 @@ Control::insert_texture( size_t               w,
 		    repeat_t ? GL_REPEAT : GL_CLAMP );
    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-
-   return (object_t)NULL;
 }
 
-      
-void Control::insert_texture_reference( texture_object_t ref,
-					size_t components) {
+void Control::do_remove_texture_object(const openvrml::texture_node & ref) {
 }
 
 
-void Control::remove_texture_object(texture_object_t ref) {
-}
-
-
-void Control::set_texture_transform(const openvrml::vec2f& center,
-				    float                  rotation,
-				    const openvrml::vec2f& scale,
-				    const openvrml::vec2f& translation) {
+void Control::do_set_texture_transform(
+   const openvrml::vec2f& center,
+   float                  rotation,
+   const openvrml::vec2f& scale,
+   const openvrml::vec2f& translation) 
+{
    dgd_scope;
 
    glMatrixMode(GL_TEXTURE);
@@ -1753,11 +1790,17 @@ void compute_view(const openvrml::vec3f&    position,
 	      + s * orientation.x()));
 }
 
-void Control::set_viewpoint(const openvrml::vec3f&    position,
-			    const openvrml::rotation& orientation,
-			    float                     field_of_view,
-			    float                     avatar_size,
-			    float                     visibility_limit) {
+void Control::do_set_frustum(float field_of_view,
+                             float avatar_size,
+                             float visibility_limit)
+{
+   dgd_scope;
+}
+
+void Control::do_set_viewpoint(const openvrml::vec3f&    position,
+                               const openvrml::rotation& orientation,
+                               float                     avatar_size,
+                               float                     visibility_limit) {
    dgd_scope;
 
    float fow;
@@ -1808,7 +1851,8 @@ void Control::set_viewpoint(const openvrml::vec3f&    position,
    }
 
    if( !scene_centering ) {
-      fow = field_of_view * 180.0f / (float)Math::PI;
+// TBD
+//      fow = field_of_view * 180.0f / (float)Math::PI;
       aspect = ((float) m_width) / m_height;
       znear = (avatar_size > 0.0) ? (0.5f * avatar_size) : 1.0f;
       zfar = (visibility_limit > 0.0) ? visibility_limit : 30000.0f;
@@ -1853,23 +1897,23 @@ void Control::set_viewpoint(const openvrml::vec3f&    position,
 }
 
 
-void Control::transform(const openvrml::mat4f & mat) {
+void Control::do_transform(const openvrml::mat4f & mat) {
    dgd_scope;
    glMultMatrixf(&mat[0][0]);
 }
 
 
-void Control::transform_points(size_t nPoints, 
-			       openvrml::vec3f * point) const {
+void Control::do_transform_points(size_t nPoints, 
+                                  openvrml::vec3f * point) const {
 }
 
-void Control::draw_bounding_sphere(
+void Control::do_draw_bounding_sphere(
    const openvrml::bounding_sphere& bs,
    openvrml::bounding_volume::intersection intersection) {
 
 }
 
-void Control::draw_bbox() {
+void Control::do_draw_bbox() {
    dgd_scope;
    if( m_show_bbox ) {
       apply_local_transform();

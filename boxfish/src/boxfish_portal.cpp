@@ -52,7 +52,6 @@
 #include "boxfish_svg.h"
 #include "boxfish_vrml_control.h"
 #include "boxfish_document.h"
-#include "boxfish_mesh_editor.h"
 
 namespace boxfish {
 
@@ -204,31 +203,6 @@ void Portal::open( const QString& fname ) {
       m_workspace->addWindow( doc );
 
       doc->show();
-   }
-}
-
-void Portal::open( QModelIndex index ) {
-   dgd_scope;
-
-   if( index.isValid() ) {
-      boxfish::vrml::mesh::Editor *editor = 
-	 new boxfish::vrml::mesh::Editor( m_workspace );
-
-      QRect wsgeom = m_workspace->geometry();
-      QRect mygeom;
-
-      mygeom.setLeft( 10 );
-      mygeom.setTop( 35 );
-      mygeom.setWidth( (int)(wsgeom.width() * 0.7) );
-      mygeom.setHeight( (int)(wsgeom.height() * 0.7) );
-
-      editor->setGeometry( mygeom );
-      
-      m_workspace->addWindow( editor );
-
-      editor->show();
-
-      editor->reload( index );
    }
 }
 
