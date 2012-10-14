@@ -35,82 +35,20 @@
 #include "boxfish_download_exception.h"
 #include "boxfish_download_manager.h"
 #include "boxfish_download_source.h"
+#include "boxfish_download_fetcher.h"
+
 #include "boxfish_vrml_loader.h"
 
 namespace boxfish {
 
 namespace vrml {
 
-namespace local {
-
-class download_istream : public openvrml::resource_istream {
-public:
-   typedef
-   boost::iostreams::stream_buffer<boxfish::download_source> stream_buffer_t;
-
-public:
-   download_istream(QNetworkAccessManager *manager, const std::string& url):
-      m_manager(manager, url),
-      m_streambuf(&m_manager),
-      openvrml::resource_istream(&m_streambuf)
-   {      
-      if(!m_manager.begin_open())
-         throw download_exception(m_manager.error_string());              
-   }
-
-   ~download_istream() {
-   }
-
-private:
-   const std::string do_url() const {
-      return QString(m_manager.url().toEncoded()).toStdString();
-   }
-
-   const std::string do_type() const {
-      return m_manager.type().toStdString();
-   }
-
-   bool do_data_available() const {
-      return m_manager.state() == download_manager::open_completed;
-   }
-
-private:
-   boxfish::download_manager m_manager;
-   stream_buffer_t m_streambuf;
-};
-
-class download_fetcher: public openvrml::resource_fetcher {
-public:
-   download_fetcher(QNetworkAccessManager *manager):
-      openvrml::resource_fetcher(),
-      m_manager(manager)
-   {
-   }
-   
-   ~download_fetcher() {
-   }
-   
-private:
-   std::auto_ptr<openvrml::resource_istream> 
-   do_get_resource(const std::string & uri) {
-      std::auto_ptr<openvrml::resource_istream> str;
-      str.reset(new download_istream(m_manager, uri));      
-      return str;
-   }
-
-private:
-   QNetworkAccessManager *m_manager;
-};
-
-} // end of namespace local
-
-Loader::Loader( QNetworkAccessManager *manager, const QUrl &url ) :
-   QThread(),
-   m_manager(manager),
+Loader::Loader( boxfish::download_fetcher &fetcher, const QUrl &url ) :
    m_count(0),   
    m_prev(0),
-   m_url(url) {
-   this->setTerminationEnabled();
+   m_url(url) ,
+   m_download_fetcher(fetcher)
+{
 }
 
 Loader::~Loader() {
@@ -120,11 +58,11 @@ Loader::browser_ptr Loader::browser() const {
    return m_browser;
 }
 
-void Loader::run() {
+void Loader::start() {
    dgd_scope;
 
-   local::download_fetcher fetcher(m_manager);
-   m_browser.reset( new openvrml::browser( fetcher, std::cout, std::cerr ) );
+   m_browser.reset( 
+      new openvrml::browser( m_download_fetcher, std::cout, std::cerr ) );
 
    std::vector<std::string> urls,params;
    urls.push_back( QString(m_url.toEncoded()).toStdString() );
@@ -141,9 +79,6 @@ void Loader::run() {
                  << std::endl;
       return;
    }
-
-   emit progress(100);
-   emit success();
 }
 
 void Loader::operator () ( unsigned long l, unsigned long c ) {

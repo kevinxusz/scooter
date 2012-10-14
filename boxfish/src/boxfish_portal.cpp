@@ -49,6 +49,13 @@
 
 #include <dgd.h>
 
+#include <openvrml/browser.h>
+
+#include "boxfish_download_exception.h"
+#include "boxfish_download_manager.h"
+#include "boxfish_download_source.h"
+#include "boxfish_download_fetcher.h"
+
 #include "boxfish_cfg.h"
 #include "boxfish_portal.h"
 #include "boxfish_svg.h"
@@ -75,12 +82,14 @@ Portal::Portal() :
    m_exit_action(NULL),
    m_open_dialog(NULL),
    m_tool_docker(NULL),
-   m_network_access_manager(NULL) {
+   m_network_access_manager(NULL),
+   m_download_fetcher(NULL) {
 
    m_workspace = new QWorkspace;
    m_workspace->setScrollBarsEnabled(true);
 
    m_network_access_manager = new QNetworkAccessManager();
+   m_download_fetcher = new download_fetcher(m_network_access_manager);
 
    connect( m_workspace, SIGNAL(windowActivated(QWidget*)),
 	    this, SLOT(window_activated(QWidget*)) );
@@ -182,7 +191,7 @@ void Portal::open( const QString& fname ) {
    QUrl url( fname );
    
    if( url.isValid() ) {
-      Document *doc = new Document( m_network_access_manager, url );
+      Document *doc = new Document( *m_download_fetcher, url );
 
       QRect wsgeom = m_workspace->geometry();
       QRect mygeom;
@@ -199,8 +208,6 @@ void Portal::open( const QString& fname ) {
 	       m_history_mapper, SLOT(map()) );
       connect( doc, SIGNAL(load_finished()), 
 	       m_properties_mapper, SLOT(map()) );
-      connect( doc, SIGNAL(edit(QModelIndex)),
-	       this, SLOT(open(QModelIndex)) );
 
       m_history_mapper->setMapping( doc, QString(url.toEncoded()) );
       m_properties_mapper->setMapping( doc, doc );

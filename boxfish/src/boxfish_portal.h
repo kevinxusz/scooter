@@ -43,6 +43,8 @@ class QNetworkAccessManager;
 
 namespace boxfish {
 
+class download_fetcher;
+
 class Portal: public QMainWindow {
    Q_OBJECT
       
@@ -116,6 +118,7 @@ private:
    QDockWidget    *m_tool_docker;
 
    QNetworkAccessManager *m_network_access_manager;
+   download_fetcher      *m_download_fetcher;
 
    QStringList     m_file_history;
 };

@@ -24,34 +24,35 @@
 #ifndef _boxfish_vrml_loader_h_
 #define _boxfish_vrml_loader_h_
 
-#include <boost/smart_ptr.hpp>
-
 #include <QtCore/QThread>
-#include <QtCore/QFileInfo>
 #include <QtCore/QUrl>
-
-#include <QtNetwork/QNetworkAccessManager>
 
 #include <openvrml/browser.h>
 
+class QNetworkAccessManager;
+
 namespace boxfish {
-  
+
+class download_fetcher;
+
 namespace vrml {
 
-class Loader: public QThread {
+class Loader: public QObject {
    Q_OBJECT
    
 public:
    typedef boost::shared_ptr<openvrml::browser> browser_ptr;
 
 public:
-   Loader( QNetworkAccessManager *manager, const QUrl &finfo );
+   Loader( boxfish::download_fetcher &fetcher, const QUrl &url );
    virtual ~Loader();
 
-   QString     error_string() const { return m_error_string; }
+   void start();
+
+   QString error_string() const { return m_error_string; }
    browser_ptr browser() const;
+
 private:
-   void run();
    void operator () ( unsigned long l, unsigned long c );
       
 signals:
@@ -60,12 +61,12 @@ signals:
    void success();
 
 private:
-   QNetworkAccessManager *m_manager;
-   unsigned long        m_count;
-   int                  m_prev;
-   QUrl                 m_url;
-   browser_ptr          m_browser;
-   QString              m_error_string;
+   unsigned long              m_count;
+   int                        m_prev;
+   QUrl                       m_url;
+   QString                    m_error_string;
+   boxfish::download_fetcher &m_download_fetcher;
+   browser_ptr                m_browser;
 };
 
 }; // end of namespace vrml

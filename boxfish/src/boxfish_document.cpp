@@ -42,6 +42,13 @@
 
 #include <dgd.h>
 
+#include <openvrml/browser.h>
+
+#include "boxfish_download_exception.h"
+#include "boxfish_download_manager.h"
+#include "boxfish_download_source.h"
+#include "boxfish_download_fetcher.h"
+
 #include "boxfish_svg.h"
 #include "boxfish_document.h"
 #include "boxfish_vrml_loader.h"
@@ -52,7 +59,7 @@
 
 namespace boxfish {
 
-Document::Document( QNetworkAccessManager *manager, const QUrl& url ) :
+Document::Document( download_fetcher& fetcher, const QUrl& url ) :
    QWidget( NULL, Qt::Window                   | 
 		  Qt::WindowTitleHint          |
 		  Qt::WindowSystemMenuHint     |
@@ -68,7 +75,7 @@ Document::Document( QNetworkAccessManager *manager, const QUrl& url ) :
    m_scene_tree(NULL),
    m_glpad(NULL),
    m_selection(NULL),
-   m_network_access_manager(manager) {
+   m_download_fetcher(fetcher) {
 
    dgd_scope;
 
@@ -114,9 +121,7 @@ void Document::load_start() {
    dgd_scope;
 
    if( m_loader == NULL ) {
-      m_loader = new vrml::Loader( m_network_access_manager, m_url );
-
-      m_loader->start( QThread::LowPriority );
+      m_loader = new vrml::Loader( m_download_fetcher, m_url );
 
       connect( m_loader, SIGNAL(failure()), this, SLOT(load_failure()) );
       connect( m_loader, SIGNAL(success()), this, SLOT(load_success()) );
@@ -127,6 +132,8 @@ void Document::load_start() {
       
       m_status_bar->addPermanentWidget( m_progress_bar );
       m_progress_bar->show();
+
+      m_loader->start();
 
       dgd_logger << "loader constructed" << std::endl;
    }
@@ -176,11 +183,12 @@ void Document::load_cancel() {
    dgd_scope;
 
    if( m_loader != NULL ) {
-      dgd_echo(m_loader->isRunning());
+      // TBD
+      // dgd_echo(m_loader->isRunning());
 
-      if( m_loader->isRunning() )
-	 m_loader->terminate();
-      m_loader->wait();
+      // if( m_loader->isRunning() )
+      //    m_loader->terminate();
+      // m_loader->wait();
  
       delete m_loader;
       m_loader = NULL;      
