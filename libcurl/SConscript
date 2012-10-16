@@ -1,0 +1,176 @@
+# -*- mode:python -*-
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+# Copyright (c) Dimitry Kloper <kloper@users.sf.net> 2002-2012
+# 
+# This file is a part of the Scooter project. 
+#
+# libcurl/SConscript -- construction file for libcurl
+#
+
+import os 
+import sys
+import string
+from SCons.Defaults import Link
+
+Import('env', 'version')
+
+env = env.Clone()
+
+env.Append(CPPPATH = ['#blib/include'])
+env.Append(CPPDEFINES = {
+        'BUILDING_LIBCURL': None,
+        'HAVE_ZLIB_H': None,
+        'HAVE_ZLIB': None 
+        })
+
+env.Append(CFLAGS = ['-mthreads'])
+
+env.Append(LIBPATH = ['#blib/lib'])
+env.Append(LDFLAGS = ['-mthreads', '-mconsole'])
+
+variant = env.subst('$VARIANT')
+env.VariantDir(variant, '../ext/curl')
+
+srclist = map( lambda fname: os.path.join(variant,fname), 
+               [ 'lib/asyn-ares.c',
+                 'lib/asyn-thread.c',
+                 'lib/base64.c',
+                 'lib/connect.c',
+                 'lib/content_encoding.c',
+                 'lib/cookie.c',
+                 'lib/curl_addrinfo.c',
+                 'lib/curl_darwinssl.c',
+                 'lib/curl_fnmatch.c',
+                 'lib/curl_gethostname.c',
+                 'lib/curl_memrchr.c',
+                 'lib/curl_multibyte.c',
+                 'lib/curl_ntlm.c',
+                 'lib/curl_ntlm_core.c',
+                 'lib/curl_ntlm_msgs.c',
+                 'lib/curl_ntlm_wb.c',
+                 'lib/curl_rand.c',
+                 'lib/curl_rtmp.c',
+                 'lib/curl_sasl.c',
+                 'lib/curl_schannel.c',
+                 'lib/curl_sspi.c',
+                 'lib/curl_threads.c',
+                 'lib/dict.c',
+                 'lib/easy.c',
+                 'lib/escape.c',
+                 'lib/file.c',
+                 'lib/fileinfo.c',
+                 'lib/formdata.c',
+                 'lib/ftp.c',
+                 'lib/ftplistparser.c',
+                 'lib/getenv.c',
+                 'lib/getinfo.c',
+                 'lib/gopher.c',
+                 'lib/gtls.c',
+                 'lib/hash.c',
+                 'lib/hmac.c',
+                 'lib/hostasyn.c',
+                 'lib/hostip.c',
+                 'lib/hostip4.c',
+                 'lib/hostip6.c',
+                 'lib/hostsyn.c',
+                 'lib/http.c',
+                 'lib/http_chunks.c',
+                 'lib/http_digest.c',
+                 'lib/http_negotiate.c',
+                 'lib/http_negotiate_sspi.c',
+                 'lib/http_proxy.c',
+                 'lib/if2ip.c',
+                 'lib/imap.c',
+                 'lib/inet_ntop.c',
+                 'lib/inet_pton.c',
+                 'lib/ldap.c',
+                 'lib/llist.c',
+                 'lib/md4.c',
+                 'lib/md5.c',
+                 'lib/memdebug.c',
+                 'lib/mprintf.c',
+                 'lib/multi.c',
+                 'lib/netrc.c',
+                 'lib/nonblock.c',
+                 'lib/openldap.c',
+                 'lib/parsedate.c',
+                 'lib/pingpong.c',
+                 'lib/polarssl.c',
+                 'lib/pop3.c',
+                 'lib/progress.c',
+                 'lib/rawstr.c',
+                 'lib/rtsp.c',
+                 'lib/select.c',
+                 'lib/sendf.c',
+                 'lib/share.c',
+                 'lib/slist.c',
+                 'lib/smtp.c',
+                 'lib/socks.c',
+                 'lib/socks_gssapi.c',
+                 'lib/socks_sspi.c',
+                 'lib/speedcheck.c',
+                 'lib/splay.c',
+                 'lib/ssh.c',
+                 'lib/sslgen.c',
+                 'lib/ssluse.c',
+                 'lib/strequal.c',
+                 'lib/strerror.c',
+                 'lib/strtok.c',
+                 'lib/strtoofft.c',
+                 'lib/telnet.c',
+                 'lib/tftp.c',
+                 'lib/timeval.c',
+                 'lib/transfer.c',
+                 'lib/url.c',
+                 'lib/version.c',
+                 'lib/warnless.c',
+                 'lib/wildcard.c' ] )
+
+inclist =  map( lambda fname: os.path.join(variant,fname), 
+                [ 'include/curl/curl.h',
+                  'include/curl/curlbuild.h',
+                  'include/curl/curlrules.h',
+                  'include/curl/curlver.h',
+                  'include/curl/easy.h',
+                  'include/curl/mprintf.h',
+                  'include/curl/multi.h',
+                  'include/curl/stdcheaders.h',
+                  'include/curl/typecheck-gcc.h' ] )
+
+env.Command( source = os.path.join(variant, 'include/curl/curlbuild.h.dist'),
+             target = os.path.join(variant, 'include/curl/curlbuild.h'),
+             action = Link('$TARGET', '$SOURCE') )
+
+zlib_name = env.subst('${CRSHPREFIX}zlib')
+libcurl_name = env.subst('${CRSHPREFIX}libcurl')
+
+windows_libs = [ 'wsock32', 'wldap32', 'advapi32' ]
+
+libcurl = env.SharedLibrary(
+    target = os.path.join(variant,libcurl_name), 
+    source = srclist,
+    LIBS = [ zlib_name ] + windows_libs
+)
+
+env.Install('#blib/bin', libcurl[0])
+env.Install('#blib/lib', libcurl[1])
+env.Install('#blib/include/curl', inclist)
+
+#
+# SConscript -- end of file
+#
+
