@@ -30,6 +30,7 @@
 
 #include <QtGui/QMainWindow>
 
+class QUrl;
 class QCloseEvent;
 class QWorkspace;
 class QSignalMapper;
@@ -39,7 +40,6 @@ class QAction;
 class QFileDialog;
 class QDockWidget;
 class QActionGroup;
-class QNetworkAccessManager;
 
 namespace boxfish {
 
@@ -56,7 +56,7 @@ public:
 protected:
       
    void closeEvent(QCloseEvent *event);
-      
+
 public slots:
 
    void open( const QString& fname );
@@ -74,6 +74,12 @@ private slots:
    void window_activated( QWidget *w );
    void handle_glpad_command();
    void handle_glpad_propchange( QWidget *doc );
+   void open(const QUrl& url);
+   void close(QNetworkReply *reply);
+   void handle_reply_finished( QObject *sender );
+
+signals:
+   void url_opened(QNetworkReply *network_reply);
 
 protected:
    void construct_actions();
@@ -90,6 +96,7 @@ private:
    QSignalMapper  *m_history_mapper;
    QSignalMapper  *m_activation_mapper;
    QSignalMapper  *m_properties_mapper;
+   QSignalMapper  *m_network_reply_mapper;
 
    QMenu          *m_filehist_menu;
    QMenu          *m_file_menu;
@@ -117,7 +124,6 @@ private:
    QFileDialog    *m_open_dialog;
    QDockWidget    *m_tool_docker;
 
-   QNetworkAccessManager *m_network_access_manager;
    download_fetcher      *m_download_fetcher;
 
    QStringList     m_file_history;

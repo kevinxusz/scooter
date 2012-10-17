@@ -61,7 +61,7 @@ public:
    void close();
 
    QString error_string() const { return m_error_string; }
-   QString type() const { return m_type.isValid() ? m_type.toString() : ""; }
+   QString type() const;
    QUrl    url() const { return m_url; }
    manager_state state() const { return m_state; }
 

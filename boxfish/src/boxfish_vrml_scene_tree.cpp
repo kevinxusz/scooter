@@ -28,10 +28,6 @@
 
 #include <dgd.h>
 
-#include "boxfish_download_exception.h"
-#include "boxfish_download_manager.h"
-#include "boxfish_download_source.h"
-
 #include "boxfish_vrml_scene_model.h"
 #include "boxfish_vrml_scene_tree.h"
 #include "boxfish_vrml_scene_item.h"

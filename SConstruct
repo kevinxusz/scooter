@@ -50,6 +50,7 @@ SConscript( ['zlib/SConscript' ,
              'libjpeg/SConscript',
              'libxml2/SConscript',
              'openvrml/SConscript',
+             'libcurl/SConscript',
              'common/SConscript',
              'boxfish/SConscript',
              'test/SConscript'] )

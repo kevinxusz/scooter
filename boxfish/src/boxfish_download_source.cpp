@@ -18,48 +18,39 @@
 //
 // This file is a part of the Scooter project. 
 //
-// boxfish_download_source.h -- boost::iostreams source adapter for 
-//                              boxfish::download_fetcher
+// boxfish_download_source.cpp --  boost::iostreams source adapter 
+//                                 for boxfish::download_fetcher
 //
 
-#ifndef _boxfish_download_source_h_
-#define _boxfish_download_source_h_
+#include <iostream>
 
 #include <boost/iostreams/concepts.hpp> 
 #include <boost/iostreams/stream.hpp>
 
-namespace boxfish
+#include <QtNetwork/QNetworkReply>
+
+#include "boxfish_download_source.h"
+#include "boxfish_download_fetcher.h"
+
+namespace boxfish 
 {
 
-class download_fetcher;
-
-class download_source {
-public:
-   typedef char char_type;
-
-   struct category
-      : public boost::iostreams::input,
-        public boost::iostreams::device_tag,
-        public boost::iostreams::closable_tag
-   { };
+std::streamsize download_source::read(char* s, std::streamsize n) {
+   QNetworkReply *reply = m_fetcher->reply();
+   if(reply == NULL) 
+      return -1;
    
-   download_source(download_fetcher *fetcher) :
-      m_fetcher(fetcher) {}
+   return reply->read(s, n);
+}
 
-   std::streamsize read(char* s, std::streamsize n);
-
-   void close();
-
-private:
-   download_fetcher *m_fetcher;
-   
-};
+void download_source::close() {
+   m_fetcher->close();
+}
 
 } // end of namespace boxfish
 
-#endif /* _boxfish_download_source_h_ */
+// 
+// boxfish_download_source.cpp -- end of file
+//
 
-//
-// boxfish_download_source.h -- end of file
-//
 

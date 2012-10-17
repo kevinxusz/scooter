@@ -27,10 +27,13 @@
 
 #include <QtCore/QString>
 #include <QtCore/QTimer>
+#include <QtCore/QFileInfo>
 
 #include <QtNetwork/QNetworkRequest>
 
 #include <dgd.h>
+
+#include <openvrml/browser.h>
 
 #include "boxfish_trace.h"
 #include "boxfish_download_manager.h"
@@ -51,6 +54,26 @@ download_manager::download_manager(QNetworkAccessManager  *manager,
 
 download_manager::~download_manager() {
    close();
+}
+
+QString download_manager::type() const {
+   if (m_type.isValid())  
+      return m_type.toString();
+
+   QFileInfo path_info(m_url.path());
+   QString suffix = path_info.suffix();
+
+   if( suffix.compare("wrl", Qt::CaseInsensitive) == 0 ||
+       suffix.compare("vrml", Qt::CaseInsensitive) == 0 ) {
+      return QString(openvrml::vrml_media_type);
+   }
+
+   if( suffix.compare("x3d", Qt::CaseInsensitive) == 0 ||
+       suffix.compare("x3dv", Qt::CaseInsensitive) == 0 ) {
+      return QString(openvrml::x3d_vrml_media_type);
+   }
+   
+   return QString();
 }
 
 bool download_manager::begin_open()

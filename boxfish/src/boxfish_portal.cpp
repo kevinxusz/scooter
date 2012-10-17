@@ -30,9 +30,7 @@
 #include <QtCore/QString>
 #include <QtCore/QSignalMapper>
 #include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-
-#include <QtNetwork/QNetworkAccessManager>
+#include <QtCore/QUrl>
 
 #include <QtGui/QMainWindow>
 #include <QtGui/QWorkspace>
@@ -52,8 +50,6 @@
 #include <openvrml/browser.h>
 
 #include "boxfish_download_exception.h"
-#include "boxfish_download_manager.h"
-#include "boxfish_download_source.h"
 #include "boxfish_download_fetcher.h"
 
 #include "boxfish_cfg.h"
@@ -71,6 +67,7 @@ Portal::Portal() :
    m_history_mapper(NULL),   
    m_activation_mapper(NULL),
    m_properties_mapper(NULL),
+   m_network_reply_mapper(NULL),
    m_file_menu(NULL),
    m_window_menu(NULL),
    m_help_menu(NULL),
@@ -82,14 +79,10 @@ Portal::Portal() :
    m_exit_action(NULL),
    m_open_dialog(NULL),
    m_tool_docker(NULL),
-   m_network_access_manager(NULL),
    m_download_fetcher(NULL) {
 
    m_workspace = new QWorkspace;
    m_workspace->setScrollBarsEnabled(true);
-
-   m_network_access_manager = new QNetworkAccessManager();
-   m_download_fetcher = new download_fetcher(m_network_access_manager);
 
    connect( m_workspace, SIGNAL(windowActivated(QWidget*)),
 	    this, SLOT(window_activated(QWidget*)) );
@@ -114,6 +107,10 @@ Portal::Portal() :
    m_properties_mapper = new QSignalMapper(this);
    connect( m_properties_mapper, SIGNAL(mapped(QWidget*)),
 	    this, SLOT(handle_glpad_propchange(QWidget*)) );
+
+   m_network_reply_mapper = new QSignalMapper(this);
+   connect(m_network_reply_mapper, SIGNAL(mapped(QObject*)), 
+           SLOT(handle_reply_finished(QObject*)));
 
    int isize = Config::main()->get( "icon::size" ).toInt();
    this->setIconSize( QSize( isize, isize ) );
@@ -145,6 +142,8 @@ Portal::Portal() :
 	 m_file_history.push_back( fname );
             
    } while( !fname.isNull() );
+
+   m_download_fetcher = new download_fetcher();   
 }
 
 Portal::~Portal() {

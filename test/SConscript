@@ -126,20 +126,20 @@ boost_libs = map( lambda lib: lib + '$BOOST_LIB_SUFFIX',
 
 qt_libs = [ 'QtCore4', 'QtNetwork4' ]
 
-test_boxfish_vrml_source = env.Program(
-    target = os.path.join(variant, 'test_boxfish_vrml_source'), 
-    source = srclist,
-    LIBS = [ zlib_name, 
-             libpng_name, 
-             libjpeg_name, 
-             libxml2_name, 
-             libopenvrml_name,
-             libopenvrml_dl_name ] + 
-    boost_libs +
-    qt_libs
-)
+# test_boxfish_vrml_source = env.Program(
+#     target = os.path.join(variant, 'test_boxfish_vrml_source'), 
+#     source = srclist,
+#     LIBS = [ zlib_name, 
+#              libpng_name, 
+#              libjpeg_name, 
+#              libxml2_name, 
+#              libopenvrml_name,
+#              libopenvrml_dl_name ] + 
+#     boost_libs +
+#     qt_libs
+# )
 
-env.Install('#blib/test/bin', test_boxfish_vrml_source[0])
+# env.Install('#blib/test/bin', test_boxfish_vrml_source[0])
 
 
 #

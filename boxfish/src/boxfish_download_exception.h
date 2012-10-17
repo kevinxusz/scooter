@@ -30,17 +30,23 @@ namespace boxfish
 class download_exception: public std::exception 
 {
 public:
+   download_exception(const char *what): 
+      m_str(what) {}
+
    download_exception(const QString &what): 
+      m_str(what.toStdString()) {}
+
+   download_exception(const std::string &what): 
       m_str(what) {}
 
    virtual ~download_exception() throw() {
    }
 
    virtual const char* what() const throw() {
-      return m_str.toStdString().c_str();
+      return m_str.c_str();
    }
 private:
-   QString m_str;
+   std::string m_str;
 };
 
 } // end of namespace boxfish

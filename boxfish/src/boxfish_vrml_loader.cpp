@@ -33,7 +33,6 @@
 #include <dgd.h>
 
 #include "boxfish_download_exception.h"
-#include "boxfish_download_manager.h"
 #include "boxfish_download_source.h"
 #include "boxfish_download_fetcher.h"
 
