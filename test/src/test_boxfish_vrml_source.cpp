@@ -21,8 +21,11 @@
 // test_boxfish_vrml_source.cpp -- test for boxfish::VrmlSource
 //
 
-#include <boost/test/unit_test.hpp>
+extern "C" {
+#include <curl/curl.h>
+}
 
+#include <boost/test/unit_test.hpp>
 #include <boost/bind.hpp>
 
 #include <boost/iostreams/concepts.hpp> 
@@ -30,73 +33,24 @@
 
 #include <boost/thread.hpp>
 
-#include <QtCore/QCoreApplication>
-
 #include <dgd.h>
 
 #include "boxfish_download_exception.h"
-#include "boxfish_download_manager.h"
 #include "boxfish_download_source.h"
 
 
-struct download_manager_reader {
-   boxfish::download_manager *m_manager;
-      
-   download_manager_reader(boxfish::download_manager *manager): 
-      m_manager(manager) {}
-
-   download_manager_reader(const download_manager_reader& peer): 
-      m_manager(peer.m_manager) {}
-
-   void operator()() {
-      namespace io = boost::iostreams;
-
-      dgd_scope;
-
-      bool rc = m_manager->end_open(10000);      
-      dgd_echo(rc);
-      if(!rc) {
-         dgd_echo(m_manager->error_string());
-      } else {
-         io::stream<boxfish::download_source> in(m_manager);
-
-         while(!in.eof()) {
-            char buffer[1024];
-            in.getline(buffer, sizeof(buffer));
-            dgd_echo(buffer);
-         } 
-      }
-
-      m_manager->close();
-   }
-};
-
-void test_download_manager(const std::string &url)
+void test_download_source(const std::string &url)
 {
    dgd_scope;
-
-   int i;
-   char *argv[] = { (char*)"test", NULL };
-   int argc = 1;
-
-   QCoreApplication app(argc, argv) ;
-
-   QNetworkAccessManager manager;
-   boxfish::download_manager dm(&manager, url);
-
-   if(!dm.begin_open()) {
-      dgd_echo(dm.error_string());
-      return;
-   }      
    
-   download_manager_reader r(&dm);
-   boost::thread reader_thread(r);
+   boxfish::download_source src(url);
+   boost::iostreams::stream<boxfish::download_source> in(src, 0);
 
-   app.connect(&dm, SIGNAL(closed()), SLOT(quit()));
-   app.exec();
-   
-   reader_thread.join();
-
+   while(in.is_open()) {
+      char buffer[1024];
+      in.getline(buffer, sizeof(buffer));
+      dgd_logger << buffer;
+   }
    dgd_logger << "Exit" << std::endl;
 }
 
@@ -106,22 +60,22 @@ bool init_test()
 
    ::boost::unit_test::framework::master_test_suite().
       add( BOOST_TEST_CASE( 
-              boost::bind( &test_download_manager, 
+              boost::bind( &test_download_source, 
                            "file:///D:/s/scooter/COPYING" ) ) );
 
    ::boost::unit_test::framework::master_test_suite().
       add( BOOST_TEST_CASE( 
-              boost::bind( &test_download_manager, 
+              boost::bind( &test_download_source, 
                            "http://127.0.0.1:8080/wiki/css/Hlb.css" ) ) );
 
    ::boost::unit_test::framework::master_test_suite().
       add( BOOST_TEST_CASE( 
-              boost::bind( &test_download_manager, 
+              boost::bind( &test_download_source, 
                            "ljasdlsj lsadjasd lskdj" ) ) );
 
    ::boost::unit_test::framework::master_test_suite().
       add( BOOST_TEST_CASE( 
-              boost::bind( &test_download_manager, 
+              boost::bind( &test_download_source, 
                            "kuku://mumu" ) ) );
            
    return true;

@@ -76,7 +76,6 @@ private:
    void *m_curl;
 };
 
-
 } // end of namespace
 
 #endif /* _boxfish_download_fetcher_h_ */

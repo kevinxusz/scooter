@@ -68,12 +68,6 @@ dmgr_h = env.Command(
     action = Link("$TARGET", "$SOURCE")
     )
 
-dmgr_h = env.Command(
-    source = '../boxfish/src/boxfish_download_manager.h',
-    target = os.path.join(variant, 'boxfish_download_manager.h'),
-    action = Link("$TARGET", "$SOURCE")
-    )
-
 source_h = env.Command(
     source = '../boxfish/src/boxfish_download_source.h',
     target = os.path.join(variant, 'boxfish_download_source.h'),
@@ -81,8 +75,8 @@ source_h = env.Command(
     )
 
 dmgr_cpp = env.Command(
-    source = '../boxfish/src/boxfish_download_manager.cpp',
-    target = os.path.join(variant, 'boxfish_download_manager.cpp'),
+    source = '../boxfish/src/boxfish_download_source.cpp',
+    target = os.path.join(variant, 'boxfish_download_source.cpp'),
     action = Link("$TARGET", "$SOURCE")
     )
 
@@ -101,14 +95,9 @@ conf = env.Substfile(
         }
     )
 
-moc_dmgr_cpp = env.Moc(dmgr_h)
-
 srclist = map( lambda fname: os.path.join(variant,fname), 
-               [ 'boxfish_download_manager.cpp',
-                 'test_boxfish_vrml_source.cpp' ] ) + moc_dmgr_cpp,
-
-
-
+               [ 'boxfish_download_source.cpp',
+                 'test_boxfish_vrml_source.cpp' ] )
 
 zlib_name = env.subst('${CRSHPREFIX}zlib')
 libjpeg_name = env.subst('${CRSHPREFIX}libjpeg')
@@ -116,6 +105,7 @@ libpng_name = env.subst('${CRSHPREFIX}libpng')
 libxml2_name = env.subst('${CRSHPREFIX}libxml2')
 libopenvrml_dl_name = env.subst('${CRSHPREFIX}openvrml-dl')
 libopenvrml_name = env.subst('${CRSHPREFIX}openvrml')
+libcurl_name = env.subst('${CRSHPREFIX}libcurl')
 
 boost_libs = map( lambda lib: lib + '$BOOST_LIB_SUFFIX',
                               [ 'boost_unit_test_framework',
@@ -126,20 +116,20 @@ boost_libs = map( lambda lib: lib + '$BOOST_LIB_SUFFIX',
 
 qt_libs = [ 'QtCore4', 'QtNetwork4' ]
 
-# test_boxfish_vrml_source = env.Program(
-#     target = os.path.join(variant, 'test_boxfish_vrml_source'), 
-#     source = srclist,
-#     LIBS = [ zlib_name, 
-#              libpng_name, 
-#              libjpeg_name, 
-#              libxml2_name, 
-#              libopenvrml_name,
-#              libopenvrml_dl_name ] + 
-#     boost_libs +
-#     qt_libs
-# )
+test_boxfish_vrml_source = env.Program(
+    target = os.path.join(variant, 'test_boxfish_vrml_source'), 
+    source = srclist,
+    LIBS = [ zlib_name, libcurl_name ]
+    #          libpng_name, 
+    #          libjpeg_name, 
+    #          libxml2_name, 
+    #          libopenvrml_name,
+    #          libopenvrml_dl_name ] + 
+    + boost_libs
+    # + qt_libs
+)
 
-# env.Install('#blib/test/bin', test_boxfish_vrml_source[0])
+env.Install('#blib/test/bin', test_boxfish_vrml_source[0])
 
 
 #

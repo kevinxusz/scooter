@@ -42,17 +42,26 @@ public:
         public boost::iostreams::device_tag,
         public boost::iostreams::closable_tag
    { };
-   
-   download_source(download_fetcher *fetcher) :
-      m_fetcher(fetcher) {}
+
+   download_source(const std::string& uri);
+   download_source(const download_source& peer);
 
    std::streamsize read(char* s, std::streamsize n);
+   std::streamsize fill(char *s, std::streamsize n);
 
    void close();
 
 private:
-   download_fetcher *m_fetcher;
-   
+   void initialize();
+
+private:
+   void *m_curl;
+   char *m_buffer;
+   unsigned int m_buffer_size;
+   char *m_head;
+   char *m_tail;
+   std::string m_type;
+   std::string m_url;
 };
 
 } // end of namespace boxfish

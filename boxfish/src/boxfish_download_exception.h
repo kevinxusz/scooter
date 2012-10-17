@@ -33,9 +33,6 @@ public:
    download_exception(const char *what): 
       m_str(what) {}
 
-   download_exception(const QString &what): 
-      m_str(what.toStdString()) {}
-
    download_exception(const std::string &what): 
       m_str(what) {}
 
