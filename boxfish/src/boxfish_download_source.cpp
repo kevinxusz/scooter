@@ -49,6 +49,7 @@ size_t parse_header(char *ptr, size_t size, size_t nmemb, void *userdata) {
 }
 
 download_source::download_source(const std::string& uri): 
+   m_mcurl(NULL),
    m_curl(NULL),
    m_buffer(NULL),
    m_buffer_size(CURL_MAX_WRITE_SIZE),
@@ -59,6 +60,7 @@ download_source::download_source(const std::string& uri):
 }
 
 download_source::download_source(const download_source& peer):
+   m_mcurl(NULL),
    m_curl(NULL),
    m_buffer(NULL),
    m_buffer_size(CURL_MAX_WRITE_SIZE),
@@ -70,10 +72,14 @@ download_source::download_source(const download_source& peer):
 
 void download_source::initialize() 
 {
+   m_mcurl = curl_multi_init();
+   if( m_mcurl == NULL ) 
+      throw download_exception("Unable to initialize MCURL");
+      
    m_curl = curl_easy_init();
    if( m_curl == NULL ) 
       throw download_exception("Unable to initialize CURL");
-
+   
    m_buffer = new char[m_buffer_size];
    m_head = m_tail = m_buffer;
 
@@ -84,46 +90,71 @@ void download_source::initialize()
    curl_easy_setopt(m_curl, CURLOPT_WRITEHEADER, this);
 
    curl_easy_setopt(m_curl, CURLOPT_URL, m_url.c_str());
+
+   CURLMcode rc = curl_multi_add_handle( m_mcurl, m_curl );
 }
 
 std::streamsize download_source::read(char* s, std::streamsize n) {
-   if( m_curl == NULL ) {
+   if( m_mcurl == NULL ) {
       initialize();
    }
 
    std::streamsize total_bytes = 0;
+   std::streamsize bytes_to_read = 0;
+
+   int handles_changed = 0;
+
    do {
-      CURLcode rc = curl_easy_perform(m_curl);
-      if( rc != 0 ) {
+      
+      CURLMcode rc = curl_multi_perform(m_mcurl, &handles_changed);
+      if( rc != CURLM_OK  && rc != CURLM_CALL_MULTI_PERFORM ) {
          std::ostringstream ostr;
          ostr << "Error while reading from URL '" << m_url << "'. "
               << "Error code: " << rc << ". Description: " 
-              << curl_easy_strerror(rc);
+              << curl_multi_strerror(rc);
          throw download_exception( ostr.str() );
       }
                  
-      std::streamsize remaining = m_tail - m_head;
-      std::streamsize bytes_to_read = std::min(remaining, n);
+      bytes_to_read = std::min(m_tail-m_head, n - total_bytes);
 
       if( bytes_to_read > 0 ) {
-         std::copy(m_head, m_head + bytes_to_read, s);
+         std::copy(m_head, m_head + bytes_to_read, s + total_bytes);
          m_head += bytes_to_read;
-         n -= bytes_to_read;
+         if( m_tail == m_head ) {
+            curl_easy_pause(m_curl, CURLPAUSE_CONT);
+         }
          total_bytes += bytes_to_read;
       }
-   } while( n > 0 );
+   } while( bytes_to_read > 0 && total_bytes < n);
    
    return total_bytes;
 }
 
 std::streamsize download_source::fill(char *s, std::streamsize n) {
-   return CURL_WRITEFUNC_PAUSE ;
+   if( m_tail != m_head ) {
+      return CURL_WRITEFUNC_PAUSE;
+   }
+
+   m_head = m_buffer;
+   std::streamsize size = std::min( n, m_buffer_size );
+   std::copy(s, s+size, m_head );
+   m_tail = m_head + size;
+
+   return size;
 }
 
 void download_source::close() {
+   
    if( m_curl != NULL ) {
+      if( m_mcurl != NULL ) 
+         curl_multi_remove_handle( m_mcurl, m_curl );
       curl_easy_cleanup(m_curl);
       m_curl = NULL;
+   }
+
+   if( m_mcurl != NULL ) {
+      curl_multi_cleanup(m_mcurl);
+      m_mcurl = NULL;
    }
 
    if( m_buffer != NULL ) {

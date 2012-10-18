@@ -55,9 +55,10 @@ private:
    void initialize();
 
 private:
+   void *m_mcurl;
    void *m_curl;
    char *m_buffer;
-   unsigned int m_buffer_size;
+   std::streamsize m_buffer_size;
    char *m_head;
    char *m_tail;
    std::string m_type;

@@ -44,7 +44,7 @@ void test_download_source(const std::string &url)
    dgd_scope;
    
    boxfish::download_source src(url);
-   boost::iostreams::stream<boxfish::download_source> in(src, 0);
+   boost::iostreams::stream<boxfish::download_source> in(src);
 
    while(in.is_open()) {
       char buffer[1024];
@@ -57,11 +57,12 @@ void test_download_source(const std::string &url)
 
 bool init_test()
 {
+   curl_global_init(CURL_GLOBAL_ALL);
 
    ::boost::unit_test::framework::master_test_suite().
       add( BOOST_TEST_CASE( 
               boost::bind( &test_download_source, 
-                           "file:///D:/s/scooter/COPYING" ) ) );
+                           "file:///c:/private/scooter/COPYING" ) ) );
 
    ::boost::unit_test::framework::master_test_suite().
       add( BOOST_TEST_CASE( 
