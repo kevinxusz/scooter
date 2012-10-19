@@ -46,11 +46,13 @@ void test_download_source(const std::string &url)
    boxfish::download_source src(url);
    boost::iostreams::stream<boxfish::download_source> in(src);
 
-   while(in.is_open()) {
+   while(!in.eof()) {
       char buffer[1024];
       in.getline(buffer, sizeof(buffer));
-      dgd_logger << buffer;
+      dgd_logger << buffer << std::endl;
    }
+
+   dgd_echo(in->error_string());
    dgd_logger << "Exit" << std::endl;
 }
 
@@ -62,7 +64,7 @@ bool init_test()
    ::boost::unit_test::framework::master_test_suite().
       add( BOOST_TEST_CASE( 
               boost::bind( &test_download_source, 
-                           "file:///c:/private/scooter/COPYING" ) ) );
+                           "file:///d:/s/scooter/COPYING" ) ) );
 
    ::boost::unit_test::framework::master_test_suite().
       add( BOOST_TEST_CASE( 

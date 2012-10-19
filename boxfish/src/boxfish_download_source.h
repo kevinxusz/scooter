@@ -46,6 +46,8 @@ public:
    download_source(const std::string& uri);
    download_source(const download_source& peer);
 
+   const std::string& error_string() const { return m_error_string; }
+
    std::streamsize read(char* s, std::streamsize n);
    std::streamsize fill(char *s, std::streamsize n);
 
@@ -53,6 +55,7 @@ public:
 
 private:
    void initialize();
+   bool is_eof();
 
 private:
    void *m_mcurl;
@@ -63,6 +66,8 @@ private:
    char *m_tail;
    std::string m_type;
    std::string m_url;
+   std::string m_error_string;
+   bool m_eof;
 };
 
 } // end of namespace boxfish

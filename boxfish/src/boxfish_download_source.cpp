@@ -55,7 +55,8 @@ download_source::download_source(const std::string& uri):
    m_buffer_size(CURL_MAX_WRITE_SIZE),
    m_head(NULL),
    m_tail(NULL),
-   m_url(uri)
+   m_url(uri),
+   m_eof(false)
 {
 }
 
@@ -66,7 +67,8 @@ download_source::download_source(const download_source& peer):
    m_buffer_size(CURL_MAX_WRITE_SIZE),
    m_head(NULL),
    m_tail(NULL),
-   m_url(peer.m_url) 
+   m_url(peer.m_url),
+   m_eof(false)
 {
 }
 
@@ -91,29 +93,21 @@ void download_source::initialize()
 
    curl_easy_setopt(m_curl, CURLOPT_URL, m_url.c_str());
 
-   CURLMcode rc = curl_multi_add_handle( m_mcurl, m_curl );
+   curl_multi_add_handle( m_mcurl, m_curl );
 }
 
 std::streamsize download_source::read(char* s, std::streamsize n) {
    if( m_mcurl == NULL ) {
       initialize();
-   }
+   } 
 
    std::streamsize total_bytes = 0;
    std::streamsize bytes_to_read = 0;
 
    int handles_changed = 0;
 
-   do {
-      
-      CURLMcode rc = curl_multi_perform(m_mcurl, &handles_changed);
-      if( rc != CURLM_OK  && rc != CURLM_CALL_MULTI_PERFORM ) {
-         std::ostringstream ostr;
-         ostr << "Error while reading from URL '" << m_url << "'. "
-              << "Error code: " << rc << ". Description: " 
-              << curl_multi_strerror(rc);
-         throw download_exception( ostr.str() );
-      }
+   do {      
+      curl_multi_perform(m_mcurl, &handles_changed);
                  
       bytes_to_read = std::min(m_tail-m_head, n - total_bytes);
 
@@ -124,8 +118,10 @@ std::streamsize download_source::read(char* s, std::streamsize n) {
             curl_easy_pause(m_curl, CURLPAUSE_CONT);
          }
          total_bytes += bytes_to_read;
+      } else if( is_eof() ) {
+         return ( total_bytes == 0 ) ? -1 : total_bytes;
       }
-   } while( bytes_to_read > 0 && total_bytes < n);
+   } while( total_bytes < n);
    
    return total_bytes;
 }
@@ -143,8 +139,32 @@ std::streamsize download_source::fill(char *s, std::streamsize n) {
    return size;
 }
 
+bool download_source::is_eof() 
+{
+   if( m_eof ) 
+      return true;
+
+   if( m_tail == m_head ) {
+      int msgs_remaining = 0;
+      do {
+         CURLMsg *msg = curl_multi_info_read( m_mcurl, &msgs_remaining);
+         if( msg != NULL && msg->msg == CURLMSG_DONE) {
+            if( msg->data.result != CURLE_OK ) {
+               std::ostringstream ostr;
+               ostr << "Error while reading from URL '" << m_url << "'. "
+                    << "Error code: " << msg->data.result << ". Description: " 
+                    << curl_easy_strerror(msg->data.result);
+               m_error_string = ostr.str();
+            }
+            m_eof = true;
+            return true;
+         }
+      } while( msgs_remaining > 0 );
+   }
+
+   return false;
+}
 void download_source::close() {
-   
    if( m_curl != NULL ) {
       if( m_mcurl != NULL ) 
          curl_multi_remove_handle( m_mcurl, m_curl );
