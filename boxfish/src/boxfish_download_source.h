@@ -47,12 +47,14 @@ public:
    download_source(const download_source& peer);
 
    const std::string& error_string() const { return m_error_string; }
+   const std::string& type() const { return m_type; }
+   const std::string& url() const { return m_url; }
 
    std::streamsize read(char* s, std::streamsize n);
    std::streamsize fill(char *s, std::streamsize n);
 
    void close();
-
+   
 private:
    void initialize();
    bool is_eof();

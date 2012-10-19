@@ -24,10 +24,6 @@
 #include <QtCore/QUrl>
 #include <QtCore/QFileInfo>
 
-extern "C" {
-#include <curl.h>
-}
-
 #include <dgd.h>
 
 #include <openvrml/browser.h>
@@ -38,32 +34,22 @@ extern "C" {
 namespace boxfish
 {
 
-download_istream::download_istream(download_fetcher *fetcher):
-   m_fetcher(fetcher),
-   m_streambuf(fetcher),
+download_istream::download_istream(const std::string& url):
+   m_url(url),
+   m_streambuf(url),
    openvrml::resource_istream(&m_streambuf)
 {}
 
-const std::string download_istream::do_url() const {
-   QNetworkReply *reply = m_fetcher->reply();
-   if( reply == NULL ) 
-      return std::string();
-   
-   return QString(reply->url().toEncoded()).toStdString();
+const std::string download_istream::do_url() const {   
+   return m_url;
 }
 
 const std::string download_istream::do_type() const {
-   QNetworkReply *reply = m_fetcher->reply();
-   if( reply == NULL ) 
-      return std::string();
+   if( !m_type.empty() ) 
+      return m_type;
 
-   QVariant type_variant = 
-      reply->header(QNetworkRequest::ContentTypeHeader);
-
-   if (type_variant.isValid())  
-      return type_variant.toString().toStdString();
-
-   QUrl url = reply->url();
+   QUrl url;
+   url.setUrl(QString::fromStdString(m_url));
 
    QFileInfo path_info(url.path());
    QString suffix = path_info.suffix();
@@ -82,25 +68,15 @@ const std::string download_istream::do_type() const {
 }
 
 bool download_istream::do_data_available() const {
-   QNetworkReply *reply = m_fetcher->reply();
-   if( reply == NULL ) 
-      return false;
-
-   return reply->isOpen();
+   return !this->eof();
 }
 
 download_fetcher::download_fetcher():
-   openvrml::resource_fetcher(),
-   m_curl(NULL)
+   openvrml::resource_fetcher()
 {
-   m_curl = (void*)curl_easy_init();
-   if( m_curl == NULL ) 
-      throw download_exception(QString("Unable to initialize CURL"));
 }
 
 download_fetcher::~download_fetcher() {
-   if( m_curl != NULL ) 
-      curl_easy_cleanup((CURL*)m_curl);
 }
 
 std::auto_ptr<openvrml::resource_istream> 
@@ -108,46 +84,7 @@ download_fetcher::do_get_resource(const std::string & uri)
 {
    std::auto_ptr<openvrml::resource_istream> str;
 
-   QUrl url;
-  
-   url.setUrl(QString::fromStdString(uri)); 
-   if( !url.isValid() ) 
-      throw download_exception(QString("Invalid URL: %1").
-                               arg(QString(url.toEncoded())));
-
-
-   emit request_open(url);
-
-   int timeout_msec = 15000;
-
-   bool rc = m_open_guard.tryAcquire(1, timeout_msec);
-   if(!rc) {
-      throw download_exception(
-         QString("Open operation on URL '%1' is timed out "
-                 "after %2 millisecons").
-         arg(QString(url.toEncoded())).
-         arg(timeout_msec)
-      );
-   }
-   
-   if( m_reply == NULL ) {
-      throw download_exception(
-         QString("Open operation on URL '%1' has failed with empty reply").
-         arg(QString(url.toEncoded()))
-      );
-   }
-   
-   if( m_reply->error() != 0 ) {
-      throw download_exception(
-         QString("Open operation on URL '%1' is failed. "
-                 "Error code: %2. Description: %3").
-         arg(QString(url.toEncoded())).
-         arg(m_reply->error()).
-         arg(m_reply->errorString())
-      );
-   }
-
-   str.reset( new download_istream(this) );
+   str.reset( new download_istream(uri) );
 
    return str;
 }

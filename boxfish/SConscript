@@ -99,6 +99,7 @@ srclist = map( lambda fname: os.path.join(variant,fname),
 
 
 zlib_name = env.subst('${CRSHPREFIX}zlib')
+libcurl_name = env.subst('${CRSHPREFIX}libcurl')
 libjpeg_name = env.subst('${CRSHPREFIX}libjpeg')
 libpng_name = env.subst('${CRSHPREFIX}libpng')
 libxml2_name = env.subst('${CRSHPREFIX}libxml2')
@@ -111,7 +112,7 @@ boost_libs = map( lambda lib: lib + '$BOOST_LIB_SUFFIX',
                     'boost_system',
                     'boost_thread' ])
 
-qt_libs = [ 'QtCore4', 'QtNetwork4', 'QtGui4', 'QtXml4', 'QtSvg4', 'QtOpenGL4' ]
+qt_libs = [ 'QtCore4', 'QtGui4', 'QtXml4', 'QtSvg4', 'QtOpenGL4' ]
 
 windows_libs = [ 'wsock32', 'opengl32', 'glu32' ]
 
@@ -119,6 +120,7 @@ boxfish = env.Program(
     target = os.path.join(variant, 'boxfish3d'), 
     source = srclist + resfile + qresfile,
     LIBS = [ zlib_name, 
+             libcurl_name,
              libpng_name, 
              libjpeg_name, 
              libxml2_name, 

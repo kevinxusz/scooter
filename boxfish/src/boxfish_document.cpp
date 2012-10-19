@@ -124,7 +124,6 @@ void Document::load_start() {
 
       connect( m_loader, SIGNAL(failure()), this, SLOT(load_failure()) );
       connect( m_loader, SIGNAL(success()), this, SLOT(load_success()) );
-      connect( m_loader, SIGNAL(terminated()), this, SLOT(load_failure()) );
 
       connect( m_loader, SIGNAL(progress(int)), 
 	       m_progress_bar, SLOT(setValue(int)) );

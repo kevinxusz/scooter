@@ -45,10 +45,7 @@ public:
    boost::iostreams::stream_buffer<download_source> stream_buffer_t;
 
 public:
-   download_istream(download_fetcher *fetcher);
-
-   ~download_istream() {
-   }
+   download_istream(const std::string& url);
 
 private:
    const std::string do_url() const;
@@ -56,7 +53,8 @@ private:
    bool do_data_available() const;
 
 private:
-   download_fetcher *m_fetcher;
+   std::string m_url;
+   std::string m_type;
    stream_buffer_t m_streambuf;
 };
 
@@ -71,9 +69,6 @@ public:
 private:
    std::auto_ptr<openvrml::resource_istream> 
    do_get_resource(const std::string & uri);
-
-private:
-   void *m_curl;
 };
 
 } // end of namespace

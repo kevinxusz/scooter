@@ -78,6 +78,8 @@ void Loader::start() {
                  << std::endl;
       return;
    }
+
+   emit success();
 }
 
 void Loader::operator () ( unsigned long l, unsigned long c ) {

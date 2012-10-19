@@ -74,12 +74,6 @@ private slots:
    void window_activated( QWidget *w );
    void handle_glpad_command();
    void handle_glpad_propchange( QWidget *doc );
-   void open(const QUrl& url);
-   void close(QNetworkReply *reply);
-   void handle_reply_finished( QObject *sender );
-
-signals:
-   void url_opened(QNetworkReply *network_reply);
 
 protected:
    void construct_actions();
@@ -96,7 +90,6 @@ private:
    QSignalMapper  *m_history_mapper;
    QSignalMapper  *m_activation_mapper;
    QSignalMapper  *m_properties_mapper;
-   QSignalMapper  *m_network_reply_mapper;
 
    QMenu          *m_filehist_menu;
    QMenu          *m_file_menu;

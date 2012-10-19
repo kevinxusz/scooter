@@ -67,7 +67,6 @@ Portal::Portal() :
    m_history_mapper(NULL),   
    m_activation_mapper(NULL),
    m_properties_mapper(NULL),
-   m_network_reply_mapper(NULL),
    m_file_menu(NULL),
    m_window_menu(NULL),
    m_help_menu(NULL),
@@ -107,10 +106,6 @@ Portal::Portal() :
    m_properties_mapper = new QSignalMapper(this);
    connect( m_properties_mapper, SIGNAL(mapped(QWidget*)),
 	    this, SLOT(handle_glpad_propchange(QWidget*)) );
-
-   m_network_reply_mapper = new QSignalMapper(this);
-   connect(m_network_reply_mapper, SIGNAL(mapped(QObject*)), 
-           SLOT(handle_reply_finished(QObject*)));
 
    int isize = Config::main()->get( "icon::size" ).toInt();
    this->setIconSize( QSize( isize, isize ) );
