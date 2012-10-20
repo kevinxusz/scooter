@@ -58,7 +58,7 @@
 
 namespace boxfish {
 
-Document::Document( download_fetcher& fetcher, const QUrl& url ) :
+Document::Document( const QUrl& url ) :
    QWidget( NULL, Qt::Window                   | 
 		  Qt::WindowTitleHint          |
 		  Qt::WindowSystemMenuHint     |
@@ -73,8 +73,8 @@ Document::Document( download_fetcher& fetcher, const QUrl& url ) :
    m_scene_model(NULL),
    m_scene_tree(NULL),
    m_glpad(NULL),
-   m_selection(NULL),
-   m_download_fetcher(fetcher) {
+   m_selection(NULL)
+{
 
    dgd_scope;
 
@@ -120,7 +120,7 @@ void Document::load_start() {
    dgd_scope;
 
    if( m_loader == NULL ) {
-      m_loader = new vrml::Loader( m_download_fetcher, m_url );
+      m_loader = new vrml::Loader( m_url );
 
       connect( m_loader, SIGNAL(failure()), this, SLOT(load_failure()) );
       connect( m_loader, SIGNAL(success()), this, SLOT(load_success()) );
@@ -146,8 +146,8 @@ void Document::load_failure() {
 			  QMessageBox::Ok,
 			  QMessageBox::NoButton );
 
-   m_status_bar->removeWidget( m_progress_bar );
-   m_progress_bar->hide();
+//   m_status_bar->removeWidget( m_progress_bar );
+//   m_progress_bar->hide();
    m_status_bar->showMessage( tr("Load failed"), 2000 );
 
    emit load_failed();
@@ -156,8 +156,8 @@ void Document::load_failure() {
 void Document::load_success() {
    dgd_scope;
 
-   m_status_bar->removeWidget( m_progress_bar );
-   m_progress_bar->hide();
+//   m_status_bar->removeWidget( m_progress_bar );
+//   m_progress_bar->hide();
    m_status_bar->showMessage( tr("Load successfull"), 2000 );
    
    if( m_loader != NULL ) {

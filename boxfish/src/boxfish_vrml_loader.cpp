@@ -25,6 +25,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/bind.hpp>
+
 #include <boost/iostreams/concepts.hpp> 
 #include <boost/iostreams/stream.hpp>
 
@@ -42,11 +44,9 @@ namespace boxfish {
 
 namespace vrml {
 
-Loader::Loader( boxfish::download_fetcher &fetcher, const QUrl &url ) :
-   m_count(0),   
+Loader::Loader( const QUrl &url ) :
    m_prev(0),
-   m_url(url) ,
-   m_download_fetcher(fetcher)
+   m_url(url)
 {
 }
 
@@ -60,12 +60,20 @@ Loader::browser_ptr Loader::browser() const {
 void Loader::start() {
    dgd_scope;
 
+   if( m_download_fetcher.get() != NULL ) 
+      return;
+
+   m_download_fetcher.reset( 
+      new boxfish::download_fetcher(
+         boost::bind(&Loader::report_progress, this, _1, _2)
+      )
+   );
+
    m_browser.reset( 
-      new openvrml::browser( m_download_fetcher, std::cout, std::cerr ) );
+      new openvrml::browser( *m_download_fetcher, std::cout, std::cerr ) );
 
    std::vector<std::string> urls,params;
    urls.push_back( QString(m_url.toEncoded()).toStdString() );
-	    
 	    
    try {
       m_browser->load_url( urls, params );
@@ -82,14 +90,16 @@ void Loader::start() {
    emit success();
 }
 
-void Loader::operator () ( unsigned long l, unsigned long c ) {
-   m_count++;
+int Loader::report_progress ( double dl_total, double dl_now ) {
+   dgd_scope;
+   dgd_echo(dl_total);
+   dgd_echo(dl_now);
 
-   // int val = (int)(m_count * 100.0 / m_finfo.size());
-   // if( val >= m_prev + 10 ) {
-   //    m_prev = val;
-   //    emit progress(val);
-   // }	   
+   int percent = (int)(100.0 * dl_total / dl_now);
+   dgd_echo(percent);
+
+   emit progress( percent);
+   return 0;
 }
 
 }; // end of namespace vrml

@@ -25,6 +25,8 @@
 #ifndef _boxfish_download_source_h_
 #define _boxfish_download_source_h_
 
+#include <boost/function.hpp>
+
 #include <boost/iostreams/concepts.hpp> 
 #include <boost/iostreams/stream.hpp>
 
@@ -36,6 +38,7 @@ class download_fetcher;
 class download_source {
 public:
    typedef char char_type;
+   typedef boost::function<int (double, double)> progress_callback_t;
 
    struct category
       : public boost::iostreams::input,
@@ -49,8 +52,10 @@ public:
    const std::string& error_string() const { return m_error_string; }
    const std::string& type() const { return m_type; }
    const std::string& url() const { return m_url; }
+   const progress_callback_t progress() const { return m_progress; }
 
    void type(const std::string& str) { m_type = str; }
+   void progress(const progress_callback_t& progress) { m_progress = progress; }
 
    std::streamsize read(char* s, std::streamsize n);
    std::streamsize fill(char *s, std::streamsize n);
@@ -72,6 +77,7 @@ private:
    std::string m_url;
    std::string m_error_string;
    bool m_eof;
+   progress_callback_t m_progress;
 };
 
 } // end of namespace boxfish

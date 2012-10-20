@@ -39,8 +39,6 @@ class QNetworkAccessManager;
 
 namespace boxfish {
 
-class download_fetcher;
-
 namespace vrml {
 class Loader;
 class Control;
@@ -56,7 +54,7 @@ class Document: public QWidget {
    Q_OBJECT
       
 public:      
-   Document( download_fetcher &fetcher, const QUrl& url );
+   Document( const QUrl& url );
    virtual ~Document();
 
    QWidget *toolset() const;
@@ -99,7 +97,6 @@ private:
    vrml::scene::Tree  *m_scene_tree;
    vrml::Control      *m_glpad;
    void               *m_selection;
-   download_fetcher   &m_download_fetcher;
 };
 
 }; // end of namespace boxfish

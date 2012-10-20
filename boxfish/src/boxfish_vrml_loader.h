@@ -42,9 +42,12 @@ class Loader: public QObject {
    
 public:
    typedef boost::shared_ptr<openvrml::browser> browser_ptr;
+   
+private:
+   typedef boost::shared_ptr<boxfish::download_fetcher> download_fetcher_ptr;
 
 public:
-   Loader( boxfish::download_fetcher &fetcher, const QUrl &url );
+   Loader( const QUrl &url );
    virtual ~Loader();
 
    void start();
@@ -53,7 +56,7 @@ public:
    browser_ptr browser() const;
 
 private:
-   void operator () ( unsigned long l, unsigned long c );
+   int report_progress( double dl_total, double dl_now );
       
 signals:
    void progress( int percent );
@@ -61,12 +64,11 @@ signals:
    void success();
 
 private:
-   unsigned long              m_count;
-   int                        m_prev;
-   QUrl                       m_url;
-   QString                    m_error_string;
-   boxfish::download_fetcher &m_download_fetcher;
-   browser_ptr                m_browser;
+   int                  m_prev;
+   QUrl                 m_url;
+   QString              m_error_string;
+   download_fetcher_ptr m_download_fetcher;
+   browser_ptr          m_browser;
 };
 
 }; // end of namespace vrml

@@ -41,11 +41,12 @@ class download_fetcher;
 
 class download_istream : public openvrml::resource_istream {
 public:
-   typedef
-   boost::iostreams::stream_buffer<download_source> stream_buffer_t;
+   typedef boost::iostreams::stream_buffer<download_source> stream_buffer_t;
+   typedef download_source::progress_callback_t progress_callback_t;
 
 public:
-   download_istream(const std::string& url);
+   download_istream(const std::string& url, 
+                    const progress_callback_t& progress);
 
 private:
    const std::string do_url() const;
@@ -62,13 +63,19 @@ class download_fetcher: public QObject, public openvrml::resource_fetcher {
    Q_OBJECT
 
 public:
-   download_fetcher();
+   typedef download_source::progress_callback_t progress_callback_t;
+
+public:
+   download_fetcher(const progress_callback_t& progress);
    
    ~download_fetcher();
 
 private:
    std::auto_ptr<openvrml::resource_istream> 
    do_get_resource(const std::string & uri);
+
+private:
+   progress_callback_t m_progress;
 };
 
 } // end of namespace

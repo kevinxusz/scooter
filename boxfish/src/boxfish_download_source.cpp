@@ -78,6 +78,22 @@ size_t parse_header(char *ptr, size_t size, size_t nmemb, void *userdata) {
    return size * nmemb;
 }
 
+static
+int report_progress(void *userdata, 
+             double dltotal, double dlnow, 
+             double ultotal, double ulnow)
+{
+   dgd_scope;
+
+   download_source *ds = (download_source*)userdata;
+
+   boxfish::download_source::progress_callback_t progress = ds->progress();
+   if(progress != NULL)
+      return ds->progress()(dltotal, dlnow);
+
+   return 0;
+}
+
 download_source::download_source(const std::string& uri): 
    m_mcurl(NULL),
    m_curl(NULL),
@@ -86,7 +102,8 @@ download_source::download_source(const std::string& uri):
    m_head(NULL),
    m_tail(NULL),
    m_url(uri),
-   m_eof(false)
+   m_eof(false),
+   m_progress(NULL)
 {
 }
 
@@ -98,7 +115,8 @@ download_source::download_source(const download_source& peer):
    m_head(NULL),
    m_tail(NULL),
    m_url(peer.m_url),
-   m_eof(false)
+   m_eof(false),
+   m_progress(NULL)
 {
 }
 
@@ -122,6 +140,10 @@ void download_source::initialize()
 
    curl_easy_setopt(m_curl, CURLOPT_HEADERFUNCTION, parse_header);
    curl_easy_setopt(m_curl, CURLOPT_WRITEHEADER, this);
+
+   curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, 0L);
+   curl_easy_setopt(m_curl, CURLOPT_PROGRESSFUNCTION, report_progress);
+   curl_easy_setopt(m_curl, CURLOPT_PROGRESSDATA, this);
 
    curl_easy_setopt(m_curl, CURLOPT_URL, m_url.c_str());
 

@@ -43,8 +43,6 @@ class QActionGroup;
 
 namespace boxfish {
 
-class download_fetcher;
-
 class Portal: public QMainWindow {
    Q_OBJECT
       
@@ -116,8 +114,6 @@ private:
    QActionGroup   *m_shading_actions;
    QFileDialog    *m_open_dialog;
    QDockWidget    *m_tool_docker;
-
-   download_fetcher      *m_download_fetcher;
 
    QStringList     m_file_history;
 };
