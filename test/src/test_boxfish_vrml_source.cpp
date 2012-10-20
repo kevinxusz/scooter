@@ -52,6 +52,7 @@ void test_download_source(const std::string &url)
       dgd_logger << buffer << std::endl;
    }
 
+   dgd_echo(in->type());
    dgd_echo(in->error_string());
    dgd_logger << "Exit" << std::endl;
 }

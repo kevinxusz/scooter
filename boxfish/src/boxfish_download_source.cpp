@@ -25,10 +25,13 @@
 #include <iostream>
 #include <algorithm>
 #include <sstream>
+#include <cstring>
 
 extern "C" {
 #include <curl/curl.h>
 }
+
+#include <dgd.h>
 
 #include "boxfish_download_exception.h"
 #include "boxfish_download_source.h"
@@ -45,6 +48,33 @@ size_t fill_source(char *ptr, size_t size, size_t nmemb, void *userdata) {
 
 static 
 size_t parse_header(char *ptr, size_t size, size_t nmemb, void *userdata) {
+   dgd_scope;
+
+   download_source *ds = (download_source*)userdata;
+
+   const char* content_type = "Content-Type:";
+
+   std::string header(ptr, size * nmemb);
+
+   dgd_echo(header);
+
+   int content_index = header.find(content_type, 0);
+   if( content_index == 0 ) {
+      std::string type = header.substr(std::strlen(content_type));
+      dgd_echo(type);
+
+      int wd_index = type.find_first_not_of(" \t", 0);
+      dgd_echo(wd_index);
+      if( wd_index >= 0 ) {
+         int nl_index = type.find_first_of("\n\r", 0);
+         dgd_echo(nl_index);
+         if( nl_index > 0 )
+            ds->type(type.substr(wd_index, nl_index-wd_index));
+         else
+            ds->type(type.substr(wd_index));
+         dgd_echo(ds->type());
+      }
+   }
    return size * nmemb;
 }
 
@@ -74,6 +104,8 @@ download_source::download_source(const download_source& peer):
 
 void download_source::initialize() 
 {
+   dgd_scope;
+
    m_mcurl = curl_multi_init();
    if( m_mcurl == NULL ) 
       throw download_exception("Unable to initialize MCURL");
@@ -97,6 +129,11 @@ void download_source::initialize()
 }
 
 std::streamsize download_source::read(char* s, std::streamsize n) {
+   dgd_scope;
+
+   dgd_echo(m_url);
+   dgd_echo(n);
+
    if( m_mcurl == NULL ) {
       initialize();
    } 
@@ -106,31 +143,44 @@ std::streamsize download_source::read(char* s, std::streamsize n) {
 
    int handles_changed = 0;
 
-   do {      
-      curl_multi_perform(m_mcurl, &handles_changed);
-                 
+   curl_multi_perform(m_mcurl, &handles_changed);
+   dgd_echo(handles_changed);
+
+   do {
       bytes_to_read = std::min(m_tail-m_head, n - total_bytes);
+      dgd_echo(bytes_to_read);
 
       if( bytes_to_read > 0 ) {
          std::copy(m_head, m_head + bytes_to_read, s + total_bytes);
          m_head += bytes_to_read;
          if( m_tail == m_head ) {
             curl_easy_pause(m_curl, CURLPAUSE_CONT);
+            dgd_logger << "resume curl" << std::endl;
          }
          total_bytes += bytes_to_read;
-      } else if( is_eof() ) {
+         dgd_echo(total_bytes);
+      } else if( is_eof() ) {         
          return ( total_bytes == 0 ) ? -1 : total_bytes;
+      } else {
+         curl_multi_wait(m_mcurl, NULL, 0, 15000, &handles_changed);
       }
+
+      curl_multi_perform(m_mcurl, &handles_changed);
    } while( total_bytes < n);
    
    return total_bytes;
 }
 
 std::streamsize download_source::fill(char *s, std::streamsize n) {
+   dgd_scope;
+
+   dgd_echo(n);
+
    if( m_tail != m_head ) {
+      dgd_logger << "curl paused" << std::endl;
       return CURL_WRITEFUNC_PAUSE;
    }
-
+   
    m_head = m_buffer;
    std::streamsize size = std::min( n, m_buffer_size );
    std::copy(s, s+size, m_head );
@@ -141,6 +191,8 @@ std::streamsize download_source::fill(char *s, std::streamsize n) {
 
 bool download_source::is_eof() 
 {
+   dgd_scope;
+
    if( m_eof ) 
       return true;
 
@@ -155,8 +207,10 @@ bool download_source::is_eof()
                     << "Error code: " << msg->data.result << ". Description: " 
                     << curl_easy_strerror(msg->data.result);
                m_error_string = ostr.str();
+               dgd_echo(m_error_string);
             }
             m_eof = true;
+            dgd_echo(m_eof);
             return true;
          }
       } while( msgs_remaining > 0 );

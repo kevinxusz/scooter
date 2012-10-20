@@ -182,8 +182,10 @@ void Portal::open( const QString& fname ) {
 
    dgd_echo(fname);
 
-   QUrl url( fname );
+   QUrl url = QUrl::fromUserInput( fname );
    
+   dgd_echo( QString(url.toEncoded()) );
+
    if( url.isValid() ) {
       Document *doc = new Document( *m_download_fetcher, url );
 

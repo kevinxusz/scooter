@@ -50,6 +50,8 @@ public:
    const std::string& type() const { return m_type; }
    const std::string& url() const { return m_url; }
 
+   void type(const std::string& str) { m_type = str; }
+
    std::streamsize read(char* s, std::streamsize n);
    std::streamsize fill(char *s, std::streamsize n);
 

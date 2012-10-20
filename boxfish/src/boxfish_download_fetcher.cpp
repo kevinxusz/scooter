@@ -38,7 +38,13 @@ download_istream::download_istream(const std::string& url):
    m_url(url),
    m_streambuf(url),
    openvrml::resource_istream(&m_streambuf)
-{}
+{
+   dgd_scope;
+   this->peek();
+   m_type = m_streambuf->type();
+   
+   dgd_echo(m_type);
+}
 
 const std::string download_istream::do_url() const {   
    return m_url;
@@ -85,7 +91,7 @@ download_fetcher::do_get_resource(const std::string & uri)
    std::auto_ptr<openvrml::resource_istream> str;
 
    str.reset( new download_istream(uri) );
-
+   
    return str;
 }
 
