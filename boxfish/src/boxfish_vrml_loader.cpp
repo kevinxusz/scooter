@@ -30,6 +30,8 @@
 #include <boost/iostreams/concepts.hpp> 
 #include <boost/iostreams/stream.hpp>
 
+#include <QtGui/QApplication>
+
 #include <openvrml/browser.h>
 
 #include <dgd.h>
@@ -87,7 +89,7 @@ void Loader::start() {
       return;
    }
 
-   emit success();
+//   emit success();
 }
 
 int Loader::report_progress ( double dl_total, double dl_now ) {
@@ -95,10 +97,12 @@ int Loader::report_progress ( double dl_total, double dl_now ) {
    dgd_echo(dl_total);
    dgd_echo(dl_now);
 
-   int percent = (int)(100.0 * dl_total / dl_now);
+   int percent = (int)(dl_now / dl_total * 100.0);
    dgd_echo(percent);
 
    emit progress( percent);
+
+   QApplication::processEvents();
    return 0;
 }
 

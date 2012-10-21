@@ -78,22 +78,6 @@ size_t parse_header(char *ptr, size_t size, size_t nmemb, void *userdata) {
    return size * nmemb;
 }
 
-static
-int report_progress(void *userdata, 
-             double dltotal, double dlnow, 
-             double ultotal, double ulnow)
-{
-   dgd_scope;
-
-   download_source *ds = (download_source*)userdata;
-
-   boxfish::download_source::progress_callback_t progress = ds->progress();
-   if(progress != NULL)
-      return ds->progress()(dltotal, dlnow);
-
-   return 0;
-}
-
 download_source::download_source(const std::string& uri): 
    m_mcurl(NULL),
    m_curl(NULL),
@@ -103,7 +87,8 @@ download_source::download_source(const std::string& uri):
    m_tail(NULL),
    m_url(uri),
    m_eof(false),
-   m_progress(NULL)
+   m_progress(NULL),
+   m_total_bytes(0)
 {
 }
 
@@ -116,7 +101,8 @@ download_source::download_source(const download_source& peer):
    m_tail(NULL),
    m_url(peer.m_url),
    m_eof(false),
-   m_progress(NULL)
+   m_progress(NULL),
+   m_total_bytes(0)
 {
 }
 
@@ -141,9 +127,7 @@ void download_source::initialize()
    curl_easy_setopt(m_curl, CURLOPT_HEADERFUNCTION, parse_header);
    curl_easy_setopt(m_curl, CURLOPT_WRITEHEADER, this);
 
-   curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, 0L);
-   curl_easy_setopt(m_curl, CURLOPT_PROGRESSFUNCTION, report_progress);
-   curl_easy_setopt(m_curl, CURLOPT_PROGRESSDATA, this);
+   curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, 1L);
 
    curl_easy_setopt(m_curl, CURLOPT_URL, m_url.c_str());
 
@@ -181,6 +165,12 @@ std::streamsize download_source::read(char* s, std::streamsize n) {
          }
          total_bytes += bytes_to_read;
          dgd_echo(total_bytes);
+
+         m_total_bytes += bytes_to_read;
+         if(report_progress() != 0) {
+            dgd_logger << "download aborted" << std::endl;
+            return -1;
+         }
       } else if( is_eof() ) {         
          return ( total_bytes == 0 ) ? -1 : total_bytes;
       } else {
@@ -257,6 +247,17 @@ void download_source::close() {
       delete m_buffer;
       m_buffer = NULL;
       m_head = m_tail = NULL;
+   }
+}
+
+int download_source::report_progress() {
+   dgd_scope;
+   if( m_progress != NULL ) {
+      double total = 0;
+      curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &total);
+      dgd_echo(total);
+      dgd_echo(m_total_bytes);
+      return m_progress( total, (double)m_total_bytes );
    }
 }
 

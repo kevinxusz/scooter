@@ -52,8 +52,7 @@ public:
    const std::string& error_string() const { return m_error_string; }
    const std::string& type() const { return m_type; }
    const std::string& url() const { return m_url; }
-   const progress_callback_t progress() const { return m_progress; }
-
+   
    void type(const std::string& str) { m_type = str; }
    void progress(const progress_callback_t& progress) { m_progress = progress; }
 
@@ -65,6 +64,7 @@ public:
 private:
    void initialize();
    bool is_eof();
+   int report_progress();
 
 private:
    void *m_mcurl;
@@ -78,6 +78,7 @@ private:
    std::string m_error_string;
    bool m_eof;
    progress_callback_t m_progress;
+   std::streamsize m_total_bytes;
 };
 
 } // end of namespace boxfish

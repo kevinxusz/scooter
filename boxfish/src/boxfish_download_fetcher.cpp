@@ -41,12 +41,12 @@ download_istream::download_istream(const std::string& url,
    openvrml::resource_istream(&m_streambuf)
 {
    dgd_scope;
+
+   m_streambuf->progress(progress);
    this->peek();
 
    m_type = m_streambuf->type();
    dgd_echo(m_type);
-
-   m_streambuf->progress(progress);
 }
 
 const std::string download_istream::do_url() const {   
