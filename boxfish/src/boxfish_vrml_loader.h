@@ -37,7 +37,7 @@ class download_fetcher;
 
 namespace vrml {
 
-class Loader: public QObject {
+class Loader: public QObject, public openvrml::browser_listener {
    Q_OBJECT
    
 public:
@@ -57,7 +57,8 @@ public:
 
 private:
    int report_progress( double dl_total, double dl_now );
-      
+   void do_browser_changed(const openvrml::browser_event& event);
+
 signals:
    void progress( int percent );
    void failure();

@@ -74,6 +74,8 @@ void Loader::start() {
    m_browser.reset( 
       new openvrml::browser( *m_download_fetcher, std::cout, std::cerr ) );
 
+   m_browser->add_listener(*this);
+
    std::vector<std::string> urls,params;
    urls.push_back( QString(m_url.toEncoded()).toStdString() );
 	    
@@ -88,8 +90,6 @@ void Loader::start() {
                  << std::endl;
       return;
    }
-
-//   emit success();
 }
 
 int Loader::report_progress ( double dl_total, double dl_now ) {
@@ -104,6 +104,14 @@ int Loader::report_progress ( double dl_total, double dl_now ) {
 
    QApplication::processEvents();
    return 0;
+}
+
+void Loader::do_browser_changed(const openvrml::browser_event &event) 
+{
+   if( event.id() == openvrml::browser_event::initialized )
+   {
+      emit success();
+   }
 }
 
 }; // end of namespace vrml
