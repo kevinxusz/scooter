@@ -87,7 +87,7 @@ download_source::download_source(const std::string& uri):
    m_tail(NULL),
    m_url(uri),
    m_eof(false),
-   m_progress(NULL),
+   m_progress_callback(NULL),
    m_total_bytes(0)
 {
 }
@@ -101,7 +101,7 @@ download_source::download_source(const download_source& peer):
    m_tail(NULL),
    m_url(peer.m_url),
    m_eof(false),
-   m_progress(NULL),
+   m_progress_callback(NULL),
    m_total_bytes(0)
 {
 }
@@ -220,6 +220,9 @@ bool download_source::is_eof()
                     << curl_easy_strerror(msg->data.result);
                m_error_string = ostr.str();
                dgd_echo(m_error_string);
+               if( m_error_callback != NULL ) {
+                  m_error_callback(m_error_string);
+               }
             }
             m_eof = true;
             dgd_echo(m_eof);
@@ -252,12 +255,12 @@ void download_source::close() {
 
 int download_source::report_progress() {
    dgd_scope;
-   if( m_progress != NULL ) {
+   if( m_progress_callback != NULL ) {
       double total = 0;
       curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &total);
       dgd_echo(total);
       dgd_echo(m_total_bytes);
-      return m_progress( total, (double)m_total_bytes );
+      return m_progress_callback( total, (double)m_total_bytes );
    }
 }
 

@@ -57,11 +57,12 @@ public:
 
 private:
    int report_progress( double dl_total, double dl_now );
+   void report_error( const std::string& str );
    void do_browser_changed(const openvrml::browser_event& event);
 
 signals:
    void progress( int percent );
-   void failure();
+   void failure(const QString&);
    void success();
 
 private:

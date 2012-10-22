@@ -67,7 +67,8 @@ void Loader::start() {
 
    m_download_fetcher.reset( 
       new boxfish::download_fetcher(
-         boost::bind(&Loader::report_progress, this, _1, _2)
+         boost::bind(&Loader::report_progress, this, _1, _2),
+         boost::bind(&Loader::report_error, this, _1)
       )
    );
 
@@ -83,7 +84,7 @@ void Loader::start() {
       m_browser->load_url( urls, params );
    } catch( std::exception &ex ) {
       m_error_string += ex.what();
-      emit failure();
+      emit failure(m_error_string);
       dgd_logger << "got exception in load_url() while loading: " 
                  << QString(m_url.toEncoded())
                  << " , reason was: " << ex.what()
@@ -106,11 +107,22 @@ int Loader::report_progress ( double dl_total, double dl_now ) {
    return 0;
 }
 
+void Loader::report_error( const std::string& str ) {
+   if( !str.empty() ) {
+      if( !m_error_string.isEmpty() ) 
+         m_error_string += " ";
+      m_error_string += QString::fromStdString(str);
+   }
+}
+
 void Loader::do_browser_changed(const openvrml::browser_event &event) 
 {
    if( event.id() == openvrml::browser_event::initialized )
    {
-      emit success();
+      if( m_error_string.isEmpty() )
+         emit success();
+      else 
+         emit failure(m_error_string);
    }
 }
 

@@ -122,7 +122,8 @@ void Document::load_start() {
    if( m_loader == NULL ) {
       m_loader = new vrml::Loader( m_url );
 
-      connect( m_loader, SIGNAL(failure()), this, SLOT(load_failure()) );
+      connect( m_loader, SIGNAL(failure(const QString&)), 
+               this, SLOT(load_failure(const QString&)) );
       connect( m_loader, SIGNAL(success()), this, SLOT(load_success()) );
 
       connect( m_loader, SIGNAL(progress(int)), 
@@ -137,17 +138,16 @@ void Document::load_start() {
    }
 }
 
-void Document::load_failure() {   
+void Document::load_failure(const QString& error) {   
    dgd_scope;
 
    QMessageBox::critical( this, tr("Load Failed"), 
-			  tr("Unable to load file: %1").
-			  arg(QString(m_url.toEncoded())),
+                          error,
 			  QMessageBox::Ok,
 			  QMessageBox::NoButton );
 
-//   m_status_bar->removeWidget( m_progress_bar );
-//   m_progress_bar->hide();
+   m_status_bar->removeWidget( m_progress_bar );
+   m_progress_bar->hide();
    m_status_bar->showMessage( tr("Load failed"), 2000 );
 
    emit load_failed();
@@ -156,8 +156,8 @@ void Document::load_failure() {
 void Document::load_success() {
    dgd_scope;
 
-//   m_status_bar->removeWidget( m_progress_bar );
-//   m_progress_bar->hide();
+   m_status_bar->removeWidget( m_progress_bar );
+   m_progress_bar->hide();
    m_status_bar->showMessage( tr("Load successfull"), 2000 );
    
    if( m_loader != NULL ) {

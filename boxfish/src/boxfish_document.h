@@ -65,7 +65,7 @@ public slots:
    void glpad_reset();
 
 private slots:
-   void load_failure();
+   void load_failure(const QString&);
    void load_success();
    void load_cancel();
    void load_start();

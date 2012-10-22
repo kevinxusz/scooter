@@ -39,6 +39,7 @@ class download_source {
 public:
    typedef char char_type;
    typedef boost::function<int (double, double)> progress_callback_t;
+   typedef boost::function<void (const std::string&)> error_callback_t;
 
    struct category
       : public boost::iostreams::input,
@@ -54,7 +55,14 @@ public:
    const std::string& url() const { return m_url; }
    
    void type(const std::string& str) { m_type = str; }
-   void progress(const progress_callback_t& progress) { m_progress = progress; }
+
+   void progress_callback(const progress_callback_t& progress_callback) {
+      m_progress_callback = progress_callback; 
+   }
+
+   void error_callback(const error_callback_t& error_callback) {
+      m_error_callback = error_callback;
+   }
 
    std::streamsize read(char* s, std::streamsize n);
    std::streamsize fill(char *s, std::streamsize n);
@@ -77,7 +85,8 @@ private:
    std::string m_url;
    std::string m_error_string;
    bool m_eof;
-   progress_callback_t m_progress;
+   progress_callback_t m_progress_callback;
+   error_callback_t m_error_callback;
    std::streamsize m_total_bytes;
 };
 

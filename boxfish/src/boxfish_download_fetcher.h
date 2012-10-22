@@ -24,6 +24,8 @@
 #ifndef _boxfish_download_fetcher_h_
 #define _boxfish_download_fetcher_h_
 
+#include <list>
+
 #include <QtCore/QObject>
 #include <QtCore/QSemaphore>
 #include <QtCore/QUrl>
@@ -43,10 +45,16 @@ class download_istream : public openvrml::resource_istream {
 public:
    typedef boost::iostreams::stream_buffer<download_source> stream_buffer_t;
    typedef download_source::progress_callback_t progress_callback_t;
+   typedef download_source::error_callback_t error_callback_t;
 
 public:
    download_istream(const std::string& url, 
-                    const progress_callback_t& progress);
+                    const progress_callback_t& progress_callback,
+                    const error_callback_t& error_callback);
+
+   const std::string& error_string() { 
+      return m_streambuf->error_string();
+   }
 
 private:
    const std::string do_url() const;
@@ -64,9 +72,11 @@ class download_fetcher: public QObject, public openvrml::resource_fetcher {
 
 public:
    typedef download_source::progress_callback_t progress_callback_t;
+   typedef download_source::error_callback_t error_callback_t;
 
 public:
-   download_fetcher(const progress_callback_t& progress);
+   download_fetcher(const progress_callback_t& progress_callback,
+                    const error_callback_t& error_callback);
    
    ~download_fetcher();
 
@@ -75,7 +85,8 @@ private:
    do_get_resource(const std::string & uri);
 
 private:
-   progress_callback_t m_progress;
+   progress_callback_t m_progress_callback;
+   error_callback_t m_error_callback;
 };
 
 } // end of namespace

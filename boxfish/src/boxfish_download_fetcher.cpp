@@ -35,14 +35,16 @@ namespace boxfish
 {
 
 download_istream::download_istream(const std::string& url, 
-                                   const progress_callback_t& progress):
+                                   const progress_callback_t& progress_callback,
+                                   const error_callback_t& error_callback):
    m_url(url),
    m_streambuf(url),
    openvrml::resource_istream(&m_streambuf)
 {
    dgd_scope;
 
-   m_streambuf->progress(progress);
+   m_streambuf->progress_callback(progress_callback);
+   m_streambuf->error_callback(error_callback);
    this->peek();
 
    m_type = m_streambuf->type();
@@ -80,9 +82,13 @@ bool download_istream::do_data_available() const {
    return !this->eof();
 }
 
-download_fetcher::download_fetcher(const progress_callback_t& progress):
+download_fetcher::download_fetcher(
+   const progress_callback_t& progress_callback,
+   const error_callback_t& error_callback
+):
    openvrml::resource_fetcher(),
-   m_progress(progress)
+   m_progress_callback(progress_callback),
+   m_error_callback(error_callback)
 {
 }
 
@@ -94,8 +100,10 @@ download_fetcher::do_get_resource(const std::string & uri)
 {
    std::auto_ptr<openvrml::resource_istream> str;
 
-   str.reset( new download_istream(uri, m_progress) );
-   
+   str.reset( 
+      new download_istream(uri, m_progress_callback, m_error_callback) 
+   );
+
    return str;
 }
 
