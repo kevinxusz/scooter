@@ -44,6 +44,8 @@
 
 #include <openvrml/browser.h>
 
+#include "boxfish_trace.h"
+
 #include "boxfish_download_exception.h"
 #include "boxfish_download_source.h"
 #include "boxfish_download_fetcher.h"
@@ -76,7 +78,7 @@ Document::Document( const QUrl& url ) :
    m_selection(NULL)
 {
 
-   dgd_scope;
+   dgd_scopef(trace_gui);
 
    dgd_echo(QString(url.toEncoded()));
 
@@ -117,7 +119,7 @@ Document::~Document() {
 }
 
 void Document::load_start() {
-   dgd_scope;
+   dgd_scopef(trace_gui);
 
    if( m_loader == NULL ) {
       m_loader = new vrml::Loader( m_url );
@@ -139,7 +141,7 @@ void Document::load_start() {
 }
 
 void Document::load_failure(const QString& error) {   
-   dgd_scope;
+   dgd_scopef(trace_gui);
 
    QMessageBox::critical( this, tr("Load Failed"), 
                           error,
@@ -154,7 +156,7 @@ void Document::load_failure(const QString& error) {
 }
 
 void Document::load_success() {
-   dgd_scope;
+   dgd_scopef(trace_gui);
 
    m_status_bar->removeWidget( m_progress_bar );
    m_progress_bar->hide();
@@ -178,7 +180,7 @@ void Document::load_success() {
 
 
 void Document::load_cancel() {
-   dgd_scope;
+   dgd_scopef(trace_gui);
 
    if( m_loader != NULL ) {
       // TBD
@@ -194,7 +196,7 @@ void Document::load_cancel() {
 }
 
 void Document::closeEvent(QCloseEvent *event) {
-   dgd_scope;
+   dgd_scopef(trace_gui);
 
    this->load_cancel();
 
@@ -249,7 +251,7 @@ void Document::glpad_reset() {
 }
 
 void Document::handle_select( QModelIndex index ) {
-   dgd_scope;
+   dgd_scopef(trace_gui);
    
    if( m_glpad == NULL ) {
       dgd_logger <<  "glpad is NULL" << std::endl;
@@ -317,7 +319,7 @@ void Document::handle_select( QModelIndex index ) {
 }
 
 void Document::handle_focus( QModelIndex index ) {
-   dgd_scope;
+   dgd_scopef(trace_gui);
    
    if( m_glpad == NULL ) {
       dgd_logger << "glpad is NULL" << std::endl;
@@ -356,7 +358,7 @@ void Document::handle_focus( QModelIndex index ) {
 }
 
 void Document::handle_edit( QModelIndex index ) {
-   dgd_scope;
+   dgd_scopef(trace_gui);
    
    emit edit( index );
 }

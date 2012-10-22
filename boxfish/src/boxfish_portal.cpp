@@ -49,6 +49,7 @@
 
 #include <openvrml/browser.h>
 
+#include "boxfish_trace.h"
 #include "boxfish_cfg.h"
 #include "boxfish_portal.h"
 #include "boxfish_svg.h"
@@ -173,7 +174,7 @@ void Portal::closeEvent(QCloseEvent *event) {
 }
 
 void Portal::open( const QString& fname ) {
-   dgd_scope;
+   dgd_scopef(trace_gui);
 
    dgd_echo(fname);
 
@@ -210,7 +211,7 @@ void Portal::open( const QString& fname ) {
 }
 
 void Portal::open() {
-   dgd_scope;
+   dgd_scopef(trace_gui);
 
    QString fname;
 
@@ -505,7 +506,7 @@ void Portal::set_geometry( QRect rect ) {
 }
 
 void Portal::update_history( const QString &fname ) {
-   dgd_scope;
+   dgd_scopef(trace_gui);
 
    dgd_echo(fname);
    
@@ -529,7 +530,7 @@ void Portal::update_history( const QString &fname ) {
 }
 
 void Portal::window_activated( QWidget *w ) {
-   dgd_scope;
+   dgd_scopef(trace_gui);
 
    Document *doc = dynamic_cast<Document*>(w);
 
@@ -552,7 +553,7 @@ void Portal::window_activated( QWidget *w ) {
 }
 
 void Portal::handle_glpad_propchange( QWidget *w ) {
-   dgd_scope;
+   dgd_scopef(trace_gui);
 
    Document *doc = dynamic_cast<Document*>(w);
 

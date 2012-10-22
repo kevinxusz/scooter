@@ -28,6 +28,7 @@
 
 #include <openvrml/browser.h>
 
+#include "boxfish_trace.h"
 #include "boxfish_download_exception.h"
 #include "boxfish_download_fetcher.h"
 
@@ -41,7 +42,7 @@ download_istream::download_istream(const std::string& url,
    m_streambuf(url),
    openvrml::resource_istream(&m_streambuf)
 {
-   dgd_scope;
+   dgd_scopef(trace_download);
 
    m_streambuf->progress_callback(progress_callback);
    m_streambuf->error_callback(error_callback);
@@ -56,14 +57,21 @@ const std::string download_istream::do_url() const {
 }
 
 const std::string download_istream::do_type() const {
+   dgd_scopef(trace_download);
+
+   dgd_echo(m_type);
    if( !m_type.empty() ) 
       return m_type;
+
+   dgd_echo(m_url);
 
    QUrl url;
    url.setUrl(QString::fromStdString(m_url));
 
    QFileInfo path_info(url.path());
    QString suffix = path_info.suffix();
+
+   dgd_echo(suffix);
 
    if( suffix.compare("wrl", Qt::CaseInsensitive) == 0 ||
        suffix.compare("vrml", Qt::CaseInsensitive) == 0 ) {

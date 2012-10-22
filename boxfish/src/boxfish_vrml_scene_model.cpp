@@ -31,6 +31,7 @@
 
 #include <dgd.h>
 
+#include "boxfish_trace.h"
 #include "boxfish_vrml_scene_model.h"
 
 namespace boxfish {
@@ -44,14 +45,14 @@ Model::Model( QObject * parent, browser_ptr browser ) :
    m_browser(browser),
    m_scene_map(NULL) {
 
-   dgd_scope;
+   dgd_scopef(trace_vrml_scene_map);
 
    m_scene_map = new Map;
    this->reset();
 }
 
 Model::~Model() {
-   dgd_scope;
+   dgd_scopef(trace_vrml_scene_map);
 
    if( m_scene_map != NULL ) {
       delete m_scene_map;
@@ -60,7 +61,7 @@ Model::~Model() {
 }
 
 void Model::reset() {
-   dgd_scope;
+   dgd_scopef(trace_vrml_scene_map);
 
    m_scene_map->clear();
    Builder builder( m_scene_map );
@@ -68,7 +69,7 @@ void Model::reset() {
 }
 
 QModelIndex Model::buddy( const QModelIndex & index ) const {
-   dgd_scope;
+   dgd_scopef(trace_vrml_scene_map);
    dgd_logger << dgd_expand(index.row()) << std::endl
               << dgd_expand(index.column()) << std::endl
               << dgd_expand(index.internalPointer()) << std::endl;
@@ -77,7 +78,7 @@ QModelIndex Model::buddy( const QModelIndex & index ) const {
 
 
 int Model::columnCount( const QModelIndex & parent ) const {
-   dgd_scope;
+   dgd_scopef(trace_vrml_scene_map);
    dgd_logger << dgd_expand(parent.row()) << std::endl
               << dgd_expand(parent.column()) << std::endl
               << dgd_expand(parent.internalPointer()) << std::endl;
@@ -86,7 +87,7 @@ int Model::columnCount( const QModelIndex & parent ) const {
 }
 
 QVariant Model::data( const QModelIndex & index, int role ) const {
-   dgd_scope;
+   dgd_scopef(trace_vrml_scene_map);
 
    dgd_logger << dgd_expand(role) << std::endl
               << dgd_expand(index.row()) << std::endl
@@ -211,7 +212,7 @@ QVariant Model::data( const QModelIndex & index, int role ) const {
 
 
 Qt::ItemFlags Model::flags( const QModelIndex & index ) const {
-   dgd_scope;
+   dgd_scopef(trace_vrml_scene_map);
 
    Qt::ItemFlags flags = Qt::ItemIsSelectable;
    
@@ -219,7 +220,7 @@ Qt::ItemFlags Model::flags( const QModelIndex & index ) const {
 }
 
 bool Model::hasChildren( const QModelIndex & parent ) const {
-   dgd_scope;
+   dgd_scopef(trace_vrml_scene_map);
 
    dgd_logger << dgd_expand(parent.row()) << std::endl
               << dgd_expand(parent.column()) << std::endl
@@ -253,7 +254,7 @@ bool Model::hasChildren( const QModelIndex & parent ) const {
 QVariant Model::headerData( int section, 
 			    Qt::Orientation orientation, 
 			    int role ) const {
-   dgd_scope;
+   dgd_scopef(trace_vrml_scene_map);
 
    dgd_logger << dgd_expand(section) << std::endl
               << dgd_expand(orientation) << std::endl
@@ -294,7 +295,7 @@ QVariant Model::headerData( int section,
 
 QModelIndex Model::index( int row, int column, 
 			  const QModelIndex & parent ) const {
-   dgd_scope;
+   dgd_scopef(trace_vrml_scene_map);
 
    dgd_logger << dgd_expand(row) << std::endl
               << dgd_expand(column) << std::endl
@@ -341,7 +342,7 @@ QModelIndex Model::index( int row, int column,
 
 
 QModelIndex Model::parent( const QModelIndex & index ) const {
-   dgd_scope;
+   dgd_scopef(trace_vrml_scene_map);
 
    dgd_logger << dgd_expand(index.row()) << std::endl
               << dgd_expand(index.column()) << std::endl
@@ -385,7 +386,7 @@ QModelIndex Model::parent( const QModelIndex & index ) const {
 
 
 int Model::rowCount( const QModelIndex & parent ) const {
-   dgd_scope;
+   dgd_scopef(trace_vrml_scene_map);
 
    dgd_logger << dgd_expand(parent.row()) << std::endl
               << dgd_expand(parent.column()) << std::endl

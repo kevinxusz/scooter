@@ -26,6 +26,7 @@
 
 #include <dgd.h>
 
+#include "boxfish_trace.h"
 #include "boxfish_vrml_scene_model.h"
 #include "boxfish_vrml_scene_tree.h"
 #include "boxfish_vrml_scene_item.h"
@@ -67,7 +68,7 @@ void Tree::resize_tree_to_content( const QModelIndex & index ) {
 
 
 void Tree::mousePressEvent ( QMouseEvent *event ) {
-   dgd_scope;
+   dgd_scopef(trace_gui);
 
    QTreeView::mousePressEvent( event );
 
@@ -128,7 +129,7 @@ void Tree::mousePressEvent ( QMouseEvent *event ) {
 }
 
 void Tree::handle_context_action( QAction *sender, const QModelIndex& index ) {
-   dgd_scope;
+   dgd_scopef(trace_gui);
 
    if( sender == m_select_action ) {
       dgd_echo(sender->text());

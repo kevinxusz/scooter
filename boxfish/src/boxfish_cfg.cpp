@@ -30,6 +30,7 @@
 
 #include <dgd.h>
 
+#include "boxfish_trace.h"
 #include "boxfish_cfg.h"
 
 namespace boxfish {
@@ -44,7 +45,7 @@ Config::Config() :
 }
  
 Config::~Config() {
-   dgd_scope;
+   dgd_scopef(trace_cfg);
    this->flush();
    if( m_doc ) 
       delete( m_doc );
@@ -98,7 +99,7 @@ QString Config::path() const {
 }
 
 void Config::relocate( const QString &p ) {
-   dgd_scope;
+   dgd_scopef(trace_cfg);
    dgd_echo(p);
 
    bool rc;
@@ -216,7 +217,7 @@ void Config::remove( const QString& key ) {
 }
 
 void Config::set( const QString &key, const QString& value ) {
-   dgd_scope;
+   dgd_scopef(trace_cfg);
    dgd_logger << dgd_expand(key) << std::endl
               << dgd_expand(value) << std::endl;
 
@@ -261,7 +262,7 @@ void Config::set( const QString &key, const QString& value ) {
 }
 
 QDomElement Config::find( const QString& k, int* suffix ) {
-   dgd_scope;
+   dgd_scopef(trace_cfg);
    dgd_echo(k);
 
    QDomElement cur,next;
@@ -348,7 +349,7 @@ QString Config::cwd() const {
 }
 
 void Config::flush() {
-   dgd_scope;
+   dgd_scopef(trace_cfg);
 
    bool rc;
    qint64 wrc;
@@ -398,7 +399,7 @@ void Config::flush() {
 
 
 void Config::revert() {
-   dgd_scope;
+   dgd_scopef(trace_cfg);
 
    QString cwd = this->cwd();
    bool rc;
@@ -447,7 +448,7 @@ void Config::revert() {
 }
 
 void Config::load_defaults() {
-   dgd_scope;
+   dgd_scopef(trace_cfg);
 
    bool rc;
 

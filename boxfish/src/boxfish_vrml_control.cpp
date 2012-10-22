@@ -21,6 +21,7 @@
 // boxfish_vrml_control.cpp -- implementation of boxfish_control.h
 // 
 
+
 #include <set>
 #include <map>
 #include <sstream>
@@ -47,6 +48,7 @@
 #include <scooter/geometry.h>
 #include <scooter/geometry_dgd.h>
 
+#include "boxfish_trace.h"
 #include "boxfish_vrml_control.h"
 
 namespace boxfish {
@@ -96,7 +98,7 @@ Control::~Control() {
 }
 
 bool Control::execute_list( const openvrml::node* n ) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    Node_GLList_map::const_iterator item = m_gl_list.find(n);
    if (item != m_gl_list.end()) {
@@ -114,7 +116,7 @@ bool Control::execute_list( const openvrml::node* n ) {
 
 
 void Control::update_list( const openvrml::node *n, GLuint list_id ) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    Node_GLList_map::const_iterator item = m_gl_list.find(n);
    if (item != m_gl_list.end()) {
@@ -136,14 +138,14 @@ double Control::do_frame_rate() {
 
 
 void Control::do_reset_user_navigation() {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
    m_permanent_rotation = false;
    m_rotation.set_identity();
    m_translation( 0.0, 0.0, 0.0, 1.0 );
 }
 
 void Control::do_begin_object( const char* id, bool retain ) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
    dgd_echo((id?id:"id=null"));
 
    for( int i = 0; i < m_max_lights; ++i ) {
@@ -159,7 +161,7 @@ void Control::do_begin_object( const char* id, bool retain ) {
 }
 
 void Control::do_end_object() {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    for( int i = 0; i < m_max_lights; ++i ) {
       if( m_light_info[i].m_type == LightInfo::LIGHT_DIRECTIONAL ) {
@@ -186,7 +188,7 @@ Control::do_insert_background( const openvrml::background_node& n )
 void 
 Control::do_insert_box(const openvrml::geometry_node& gn, 
                        const openvrml::vec3f & size) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    if (execute_list(&gn)) {
       return;
@@ -271,7 +273,7 @@ Control::generate_cyllindric_arrays(
    boost::shared_array<Vector>& normals,
    boost::shared_array<Vector>& texture,
    const bool                   is_cone ) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
    // precision is a number of vertices on the bound the last vertex
    // on the cone/cylinder bound is virtually split this is done to
    // make texture mapping to fit exactly [0,1], thus precision is
@@ -350,7 +352,7 @@ Control::insert_cyllindric_object(
    bool  bottom,
    bool  side,
    bool  is_cone ) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    if (execute_list(&n)) {
       return;
@@ -441,7 +443,7 @@ Control::do_insert_cone(
    float radius, 
    bool  bottom,
    bool  side    ) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    insert_cyllindric_object( 
       n,
@@ -454,7 +456,7 @@ void
 Control::do_insert_cylinder( const openvrml::geometry_node & n,
                              float height, float radius, 
                              bool bottom, bool side, bool top) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    insert_cyllindric_object( n,
                              height, radius, 
@@ -471,7 +473,7 @@ Control::generate_spheric_arrays(
    boost::shared_array<Vector>&   normals,
    boost::shared_array<Vector>&   texture,
    boost::shared_array<unsigned>& indices ) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    unsigned nvertexes = (precision + 1) * (precision + 1);
 
@@ -541,7 +543,7 @@ Control::generate_spheric_arrays(
 
 void
 Control::do_insert_sphere(const openvrml::geometry_node & n, float radius) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
    
    if (execute_list(&n)) {
       return;
@@ -613,7 +615,7 @@ Control::generate_elevation_arrays(
    boost::shared_array<Vector>&        normals,
    boost::shared_array<Vector>&        texture,
    boost::shared_array<Vector>&        colors ) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
 //   unsigned int nvertexes = x_dimension * z_dimension;
    unsigned int nfacets   = (x_dimension-1) * (z_dimension-1);
@@ -717,7 +719,7 @@ Control::do_insert_elevation_grid(
    const std::vector<openvrml::color>& color,
    const std::vector<openvrml::vec3f>& normal,
    const std::vector<openvrml::vec2f>& tc) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
    
    if (execute_list(&n)) {
       return;
@@ -804,7 +806,7 @@ Control::generate_line_arrays(
    boost::shared_array<Vector>&        normals,
    boost::shared_array<Vector>&        colors,
    boost::shared_array<unsigned int>&  indexes ) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    nvertexes = 0;
    nstrips = 0;
@@ -896,7 +898,7 @@ Control::do_insert_line_set(
    bool                                color_per_vertex,
    const std::vector<openvrml::color>& color,
    const std::vector<openvrml::int32>& color_index) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
    
    if(execute_list(&n)) {
       return;
@@ -962,7 +964,7 @@ Control::do_insert_point_set(
    const openvrml::geometry_node& n,
    const std::vector<openvrml::vec3f>& coord,
    const std::vector<openvrml::color>& color) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    if (execute_list(&n)) {
       return;
@@ -1031,7 +1033,7 @@ void Control::generate_ifs_arrays(
    boost::shared_array<Vector>&        		   colors,		 
    boost::shared_array<Vector>&        		   texture, 
    std::vector< std::pair< unsigned, unsigned > >& indexes ) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    typedef std::vector<openvrml::int32>::const_iterator index_const_iterator;
    typedef scooter::circulator<index_const_iterator> index_const_circulator;
@@ -1254,7 +1256,7 @@ Control::do_insert_shell(
    const std::vector<openvrml::vec2f>& tex_coord,
    const std::vector<openvrml::int32>& tex_coord_index)
 {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
    
    if (execute_list(&n)) {
       return;
@@ -1355,7 +1357,7 @@ Control::do_insert_dir_light(
    float                  intensity,
    const openvrml::color& color,
    const openvrml::vec3f& direction) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    dgd_logger << dgd_expand(ambient_intensity) << std::endl
               << dgd_expand(intensity) << std::endl 
@@ -1411,7 +1413,7 @@ Control::do_insert_point_light(
    float                  intensity,
    const openvrml::vec3f& location,
    float                  radius) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
    
    apply_local_transform();
    
@@ -1467,7 +1469,7 @@ Control::do_insert_spot_light(
    float                  intensity,
    const openvrml::vec3f& location,
    float                  radius) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    apply_local_transform();
 
@@ -1519,14 +1521,14 @@ void Control::do_remove_object(const openvrml::node& n) {
 }
 
 void Control::do_enable_lighting(bool val) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
    m_enable_lighting = val;
 }
 
 void Control::do_set_fog( const openvrml::color& color, 
 		       float                  visibility_range,
 		       const char*            type) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    GLfloat fog_color[4] = { color[0], color[1], color[2], 1.0 };
    GLint fog_mode;
@@ -1565,7 +1567,7 @@ void Control::do_set_material( float                  ambient_intensity,
                                float                  shininess,
                                const openvrml::color& specular_color,
                                float                  transparency) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
    typedef Vector::RT RT;
 
    dgd_logger << dgd_expand(ambient_intensity) << std::endl
@@ -1624,7 +1626,7 @@ void Control::do_set_material( float                  ambient_intensity,
 
 void Control::do_set_material_mode( size_t tex_components,
                                     bool   geometry_color) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    if (tex_components && 
        m_enable_texture_mapping && 
@@ -1658,7 +1660,7 @@ void Control::scale_texture( size_t         w,
 			     size_t         newH,
 			     size_t         nc,
 			     unsigned char* pixels) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    dgd_logger << dgd_expand(w) << std::endl
               << dgd_expand(h) << std::endl
@@ -1686,7 +1688,7 @@ void Control::scale_texture( size_t         w,
 void
 Control::do_insert_texture( const openvrml::texture_node & n,
                             bool retainHint ) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    size_t w = n.image().x();
    size_t h = n.image().y(); 
@@ -1744,7 +1746,7 @@ void Control::do_set_texture_transform(
    const openvrml::vec2f& scale,
    const openvrml::vec2f& translation) 
 {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    glMatrixMode(GL_TEXTURE);
    glLoadIdentity();
@@ -1795,14 +1797,14 @@ void Control::do_set_frustum(float field_of_view,
                              float avatar_size,
                              float visibility_limit)
 {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 }
 
 void Control::do_set_viewpoint(const openvrml::vec3f&    position,
                                const openvrml::rotation& orientation,
                                float                     avatar_size,
                                float                     visibility_limit) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    float fow;
    float aspect;
@@ -1909,7 +1911,7 @@ void Control::do_set_viewpoint(const openvrml::vec3f&    position,
 
 
 void Control::do_transform(const openvrml::mat4f & mat) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
    glMultMatrixf(&mat[0][0]);
 }
 
@@ -1925,7 +1927,7 @@ void Control::do_draw_bounding_sphere(
 }
 
 void Control::do_draw_bbox() {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
    if( m_show_bbox ) {
       apply_local_transform();
 
@@ -1994,7 +1996,7 @@ void Control::do_draw_bbox() {
 
 
 void Control::resizeGL( int width, int height ) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
    dgd_logger << dgd_expand(width) << std::endl
               << dgd_expand(height) << std::endl;
    m_width = width;
@@ -2003,7 +2005,7 @@ void Control::resizeGL( int width, int height ) {
 }
 
 void Control::initialize() {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    if( !m_initialized ) {
       m_initialized = true;
@@ -2028,7 +2030,7 @@ void Control::initialize() {
 
 
 void Control::apply_local_transform() {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    Matrix user_navigation;
    Matrix modelview;
@@ -2092,7 +2094,7 @@ Control::scene_root_nodes() const {
 }
 
 bool Control::get_scene_bounds( Vector& center, FT& radius ) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
    
    Node_list root_nodes = this->scene_root_nodes();
    openvrml::bounding_sphere global_bvol;
@@ -2186,7 +2188,7 @@ void Control::render_mode( rendering_mode val ) {
 }
 
 void Control::paintGL() {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
    if( !m_initialized ) 
       initialize();
 
@@ -2257,7 +2259,7 @@ void Control::paintGL() {
 Control::Line 
 Control::unproject( int x, int y ) {
    using namespace Math;
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    Math::Vector<int,int> viewport;
    Math::Matrix<double>  projection;
@@ -2365,7 +2367,7 @@ void Control::mouseMoveEvent( QMouseEvent *event ) {
 }
 
 void Control::input( QMouseEvent *event ) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    Qt::MouseButton button = event->button(); 
 
@@ -2446,7 +2448,7 @@ void Control::input( QMouseEvent *event ) {
 void Control::start_user_action( Interaction::UserAction action, 
 				 long time,
 				 long x, long y ) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    dgd_echo(time);
 
@@ -2490,7 +2492,7 @@ void Control::start_user_action( Interaction::UserAction action,
 void Control::continue_user_action( Interaction::UserAction action, 
 				    long time,
 				    long x, long y ){
-   dgd_scope;
+   dgd_scopef(trace_vrml);
    Vector viewport;
 
    dgd_echo(time);
@@ -2596,7 +2598,7 @@ void Control::continue_user_action( Interaction::UserAction action,
 void Control::finish_user_action( Interaction::UserAction action, 
 				  long time,
 				  long x, long y ) {
-   dgd_scope;
+   dgd_scopef(trace_vrml);
 
    dgd_echo(time);
 

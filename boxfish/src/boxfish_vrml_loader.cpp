@@ -36,6 +36,7 @@
 
 #include <dgd.h>
 
+#include "boxfish_trace.h"
 #include "boxfish_download_exception.h"
 #include "boxfish_download_source.h"
 #include "boxfish_download_fetcher.h"
@@ -60,7 +61,7 @@ Loader::browser_ptr Loader::browser() const {
 }
 
 void Loader::start() {
-   dgd_scope;
+   dgd_scopef(trace_download);
 
    if( m_download_fetcher.get() != NULL ) 
       return;
@@ -94,7 +95,7 @@ void Loader::start() {
 }
 
 int Loader::report_progress ( double dl_total, double dl_now ) {
-   dgd_scope;
+   dgd_scopef(trace_download);
    dgd_echo(dl_total);
    dgd_echo(dl_now);
 

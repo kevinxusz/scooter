@@ -26,6 +26,7 @@
 
 #include <dgd.h>
 
+#include "boxfish_trace.h"
 #include "boxfish_vrml_scene_map.h"
 
 namespace boxfish {
@@ -121,7 +122,7 @@ void Item::transform( const openvrml::mat4f& t ) { m_transform = t;  }
 Builder::Builder( Map *scene_map ) : 
    openvrml::node_traverser(),
    m_scene_map(scene_map) {
-   dgd_scope;
+   dgd_scopef(trace_vrml_scene_map);
 
    m_scene_map->insert( Key(NULL, QString()), 
 			Item( 0, 
@@ -135,11 +136,11 @@ Builder::Builder( Map *scene_map ) :
 }
       
 Builder::~Builder() throw() {
-   dgd_scope;
+   dgd_scopef(trace_vrml_scene_map);
 }
 
 void Builder::on_entering(openvrml::node &node) {
-   dgd_scope;
+   dgd_scopef(trace_vrml_scene_map);
 
    openvrml::node* parent = NULL;
    openvrml::mat4f transform;
@@ -213,7 +214,7 @@ void Builder::on_entering(openvrml::node &node) {
 }
 
 void Builder::on_leaving(openvrml::node &node) {
-   dgd_scope;
+   dgd_scopef(trace_vrml_scene_map);
 
    m_nstack.pop_back();
    openvrml::transform_node *tn = 

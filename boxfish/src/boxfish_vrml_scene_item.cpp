@@ -39,6 +39,7 @@
 
 #include <dgd.h>
 
+#include "boxfish_trace.h"
 #include "boxfish_svg.h"
 #include "boxfish_vrml_scene_item.h"
 
@@ -60,7 +61,7 @@ QSize Delegate::sizeHint( const QStyleOptionViewItem &option,
 }
 
 QRect Delegate::getSensitiveArea( const QRect &rect ) const {
-   dgd_scope;
+   dgd_scopef(trace_gui);
 
    int x = 0, y = 0, width = 0, height = 0, pad = 0;
 
@@ -94,7 +95,7 @@ void Delegate::drawDisplay( QPainter *painter,
 			    const QStyleOptionViewItem &option, 
 			    const QRect &rect, 
 			    const QString &text ) const {
-   dgd_scope;
+   dgd_scopef(trace_gui);
 
    QItemDelegate::drawDisplay( painter, option, rect, text );
 

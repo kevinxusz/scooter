@@ -33,6 +33,7 @@ extern "C" {
 
 #include <dgd.h>
 
+#include "boxfish_trace.h"
 #include "boxfish_download_exception.h"
 #include "boxfish_download_source.h"
 
@@ -48,7 +49,7 @@ size_t fill_source(char *ptr, size_t size, size_t nmemb, void *userdata) {
 
 static 
 size_t parse_header(char *ptr, size_t size, size_t nmemb, void *userdata) {
-   dgd_scope;
+   dgd_scopef(trace_download);
 
    download_source *ds = (download_source*)userdata;
 
@@ -108,7 +109,7 @@ download_source::download_source(const download_source& peer):
 
 void download_source::initialize() 
 {
-   dgd_scope;
+   dgd_scopef(trace_download);
 
    m_mcurl = curl_multi_init();
    if( m_mcurl == NULL ) 
@@ -135,7 +136,7 @@ void download_source::initialize()
 }
 
 std::streamsize download_source::read(char* s, std::streamsize n) {
-   dgd_scope;
+   dgd_scopef(trace_download);
 
    dgd_echo(m_url);
    dgd_echo(n);
@@ -184,7 +185,7 @@ std::streamsize download_source::read(char* s, std::streamsize n) {
 }
 
 std::streamsize download_source::fill(char *s, std::streamsize n) {
-   dgd_scope;
+   dgd_scopef(trace_download);
 
    dgd_echo(n);
 
@@ -203,7 +204,7 @@ std::streamsize download_source::fill(char *s, std::streamsize n) {
 
 bool download_source::is_eof() 
 {
-   dgd_scope;
+   dgd_scopef(trace_download);
 
    if( m_eof ) 
       return true;
@@ -254,7 +255,7 @@ void download_source::close() {
 }
 
 int download_source::report_progress() {
-   dgd_scope;
+   dgd_scopef(trace_download);
    if( m_progress_callback != NULL ) {
       double total = 0;
       curl_easy_getinfo(m_curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &total);
