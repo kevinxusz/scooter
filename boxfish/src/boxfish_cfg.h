@@ -28,7 +28,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/smart_ptr.hpp>
 #include <boost/program_options.hpp>
 
 #include <QtCore/QObject>

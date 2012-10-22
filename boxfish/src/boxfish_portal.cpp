@@ -21,10 +21,10 @@
 // boxfish_portal.cpp -- boxfish main window
 // 
 
-#include "boxfish_config.h"
-
 #include <iostream>
 #include <string>
+
+#include <boost/shared_array.hpp>
 
 #include <QtCore/QRect>
 #include <QtCore/QString>

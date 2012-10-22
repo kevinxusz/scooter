@@ -22,8 +22,6 @@
 //                    configuration file
 // 
 
-#include "boxfish_config.h"
-
 #include <iostream>
 #include <windows.h>
 #include <limits.h>

@@ -21,8 +21,6 @@
 // boxfish_vrml_scene_model.cpp -- QModel for VRML scene
 // 
 
-#include "boxfish_config.h"
-
 #include <sstream>
 
 #include <QtCore/QMap>

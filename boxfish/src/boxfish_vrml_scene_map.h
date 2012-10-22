@@ -25,8 +25,6 @@
 #ifndef _boxfish_vrml_scene_map_h_
 #define _boxfish_vrml_scene_map_h_
 
-#include "boxfish_config.h"
-
 #include <QtCore/QString>
 #include <QtCore/QMap>
 #include <QtCore/QList>

@@ -35,7 +35,6 @@ class QStatusBar;
 class QProgressBar;
 class QVBoxLayout;
 class QTabWidget;
-class QNetworkAccessManager;
 
 namespace boxfish {
 

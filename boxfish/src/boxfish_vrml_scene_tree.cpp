@@ -21,8 +21,6 @@
 // boxfish_vrml_scene_tree.cpp -- QTreeView representing the vrml scene
 // 
 
-#include "boxfish_config.h"
-
 #include <QtGui/QMenu>
 #include <QtGui/QMouseEvent>
 

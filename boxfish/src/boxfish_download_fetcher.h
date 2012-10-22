@@ -24,11 +24,7 @@
 #ifndef _boxfish_download_fetcher_h_
 #define _boxfish_download_fetcher_h_
 
-#include <list>
-
 #include <QtCore/QObject>
-#include <QtCore/QSemaphore>
-#include <QtCore/QUrl>
 
 #include <openvrml/browser.h>
 

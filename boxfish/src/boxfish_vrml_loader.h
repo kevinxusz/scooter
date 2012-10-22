@@ -24,7 +24,6 @@
 #ifndef _boxfish_vrml_loader_h_
 #define _boxfish_vrml_loader_h_
 
-#include <QtCore/QThread>
 #include <QtCore/QUrl>
 
 #include <openvrml/browser.h>

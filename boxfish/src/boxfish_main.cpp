@@ -21,8 +21,6 @@
 // boxfish_main.cpp -- main function
 // 
 
-#include "boxfish_config.h"
-
 #include <QtGui/QApplication>
 
 #include <dgd.h>

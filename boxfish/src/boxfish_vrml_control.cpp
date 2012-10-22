@@ -21,8 +21,6 @@
 // boxfish_vrml_control.cpp -- implementation of boxfish_control.h
 // 
 
-#include "boxfish_config.h"
-
 #include <set>
 #include <map>
 #include <sstream>

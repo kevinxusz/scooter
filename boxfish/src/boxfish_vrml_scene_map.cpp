@@ -22,8 +22,6 @@
 //                          and the scene model
 // 
 
-#include "boxfish_config.h"
-
 #include <openvrml/browser.h>
 
 #include <dgd.h>

@@ -21,8 +21,6 @@
 // boxfish_vrml_scene_item.cpp -- QItemDelegate for scene model
 // 
 
-#include "boxfish_config.h"
-
 #include <QtCore/QSize>
 #include <QtCore/QRect>
 #include <QtCore/QString>

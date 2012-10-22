@@ -29,7 +29,7 @@
 #include <vector>
 #include <map>
 
-#include <boost/smart_ptr.hpp>
+#include <boost/shared_array.hpp>
 
 #include <gl/gl.h>
 #include <gl/glu.h>

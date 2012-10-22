@@ -21,7 +21,7 @@
 // boxfish_document.cpp -- mdi child and friends
 // 
 
-#include "boxfish_config.h"
+#include <boost/shared_array.hpp>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QThread>
