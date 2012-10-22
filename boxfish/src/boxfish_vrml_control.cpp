@@ -100,17 +100,20 @@ Control::~Control() {
 bool Control::execute_list( const openvrml::node* n ) {
    dgd_scopef(trace_vrml);
 
-   Node_GLList_map::const_iterator item = m_gl_list.find(n);
-   if (item != m_gl_list.end()) {
-      apply_local_transform();
+   // Node_GLList_map::const_iterator item = m_gl_list.find(n);
+   // if (item != m_gl_list.end()) {
+   //    apply_local_transform();
 
-      glCallList(item->second);
+   //    dgd_echo(item->second);
+   //    glCallList(item->second);
 
-      undo_local_transform();
+   //    undo_local_transform();
       
-      return true;
-   }
+   //    return true;
+   // }
 
+
+   dgd_logger << "object not found" << std::endl;
    return false;
 }
 
@@ -1798,6 +1801,10 @@ void Control::do_set_frustum(float field_of_view,
                              float visibility_limit)
 {
    dgd_scopef(trace_vrml);
+
+   dgd_echo(field_of_view);
+   dgd_echo(avatar_size);
+   dgd_echo(visibility_limit);
 }
 
 void Control::do_set_viewpoint(const openvrml::vec3f&    position,
@@ -1814,6 +1821,9 @@ void Control::do_set_viewpoint(const openvrml::vec3f&    position,
    Vector v_pos( position[0], position[1], position[2] );
    Vector v_orient( orientation[0], orientation[1], 
 		    orientation[2], orientation[3] );
+
+   dgd_echo(v_pos);
+   dgd_echo(v_orient);
 
    bool scene_centering = m_enable_scene_centering;
    Vector scene_center;
@@ -2099,22 +2109,20 @@ bool Control::get_scene_bounds( Vector& center, FT& radius ) {
    Node_list root_nodes = this->scene_root_nodes();
    openvrml::bounding_sphere global_bvol;
 
-   // TBD
-   // for( Node_list::const_iterator root_node_iter = root_nodes.begin();
-   //      root_node_iter != root_nodes.end();
-   //      ++root_node_iter ) {
-   //    const Node_list::value_type root = *root_node_iter;
-   //    dgd_echo((void*)root.get());
-   //    if( root.get() != NULL ) {
-   //       const openvrml::bounding_volume &bvol = root->bounding_volume();
-   //       const openvrml::bounding_sphere *bounding_sphere =
-   //          dynamic_cast<const openvrml::bounding_sphere*>( &bvol );
-   //       dgd_echo((void*)bounding_sphere);
-   //       if( bounding_sphere != NULL ) {
-   //          global_bvol.extend(*bounding_sphere);
-   //       }
-   //    }
-   // }
+   for( Node_list::const_iterator root_node_iter = root_nodes.begin();
+        root_node_iter != root_nodes.end();
+        ++root_node_iter ) {
+      const Node_list::value_type root = *root_node_iter;
+      dgd_echo((void*)root.get());
+
+      openvrml::bounded_volume_node * bounded_volume =
+         openvrml::node_cast<openvrml::bounded_volume_node *>(root.get());
+      if( bounded_volume != NULL ) {
+         const openvrml::bounding_volume & ci_bv =
+            bounded_volume->bounding_volume();
+         global_bvol.extend(ci_bv);
+      }
+   }
 
    if( global_bvol.radius() < 0 ) {
       global_bvol.radius( 1 );
