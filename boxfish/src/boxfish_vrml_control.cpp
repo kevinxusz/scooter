@@ -2113,10 +2113,12 @@ bool Control::get_scene_bounds( Vector& center, FT& radius ) {
         root_node_iter != root_nodes.end();
         ++root_node_iter ) {
       const Node_list::value_type root = *root_node_iter;
-      dgd_echo((void*)root.get());
+
+      openvrml::node *node = root.get();
+      dgd_echo((void*)node);
 
       openvrml::bounded_volume_node * bounded_volume =
-         openvrml::node_cast<openvrml::bounded_volume_node *>(root.get());
+         openvrml::node_cast<openvrml::bounded_volume_node *>(node);
       if( bounded_volume != NULL ) {
          const openvrml::bounding_volume & ci_bv =
             bounded_volume->bounding_volume();

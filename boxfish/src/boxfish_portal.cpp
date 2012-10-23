@@ -70,8 +70,6 @@ Portal::Portal() :
    m_help_menu(NULL),
    m_file_toolbar(NULL),
    m_open_action(NULL),
-   m_save_action(NULL),
-   m_saveas_action(NULL),
    m_help_action(NULL),
    m_exit_action(NULL),
    m_open_dialog(NULL),
@@ -115,9 +113,9 @@ Portal::Portal() :
    construct_dockers();
 
    set_geometry();
-   
+   set_window_state();
+
    this->setWindowTitle( tr("Boxfish3d") );
-   this->setWindowState( Qt::WindowMaximized | Qt::WindowActive );
    this->setWindowIcon( Svg_icon( ":/icons/boxfish3d.svg", QSize(32,32 ) ) );
 
    if( Config::main()->defined( "portal::state" ) ) {
@@ -139,6 +137,12 @@ Portal::Portal() :
 
 Portal::~Portal() {
    Config::main()->set( "portal::state", QString(this->saveState()) );
+
+   Qt::WindowStates window_state = this->windowState();
+   int maximized =  ( (window_state & Qt::WindowMaximized) != 0 ) ? 1 : 0;
+
+   Config::main()->set( "portal::geometry::maximized", 
+                        QString::number(maximized) );
 
    QRect rect = this->normalGeometry();
    Config::main()->set( "portal::geometry::left", 
@@ -235,12 +239,6 @@ void Portal::close() {
       current->close();
 }
 
-void Portal::save() {
-}
-
-void Portal::saveas() {
-}
-
 void Portal::help() {
 }
 
@@ -274,21 +272,6 @@ void Portal::construct_actions() {
    m_close_action->setStatusTip(tr("Close window"));
    connect(m_close_action, SIGNAL(triggered()), this, SLOT(close()));
    
-   m_save_action = new QAction( Svg_icon( ":/icons/save.svg", 
-					  this->iconSize() ), 
-				tr("&Save"), 
-				this);
-   m_save_action->setShortcut(tr("Ctrl+S"));
-   m_save_action->setStatusTip(tr("Save current file"));
-   connect(m_save_action, SIGNAL(triggered()), this, SLOT(save()));
-
-   m_saveas_action = new QAction( Svg_icon( ":/icons/saveas.svg", 
-					    this->iconSize() ), 
-				  tr("Save &As"), 
-				  this);
-   m_saveas_action->setStatusTip(tr("Save current file with different name"));
-   connect(m_saveas_action, SIGNAL(triggered()), this, SLOT(saveas()));
-
    m_help_action = new QAction( Svg_icon( ":/icons/help_book.svg", 
 					  this->iconSize() ), 
 				tr("&Help"), 
@@ -393,8 +376,6 @@ void Portal::construct_menus() {
 
    m_file_menu = this->menuBar()->addMenu(tr("&File"));
    m_file_menu->addAction( m_open_action );
-   m_file_menu->addAction( m_save_action );
-   m_file_menu->addAction( m_saveas_action );
    m_file_menu->addSeparator();
    m_file_menu->addAction( m_close_action );
    m_file_menu->addSeparator();
@@ -413,7 +394,6 @@ void Portal::construct_menus() {
 void Portal::construct_toolbars() {
    m_file_toolbar = this->addToolBar(tr("File"));
    m_file_toolbar->addAction( m_open_action );
-   m_file_toolbar->addAction( m_save_action );
    m_file_toolbar->addSeparator();
    m_file_toolbar->addAction( m_close_action );
 
@@ -477,6 +457,17 @@ QRect Portal::default_geometry() const {
    desktop_size.adjust( 10, 30, -10, -30 );
 
    return desktop_size;
+}
+
+void Portal::set_window_state(Qt::WindowStates state) 
+{
+   QString val = Config::main()->get("portal::geometry::maximized");
+   if( !val.isNull() ) {
+      if( val.toInt() != 0 ) {
+         state |= Qt::WindowMaximized;
+      }
+   }
+   this->setWindowState( state );
 }
 
 void Portal::set_geometry( QRect rect ) {

@@ -60,8 +60,6 @@ public slots:
    void open( const QString& fname );
    void open();
    void close();
-   void save();
-   void saveas();
    void help();
 
 private slots:
@@ -81,6 +79,7 @@ protected:
    void construct_dockers();
    QRect default_geometry() const;
    void set_geometry( QRect rect = QRect() );
+   void set_window_state(Qt::WindowStates state = Qt::WindowActive );
 
 private:
    QWorkspace     *m_workspace;
@@ -98,8 +97,6 @@ private:
    QToolBar       *m_render_toolbar;
 
    QAction        *m_open_action;
-   QAction        *m_save_action;
-   QAction        *m_saveas_action;
    QAction        *m_help_action;
    QAction        *m_exit_action;
    QAction        *m_tile_action;
