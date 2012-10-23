@@ -118,7 +118,7 @@ Portal::Portal() :
    
    this->setWindowTitle( tr("Boxfish3d") );
    this->setWindowState( Qt::WindowMaximized | Qt::WindowActive );
-   this->setWindowIcon( Svg_icon( ":/icons/logo.svg", QSize(32,32 ) ) );
+   this->setWindowIcon( Svg_icon( ":/icons/boxfish3d.svg", QSize(32,32 ) ) );
 
    if( Config::main()->defined( "portal::state" ) ) {
       this->restoreState( Config::main()->get( "portal::state" ).toUtf8() );

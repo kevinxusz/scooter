@@ -27,7 +27,7 @@
 
 #include "boxfish_config.h"
 
-boxfish                 ICON    "../../icons/logo-new-icon.ico"
+boxfish                 ICON    "../../icons/boxfish3d.ico" 
 
 // this stuff is from 
 // http://msdn.microsoft.com/library/en-us/tools/tools/versioninfo_resource.asp

@@ -1,7 +1,7 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
 <qresource>
-    <file>../../icons/cascade.svg</file>
+    <file>../../icons/cascade.svg</file> 
     <file>../../icons/exit.svg</file>
     <file>../../icons/export.svg</file>
     <file>../../icons/folder.svg</file>
@@ -15,7 +15,7 @@
     <file>../../icons/tile_horiz.svg</file>
     <file>../../icons/tile_vert.svg</file>
     <file>../../icons/window.svg</file>
-    <file>../../icons/logo.svg</file>
+    <file>../../icons/boxfish3d.svg</file>
     <file>../../icons/objects.svg</file>
     <file>../../icons/wireframe.svg</file>
     <file>../../icons/flat.svg</file>
