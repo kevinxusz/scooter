@@ -250,7 +250,8 @@ void Portal::construct_dialogs() {
    m_open_dialog = new QFileDialog( this, 
 				    tr("Open File"),
 				    cwd,
-				    tr("VRML2.0 Files (*.wrl)") );
+				    tr("VRML Files (*.wrl *.vrml);;"
+                                       "X3D Files (*.x3d *.x3dv)") );
 
    m_open_dialog->setViewMode( QFileDialog::Detail );
 }
