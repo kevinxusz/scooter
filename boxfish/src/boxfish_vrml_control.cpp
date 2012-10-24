@@ -100,18 +100,17 @@ Control::~Control() {
 bool Control::execute_list( const openvrml::node* n ) {
    dgd_scopef(trace_vrml);
 
-   // Node_GLList_map::const_iterator item = m_gl_list.find(n);
-   // if (item != m_gl_list.end()) {
-   //    apply_local_transform();
+   Node_GLList_map::const_iterator item = m_gl_list.find(n);
+   if (item != m_gl_list.end()) {
+      apply_local_transform();
 
-   //    dgd_echo(item->second);
-   //    glCallList(item->second);
+      dgd_echo(item->second);
+      glCallList(item->second);
 
-   //    undo_local_transform();
+      undo_local_transform();
       
-   //    return true;
-   // }
-
+      return true;
+   }
 
    dgd_logger << "object not found" << std::endl;
    return false;
@@ -121,9 +120,13 @@ bool Control::execute_list( const openvrml::node* n ) {
 void Control::update_list( const openvrml::node *n, GLuint list_id ) {
    dgd_scopef(trace_vrml);
 
-   Node_GLList_map::const_iterator item = m_gl_list.find(n);
+   dgd_echo((void*)n);
+   dgd_echo(list_id);
+   Node_GLList_map::iterator item = m_gl_list.find(n);
    if (item != m_gl_list.end()) {
+      dgd_logger << "deleted" << std::endl;
       glDeleteLists( (GLuint)item->second, 1 );
+      m_gl_list.erase(item);
    }
 
    if (list_id != 0) 
@@ -203,7 +206,7 @@ Control::do_insert_box(const openvrml::geometry_node& gn,
 
    if( this->m_select_mode == draw_mode ) {
       glid = glGenLists(1);
-      glNewList(glid, GL_COMPILE_AND_EXECUTE);
+      glNewList(glid, GL_COMPILE);
    }
 
    static GLint faces[6][4] =
@@ -257,6 +260,7 @@ Control::do_insert_box(const openvrml::geometry_node& gn,
       glVertex3fv(&v[faces[i][3]][0]);
    }
    glEnd();
+
    glPopAttrib();
 
    if (glid) { 
@@ -1520,6 +1524,7 @@ Control::do_insert_spot_light(
 }
 
 void Control::do_remove_object(const openvrml::node& n) {
+   dgd_scopef(trace_vrml);
    update_list( &n, 0 );
 }
 
