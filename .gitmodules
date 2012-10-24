@@ -7,12 +7,12 @@
 [submodule "ext/libpng"]
 	path = ext/libpng
 	url = git://libpng.git.sourceforge.net/gitroot/libpng/libpng
-[submodule "ext/openvrml"]
-	path = ext/openvrml
-	url = git@github.com:kloper/openvrml.git
 [submodule "ext/libxml2"]
 	path = ext/libxml2
 	url = git://git.gnome.org/libxml2
 [submodule "ext/curl"]
 	path = ext/curl
 	url = git://github.com/bagder/curl.git
+[submodule "ext/openvrml"]
+	path = ext/openvrml
+	url = git@github.com:kloper/openvrml.git

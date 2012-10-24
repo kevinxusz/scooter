@@ -2116,13 +2116,17 @@ bool Control::get_scene_bounds( Vector& center, FT& radius ) {
 
       openvrml::node *node = root.get();
       dgd_echo((void*)node);
+      if( node != NULL ) {
+         dgd_echo(node->type().id());
+      }
 
       openvrml::bounded_volume_node * bounded_volume =
          openvrml::node_cast<openvrml::bounded_volume_node *>(node);
       if( bounded_volume != NULL ) {
          const openvrml::bounding_volume & ci_bv =
             bounded_volume->bounding_volume();
-         global_bvol.extend(ci_bv);
+         if( !ci_bv.maximized() ) 
+            global_bvol.extend(ci_bv);
       }
    }
 
