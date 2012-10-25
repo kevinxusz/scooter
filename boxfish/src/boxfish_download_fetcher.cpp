@@ -82,7 +82,16 @@ const std::string download_istream::do_type() const {
        suffix.compare("x3dv", Qt::CaseInsensitive) == 0 ) {
       return std::string(openvrml::x3d_vrml_media_type);
    }
-   
+
+   if( suffix.compare("png", Qt::CaseInsensitive) == 0 ) {
+      return std::string("image/png");
+   }
+
+   if( suffix.compare("jpg", Qt::CaseInsensitive) == 0 ||
+       suffix.compare("jpeg", Qt::CaseInsensitive) == 0 ) {
+      return std::string("image/jpeg");
+   }
+
    return std::string();
 }
 

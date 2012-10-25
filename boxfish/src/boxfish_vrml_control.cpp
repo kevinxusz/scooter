@@ -206,7 +206,7 @@ Control::do_insert_box(const openvrml::geometry_node& gn,
 
    if( this->m_select_mode == draw_mode ) {
       glid = glGenLists(1);
-      glNewList(glid, GL_COMPILE);
+      glNewList(glid, GL_COMPILE_AND_EXECUTE);
    }
 
    static GLint faces[6][4] =
@@ -1732,9 +1732,11 @@ Control::do_insert_texture( const openvrml::texture_node & n,
    // Texturing is enabled in setMaterialMode
    glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 
-// TBD
-//   glTexImage2D( GL_TEXTURE_2D, 0, nc, w, h, 0,
-//		 fmt[nc-1], GL_UNSIGNED_BYTE, pixels);
+   // TBD
+   // dependency on std::vector internals
+   // nc parameter is not handled
+   glTexImage2D( GL_TEXTURE_2D, 0, nc, w, h, 0,
+		 fmt[nc-1], GL_UNSIGNED_BYTE, (GLubyte*) &pixels[0]);
 
    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
 		    repeat_s ? GL_REPEAT : GL_CLAMP );

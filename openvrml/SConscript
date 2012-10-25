@@ -44,7 +44,9 @@ env.Append(CPPDEFINES = { 'OPENVRML_BUILD_DLL': None,
                           'HAVE_LIBXML2': None,
                           'OPENVRML_ENABLE_PNG_TEXTURES': 1,
                           'OPENVRML_ENABLE_JPEG_TEXTURES': 1,
-                          'WINVER': '0x0502'
+                          'WINVER': '0x0502',
+                          'OPENVRML_PKGLIBDIR_': '\\"../openvrml\\"',
+                          'OPENVRML_PKGDATADIR_': '\\"../openvrml\\"'
                           })
 
 env.Append(CXXFLAGS = ['-mthreads', '-isystem', '$BOOSTINCDIR' ])
@@ -340,7 +342,7 @@ for shared_lib_name, srclist in node_libs_srclist.iteritems():
                  libxml2_name, 
                  libopenvrml_name ] + boost_libs
     )
-    env.Install('#blib/bin/openvrml/node', shared_lib[0])
+    env.Install('#blib/openvrml/node', shared_lib[0])
     env.Install('#blib/lib/openvrml', shared_lib[1])
 
 #
