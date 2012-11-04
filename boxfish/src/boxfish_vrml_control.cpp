@@ -798,6 +798,7 @@ Control::do_insert_extrusion(
    const std::vector<openvrml::vec2f>&    cross_section,
    const std::vector<openvrml::rotation>& orientation,
    const std::vector<openvrml::vec2f>&    scale ) {
+   dgd_scopef(trace_vrml);
 }
 
 void 

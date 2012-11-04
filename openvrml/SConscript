@@ -34,8 +34,9 @@ env.VariantDir(variant, '../ext/openvrml/src')
 
 env.Append(CPPPATH = ['#blib/include', 
                       os.path.join(variant, 'libopenvrml'),
-                      os.path.join(variant, 'local/libopenvrml-dl')
-                      ])
+                      os.path.join(variant, 'local/libopenvrml-dl'),
+                      '$DGDINC' ])
+
 env.Append(CPPDEFINES = { 'OPENVRML_BUILD_DLL': None, 
                           'BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS': None,
                           'BOOST_MPL_LIMIT_VECTOR_SIZE': 30,
@@ -46,7 +47,8 @@ env.Append(CPPDEFINES = { 'OPENVRML_BUILD_DLL': None,
                           'OPENVRML_ENABLE_JPEG_TEXTURES': 1,
                           'WINVER': '0x0502',
                           'OPENVRML_PKGLIBDIR_': '\\"../openvrml\\"',
-                          'OPENVRML_PKGDATADIR_': '\\"../openvrml\\"'
+                          'OPENVRML_PKGDATADIR_': '\\"../openvrml\\"',
+                          'BOOST_SPIRIT_DEBUG_OUT': 'std::cerr'
                           })
 
 env.Append(CXXFLAGS = ['-mthreads', '-isystem', '$BOOSTINCDIR' ])
@@ -306,7 +308,8 @@ libopenvrml_dl_name = env.subst('${CRSHPREFIX}openvrml-dl')
 libopenvrml_name = env.subst('${CRSHPREFIX}openvrml')
 
 boost_libs = map( lambda lib: lib + '$BOOST_LIB_SUFFIX',
-                              [ 'boost_filesystem',
+                              [ 'boost_program_options',
+                                'boost_filesystem',
                                 'boost_system',
                                 'boost_thread' ])
 
