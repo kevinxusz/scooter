@@ -40,12 +40,15 @@ class QAction;
 class QFileDialog;
 class QDockWidget;
 class QActionGroup;
+class QTabWidget;
 
 namespace boxfish {
 
+class Console;
+
 class Portal: public QMainWindow {
    Q_OBJECT
-      
+
 public:
       
    Portal();
@@ -77,6 +80,8 @@ protected:
    void construct_menus();
    void construct_toolbars();
    void construct_dockers();
+   void construct_console();
+
    QRect default_geometry() const;
    void set_geometry( QRect rect = QRect() );
    void set_window_state(Qt::WindowStates state = Qt::WindowActive );
@@ -111,6 +116,11 @@ private:
    QActionGroup   *m_shading_actions;
    QFileDialog    *m_open_dialog;
    QDockWidget    *m_tool_docker;
+   QTabWidget     *m_tool_tab;
+   Console        *m_console;
+
+   std::streambuf *m_cout_buffer;
+   std::streambuf *m_cerr_buffer;
 
    QStringList     m_file_history;
 };

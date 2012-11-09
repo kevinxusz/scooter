@@ -29,43 +29,48 @@ namespace boxfish
 {
 
 std::streamsize 
-console_sink::write(const char* s, std::streamsize n) {
+Console_sink::write(const char* s, std::streamsize n) {
    if( s != NULL ) {
       std::string eol("\n\r");
       std::streamsize index = 0;
-      
-      while( index < n ) {
-         const char* eolpos = 
-            std::find_first_of( s+index , s+n, eol.begin(), eol.end() );
+      const char* content_end = s + n;
 
-         std::streamsize write_chars = eolpos - s;
-         m_content.append(s, write_chars);
+      while( index < n ) {
+         const char* content = s + index;
+
+         const char* eolpos = 
+            std::find_first_of( content , content_end, eol.begin(), eol.end() );
+
+         std::streamsize write_chars = eolpos - content;
+         m_content.append(content, write_chars);
          index += write_chars;
 
-         if( eolpos < s+n ) { 
+         if( eolpos < content_end )
             flush();            
-            while( index < n && eol.find(s[index]) != std::string::npos ) 
-               index++;
-         } 
+         
+         while( index < n && eol.find(s[index]) != std::string::npos ) 
+            index++;
       }      
    }
+   return n;
 }
 
-void console_sink::close() {
+void Console_sink::close() {
    flush();
 }
 
-void console_sink::flush() {
+bool Console_sink::flush() {
    m_console->add( m_name, m_content );
    m_content.clear();
+   return true;
 }
 
-console::console(QWidget *parent):
+Console::Console(QWidget *parent):
    QListWidget(parent)
 {
 }
 
-void console::add(const std::string& name, const std::string line) {
+void Console::add(const std::string& name, const std::string line) {
    addItem(QString::fromStdString(line));
 }
 

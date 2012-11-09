@@ -34,7 +34,6 @@ class QCloseEvent;
 class QStatusBar;
 class QProgressBar;
 class QVBoxLayout;
-class QTabWidget;
 
 namespace boxfish {
 
@@ -51,13 +50,14 @@ class Tree;
 
 class Document: public QWidget {
    Q_OBJECT
-      
+   
 public:      
    Document( const QUrl& url );
    virtual ~Document();
-
-   QWidget *toolset() const;
+   
    QVariant glpad_property( const char *name );
+   
+   QWidget *toolset() const { return (QWidget*)m_scene_tree; } 
 
 public slots:
    bool glpad_property( const char *name, const QVariant &val );
@@ -83,14 +83,11 @@ signals:
    void edit( QModelIndex index );
 
 private:
-   void construct_toolset();
-
-private:
    QUrl                m_url;
    QStatusBar         *m_status_bar;
    QProgressBar       *m_progress_bar;
    QVBoxLayout        *m_layout;
-   QTabWidget         *m_tool_tab;
+
    vrml::Loader       *m_loader;      
    vrml::scene::Model *m_scene_model;
    vrml::scene::Tree  *m_scene_tree;

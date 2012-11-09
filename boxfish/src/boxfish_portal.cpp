@@ -44,6 +44,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QDockWidget>
 #include <QtGui/QLayout>
+#include <QtGui/QTabWidget>
 
 #include <dgd.h>
 
@@ -55,27 +56,43 @@
 #include "boxfish_svg.h"
 #include "boxfish_vrml_control.h"
 #include "boxfish_document.h"
+#include "boxfish_console.h"
 
 namespace boxfish {
 
 Portal::Portal() :
    QMainWindow(),
    m_workspace(NULL),
-   m_open_mapper(NULL),   
-   m_history_mapper(NULL),   
+   m_open_mapper(NULL),
+   m_history_mapper(NULL),
    m_activation_mapper(NULL),
    m_properties_mapper(NULL),
+   m_filehist_menu(NULL),
    m_file_menu(NULL),
    m_window_menu(NULL),
    m_help_menu(NULL),
    m_file_toolbar(NULL),
+   m_render_toolbar(NULL),
    m_open_action(NULL),
    m_help_action(NULL),
    m_exit_action(NULL),
+   m_tile_action(NULL),
+   m_cascade_action(NULL),
+   m_close_action(NULL),
+   m_flat_action(NULL),
+   m_phong_action(NULL),
+   m_wireframe_action(NULL),
+   m_center_action(NULL),
+   m_culling_action(NULL),
+   m_texture_action(NULL),
+   m_shading_actions(NULL),
    m_open_dialog(NULL),
-   m_tool_docker(NULL)
+   m_tool_docker(NULL),
+   m_tool_tab(NULL),
+   m_console(NULL),
+   m_cout_buffer(NULL),
+   m_cerr_buffer(NULL)
 {
-
    m_workspace = new QWorkspace;
    m_workspace->setScrollBarsEnabled(true);
 
@@ -111,6 +128,7 @@ Portal::Portal() :
    construct_toolbars();
    construct_dialogs();
    construct_dockers();
+   construct_console();
 
    set_geometry();
    set_window_state();
@@ -136,6 +154,11 @@ Portal::Portal() :
 }
 
 Portal::~Portal() {
+   if( m_cout_buffer != NULL ) 
+      std::cout.rdbuf(m_cout_buffer);
+   if( m_cerr_buffer != NULL )
+      std::cerr.rdbuf(m_cerr_buffer);
+
    Config::main()->set( "portal::state", QString(this->saveState()) );
 
    Qt::WindowStates window_state = this->windowState();
@@ -450,7 +473,31 @@ void Portal::construct_window_menu() {
 void Portal::construct_dockers() {
    m_tool_docker = new QDockWidget( tr("Tool Pane"), this );
    this->addDockWidget(Qt::BottomDockWidgetArea, m_tool_docker);
-   m_tool_docker->hide();      
+
+   m_tool_tab = new QTabWidget(m_tool_docker);
+   m_tool_tab->setTabShape( QTabWidget::Rounded );
+   m_tool_tab->setTabPosition( QTabWidget::East );
+   
+   m_tool_docker->setWidget( m_tool_tab );
+}
+
+void Portal::construct_console() {
+   m_console = new Console(m_tool_tab);
+
+   m_tool_tab->addTab(m_console, tr("Console"));
+
+   typedef boost::iostreams::stream_buffer<Console_sink> console_buffer;
+
+   console_buffer *cout_buffer = 
+      new console_buffer(m_console, std::string("cout"));
+   console_buffer *cerr_buffer =
+      new console_buffer(m_console, std::string("cerr"));
+
+   m_cout_buffer = std::cout.rdbuf();
+   m_cerr_buffer = std::cerr.rdbuf();
+
+   std::cout.rdbuf(cout_buffer);
+   std::cerr.rdbuf(cerr_buffer);
 }
 
 QRect Portal::default_geometry() const {
@@ -529,18 +576,21 @@ void Portal::window_activated( QWidget *w ) {
    if( doc != NULL ) {
       dgd_echo(doc->windowTitle());
 
-      QWidget *cur_tool_widget = m_tool_docker->widget();
-      if( cur_tool_widget != NULL ) 
-	 cur_tool_widget->hide();
+      QString scene_tree_tab_name( tr("Scene Tree") );
+      for(int i = 0; i < m_tool_tab->count(); i++ ) {
+         if( m_tool_tab->tabText(i) == scene_tree_tab_name ) {
+            m_tool_tab->removeTab(i);
+            break;
+         }
+      }
 
       QWidget *tool_widget = doc->toolset();
 
       if( tool_widget != NULL ) {
-	 m_tool_docker->setWidget( tool_widget );
-	 tool_widget->show();
-      } else {
-	 m_tool_docker->hide();
-      }
+         m_tool_tab->setCurrentIndex(
+            m_tool_tab->addTab(tool_widget, scene_tree_tab_name)
+         );
+      } 
    }
 }
 

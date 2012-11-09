@@ -35,7 +35,6 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QIcon>
 #include <QtGui/QLabel>
-#include <QtGui/QTabWidget>
 #include <QtGui/QTreeView>
 
 #include <openvrml/browser.h>
@@ -70,7 +69,6 @@ Document::Document( const QUrl& url ) :
    m_status_bar(NULL),  
    m_progress_bar(NULL),
    m_layout(NULL),
-   m_tool_tab(NULL),
    m_loader(NULL),
    m_scene_model(NULL),
    m_scene_tree(NULL),
@@ -101,7 +99,14 @@ Document::Document( const QUrl& url ) :
 
    connect( this, SIGNAL(constructed()), this, SLOT(load_start()) );
 
-   construct_toolset();
+   m_scene_tree = new vrml::scene::Tree(this);
+   
+   connect( m_scene_tree, SIGNAL(select(QModelIndex)),
+	    this, SLOT(handle_select(QModelIndex)) );
+   connect( m_scene_tree, SIGNAL(focus(QModelIndex)),
+	    this, SLOT(handle_focus(QModelIndex)) );
+   connect( m_scene_tree, SIGNAL(edit(QModelIndex)),
+	    this, SLOT(handle_edit(QModelIndex)) );
 
    emit constructed();
 }
@@ -110,11 +115,6 @@ Document::~Document() {
    if( m_scene_model != NULL ) {      
       delete m_scene_model;
       m_scene_model = NULL;
-   }
-
-   if( m_tool_tab != NULL ) {
-      m_tool_tab->deleteLater();
-      m_tool_tab = NULL;
    }
 }
 
@@ -199,33 +199,6 @@ void Document::closeEvent(QCloseEvent *event) {
    dgd_scopef(trace_gui);
 
    this->load_cancel();
-
-   if( m_tool_tab != NULL ) {
-      m_tool_tab->deleteLater();
-      m_tool_tab = NULL;
-   }
-}
-
-
-QWidget *Document::toolset() const {
-   return m_tool_tab;
-}
-
-void Document::construct_toolset() {
-   m_tool_tab = new QTabWidget();
-   m_tool_tab->setTabShape( QTabWidget::Rounded );
-   m_tool_tab->setTabPosition( QTabWidget::East );
-
-   m_scene_tree = new vrml::scene::Tree(m_tool_tab);
-   
-   connect( m_scene_tree, SIGNAL(select(QModelIndex)),
-	    this, SLOT(handle_select(QModelIndex)) );
-   connect( m_scene_tree, SIGNAL(focus(QModelIndex)),
-	    this, SLOT(handle_focus(QModelIndex)) );
-   connect( m_scene_tree, SIGNAL(edit(QModelIndex)),
-	    this, SLOT(handle_edit(QModelIndex)) );
-
-   m_tool_tab->addTab( m_scene_tree, tr("Scene Tree") );
 }
 
 QVariant Document::glpad_property( const char *name ) {

@@ -33,37 +33,38 @@
 
 namespace boxfish {
 
-class console;
+class Console;
 
-class console_sink
+class Console_sink
 {
 public:
+   typedef char char_type;
+
    struct category
       : public boost::iostreams::output,
         public boost::iostreams::device_tag,
-        public boost::iostreams::closable_tag,
-        public boost::iostreams::flushable_tag
+        public boost::iostreams::closable_tag
    { };
 
-   console_sink(console *con, const std::string &name):
+   Console_sink(Console *con, const std::string &name):
       m_console(con),
       m_name(name)
    {}
 
    std::streamsize write(const char* s, std::streamsize n);
    void close();
-   void flush();
+   bool flush();
 
 private:
-   console *m_console;
+   Console *m_console;
    std::string m_name;
    std::string m_content;
 };
 
-class console: public QListWidget
+class Console: public QListWidget
 {
 public:
-   console(QWidget *parent = 0);
+   Console(QWidget *parent = 0);
 
    void add(const std::string& name, const std::string line);
 };
