@@ -417,11 +417,13 @@ void Portal::construct_menus() {
 
 void Portal::construct_toolbars() {
    m_file_toolbar = this->addToolBar(tr("File"));
+   m_file_toolbar->setObjectName("fileToolBar");
    m_file_toolbar->addAction( m_open_action );
    m_file_toolbar->addSeparator();
    m_file_toolbar->addAction( m_close_action );
 
    m_render_toolbar = this->addToolBar(tr("Render"));
+   m_render_toolbar->setObjectName("renderToolBar");
    m_render_toolbar->addAction( m_center_action );
    m_render_toolbar->addSeparator();
    m_render_toolbar->addActions( m_shading_actions->actions() );
@@ -472,6 +474,8 @@ void Portal::construct_window_menu() {
 
 void Portal::construct_dockers() {
    m_tool_docker = new QDockWidget( tr("Tool Pane"), this );
+   m_tool_docker->setObjectName("toolPaneDocker");
+
    this->addDockWidget(Qt::BottomDockWidgetArea, m_tool_docker);
 
    m_tool_tab = new QTabWidget(m_tool_docker);
