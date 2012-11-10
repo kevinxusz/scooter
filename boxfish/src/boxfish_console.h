@@ -31,6 +31,8 @@
 
 #include <QtGui/QListWidget>
 
+class QKeyEvent;
+
 namespace boxfish {
 
 class Console;
@@ -68,6 +70,9 @@ public:
 
    void add(const std::string& name, const std::string line);
 
+protected:
+   void keyPressEvent(QKeyEvent *event);
+ 
 private:
    QIcon m_bullet_icon;
    QIcon m_error_icon;

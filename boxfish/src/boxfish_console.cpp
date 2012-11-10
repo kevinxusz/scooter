@@ -23,6 +23,10 @@
 
 #include <iostream>
 
+#include <QtGui/QApplication>
+#include <QtGui/QClipboard>
+#include <QtGui/QKeyEvent>
+
 #include "boxfish_svg.h"
 #include "boxfish_console.h"
 
@@ -92,6 +96,28 @@ void Console::add(const std::string& name, const std::string line) {
    }
 
    this->addItem(item);
+}
+
+void Console::keyPressEvent(QKeyEvent *event) {
+   if (event == QKeySequence::Copy) {
+      typedef QList<QListWidgetItem*> selected_list_t;
+      QStringList lines;
+
+      selected_list_t selected = this->selectedItems();
+
+      for( selected_list_t::const_iterator iter = selected.begin();
+           iter != selected.end();
+           ++iter ) {
+         QListWidgetItem *item = *iter;
+         lines.append(item->text());
+      }
+
+      QApplication::clipboard()->setText(lines.join("\n"));
+      event->accept();
+      return;
+   }
+
+   QListWidget::keyPressEvent(event);
 }
 
 }; // end of namespace boxfish
