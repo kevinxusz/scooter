@@ -389,8 +389,9 @@ Control::insert_cyllindric_object(
       glEnableClientState( GL_TEXTURE_COORD_ARRAY );
    }
 
-   glPushAttrib( GL_ENABLE_BIT | GL_POLYGON_BIT );
-   if( !bottom || !side || (!top && !is_cone) ) glDisable( GL_CULL_FACE );
+   glPushAttrib( GL_ENABLE_BIT | GL_POLYGON_BIT | GL_LIGHTING_BIT);
+   if( !bottom || !side || (!top && !is_cone) ) 
+      glDisable( GL_CULL_FACE );
 
    if( side ) {
       /**
