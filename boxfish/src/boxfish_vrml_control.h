@@ -353,7 +353,9 @@ protected:
    void mousePressEvent( QMouseEvent *event );
    void mouseReleaseEvent( QMouseEvent *event );
    void mouseMoveEvent( QMouseEvent *event );
+   void wheelEvent( QWheelEvent *event );
    void input( QMouseEvent *mouse_event );
+   void input( QWheelEvent *event );
       
 protected:
    void update_list(const openvrml::node* n, GLuint list_id);

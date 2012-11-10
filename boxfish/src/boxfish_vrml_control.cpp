@@ -2388,6 +2388,11 @@ void Control::mouseMoveEvent( QMouseEvent *event ) {
    this->updateGL();
 }
 
+void Control::wheelEvent( QWheelEvent *event ) {
+   this->input( event );
+   this->updateGL();
+}
+
 void Control::input( QMouseEvent *event ) {
    dgd_scopef(trace_vrml);
 
@@ -2465,6 +2470,23 @@ void Control::input( QMouseEvent *event ) {
       
       m_user_state.m_state = Interaction::NONE;
    }
+}
+
+void Control::input( QWheelEvent *event ) {
+   dgd_scopef(trace_vrml);
+
+   dgd_echo(event->type());
+   dgd_echo(event->delta());
+   
+   finish_user_action( m_user_state.m_state, 
+                       QTime::currentTime().msecsTo( QTime(0,0) ), 
+                       event->x(), event->y() );
+      
+   if( !m_enable_selection ) {
+      Vector pos( 0, 0, - event->delta() / 12.0 );
+
+      m_translation += pos * 0.01f * m_mouse_sensitivity;
+   } 
 }
 
 void Control::start_user_action( Interaction::UserAction action, 
@@ -2604,6 +2626,8 @@ void Control::continue_user_action( Interaction::UserAction action,
 		     ((FT)y - (FT)m_user_state.m_zoom_y) );
 
 	 m_translation += pos * 0.01f * m_mouse_sensitivity;
+
+         dgd_echo(pos);
 
 	 m_user_state.m_zoom_x = x;
 	 m_user_state.m_zoom_y = y;
