@@ -23,6 +23,7 @@
 
 #include <iostream>
 
+#include "boxfish_svg.h"
 #include "boxfish_console.h"
 
 namespace boxfish 
@@ -68,10 +69,29 @@ bool Console_sink::flush() {
 Console::Console(QWidget *parent):
    QListWidget(parent)
 {
+   m_bullet_icon = Svg_icon(":/icons/bullet-blue.svg", QSize(8,8 ));
+   m_error_icon = Svg_icon(":/icons/error-red.svg", QSize(8,8 ));
+
+   this->setSelectionMode(QAbstractItemView::ContiguousSelection);
 }
 
 void Console::add(const std::string& name, const std::string line) {
-   addItem(QString::fromStdString(line));
+   QListWidgetItem *item;
+
+
+   if( name == "cout" ) {
+      item = new QListWidgetItem( m_bullet_icon, 
+                                  QString::fromStdString(line),
+                                  this);
+   } else if( name == "cerr" ) {
+      item = new QListWidgetItem( m_error_icon, 
+                                  QString::fromStdString(line),
+                                  this);
+   } else {
+      item = new QListWidgetItem( QString::fromStdString(line), this);
+   }
+
+   this->addItem(item);
 }
 
 }; // end of namespace boxfish

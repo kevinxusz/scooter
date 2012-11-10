@@ -24,6 +24,8 @@
     <file>../../icons/culling.svg</file>
     <file>../../icons/texture.svg</file>
     <file>../../icons/dropdown.svg</file>
+    <file>../../icons/bullet-blue.svg</file>
+    <file>../../icons/error-red.svg</file>
     <file>boxfish_cfg_def.xml</file> 
 </qresource>
 </RCC>

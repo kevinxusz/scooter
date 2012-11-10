@@ -67,6 +67,10 @@ public:
    Console(QWidget *parent = 0);
 
    void add(const std::string& name, const std::string line);
+
+private:
+   QIcon m_bullet_icon;
+   QIcon m_error_icon;
 };
 
 }; // end of namespace boxfish
