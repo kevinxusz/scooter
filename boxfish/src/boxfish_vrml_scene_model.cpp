@@ -155,12 +155,19 @@ QVariant Model::data( const QModelIndex & index, int role ) const {
       } else {
 	 std::ostringstream out;
 	 QString id = item->node().field();
-         openvrml::node_interface target_ifc;
-         target_ifc.id = id.toStdString();
-	 openvrml::node_interface_set::const_iterator node_ifc = 
-	    item->node().node()->type().interfaces().find( target_ifc );
 
-	 out << node_ifc->field_type;
+         dgd_echo(id);
+         dgd_echo(item->node().node()->type().id());
+
+         const openvrml::node_interface_set &ifc_set = 
+            item->node().node()->type().interfaces();
+	 openvrml::node_interface_set::const_iterator node_ifc =
+            openvrml::find_interface( ifc_set, id.toStdString() );
+
+         if( node_ifc != ifc_set.end() )
+            out << node_ifc->field_type;
+         else
+            out << "type not found";
 
 	 QString type = QString::fromStdString( out.str() );
 
