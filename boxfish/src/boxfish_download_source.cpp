@@ -169,13 +169,21 @@ std::streamsize download_source::read(char* s, std::streamsize n) {
 
          m_total_bytes += bytes_to_read;
          if(report_progress() != 0) {
+            m_eof = true;
             dgd_logger << "download aborted" << std::endl;
             return -1;
          }
       } else if( is_eof() ) {         
          return ( total_bytes == 0 ) ? -1 : total_bytes;
       } else {
+         handles_changed = 0;
          curl_multi_wait(m_mcurl, NULL, 0, 15000, &handles_changed);
+         if( handles_changed == 0 ) 
+         {
+            m_eof = true;
+            dgd_logger << "download timed out" << std::endl;
+            return -1;
+         }
       }
 
       curl_multi_perform(m_mcurl, &handles_changed);
@@ -234,6 +242,7 @@ bool download_source::is_eof()
 
    return false;
 }
+
 void download_source::close() {
    if( m_curl != NULL ) {
       if( m_mcurl != NULL ) 
