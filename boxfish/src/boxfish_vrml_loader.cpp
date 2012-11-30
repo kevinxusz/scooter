@@ -33,6 +33,8 @@
 #include <QtGui/QApplication>
 
 #include <openvrml/browser.h>
+#include <openvrml/scene.h>
+#include <openvrml/scope.h>
 
 #include <dgd.h>
 
@@ -54,6 +56,22 @@ Loader::Loader( const QUrl &url ) :
 }
 
 Loader::~Loader() {
+   {
+      openvrml::event_listener & listener =
+         m_navigation_info->event_listener("set_bind");
+      dynamic_cast<openvrml::sfbool_listener &>(listener).
+         process_event(openvrml::sfbool(false), m_browser->current_time());
+
+      m_navigation_info->shutdown( m_browser->current_time() );
+   }
+   {
+      openvrml::event_listener & listener =
+         m_viewpoint->event_listener("set_bind");
+      dynamic_cast<openvrml::sfbool_listener &>(listener).
+         process_event(openvrml::sfbool(false), m_browser->current_time());
+
+      m_viewpoint->shutdown( m_browser->current_time() );
+   }
 }
 
 Loader::browser_ptr Loader::browser() const {
@@ -120,11 +138,73 @@ void Loader::do_browser_changed(const openvrml::browser_event &event)
 {
    if( event.id() == openvrml::browser_event::initialized )
    {
-      if( m_error_string.isEmpty() )
-         emit success();
-      else 
+      if( m_error_string.isEmpty() ) {
+         if( !create_navigation_info() ||
+             !create_viewpoint() ) {
+            m_error_string = "Failed to create viewpoint";
+            emit failure(m_error_string);
+         } else {
+            emit success();
+         }
+      } else 
          emit failure(m_error_string);
    }
+}
+
+bool Loader::create_navigation_info() 
+{
+   dgd_scopef(trace_download);
+
+   const openvrml::scope* scope = m_browser->root_scene()->root_scope();
+
+   if(scope == NULL) 
+      return false;
+   
+   const boost::shared_ptr<openvrml::node_type> &navigation_info_type =
+      scope->find_type("NavigationInfo");
+   if(navigation_info_type.get() == NULL)
+      return false;
+   m_navigation_info = navigation_info_type->create_node( 
+      boost::shared_ptr<openvrml::scope>() 
+   );
+
+   m_navigation_info->initialize( *m_browser->root_scene(), 
+                                  m_browser->current_time() );
+
+   openvrml::event_listener & listener =
+      m_navigation_info->event_listener("set_bind");
+   dynamic_cast<openvrml::sfbool_listener &>(listener).
+      process_event(openvrml::sfbool(true), m_browser->current_time());
+
+   return true;
+}
+
+bool Loader::create_viewpoint() 
+{
+   dgd_scopef(trace_download);
+
+   const openvrml::scope* scope = m_browser->root_scene()->root_scope();
+
+   if(scope == NULL) 
+      return false;
+   
+   const boost::shared_ptr<openvrml::node_type> &viewpoint_type =
+      scope->find_type("Viewpoint");
+   if(viewpoint_type.get() == NULL)
+      return false;
+   m_viewpoint = viewpoint_type->create_node(
+      boost::shared_ptr<openvrml::scope>() 
+   );
+
+   m_viewpoint->initialize( *m_browser->root_scene(), 
+                            m_browser->current_time() );
+
+   openvrml::event_listener & listener =
+      m_viewpoint->event_listener("set_bind");
+   dynamic_cast<openvrml::sfbool_listener &>(listener).
+      process_event(openvrml::sfbool(true), m_browser->current_time());
+
+   return true;
 }
 
 }; // end of namespace vrml

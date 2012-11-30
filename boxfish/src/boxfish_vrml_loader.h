@@ -41,7 +41,8 @@ class Loader: public QObject, public openvrml::browser_listener {
    
 public:
    typedef boost::shared_ptr<openvrml::browser> browser_ptr;
-   
+   typedef boost::intrusive_ptr<openvrml::node> node_ptr;
+
 private:
    typedef boost::shared_ptr<boxfish::download_fetcher> download_fetcher_ptr;
 
@@ -53,11 +54,15 @@ public:
 
    QString error_string() const { return m_error_string; }
    browser_ptr browser() const;
+   node_ptr navigation_info() const;
+   node_ptr viewpoint() const;
 
 private:
    int report_progress( double dl_total, double dl_now );
    void report_error( const std::string& str );
    void do_browser_changed(const openvrml::browser_event& event);
+   bool create_viewpoint();
+   bool create_navigation_info();
 
 signals:
    void progress( int percent );
@@ -70,6 +75,8 @@ private:
    QString              m_error_string;
    download_fetcher_ptr m_download_fetcher;
    browser_ptr          m_browser;
+   node_ptr             m_navigation_info;
+   node_ptr             m_viewpoint;
 };
 
 }; // end of namespace vrml

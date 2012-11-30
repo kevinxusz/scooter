@@ -79,7 +79,9 @@ Control::Control( QWidget *parent, browser_ptr b ):
    m_sphere_precision(32),
    m_bbox_color( Qt::white ),
    m_show_bbox(false),
-   m_browser(b)
+   m_browser(b),
+   m_navigation_info(NULL),
+   m_viewpoint(NULL)
 {   
    QSizePolicy spolicy( QSizePolicy::Ignored, 
 			QSizePolicy::Ignored );

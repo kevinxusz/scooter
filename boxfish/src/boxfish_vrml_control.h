@@ -490,6 +490,9 @@ private:
    browser_ptr m_browser;
 
    Node_GLList_map m_gl_list;
+
+   openvrml::navigation_info_node *m_navigation_info;
+   openvrml::viewpoint_node       *m_viewpoint;
 };
 
 }; // end of namespace vrml 
