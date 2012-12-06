@@ -55,7 +55,10 @@ namespace boxfish {
 
 namespace vrml {
 
-Control::Control( QWidget *parent, browser_ptr b ):
+Control::Control( QWidget *parent, 
+                  browser_ptr b,
+                  node_ptr navigation_info, 
+                  node_ptr viewpoint ):
    QGLWidget(parent),
    openvrml::viewer(),
    m_initialized(false),
@@ -80,8 +83,8 @@ Control::Control( QWidget *parent, browser_ptr b ):
    m_bbox_color( Qt::white ),
    m_show_bbox(false),
    m_browser(b),
-   m_navigation_info(NULL),
-   m_viewpoint(NULL)
+   m_navigation_info(navigation_info),
+   m_viewpoint(viewpoint)
 {   
    QSizePolicy spolicy( QSizePolicy::Ignored, 
 			QSizePolicy::Ignored );
@@ -104,12 +107,8 @@ bool Control::execute_list( const openvrml::node* n ) {
 
    Node_GLList_map::const_iterator item = m_gl_list.find(n);
    if (item != m_gl_list.end()) {
-      apply_local_transform();
-
       dgd_echo(item->second);
       glCallList(item->second);
-
-      undo_local_transform();
       
       return true;
    }
@@ -148,8 +147,10 @@ double Control::do_frame_rate() {
 void Control::do_reset_user_navigation() {
    dgd_scopef(trace_vrml);
    m_permanent_rotation = false;
-   m_rotation.set_identity();
-   m_translation( 0.0, 0.0, 0.0, 1.0 );
+   m_rotation = openvrml::make_rotation();
+   m_translation = openvrml::make_vec3f( 0.0, 0.0, 0.0 );
+
+   set_default_navigation_info();
 }
 
 void Control::do_begin_object( const char* id, bool retain ) {
@@ -202,7 +203,6 @@ Control::do_insert_box(const openvrml::geometry_node& gn,
       return;
    }
 
-   apply_local_transform();
 
    GLuint glid = 0;
 
@@ -270,7 +270,6 @@ Control::do_insert_box(const openvrml::geometry_node& gn,
       update_list( &gn, glid );
    }
 
-   undo_local_transform();
 }
 
 void 
@@ -367,8 +366,6 @@ Control::insert_cyllindric_object(
       return;
    }
 
-   apply_local_transform();
-
    GLuint glid = 0;
 
    if( this->m_select_mode == draw_mode ) {
@@ -442,8 +439,6 @@ Control::insert_cyllindric_object(
       glEndList(); 
       update_list( &n, glid );
    }
-
-   undo_local_transform();
 }
 
 void
@@ -559,8 +554,6 @@ Control::do_insert_sphere(const openvrml::geometry_node & n, float radius) {
       return;
    }
 
-   apply_local_transform();
-
    GLuint glid = 0;
 
    if( this->m_select_mode == draw_mode ) {
@@ -605,8 +598,6 @@ Control::do_insert_sphere(const openvrml::geometry_node & n, float radius) {
       glEndList(); 
       update_list( &n, glid );
    }
-
-   undo_local_transform();
 }
 
 
@@ -735,8 +726,6 @@ Control::do_insert_elevation_grid(
       return;
    }
 
-   apply_local_transform();
-
    GLuint glid = 0;
 
    if( this->m_select_mode == draw_mode ) {
@@ -789,8 +778,6 @@ Control::do_insert_elevation_grid(
       glEndList(); 
       update_list( &n, glid );
    }
-
-   undo_local_transform();
 }
 
 void
@@ -915,8 +902,6 @@ Control::do_insert_line_set(
       return;
    }
 
-   apply_local_transform();
-
    GLuint glid = 0;
 
    if( this->m_select_mode == draw_mode ) {
@@ -966,8 +951,6 @@ Control::do_insert_line_set(
       glEndList();
       update_list( &n, glid );
    }
-
-   undo_local_transform();
 }
 
 void
@@ -981,8 +964,6 @@ Control::do_insert_point_set(
       return;
    }
    
-   apply_local_transform();
-
    GLuint glid = 0;
 
    if( this->m_select_mode == draw_mode ) {
@@ -1023,8 +1004,6 @@ Control::do_insert_point_set(
       glEndList(); 
       update_list( &n, glid );
    }
-
-   undo_local_transform();
 }
 
 void Control::generate_ifs_arrays(
@@ -1276,9 +1255,6 @@ Control::do_insert_shell(
    typedef std::vector< std::pair<unsigned,unsigned> > index_type;
    typedef index_type::const_iterator index_const_iterator;
 
-
-   apply_local_transform();
-
    GLuint glid = 0;
 
    if( this->m_select_mode == draw_mode ) {
@@ -1358,8 +1334,6 @@ Control::do_insert_shell(
       glEndList(); 
       update_list( &n, glid );
    }
-
-   undo_local_transform();
 }
 
 void
@@ -1426,8 +1400,6 @@ Control::do_insert_point_light(
    float                  radius) {
    dgd_scopef(trace_vrml);
    
-   apply_local_transform();
-   
    float amb[4] = { ambient_intensity * color[0],
 		    ambient_intensity * color[1],
 		    ambient_intensity * color[2],
@@ -1465,8 +1437,6 @@ Control::do_insert_point_light(
    // Disable old spot settings
    glLightf(light, GL_SPOT_CUTOFF, 180.0);
    glLightf(light, GL_SPOT_EXPONENT, 0.0);
-
-   undo_local_transform();
 }
 
 void
@@ -1481,8 +1451,6 @@ Control::do_insert_spot_light(
    const openvrml::vec3f& location,
    float                  radius) {
    dgd_scopef(trace_vrml);
-
-   apply_local_transform();
 
    float amb[4] = { ambient_intensity * color[0],
 		    ambient_intensity * color[1],
@@ -1523,8 +1491,6 @@ Control::do_insert_spot_light(
    glLightf(light, GL_SPOT_CUTOFF, cut_off_angle * 180.0f / (float)Math::PI);
    // The exponential dropoff is not right/spec compliant...
    glLightf(light, GL_SPOT_EXPONENT, beam_width < cut_off_angle ? 1.0f : 0.0f);
-
-   undo_local_transform();
 }
 
 void Control::do_remove_object(const openvrml::node& n) {
@@ -1807,15 +1773,120 @@ void compute_view(const openvrml::vec3f&    position,
 	      + s * orientation.x()));
 }
 
+void Control::set_default_navigation_info() 
+{
+   dgd_scopef(trace_vrml);
+   
+   openvrml::vec3f scene_center;
+   float scene_max_size = 1.0f;
+   
+   bool rc = get_scene_bounds( scene_center, scene_max_size );
+   dgd_echo(rc);
+   dgd_echo(scene_center);
+   dgd_echo(scene_max_size);
+   
+   // setup navigation info stuff
+   float avatar_size = scene_max_size / 100.0f;
+   std::vector<float> v_avatar_size;
+   v_avatar_size.push_back(avatar_size);
+   v_avatar_size.push_back(avatar_size);
+   v_avatar_size.push_back(avatar_size);
+   
+   dgd_echo(avatar_size);
+   
+   openvrml::mffloat mf_avatar_size(v_avatar_size);
+   openvrml::mffloat_listener &avatar_size_el =
+      dynamic_cast<openvrml::mffloat_listener&>(
+         m_navigation_info->event_listener("avatarSize")
+      );
+   
+   avatar_size_el.process_event(mf_avatar_size, m_browser->current_time());
+   
+   const float fow_angles = 45.0f;
+   float fow = fow_angles * ( Math::PI / 180.0 );
+   float viewpoint_origin = scene_max_size / (float)sin( fow / 2.0f );
+   float visibility_limit = 100 * scene_max_size + viewpoint_origin;
+   dgd_echo(visibility_limit);
+   
+   openvrml::sffloat sf_visibility_limit(visibility_limit);
+   openvrml::sffloat_listener &visibility_limit_el =
+      dynamic_cast<openvrml::sffloat_listener&>(
+         m_navigation_info->event_listener("visibilityLimit")
+      );
+   
+   visibility_limit_el.process_event(sf_visibility_limit, 
+                                     m_browser->current_time());
+   
+   // setup viewpoint stuff
+   dgd_echo(fow);
+   openvrml::sffloat sf_fow(fow);
+   openvrml::sffloat_listener &fow_el =
+      dynamic_cast<openvrml::sffloat_listener&>(
+         m_viewpoint->event_listener("fieldOfView")
+      );
+   
+   fow_el.process_event(sf_fow, m_browser->current_time());
+   
+   openvrml::sfbool sf_jump(false);
+   openvrml::sfbool_listener &jump_el =
+      dynamic_cast<openvrml::sfbool_listener&>(
+        m_viewpoint->event_listener("jump")
+      );
+   
+   jump_el.process_event(sf_jump, m_browser->current_time());
+   
+   openvrml::vec3f position = scene_center;
+   position.z(position.z() + viewpoint_origin);
+   dgd_echo(viewpoint_origin);  
+   
+   openvrml::sfvec3f sf_position(position);
+   openvrml::sfvec3f_listener &position_el =
+      dynamic_cast<openvrml::sfvec3f_listener&>(
+         m_viewpoint->event_listener("position")
+      );
+   
+   position_el.process_event(sf_position, m_browser->current_time());
+   
+   openvrml::sfvec3f sf_center(scene_center);
+   openvrml::sfvec3f_listener &center_el =
+      dynamic_cast<openvrml::sfvec3f_listener&>(
+         m_viewpoint->event_listener("centerOfRotation")
+      );
+   
+   center_el.process_event(sf_center, m_browser->current_time());
+}
+
+
 void Control::do_set_frustum(float field_of_view,
                              float avatar_size,
                              float visibility_limit)
 {
    dgd_scopef(trace_vrml);
-
+   
    dgd_echo(field_of_view);
    dgd_echo(avatar_size);
    dgd_echo(visibility_limit);
+
+   glMatrixMode(GL_PROJECTION);
+   if ( m_select_mode == draw_mode ) glLoadIdentity();
+
+   (field_of_view *= 180.0f) /= Math::PI;
+   const float aspect = float(this->m_width) / this->m_height;
+   const float znear = (avatar_size > 0.0)
+                       ? float(0.5 * avatar_size)
+                       : 0.01f;
+   const float zfar = (visibility_limit > 0.0)
+                      ? visibility_limit
+                      : 30000.0f;
+   
+   dgd_echo(aspect);
+   dgd_echo(znear);
+   dgd_echo(zfar);
+
+   gluPerspective(field_of_view, aspect, znear, zfar);
+   
+   this->frustum(openvrml::frustum(field_of_view, aspect, znear, zfar));
+   glMatrixMode(GL_MODELVIEW);
 }
 
 void Control::do_set_viewpoint(const openvrml::vec3f&    position,
@@ -1823,111 +1894,54 @@ void Control::do_set_viewpoint(const openvrml::vec3f&    position,
                                float                     avatar_size,
                                float                     visibility_limit) {
    dgd_scopef(trace_vrml);
-
-   float fow;
-   float aspect;
-   float znear;
-   float zfar;
-   float d;
-   Vector v_pos( position[0], position[1], position[2] );
-   Vector v_orient( orientation[0], orientation[1], 
-		    orientation[2], orientation[3] );
-
-   dgd_echo(v_pos);
-   dgd_echo(v_orient);
-
-   bool scene_centering = m_enable_scene_centering;
-   Vector scene_center;
-   float scene_max_size = 0;
-
-   dgd_echo(scene_centering);
-
-   if( scene_centering ) {      
-      if( get_scene_bounds( scene_center, scene_max_size ) ) {
-	 scene_max_size *= 2.0f;
-	 fow = 45; // degrees
-	 aspect = ((float) m_width) / m_height;
-
-	 dgd_echo(aspect);
-
-	 float tg_fov = (float)tan( fow * Math::PI / 180.0 / 2 );
-	 znear = scene_max_size / 10.0;
-	 zfar  = scene_max_size * 100.0;
-	 dgd_logger << dgd_expand(znear) << std::endl 
-                    << dgd_expand(zfar) << std::endl
-                    << dgd_expand(tg_fov) << std::endl;
-      
-	 d = (float)scene_max_size / (2.0f * tg_fov);
-	 
-	 dgd_echo(d);
-
-	 v_pos = Vector( scene_center[0], 
-			 scene_center[1], 
-			 scene_center[2] + scene_max_size / 2.0 + d );
-
-	 dgd_echo(v_pos);
-	 
-	 v_orient( 0.0, 0.0, 1.0, 0 );
-	 
-      } else {
-	 scene_centering = false;
-      }
-   }
-
-   if( !scene_centering ) {
-// TBD
-//      fow = field_of_view * 180.0f / (float)Math::PI;
-      aspect = ((float) m_width) / m_height;
-      znear = (avatar_size > 0.0) ? (0.5f * avatar_size) : 1.0f;
-      zfar = (visibility_limit > 0.0) ? visibility_limit : 30000.0f;
-      d = 10.0f * avatar_size;
-      // Guess some distance along the sight line to use as a target...
-      if (d < znear || d > zfar) d = 0.2f * (avatar_size + zfar);
-   }
    
-   glMatrixMode( GL_PROJECTION );
-   if ( m_select_mode == draw_mode ) glLoadIdentity();
+   const float znear = (avatar_size > 0.0)
+                       ? float(0.5 * avatar_size)
+                       : 0.01f;
+   const float zfar = (visibility_limit > 0.0)
+                      ? visibility_limit
+                      : 30000.0f;
 
-   gluPerspective(fow, aspect, znear, zfar);
-
-   openvrml::frustum frust(fow, aspect, znear, zfar);
-   this->frustum(frust);
-
+   dgd_echo(avatar_size);
+   dgd_echo(visibility_limit);
+   dgd_echo(znear);
+   dgd_echo(zfar);
+   
    glMatrixMode(GL_MODELVIEW);
+   
+   // Guess some distance along the sight line to use as a target...
+   float d = float(10.0 * avatar_size);
+   if (d < znear || d > zfar) { d = float(0.2 * (avatar_size + zfar)); }
+
+   dgd_echo(d);
 
    openvrml::vec3f target, up;
-   v_pos.cartesian();
    
-   openvrml::vec3f pos;
-   openvrml::rotation orient;
-
-   pos.x(v_pos.x()); 
-   pos.y(v_pos.y()); 
-   pos.z(v_pos.z());
-
-   orient.x(v_orient.x()); 
-   orient.y(v_orient.y()); 
-   orient.z(v_orient.z());
-   orient.angle(v_orient.w());
-
-   compute_view(pos,
-		orient, 
+   compute_view(position,
+		orientation, 
 		d, target, up);
 
-   dgd_logger << dgd_expand(v_pos) << std::endl
-              << dgd_expand(Math::homogeneus(v_orient)) << std::endl
-              << dgd_expand(d) << std::endl;
-
-   gluLookAt(v_pos.x(), v_pos.y(), v_pos.z(),
-	     target[0], target[1], target[2],
-	     up[0], up[1], up[2]);
-
-   glGetFloatv( GL_MODELVIEW_MATRIX, m_view_transform );
-   m_view_transform.transpose();
-
-   glLoadIdentity();
-
-   dgd_echo(m_view_transform);
+   dgd_logger << "position=[" 
+              << position.x() << "," 
+              << position.y() << ","
+              << position.z() << "]" << std::endl
+              << "orientation=[" 
+              << orientation.x() << "," 
+              << orientation.y() << ","
+              << orientation.z() << ","
+              << orientation.angle() << "]" << std::endl
+              << "target=[" 
+              << target.x() << ","
+              << target.y() << ","
+              << target.z() << "]" << std::endl
+              << "up=[" 
+              << up.x() << ","
+              << up.y() << ","
+              << up.z() << "]" << std::endl;
+      
+   gluLookAt(position.x(), position.y(), position.z(),
+             target.x(), target.y(), target.z(),
+             up.x(), up.y(), up.z());
 }
 
 
@@ -1950,8 +1964,6 @@ void Control::do_draw_bounding_sphere(
 void Control::do_draw_bbox() {
    dgd_scopef(trace_vrml);
    if( m_show_bbox ) {
-      apply_local_transform();
-
       m_bbox_max.cartesian();
       m_bbox_min.cartesian();
 
@@ -2007,11 +2019,8 @@ void Control::do_draw_bbox() {
       glVertex3f( m_bbox_min.x(), m_bbox_max.y(), m_bbox_min.z() );
       glVertex3f( m_bbox_min.x(), m_bbox_min.y(), m_bbox_min.z() );
 
-
       glEnd();
       glPopAttrib();
-
-      undo_local_transform();
    }
 }
 
@@ -2049,59 +2058,6 @@ void Control::initialize() {
    }
 }
 
-
-void Control::apply_local_transform() {
-   dgd_scopef(trace_vrml);
-
-   Matrix user_navigation;
-   Matrix modelview;
-   Vector scene_center;
-   float radius;
-   
-   Math::Vector<int,int> viewport;
-   Math::Matrix<double>  projection;
-
-   glGetIntegerv (GL_VIEWPORT, viewport);
-   glGetDoublev( GL_PROJECTION_MATRIX, projection );
-
-   dgd_logger << dgd_expand(m_rotation) << std::endl 
-              << dgd_expand(Math::homogeneus(viewport)) << std::endl
-              << dgd_expand(Math::homogeneus(projection)) << std::endl;
-
-   glPushMatrix();
-   
-   if( get_scene_bounds( scene_center, radius ) ) {           
-      glGetFloatv( GL_MODELVIEW_MATRIX, modelview );
-
-      modelview.transpose();
-
-      user_navigation = m_view_transform;
-      user_navigation *= 
-	 Math::translate( Matrix::identity(), m_translation * radius );
-
-
-      dgd_logger << dgd_expand(m_translation) << std::endl
-                 << dgd_expand(modelview) << std::endl
-                 << dgd_expand(user_navigation) << std::endl;
-   
-      user_navigation *= Math::translate( Matrix::identity(),  scene_center );
-      user_navigation *= m_rotation;
-      user_navigation *= Math::translate( Matrix::identity(), -scene_center );
-
-      dgd_logger << dgd_expand(m_rotation) << std::endl
-                 << dgd_expand(user_navigation) << std::endl;
-
-      user_navigation *= modelview;
-
-      user_navigation.transpose();
-      glLoadMatrixf( user_navigation );
-   }
-}
-
-void Control::undo_local_transform() {
-   glPopMatrix();
-}
-
 void Control::scene_root_nodes( const Node_list& ptr ) {
    m_root_nodes.clear();
    m_root_nodes = ptr;
@@ -2114,7 +2070,7 @@ Control::scene_root_nodes() const {
    return m_root_nodes;
 }
 
-bool Control::get_scene_bounds( Vector& center, FT& radius ) {
+bool Control::get_scene_bounds( openvrml::vec3f& center, float& radius ) {
    dgd_scopef(trace_vrml);
    
    Node_list root_nodes = this->scene_root_nodes();
@@ -2143,12 +2099,10 @@ bool Control::get_scene_bounds( Vector& center, FT& radius ) {
 
    if( global_bvol.radius() < 0 ) {
       global_bvol.radius( 1 );
-   } else {
-      const openvrml::vec3f& c = global_bvol.center();
-      radius = global_bvol.radius();
-	    
-      center( c[0], c[1], c[2] );
-   }
+   } 
+
+   center = global_bvol.center();
+   radius = global_bvol.radius();
    
    dgd_logger << dgd_expand(center) << std::endl
               << dgd_expand(radius) << std::endl;
@@ -2216,13 +2170,31 @@ void Control::paintGL() {
    dgd_scopef(trace_vrml);
    if( !m_initialized ) 
       initialize();
-
+   
    if( m_enable_permanent_rotation && m_permanent_rotation ) {
       dgd_logger << "m_enable_permanent_rotation " 
-                 << Math::homogeneus(m_permanent_rotation_delta) << std::endl;
-
-      m_rotation = m_permanent_rotation_delta * m_rotation;
+                 << m_permanent_rotation_delta << std::endl;
+      
+      m_rotation =  m_permanent_rotation_delta * m_rotation;
    }
+   
+   openvrml::vec3f viewpoint_pos = 
+      dynamic_cast<const openvrml::sfvec3f&>( 
+         *m_browser->active_viewpoint().field("position")
+      ).value();
+
+   const openvrml::mat4f & translation = 
+      openvrml::make_translation_mat4f(m_translation);
+
+   const openvrml::mat4f & rotation = openvrml::make_transformation_mat4f(
+      openvrml::make_vec3f(),
+      m_rotation,
+      openvrml::make_vec3f(1.0, 1.0, 1.0),
+      openvrml::make_rotation(),
+      - viewpoint_pos
+   );
+   
+   m_browser->active_viewpoint().user_view_transform( translation * rotation); 
 
    glClearColor( m_clear_color.red() / 255.0, 
 		 m_clear_color.green() / 255.0, 
@@ -2291,8 +2263,6 @@ Control::unproject( int x, int y ) {
    Matrix modelview;
    Line res;
 
-   apply_local_transform();
-
    glGetIntegerv (GL_VIEWPORT, viewport);
    glGetDoublev( GL_PROJECTION_MATRIX, projection );
    glGetFloatv( GL_MODELVIEW_MATRIX, modelview );
@@ -2335,8 +2305,6 @@ Control::unproject( int x, int y ) {
               << dgd_expand(pfar) << std::endl
               << dgd_expand(pnear) << std::endl 
               << dgd_expand(res) << std::endl;
-
-   undo_local_transform();
 
    return res;
 }
@@ -2486,9 +2454,8 @@ void Control::input( QWheelEvent *event ) {
                        event->x(), event->y() );
       
    if( !m_enable_selection ) {
-      Vector pos( 0, 0, - event->delta() / 12.0 );
-
-      m_translation += pos * 0.01f * m_mouse_sensitivity;
+      m_translation.z( m_translation.z() + 
+                       event->delta() / 1200.0 * m_mouse_sensitivity );      
    } 
 }
 
@@ -2501,7 +2468,7 @@ void Control::start_user_action( Interaction::UserAction action,
 
    if( m_enable_permanent_rotation ) {
       m_permanent_rotation = false;
-      m_permanent_rotation_delta.set_identity();
+      m_permanent_rotation_delta = openvrml::make_rotation();
       if( m_permanent_rotation_timer.isActive() )
 	 m_permanent_rotation_timer.stop();
    }
@@ -2583,21 +2550,21 @@ void Control::continue_user_action( Interaction::UserAction action,
 	 Vector v2( new_pos - origin ); v2.cartesian().normalize();
 
 	 Vector rot_axis( Math::cross( v2, v1 ) );
-	 rot_axis.cartesian().normalize();
+	 rot_axis.normalize().cartesian();
 	 FT angle = (FT)acos( Math::dot( v2, v1 ) );
-	 
-	 Matrix user_navigation;
-	 user_navigation.set_identity();
-	 
-	 Math::rotate( user_navigation, rot_axis, 
-		       angle * m_mouse_sensitivity );
+	 	 
+         openvrml::rotation delta_rotation = 
+               openvrml::make_rotation(rot_axis.x(), 
+                                       rot_axis.y(), 
+                                       rot_axis.z(),
+                                       -angle * m_mouse_sensitivity);
 
 	 if( m_enable_permanent_rotation ) {	    
-	    m_permanent_rotation_delta = user_navigation;
+	    m_permanent_rotation_delta = delta_rotation;
 	 }
 
-	 m_rotation = user_navigation * m_rotation;
-	    
+	 m_rotation = delta_rotation * m_rotation;
+
 	 m_user_state.m_rot_x = x;
 	 m_user_state.m_rot_y = y;
       } break;
@@ -2606,15 +2573,16 @@ void Control::continue_user_action( Interaction::UserAction action,
 	 if( x == m_user_state.m_rot_x && y == m_user_state.m_rot_y )
 	    break;
 	 
-	 Vector old_pos( (FT)m_user_state.m_trans_x, 
-			 viewport.w()-(float)m_user_state.m_trans_y, 0 );
-	 Vector new_pos( (FT)x, viewport.w()-(FT)y, 0 );
+         openvrml::vec3f old_pos = 
+            openvrml::make_vec3f( (float)m_user_state.m_trans_x, 
+                                  viewport.w()-(float)m_user_state.m_trans_y, 
+                                  0 );
+         openvrml::vec3f new_pos =
+            openvrml::make_vec3f( x, viewport.w()-(float)y, 0 );
 
-	 dgd_logger << dgd_expand(Math::homogeneus(viewport)) << std::endl 
-                    << dgd_expand(Math::homogeneus(old_pos)) << std::endl 
-                    << dgd_expand(Math::homogeneus(new_pos)) << std::endl; 
+	 dgd_logger << dgd_expand(Math::homogeneus(viewport)) << std::endl;
 
-	 m_translation += (new_pos - old_pos) * 0.01f * m_mouse_sensitivity;
+	 m_translation -= (new_pos - old_pos) * 0.01f * m_mouse_sensitivity;
 
 	 m_user_state.m_trans_x = x;
 	 m_user_state.m_trans_y = y;
@@ -2624,11 +2592,12 @@ void Control::continue_user_action( Interaction::UserAction action,
 	 if( x == m_user_state.m_zoom_x && y == m_user_state.m_zoom_y )
 	    break;
 
-	 Vector pos( 0, 0, 
-		     ((FT)x - (FT)m_user_state.m_zoom_x) + 
-		     ((FT)y - (FT)m_user_state.m_zoom_y) );
+         openvrml::vec3f pos =
+            openvrml::make_vec3f( 0, 0, 
+                                  ((float)x - (float)m_user_state.m_zoom_x) + 
+                                  ((float)y - (float)m_user_state.m_zoom_y) );
 
-	 m_translation += pos * 0.01f * m_mouse_sensitivity;
+	 m_translation -= pos * 0.01f * m_mouse_sensitivity;
 
          dgd_echo(pos);
 

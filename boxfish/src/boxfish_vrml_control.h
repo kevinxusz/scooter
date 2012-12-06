@@ -65,6 +65,7 @@ public:
    typedef Vector::FT                FT;
    typedef Vector::RT                RT;
    typedef Loader::browser_ptr       browser_ptr;
+   typedef Loader::node_ptr          node_ptr;
 
    typedef std::vector<boost::intrusive_ptr<openvrml::node> > Node_list;
    typedef std::map<const openvrml::node*,GLuint> Node_GLList_map;
@@ -129,7 +130,10 @@ public:
 
 public:
 
-   Control( QWidget *parent, browser_ptr b );      
+   Control( QWidget *parent, 
+            browser_ptr b, 
+            node_ptr navigation_info, 
+            node_ptr viewpoint );      
    virtual ~Control();
 
 protected: // openvrml::viewer interface
@@ -363,9 +367,8 @@ protected:
 
    void initialize();
    Line unproject( int x, int y );
-   void apply_local_transform();
-   void undo_local_transform();
-   bool get_scene_bounds( Vector& center, FT& radius );
+   bool get_scene_bounds( openvrml::vec3f& center, float& radius );
+   void set_default_navigation_info();
    void start_user_action(    Interaction::UserAction action, 
                               long time,
                               long x, long y );
@@ -461,16 +464,15 @@ private:
    GLint m_max_lights;
    LightInfoPtr m_light_info;
 
-   Matrix m_rotation;
-   Vector m_translation;
-   Matrix m_view_transform;
+   openvrml::rotation m_rotation;
+   openvrml::vec3f    m_translation;
 
    bool        m_enable_interaction;
    float       m_mouse_sensitivity;
    bool        m_enable_permanent_rotation;
    bool        m_permanent_rotation;
    Interaction m_user_state;
-   Matrix      m_permanent_rotation_delta;
+   openvrml::rotation m_permanent_rotation_delta;
    QTimer      m_permanent_rotation_timer;
       
    QColor      m_clear_color;
@@ -488,11 +490,10 @@ private:
 
    Node_list   m_root_nodes;
    browser_ptr m_browser;
+   node_ptr    m_navigation_info;
+   node_ptr    m_viewpoint;
 
    Node_GLList_map m_gl_list;
-
-   openvrml::navigation_info_node *m_navigation_info;
-   openvrml::viewpoint_node       *m_viewpoint;
 };
 
 }; // end of namespace vrml 
