@@ -163,7 +163,10 @@ void Document::load_success() {
    m_status_bar->showMessage( tr("Load successfull"), 2000 );
    
    if( m_loader != NULL ) {
-      m_glpad = new boxfish::vrml::Control( this, m_loader->browser() );
+      m_glpad = new boxfish::vrml::Control( this, 
+                                            m_loader->browser(), 
+                                            m_loader->navigation_info(),
+                                            m_loader->viewpoint() );
       m_layout->removeWidget( m_status_bar );
       m_layout->addWidget( m_glpad );
       m_layout->addWidget( m_status_bar );
@@ -198,7 +201,12 @@ void Document::load_cancel() {
 void Document::closeEvent(QCloseEvent *event) {
    dgd_scopef(trace_gui);
 
-   this->load_cancel();
+   this->load_cancel();   
+
+   if( m_glpad != NULL ) {
+      m_glpad->hide();
+      delete m_glpad;
+   }
 }
 
 QVariant Document::glpad_property( const char *name ) {

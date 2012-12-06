@@ -56,15 +56,16 @@ Loader::Loader( const QUrl &url ) :
 }
 
 Loader::~Loader() {
-   {
+   if( m_navigation_info.get() != NULL ) {      
       openvrml::event_listener & listener =
          m_navigation_info->event_listener("set_bind");
       dynamic_cast<openvrml::sfbool_listener &>(listener).
          process_event(openvrml::sfbool(false), m_browser->current_time());
-
+      
       m_navigation_info->shutdown( m_browser->current_time() );
    }
-   {
+   
+   if( m_viewpoint.get() != NULL ) {
       openvrml::event_listener & listener =
          m_viewpoint->event_listener("set_bind");
       dynamic_cast<openvrml::sfbool_listener &>(listener).
@@ -205,6 +206,16 @@ bool Loader::create_viewpoint()
       process_event(openvrml::sfbool(true), m_browser->current_time());
 
    return true;
+}
+
+Loader::node_ptr Loader::navigation_info() const 
+{
+   return m_navigation_info;
+}
+
+Loader::node_ptr Loader::viewpoint() const
+{
+   return m_viewpoint;
 }
 
 }; // end of namespace vrml
