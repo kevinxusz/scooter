@@ -86,6 +86,10 @@ Control::Control( QWidget *parent,
    m_navigation_info(navigation_info),
    m_viewpoint(viewpoint)
 {   
+   m_rotation = openvrml::make_rotation();
+   m_translation = openvrml::make_vec3f();
+   m_permanent_rotation_delta = openvrml::make_rotation();
+
    QSizePolicy spolicy( QSizePolicy::Ignored, 
 			QSizePolicy::Ignored );
    this->setSizePolicy( spolicy );
@@ -1777,7 +1781,7 @@ void Control::set_default_navigation_info()
 {
    dgd_scopef(trace_vrml);
    
-   openvrml::vec3f scene_center;
+   openvrml::vec3f scene_center = openvrml::make_vec3f();
    float scene_max_size = 1.0f;
    
    bool rc = get_scene_bounds( scene_center, scene_max_size );
