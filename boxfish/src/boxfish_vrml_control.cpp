@@ -2187,6 +2187,11 @@ void Control::paintGL() {
          *m_browser->active_viewpoint().field("position")
       ).value();
 
+   openvrml::vec3f viewpoint_cor = 
+      dynamic_cast<const openvrml::sfvec3f&>( 
+         *m_browser->active_viewpoint().field("centerOfRotation")
+      ).value();
+
    float avatar_size = 
       dynamic_cast<const openvrml::mffloat&>( 
          *m_browser->active_navigation_info().field("avatarSize")
@@ -2200,7 +2205,7 @@ void Control::paintGL() {
       m_rotation,
       openvrml::make_vec3f(1.0, 1.0, 1.0),
       openvrml::make_rotation(),
-      - viewpoint_pos
+      viewpoint_cor - viewpoint_pos
    );
    
    m_browser->active_viewpoint().user_view_transform( translation * rotation); 
