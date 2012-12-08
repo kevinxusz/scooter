@@ -2179,7 +2179,7 @@ void Control::paintGL() {
       dgd_logger << "m_enable_permanent_rotation " 
                  << m_permanent_rotation_delta << std::endl;
       
-      m_rotation =  m_permanent_rotation_delta * m_rotation;
+      m_rotation = m_rotation * m_permanent_rotation_delta;
    }
    
    openvrml::vec3f viewpoint_pos = 
@@ -2555,8 +2555,8 @@ void Control::continue_user_action( Interaction::UserAction action,
 			 0 );
 	 Vector new_pos( (FT)x, viewport.w()-(FT)y, 0 );
 
-	 Vector v1( old_pos - origin ); v1.cartesian().normalize();
-	 Vector v2( new_pos - origin ); v2.cartesian().normalize();
+	 Vector v1( old_pos - origin ); v1.normalize();
+	 Vector v2( new_pos - origin ); v2.normalize();
 
 	 Vector rot_axis( Math::cross( v2, v1 ) );
 	 rot_axis.normalize().cartesian();
@@ -2572,7 +2572,7 @@ void Control::continue_user_action( Interaction::UserAction action,
 	    m_permanent_rotation_delta = delta_rotation;
 	 }
 
-	 m_rotation = delta_rotation * m_rotation;
+	 m_rotation = m_rotation * delta_rotation;
 
 	 m_user_state.m_rot_x = x;
 	 m_user_state.m_rot_y = y;
