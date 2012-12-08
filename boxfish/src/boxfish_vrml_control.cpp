@@ -2187,8 +2187,13 @@ void Control::paintGL() {
          *m_browser->active_viewpoint().field("position")
       ).value();
 
+   float avatar_size = 
+      dynamic_cast<const openvrml::mffloat&>( 
+         *m_browser->active_navigation_info().field("avatarSize")
+      ).value()[0];
+
    const openvrml::mat4f & translation = 
-      openvrml::make_translation_mat4f(m_translation);
+      openvrml::make_translation_mat4f(m_translation * avatar_size * 5.0);
 
    const openvrml::mat4f & rotation = openvrml::make_transformation_mat4f(
       openvrml::make_vec3f(),
@@ -2459,7 +2464,7 @@ void Control::input( QWheelEvent *event ) {
       
    if( !m_enable_selection ) {
       m_translation.z( m_translation.z() + 
-                       event->delta() / 1200.0 * m_mouse_sensitivity );      
+                       event->delta() / 12.0 * m_mouse_sensitivity );      
    } 
 }
 
@@ -2586,7 +2591,7 @@ void Control::continue_user_action( Interaction::UserAction action,
 
 	 dgd_logger << dgd_expand(Math::homogeneus(viewport)) << std::endl;
 
-	 m_translation -= (new_pos - old_pos) * 0.01f * m_mouse_sensitivity;
+	 m_translation -= (new_pos - old_pos) * m_mouse_sensitivity;
 
 	 m_user_state.m_trans_x = x;
 	 m_user_state.m_trans_y = y;
@@ -2601,7 +2606,7 @@ void Control::continue_user_action( Interaction::UserAction action,
                                   ((float)x - (float)m_user_state.m_zoom_x) + 
                                   ((float)y - (float)m_user_state.m_zoom_y) );
 
-	 m_translation -= pos * 0.01f * m_mouse_sensitivity;
+	 m_translation -= pos * m_mouse_sensitivity;
 
          dgd_echo(pos);
 
