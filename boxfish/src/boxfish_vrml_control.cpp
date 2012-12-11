@@ -484,25 +484,25 @@ Control::generate_spheric_arrays(
    boost::shared_array<unsigned>& indices ) {
    dgd_scopef(trace_vrml);
 
-   unsigned nvertexes = (precision + 1) * (precision + 1);
+   unsigned nvertexes = (precision + 1) * (precision/2 + 1);
 
    vertexes.reset( new Vector[nvertexes] );
    normals.reset( new Vector[nvertexes] );
    texture.reset( new Vector[nvertexes] );
-   indices.reset( new unsigned[ 4 * precision * precision ] );
+   indices.reset( new unsigned[ 2 * precision * precision ] );
 
    FT alpha = FT(Math::PI * 2.0 / precision);
    
    dgd_echo(alpha);
    
-   unsigned i, j, index, facet;
+   unsigned i, j, index;
    FT u_angle,v_angle,x,y,z;
 
-   for( j = 0; j <= precision; ++j ) {
-      v_angle = j * alpha - FT(Math::PI / 2.0f);
+   for( j = 0; j <= precision/2; ++j ) {
+      v_angle = j * alpha + FT(Math::PI / 2.0);
       
       for( i = 0; i <= precision; ++i ) {
-	 u_angle = i * alpha - FT(Math::PI / 2.0);
+	 u_angle = FT(Math::PI * 2.0) - i * alpha;
 	 x = radius * (FT)cos(v_angle) * (FT)cos( u_angle );
 	 y = radius * (FT)sin(v_angle);
 	 z = radius * (FT)cos(v_angle) * (FT)sin( u_angle );
@@ -521,16 +521,6 @@ Control::generate_spheric_arrays(
 			 2.0f * FT(j) / FT(precision),
 			 0 );
 
-	 facet = j * precision + i;
-	 if( i < precision &&
-	     j < precision )  indices[ 4 * facet               + 0 ] = index;
-	 if( i < precision &&
-	     j > 0 )          indices[ 4 * (facet-precision)   + 1 ] = index;
-	 if( i > 0 &&
-	     j < precision)   indices[ 4 * (facet-1)           + 3 ] = index;
-	 if( i > 0 && 
-	     j > 0 )          indices[ 4 * (facet-precision-1) + 2 ] = index;
-
 	 dgd_logger << dgd_expand(j) << " " 
                     << dgd_expand(i) << " " << std::endl
                     << dgd_expand(u_angle) << " " 
@@ -541,8 +531,16 @@ Control::generate_spheric_arrays(
                     << dgd_expand(texture[index]) << std::endl;
       }
    }
+
+   for( i = 0; i < precision * precision / 2; ++i ) {
+      unsigned delta = i / precision;
+      indices[4*i+0] = i+delta;
+      indices[4*i+1] = i+delta+precision+1;
+      indices[4*i+2] = i+delta+precision+2;
+      indices[4*i+3] = i+delta+1;
+   }
    
-   for( i = 0; i < 4 * precision * precision; ++i ) {
+   for( i = 0; i < 2 * precision * precision; ++i ) {
       if( i % 4 == 0 ) 
 	 dgd_logger << std::endl;
       dgd_logger << indices[i] << " ";
@@ -590,7 +588,7 @@ Control::do_insert_sphere(const openvrml::geometry_node & n, float radius) {
    glTexCoordPointer( 2, GL_FLOAT, sizeof(Vector), texture.get() );
 
    glDrawElements( GL_QUADS, 
-		   4 * m_sphere_precision * m_sphere_precision,
+		   2 * m_sphere_precision * m_sphere_precision,
 		   GL_UNSIGNED_INT, 
 		   indices.get() );
 
