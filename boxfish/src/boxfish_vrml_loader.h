@@ -25,6 +25,7 @@
 #define _boxfish_vrml_loader_h_
 
 #include <QtCore/QUrl>
+#include <QtCore/QMutex>
 
 #include <openvrml/browser.h>
 
@@ -51,6 +52,7 @@ public:
    virtual ~Loader();
 
    void start();
+   void cancel();
 
    QString error_string() const { return m_error_string; }
    browser_ptr browser() const;
@@ -77,6 +79,8 @@ private:
    browser_ptr          m_browser;
    node_ptr             m_navigation_info;
    node_ptr             m_viewpoint;
+   bool                 m_enabled;
+   QMutex               m_state_guard;
 };
 
 }; // end of namespace vrml

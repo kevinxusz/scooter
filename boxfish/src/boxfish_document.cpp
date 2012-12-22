@@ -36,6 +36,7 @@
 #include <QtGui/QIcon>
 #include <QtGui/QLabel>
 #include <QtGui/QTreeView>
+#include <QtGui/QCloseEvent>
 
 #include <openvrml/browser.h>
 
@@ -96,6 +97,7 @@ Document::Document( const QUrl& url ) :
    this->setWindowState( Qt::WindowActive );
    this->setWindowIcon( QIcon( Svg_icon( ":/icons/objects.svg", 
 					 QSize(32,32 ) ) ) );
+   this->setAttribute( Qt::WA_DeleteOnClose, true );
 
    connect( this, SIGNAL(constructed()), this, SLOT(load_start()) );
 
@@ -112,6 +114,16 @@ Document::Document( const QUrl& url ) :
 }
 
 Document::~Document() {
+   if( m_loader != NULL ) {
+      delete m_loader;
+      m_loader = NULL;
+   }
+
+   if( m_glpad != NULL ) {
+      delete m_glpad;
+      m_glpad = NULL;
+   }
+
    if( m_scene_model != NULL ) {      
       delete m_scene_model;
       m_scene_model = NULL;
@@ -186,15 +198,7 @@ void Document::load_cancel() {
    dgd_scopef(trace_gui);
 
    if( m_loader != NULL ) {
-      // TBD
-      // dgd_echo(m_loader->isRunning());
-
-      // if( m_loader->isRunning() )
-      //    m_loader->terminate();
-      // m_loader->wait();
- 
-      delete m_loader;
-      m_loader = NULL;      
+      m_loader->cancel();
    }
 }
 
@@ -205,7 +209,6 @@ void Document::closeEvent(QCloseEvent *event) {
 
    if( m_glpad != NULL ) {
       m_glpad->hide();
-      delete m_glpad;
    }
 }
 

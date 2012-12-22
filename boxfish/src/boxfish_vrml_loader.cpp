@@ -51,7 +51,8 @@ namespace vrml {
 
 Loader::Loader( const QUrl &url ) :
    m_prev(0),
-   m_url(url)
+   m_url(url),
+   m_enabled(true)
 {
 }
 
@@ -82,8 +83,12 @@ Loader::browser_ptr Loader::browser() const {
 void Loader::start() {
    dgd_scopef(trace_download);
 
-   if( m_download_fetcher.get() != NULL ) 
+   m_state_guard.lock();
+      
+   if( !m_enabled || m_download_fetcher.get() != NULL ) {
+      m_state_guard.unlock();
       return;
+   }
 
    m_download_fetcher.reset( 
       new boxfish::download_fetcher(
@@ -109,8 +114,25 @@ void Loader::start() {
                  << QString(m_url.toEncoded())
                  << " , reason was: " << ex.what()
                  << std::endl;
-      return;
    }
+   
+   m_state_guard.unlock();
+}
+
+void Loader::cancel()
+{
+   dgd_scopef(trace_download);
+
+   m_state_guard.lock();
+      
+   m_enabled = false;
+   dgd_echo(m_enabled);
+
+   if( !m_error_string.isEmpty() ) 
+      m_error_string += " ";
+   m_error_string += "Download aborted by user";
+
+   m_state_guard.unlock();
 }
 
 int Loader::report_progress ( double dl_total, double dl_now ) {
@@ -124,7 +146,15 @@ int Loader::report_progress ( double dl_total, double dl_now ) {
    emit progress( percent);
 
    QApplication::processEvents();
-   return 0;
+
+   int rc = 0;
+
+   m_state_guard.lock();
+   rc = m_enabled ? 0 : -1;
+   dgd_echo(m_enabled);
+   m_state_guard.unlock();
+
+   return rc;
 }
 
 void Loader::report_error( const std::string& str ) {
