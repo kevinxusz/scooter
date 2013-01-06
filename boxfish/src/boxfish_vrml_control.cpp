@@ -788,10 +788,66 @@ Control::do_insert_elevation_grid(
    }
 }
 
+void 
+Control::generate_extrusion_arrays( 
+   unsigned int mask,
+   const std::vector<openvrml::vec3f>&    spine,
+   const std::vector<openvrml::vec2f>&    cross_section,
+   const std::vector<openvrml::rotation>& orientation,
+   const std::vector<openvrml::vec2f>&    scale,
+   boost::shared_array<Vector>&        vertexes,
+   boost::shared_array<Vector>&        normals,
+   boost::shared_array<Vector>&        texture,
+   boost::shared_array<Vector>&        colors ) {
+   dgd_scopef(trace_vrml);
+   
+   using namespace openvrml;
+   typedef  std::vector<vec2f>::const_iterator mvec2f_citer_t;
+   typedef  std::vector<vec3f>::const_iterator mvec3f_citer_t;
+
+   unsigned int nvertexes_side = spine.size() * cross_section.size();
+
+   std::vector<vec3f> moving_cross_section;
+   for( mvec2f_citer_t iter = cross_section.begin(); 
+        iter != cross_section.end();
+        ++iter ) {
+      moving_cross_section.push_back( 
+         openvrml::make_vec3f( iter->x(), 0, iter->y() )
+      );
+   }
+
+   int is_closed = 
+      (moving_cross_section.front() - 
+       moving_cross_section.back()).length() < 0.00001f ? 1 : 0;
+
+   int spine_size = spine.size();
+
+   for( int spine_index = 0; 
+        spine_index < spine_size;  
+        ++spine_index ) {
+      const vec2f& scale_factor = scale[ spine_index % scale.size() ];
+      const rotation& orientation_factor = 
+         orientation[ spine_index % orientation.size() ];
+
+      int prev_index = is_closed ? 
+                       (spine_index - 1) % spine_size :
+                       std::max(spine_index - 1, 0) ;
+
+      int next_index = is_closed ? 
+                       (spine_index + 1) % spine_size :
+                       std::min(spine_index + 1, spine_size) ;
+
+      vec3f yaxis = spine[prev_index] - spine[next_index];
+      vec3f zaxis = (spine[next_index] - spine[spine_index]) * 
+                    (spine[prev_index] - spine[spine_index]);
+      
+   }
+}
+
 void
 Control::do_insert_extrusion( 
    const openvrml::geometry_node& n,
-   unsigned int,
+   unsigned int mask,
    const std::vector<openvrml::vec3f>&    spine,
    const std::vector<openvrml::vec2f>&    cross_section,
    const std::vector<openvrml::rotation>& orientation,

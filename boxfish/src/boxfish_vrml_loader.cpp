@@ -167,8 +167,13 @@ void Loader::report_error( const std::string& str ) {
 
 void Loader::do_browser_changed(const openvrml::browser_event &event) 
 {
+   dgd_scopef(trace_download);
+
+   dgd_echo(event.id());
+
    if( event.id() == openvrml::browser_event::initialized )
    {
+      dgd_echo(m_error_string);
       if( m_error_string.isEmpty() ) {
          if( !create_navigation_info() ||
              !create_viewpoint() ) {
