@@ -21,7 +21,6 @@
 // boxfish_vrml_control.cpp -- implementation of boxfish_control.h
 // 
 
-
 #include <set>
 #include <map>
 #include <sstream>
@@ -802,10 +801,12 @@ Control::generate_extrusion_arrays(
    dgd_scopef(trace_vrml);
    
    using namespace openvrml;
-   typedef  std::vector<vec2f>::const_iterator mvec2f_citer_t;
-   typedef  std::vector<vec3f>::const_iterator mvec3f_citer_t;
+   typedef typename std::vector<vec2f>::const_iterator mvec2f_citer_t;
+   typedef typename std::vector<vec3f>::const_iterator mvec3f_citer_t;
+   const float epsilon = 0.00001f;
 
-   unsigned int nvertexes_side = spine.size() * cross_section.size();
+   int spine_size = spine.size();
+   unsigned int nvertexes_side = spine_size * cross_section.size();
 
    std::vector<vec3f> moving_cross_section;
    for( mvec2f_citer_t iter = cross_section.begin(); 
@@ -818,30 +819,89 @@ Control::generate_extrusion_arrays(
 
    int is_closed = 
       (moving_cross_section.front() - 
-       moving_cross_section.back()).length() < 0.00001f ? 1 : 0;
+       moving_cross_section.back()).length() < epsilon ? 1 : 0;
 
-   int spine_size = spine.size();
+   typedef std::list<vec3f> vec3f_list_t;
+   typedef typename std::list<vec3f>::const_iterator vec3f_list_citer_t;
+   typedef typename std::list<vec3f>::iterator vec3f_list_iter_t;
+   vec3f_list_t yaxis;
+   vec3f_list_t zaxis;
 
-   for( int spine_index = 0; 
-        spine_index < spine_size;  
+   for( int spine_index = 1; 
+        spine_index < spine_size-1;  
         ++spine_index ) {
+      yaxis.push_back( spine[spine_index-1] - spine[spine_index+1] );
+      zaxis.push_back( (spine[spine_index+1] - spine[spine_index]) * 
+                       (spine[spine_index-1] - spine[spine_index]) );
+   }
+
+   if( is_closed ) {
+      vec3f yaxis_stitch = spine[1] - spine[(spine_size-2) % spine_size];
+      yaxis.push_front( yaxis_stitch );
+      yaxis.push_back( yaxis_stitch );
+
+      vec3f zaxis_stitch =  (spine[1] - spine[0]) * 
+                            (spine[(spine_size-2) % spine_size] - spine[0]);
+      zaxis.push_front( zaxis_stitch );      
+      zaxis.push_back( zaxis_stitch );      
+   } else {
+      yaxis.push_front( spine[1] - spine[0] );
+      yaxis.push_back( spine[(spine_size-2) % spine_size] - 
+                       spine[(spine_size-1) % spine_size] );
+
+      zaxis.push_front( zaxis.front() );
+      zaxis.push_back( zaxis.back() );
+   }
+
+   if( yaxis.front().length() < epsilon ) {
+      bool found = false;
+      for(vec3f_list_citer_t iter = yaxis.begin(); iter != yaxis.end(); ++iter)
+         if( iter->length() >= epsilon ) {
+            yaxis.front() = *iter;
+            found = true;
+            break;
+         }
+      if( !found ) {
+         yaxis.front( make_vec3f(0, 1, 0) );
+      }
+   }
+
+   if( zaxis.front().length() < epsilon ) {
+      bool found = false;
+      for(vec3f_list_citer_t iter = zaxis.begin(); iter != zaxis.end(); ++iter)
+         if( iter->length() >= epsilon ) {
+            zaxis.front() = *iter;
+            found = true;
+            break;
+         }
+      if( !found ) {
+         zaxis.front( make_vec3f(0, 0, 1) );
+      }
+   }
+
+   vec3f_list_iter_t fi = yaxis.begin();
+   vec3f_list_iter_t ni = fi+1; 
+   while( ni != yaxis.end() ) {
+      if( ni->length() < epsilon ) 
+         *ni = *fi;
+      fi = ni;
+      ++ni;
+   }
+   
+   fi = zaxis.begin();
+   ni = fi+1; 
+   while( ni != zaxis.end() ) {
+      if( ni->length() < epsilon ) 
+         *ni = *fi;
+      fi = ni;
+      ++ni;
+   }
+
+   
       const vec2f& scale_factor = scale[ spine_index % scale.size() ];
       const rotation& orientation_factor = 
          orientation[ spine_index % orientation.size() ];
 
-      int prev_index = is_closed ? 
-                       (spine_index - 1) % spine_size :
-                       std::max(spine_index - 1, 0) ;
-
-      int next_index = is_closed ? 
-                       (spine_index + 1) % spine_size :
-                       std::min(spine_index + 1, spine_size) ;
-
-      vec3f yaxis = spine[prev_index] - spine[next_index];
-      vec3f zaxis = (spine[next_index] - spine[spine_index]) * 
-                    (spine[prev_index] - spine[spine_index]);
-      
-   }
 }
 
 void
