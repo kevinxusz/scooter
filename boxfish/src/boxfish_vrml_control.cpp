@@ -806,15 +806,16 @@ Control::generate_extrusion_arrays(
    const float epsilon = 0.00001f;
 
    int spine_size = spine.size();
-   unsigned int nvertexes_side = spine_size * cross_section.size();
+   int cross_section_size = cross_section.size();
+   unsigned int nvertexes_side = spine_size * cross_section_size;
 
    std::vector<vec3f> moving_cross_section;
    for( mvec2f_citer_t iter = cross_section.begin(); 
         iter != cross_section.end();
         ++iter ) {
-      moving_cross_section.push_back( 
-         openvrml::make_vec3f( iter->x(), 0, iter->y() )
-      );
+      moving_cross_section.push_back( openvrml::make_vec3f( iter->x(), 
+                                                            0, 
+                                                            iter->y() ) );
    }
 
    int is_closed = 
@@ -827,9 +828,7 @@ Control::generate_extrusion_arrays(
    vec3f_list_t yaxis;
    vec3f_list_t zaxis;
 
-   for( int spine_index = 1; 
-        spine_index < spine_size-1;  
-        ++spine_index ) {
+   for( int spine_index = 1; spine_index < spine_size-1; ++spine_index ) {
       yaxis.push_back( spine[spine_index-1] - spine[spine_index+1] );
       zaxis.push_back( (spine[spine_index+1] - spine[spine_index]) * 
                        (spine[spine_index-1] - spine[spine_index]) );
@@ -882,25 +881,30 @@ Control::generate_extrusion_arrays(
    vec3f_list_iter_t fi = yaxis.begin();
    vec3f_list_iter_t ni = fi+1; 
    while( ni != yaxis.end() ) {
-      if( ni->length() < epsilon ) 
-         *ni = *fi;
-      fi = ni;
-      ++ni;
+      if( ni->length() < epsilon ) *ni = *fi;
+      fi = ni++;
    }
    
    fi = zaxis.begin();
    ni = fi+1; 
    while( ni != zaxis.end() ) {
-      if( ni->length() < epsilon ) 
-         *ni = *fi;
-      fi = ni;
-      ++ni;
+      if( ni->length() < epsilon ) *ni = *fi;
+      fi = ni++;
    }
 
-   
-      const vec2f& scale_factor = scale[ spine_index % scale.size() ];
-      const rotation& orientation_factor = 
-         orientation[ spine_index % orientation.size() ];
+   vertexes.reset ( new Vector[spine_size * cross_section_size] );
+
+   for( int spine_index = 0; spine_index < spine_size; ++spine_index ) {   
+      const vec2f& 
+         scale_factor = scale[ spine_index % scale.size() ];
+      const rotation& 
+         orientation_factor = orientation[ spine_index % orientation.size() ];
+      
+      for(int cross_index = 0; cross_index < cross_section_size; cross_index++)
+      {
+         
+      }
+   }
 
 }
 
