@@ -809,15 +809,6 @@ Control::generate_extrusion_arrays(
    int cross_section_size = cross_section.size();
    unsigned int nvertexes_side = spine_size * cross_section_size;
 
-   std::vector<vec3f> moving_cross_section;
-   for( mvec2f_citer_t iter = cross_section.begin(); 
-        iter != cross_section.end();
-        ++iter ) {
-      moving_cross_section.push_back( openvrml::make_vec3f( iter->x(), 
-                                                            0, 
-                                                            iter->y() ) );
-   }
-
    int is_closed = 
       (moving_cross_section.front() - 
        moving_cross_section.back()).length() < epsilon ? 1 : 0;
@@ -889,10 +880,14 @@ Control::generate_extrusion_arrays(
    ni = fi+1; 
    while( ni != zaxis.end() ) {
       if( ni->length() < epsilon ) *ni = *fi;
-      fi = ni++;
+      fi = ni++;      
    }
 
+   // TBD flip z axis
+
    vertexes.reset ( new Vector[spine_size * cross_section_size] );
+   vec3f_list_citer_t yiter = yaxis.begin();
+   vec3f_list_citer_t ziter = zaxis.begin();
 
    for( int spine_index = 0; spine_index < spine_size; ++spine_index ) {   
       const vec2f& 
@@ -900,9 +895,40 @@ Control::generate_extrusion_arrays(
       const rotation& 
          orientation_factor = orientation[ spine_index % orientation.size() ];
       
+      mat4f scale_matrix = make_scale_mat4f( 
+         make_vec3f( scale_factor.x(), 1, scale_factor.y() )
+      );
+      
+      vec3f xasis = (*ziter) * (*yiter);
+
+      mat4f base_orientation = make_mat4f(
+         xaxis.x(),  xaxis.y(),  xaxis.z(),  0,
+         yiter->x(), yiter->y(), yiter->z(), 0,
+         ziter->x(), ziter->y(), ziter->z(), 0,
+         0, 0, 0, 1
+      );
+      
+      yiter++;
+      ziter++;
+
+      mat4f adjust_rotation = make_rotation_mat4f(orientation_factor);
+
+      mat4f spine_translation = make_translation_mat4f( spine[spine_index] );
+         
+      mat4f final_transform = spine_translation * 
+                              adjust_rotation * 
+                              base_orientation * 
+                              scale_matrix;
+
       for(int cross_index = 0; cross_index < cross_section_size; cross_index++)
       {
-         
+         vec3f point = make_vec3f( cross_section[cross_index].x(), 0,
+                                   cross_section[cross_index].y() );
+         vec3f final_point = final_transform * point;
+
+         vertexes[ cross_index + cross_section_size * spine_index ](
+            final_point.x(), final_point.y(), final_point.z(), 1.0
+         );
       }
    }
 
