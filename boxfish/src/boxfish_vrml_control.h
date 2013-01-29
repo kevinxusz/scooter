@@ -429,22 +429,33 @@ protected:
       boost::shared_array<unsigned int>&  indexes );
 
    void generate_ifs_arrays(
-      const unsigned int                          mask,	      
-      const std::vector<openvrml::vec3f>&         coord,	      
-      const std::vector<openvrml::int32>& 	     coord_index,     
-      const std::vector<openvrml::color>& 	     color,	      
-      const std::vector<openvrml::int32>& 	     color_index,     
-      const std::vector<openvrml::vec3f>& 	     normal,	      
-      const std::vector<openvrml::int32>& 	     normal_index,    
-      const std::vector<openvrml::vec2f>& 	     tex_coord,	      
-      const std::vector<openvrml::int32>& 	     tex_coord_index, 
-      unsigned int&                       	     nvertexes,	      
-      unsigned int&                       	     nfacets,	      
-      boost::shared_array<Vector>&        	     vertexes,	      
-      boost::shared_array<Vector>&        	     normals,	      
-      boost::shared_array<Vector>&        	     colors, 
-      boost::shared_array<Vector>&                texture,
+      const unsigned int                            mask,	      
+      const std::vector<openvrml::vec3f>&           coord,	      
+      const std::vector<openvrml::int32>& 	    coord_index,     
+      const std::vector<openvrml::color>& 	    color,	      
+      const std::vector<openvrml::int32>& 	    color_index,     
+      const std::vector<openvrml::vec3f>& 	    normal,	      
+      const std::vector<openvrml::int32>& 	    normal_index,    
+      const std::vector<openvrml::vec2f>& 	    tex_coord,	      
+      const std::vector<openvrml::int32>& 	    tex_coord_index, 
+      unsigned int&                       	    nvertexes,	      
+      unsigned int&                       	    nfacets,	      
+      boost::shared_array<Vector>&        	    vertexes,	      
+      boost::shared_array<Vector>&        	    normals,	      
+      boost::shared_array<Vector>&        	    colors, 
+      boost::shared_array<Vector>&                  texture,
       std::vector< std::pair<unsigned, unsigned> >& indexes );
+
+   void generate_extrusion_arrays( 
+      unsigned int                           mask,
+      const std::vector<openvrml::vec3f>&    spine,
+      const std::vector<openvrml::vec2f>&    cross_section,
+      const std::vector<openvrml::rotation>& orientation,
+      const std::vector<openvrml::vec2f>&    scale,
+      boost::shared_array<Vector>&           vertexes,
+      boost::shared_array<Vector>&           normals,
+      boost::shared_array<Vector>&           texture,
+      boost::shared_array<unsigned>&         indices );
 
 private:
    bool m_initialized;

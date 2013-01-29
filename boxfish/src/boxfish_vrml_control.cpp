@@ -797,7 +797,7 @@ Control::generate_extrusion_arrays(
    boost::shared_array<Vector>&        vertexes,
    boost::shared_array<Vector>&        normals,
    boost::shared_array<Vector>&        texture,
-   boost::shared_array<Vector>&        colors ) {
+   boost::shared_array<unsigned>&      indices ) {
    dgd_scopef(trace_vrml);
    
    using namespace openvrml;
@@ -807,11 +807,13 @@ Control::generate_extrusion_arrays(
 
    int spine_size = spine.size();
    int cross_section_size = cross_section.size();
-   unsigned int nvertexes_side = spine_size * cross_section_size;
 
    int is_closed = 
-      (moving_cross_section.front() - 
-       moving_cross_section.back()).length() < epsilon ? 1 : 0;
+      (cross_section.front() - cross_section.back()).length() < epsilon ? 1 : 0;
+
+   dgd_echo(spine_size);
+   dgd_echo(cross_section_size);
+   dgd_echo(is_closed);
 
    typedef std::list<vec3f> vec3f_list_t;
    typedef typename std::list<vec3f>::const_iterator vec3f_list_citer_t;
@@ -820,9 +822,13 @@ Control::generate_extrusion_arrays(
    vec3f_list_t zaxis;
 
    for( int spine_index = 1; spine_index < spine_size-1; ++spine_index ) {
-      yaxis.push_back( spine[spine_index-1] - spine[spine_index+1] );
+      yaxis.push_back( spine[spine_index+1] - spine[spine_index-1] );
       zaxis.push_back( (spine[spine_index+1] - spine[spine_index]) * 
                        (spine[spine_index-1] - spine[spine_index]) );
+      dgd_logger << "yaxis[" << spine_index << "]=" << yaxis.back() 
+                 << std::endl
+                 << "zaxis[" << spine_index << "]=" << zaxis.back() 
+                 << std::endl;
    }
 
    if( is_closed ) {
@@ -830,17 +836,27 @@ Control::generate_extrusion_arrays(
       yaxis.push_front( yaxis_stitch );
       yaxis.push_back( yaxis_stitch );
 
+      dgd_echo(yaxis_stitch);
+
       vec3f zaxis_stitch =  (spine[1] - spine[0]) * 
                             (spine[(spine_size-2) % spine_size] - spine[0]);
       zaxis.push_front( zaxis_stitch );      
       zaxis.push_back( zaxis_stitch );      
+      
+      dgd_echo(zaxis_stitch);
    } else {
       yaxis.push_front( spine[1] - spine[0] );
-      yaxis.push_back( spine[(spine_size-2) % spine_size] - 
-                       spine[(spine_size-1) % spine_size] );
+      yaxis.push_back( spine[(spine_size-1) % spine_size] -
+                       spine[(spine_size-2) % spine_size] );
+
+      dgd_echo(yaxis.front());
+      dgd_echo(yaxis.back());
 
       zaxis.push_front( zaxis.front() );
       zaxis.push_back( zaxis.back() );
+
+      dgd_echo(zaxis.front());
+      dgd_echo(zaxis.back());
    }
 
    if( yaxis.front().length() < epsilon ) {
@@ -852,8 +868,10 @@ Control::generate_extrusion_arrays(
             break;
          }
       if( !found ) {
-         yaxis.front( make_vec3f(0, 1, 0) );
+         yaxis.front() = make_vec3f(0, 1, 0);
       }
+
+      dgd_echo(yaxis.front());
    }
 
    if( zaxis.front().length() < epsilon ) {
@@ -865,19 +883,21 @@ Control::generate_extrusion_arrays(
             break;
          }
       if( !found ) {
-         zaxis.front( make_vec3f(0, 0, 1) );
+         zaxis.front() = make_vec3f(0, 0, 1);
       }
+
+      dgd_echo(zaxis.front());
    }
 
    vec3f_list_iter_t fi = yaxis.begin();
-   vec3f_list_iter_t ni = fi+1; 
+   vec3f_list_iter_t ni = fi; ni++;
    while( ni != yaxis.end() ) {
       if( ni->length() < epsilon ) *ni = *fi;
       fi = ni++;
    }
    
    fi = zaxis.begin();
-   ni = fi+1; 
+   ni = fi; ni++;
    while( ni != zaxis.end() ) {
       if( ni->length() < epsilon ) *ni = *fi;
       fi = ni++;      
@@ -894,17 +914,27 @@ Control::generate_extrusion_arrays(
          scale_factor = scale[ spine_index % scale.size() ];
       const rotation& 
          orientation_factor = orientation[ spine_index % orientation.size() ];
+
+      dgd_echo(scale_factor);
+      dgd_echo(orientation_factor);
+      dgd_echo(*yiter);
       
       mat4f scale_matrix = make_scale_mat4f( 
          make_vec3f( scale_factor.x(), 1, scale_factor.y() )
       );
-      
-      vec3f xasis = (*ziter) * (*yiter);
+
+      vec3f ynorm = yiter->normalize();
+      vec3f znorm = ziter->normalize();
+      vec3f xnorm = (ynorm*znorm).normalize();
+
+      dgd_echo(xnorm);
+      dgd_echo(ynorm);
+      dgd_echo(znorm);
 
       mat4f base_orientation = make_mat4f(
-         xaxis.x(),  xaxis.y(),  xaxis.z(),  0,
-         yiter->x(), yiter->y(), yiter->z(), 0,
-         ziter->x(), ziter->y(), ziter->z(), 0,
+         xnorm.x(), xnorm.y(), xnorm.z(), 0,
+         ynorm.x(), ynorm.y(), ynorm.z(), 0,
+         znorm.x(), znorm.y(), znorm.z(), 0,
          0, 0, 0, 1
       );
       
@@ -915,23 +945,58 @@ Control::generate_extrusion_arrays(
 
       mat4f spine_translation = make_translation_mat4f( spine[spine_index] );
          
-      mat4f final_transform = spine_translation * 
+      mat4f final_transform = scale_matrix *
+                              base_orientation *
                               adjust_rotation * 
-                              base_orientation * 
-                              scale_matrix;
+                              spine_translation;
 
-      for(int cross_index = 0; cross_index < cross_section_size; cross_index++)
+      dgd_echo(base_orientation);
+      dgd_echo(adjust_rotation);
+      dgd_echo(spine_translation);
+      dgd_echo(final_transform);
+
+      for(int cross_index = 0; cross_index < cross_section_size; ++cross_index)
       {
          vec3f point = make_vec3f( cross_section[cross_index].x(), 0,
                                    cross_section[cross_index].y() );
-         vec3f final_point = final_transform * point;
+         vec3f final_point = point * final_transform;
 
-         vertexes[ cross_index + cross_section_size * spine_index ](
+         int index = cross_index + cross_section_size * spine_index;
+         vertexes[ index ](
             final_point.x(), final_point.y(), final_point.z(), 1.0
          );
+
+         dgd_echo(index);
+         dgd_echo(point);
+         dgd_echo(final_point);
       }
    }
 
+   int xfacets = cross_section_size - 1;
+   int yfacets = spine_size - 1;
+   indices.reset( new unsigned int[ yfacets*xfacets*4 ] );
+
+   for( int y = 0; y < yfacets; ++y ) 
+   { 
+      for(int x = 0; x < xfacets; ++x)
+      {
+         int index = x + y * xfacets;
+         indices[4 * index + 0] = index + y;
+         indices[4 * index + 1] = index + y + xfacets + 1;
+         indices[4 * index + 2] = index + y + xfacets + 2;
+         indices[4 * index + 3] = index + y + 1;
+      }
+   }   
+   
+   for( int i = 0; i < 4*yfacets * xfacets; i+=4 ) 
+   {
+      dgd_logger << "index " << i << "[" 
+                 << indices[i + 0] << " (" << vertexes[indices[i+0]] << ") "
+                 << indices[i + 1] << " (" << vertexes[indices[i+1]] << ") "
+                 << indices[i + 2] << " (" << vertexes[indices[i+2]] << ") "
+                 << indices[i + 3] << " (" << vertexes[indices[i+3]] << ")"
+                 << "]" << std::endl;
+   }
 }
 
 void
@@ -943,6 +1008,52 @@ Control::do_insert_extrusion(
    const std::vector<openvrml::rotation>& orientation,
    const std::vector<openvrml::vec2f>&    scale ) {
    dgd_scopef(trace_vrml);
+   
+   if (execute_list(&n)) {
+      return;
+   }
+
+   GLuint glid = 0;
+
+   if( this->m_select_mode == draw_mode ) {
+      glid = glGenLists(1);
+      glNewList(glid, GL_COMPILE_AND_EXECUTE);
+   }
+
+   boost::shared_array<Vector> vertexes;
+   boost::shared_array<Vector> normals;
+   boost::shared_array<Vector> texture;
+   boost::shared_array<unsigned> indices;
+
+   generate_extrusion_arrays( mask, spine, cross_section, orientation, scale,
+                              vertexes, normals, texture, indices );
+
+   glEnableClientState( GL_VERTEX_ARRAY );
+//   glEnableClientState( GL_NORMAL_ARRAY );
+//   glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+
+   /**
+    * @note Passing pointer to array of objects to glVertexPointer() 
+    * is potentially dangerous and compiler-dependent. More over,
+    * it wouldn't work if Vector have virtual methods. 
+    */
+   glVertexPointer( 3, GL_FLOAT, sizeof(Vector), vertexes.get() );
+//   glNormalPointer( GL_FLOAT, sizeof(Vector), normals.get() );
+//   glTexCoordPointer( 2, GL_FLOAT, sizeof(Vector), texture.get() );
+
+   glDrawElements( GL_QUADS, 
+		   4*(spine.size()-1)*(cross_section.size()-1),
+		   GL_UNSIGNED_INT, 
+		   indices.get() );
+
+   glDisableClientState( GL_VERTEX_ARRAY );
+//   glDisableClientState( GL_NORMAL_ARRAY );
+//   glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+
+   if (glid) { 
+      glEndList(); 
+      update_list( &n, glid );
+   }
 }
 
 void 
