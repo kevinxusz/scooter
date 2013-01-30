@@ -945,8 +945,8 @@ Control::generate_extrusion_arrays(
       mat4f spine_translation = make_translation_mat4f( spine[spine_index] );
          
       mat4f final_transform = scale_matrix *
-                              base_orientation *
                               adjust_rotation * 
+                              base_orientation *
                               spine_translation;
 
       dgd_echo(base_orientation);
