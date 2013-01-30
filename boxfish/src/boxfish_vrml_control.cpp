@@ -808,8 +808,7 @@ Control::generate_extrusion_arrays(
    int spine_size = spine.size();
    int cross_section_size = cross_section.size();
 
-   int is_closed = 
-      (cross_section.front() - cross_section.back()).length() < epsilon ? 1 : 0;
+   int is_closed = (spine.front() - spine.back()).length() < epsilon ? 1 : 0;
 
    dgd_echo(spine_size);
    dgd_echo(cross_section_size);
