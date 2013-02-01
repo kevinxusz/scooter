@@ -446,16 +446,15 @@ protected:
       boost::shared_array<Vector>&                  texture,
       std::vector< std::pair<unsigned, unsigned> >& indexes );
 
-   void generate_extrusion_arrays( 
+   int generate_extrusion_arrays( 
       unsigned int                           mask,
       const std::vector<openvrml::vec3f>&    spine,
       const std::vector<openvrml::vec2f>&    cross_section,
       const std::vector<openvrml::rotation>& orientation,
       const std::vector<openvrml::vec2f>&    scale,
-      boost::shared_array<Vector>&           vertexes,
-      boost::shared_array<Vector>&           normals,
-      boost::shared_array<Vector>&           texture,
-      boost::shared_array<unsigned>&         indices );
+      boost::shared_array<openvrml::vec3f>&  vertexes,
+      boost::shared_array<openvrml::vec3f>&  normals,
+      boost::shared_array<openvrml::vec2f>&  texture );
 
 private:
    bool m_initialized;

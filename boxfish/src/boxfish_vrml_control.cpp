@@ -489,7 +489,7 @@ Control::generate_spheric_arrays(
    vertexes.reset( new Vector[nvertexes] );
    normals.reset( new Vector[nvertexes]);
    texture.reset( new Vector[nvertexes] );
-   indices.reset( new unsigned[ 2 * precision * precision ] );
+   indices.reset( new unsigned[ 4 * nfaces ] );
 
    FT alpha = FT(Math::PI * 2.0 / precision);
    
@@ -787,17 +787,17 @@ Control::do_insert_elevation_grid(
    }
 }
 
-void 
+int
 Control::generate_extrusion_arrays( 
-   unsigned int mask,
+   unsigned int                           mask,
    const std::vector<openvrml::vec3f>&    spine,
    const std::vector<openvrml::vec2f>&    cross_section,
    const std::vector<openvrml::rotation>& orientation,
    const std::vector<openvrml::vec2f>&    scale,
-   boost::shared_array<Vector>&        vertexes,
-   boost::shared_array<Vector>&        normals,
-   boost::shared_array<Vector>&        texture,
-   boost::shared_array<unsigned>&      indices ) {
+   boost::shared_array<openvrml::vec3f>&  vertexes,
+   boost::shared_array<openvrml::vec3f>&  normals,
+   boost::shared_array<openvrml::vec2f>&  texture ) 
+{
    dgd_scopef(trace_vrml);
    
    using namespace openvrml;
@@ -807,12 +807,18 @@ Control::generate_extrusion_arrays(
 
    int spine_size = spine.size();
    int cross_section_size = cross_section.size();
+   int xfaces = cross_section_size-1;
+   int yfaces = spine_size-1;
+   int nfaces = xfaces * yfaces;
 
-   int is_closed = (spine.front() - spine.back()).length() < epsilon ? 1 : 0;
+   bool spine_is_closed = 
+      ((spine.front() - spine.back()).length() < epsilon);
+   bool csection_is_closed = 
+      ((cross_section.front() - cross_section.back()).length() < epsilon);
 
    dgd_echo(spine_size);
    dgd_echo(cross_section_size);
-   dgd_echo(is_closed);
+   dgd_echo(spine_is_closed);
 
    typedef std::list<vec3f> vec3f_list_t;
    typedef typename std::list<vec3f>::const_iterator vec3f_list_citer_t;
@@ -830,7 +836,7 @@ Control::generate_extrusion_arrays(
                  << std::endl;
    }
 
-   if( is_closed ) {
+   if( spine_is_closed ) {
       vec3f yaxis_stitch = spine[1] - spine[(spine_size-2) % spine_size];
       yaxis.push_front( yaxis_stitch );
       yaxis.push_back( yaxis_stitch );
@@ -899,12 +905,12 @@ Control::generate_extrusion_arrays(
    ni = fi; ni++;
    while( ni != zaxis.end() ) {
       if( ni->length() < epsilon ) *ni = *fi;
+      if( ni->dot(*fi) < 0 ) 
+         *ni = -*ni;
       fi = ni++;      
    }
 
-   // TBD flip z axis
-
-   vertexes.reset ( new Vector[spine_size * cross_section_size] );
+   vertexes.reset ( new vec3f[4 * nfaces] );
    vec3f_list_citer_t yiter = yaxis.begin();
    vec3f_list_citer_t ziter = zaxis.begin();
 
@@ -960,42 +966,40 @@ Control::generate_extrusion_arrays(
                                    cross_section[cross_index].y() );
          vec3f final_point = point * final_transform;
 
-         int index = cross_index + cross_section_size * spine_index;
-         vertexes[ index ](
-            final_point.x(), final_point.y(), final_point.z(), 1.0
-         );
+         if( spine_index < yfaces && cross_index < xfaces ) {
+            int index = cross_index + xfaces * spine_index;
+            vertexes[ 4 * index + 0 ] = final_point;
+            dgd_logger << "index0(" << cross_index << "," << spine_index
+                       << "): " << index << std::endl;
+         }
 
-         dgd_echo(index);
+         if( spine_index < yfaces && cross_index > 0 ) {
+            int index = (cross_index-1) + xfaces * spine_index;
+            vertexes[ 4 * index + 3 ] = final_point;
+            dgd_logger << "index3(" << cross_index << "," << spine_index
+                       << "): " << index << std::endl;
+         }
+
+         if( spine_index > 0 && cross_index > 0 ) {
+            int index = (cross_index-1) + xfaces * (spine_index-1);
+            vertexes[ 4 * index + 2 ] = final_point;
+            dgd_logger << "index2(" << cross_index << "," << spine_index
+                       << "): " << index << std::endl;
+         }
+
+         if( spine_index > 0 && cross_index < xfaces ) {
+            int index = cross_index + xfaces * (spine_index-1);
+            vertexes[ 4 * index + 1 ] = final_point;
+            dgd_logger << "index1(" << cross_index << "," << spine_index
+                       << "): " << index << std::endl;
+         }         
+
          dgd_echo(point);
          dgd_echo(final_point);
       }
    }
 
-   int xfacets = cross_section_size - 1;
-   int yfacets = spine_size - 1;
-   indices.reset( new unsigned int[ yfacets*xfacets*4 ] );
-
-   for( int y = 0; y < yfacets; ++y ) 
-   { 
-      for(int x = 0; x < xfacets; ++x)
-      {
-         int index = x + y * xfacets;
-         indices[4 * index + 0] = index + y;
-         indices[4 * index + 1] = index + y + xfacets + 1;
-         indices[4 * index + 2] = index + y + xfacets + 2;
-         indices[4 * index + 3] = index + y + 1;
-      }
-   }   
-   
-   for( int i = 0; i < 4*yfacets * xfacets; i+=4 ) 
-   {
-      dgd_logger << "index " << i << "[" 
-                 << indices[i + 0] << " (" << vertexes[indices[i+0]] << ") "
-                 << indices[i + 1] << " (" << vertexes[indices[i+1]] << ") "
-                 << indices[i + 2] << " (" << vertexes[indices[i+2]] << ") "
-                 << indices[i + 3] << " (" << vertexes[indices[i+3]] << ")"
-                 << "]" << std::endl;
-   }
+   return nfaces;
 }
 
 void
@@ -1019,13 +1023,13 @@ Control::do_insert_extrusion(
       glNewList(glid, GL_COMPILE_AND_EXECUTE);
    }
 
-   boost::shared_array<Vector> vertexes;
-   boost::shared_array<Vector> normals;
-   boost::shared_array<Vector> texture;
-   boost::shared_array<unsigned> indices;
+   boost::shared_array<openvrml::vec3f> vertexes;
+   boost::shared_array<openvrml::vec3f> normals;
+   boost::shared_array<openvrml::vec2f> texture;
 
-   generate_extrusion_arrays( mask, spine, cross_section, orientation, scale,
-                              vertexes, normals, texture, indices );
+   int nfaces = 
+      generate_extrusion_arrays( mask, spine, cross_section, orientation, scale,
+                                 vertexes, normals, texture );
 
    glEnableClientState( GL_VERTEX_ARRAY );
 //   glEnableClientState( GL_NORMAL_ARRAY );
@@ -1036,14 +1040,11 @@ Control::do_insert_extrusion(
     * is potentially dangerous and compiler-dependent. More over,
     * it wouldn't work if Vector have virtual methods. 
     */
-   glVertexPointer( 3, GL_FLOAT, sizeof(Vector), vertexes.get() );
+   glVertexPointer( 3, GL_FLOAT, sizeof(openvrml::vec3f), vertexes.get() );
 //   glNormalPointer( GL_FLOAT, sizeof(Vector), normals.get() );
 //   glTexCoordPointer( 2, GL_FLOAT, sizeof(Vector), texture.get() );
 
-   glDrawElements( GL_QUADS, 
-		   4*(spine.size()-1)*(cross_section.size()-1),
-		   GL_UNSIGNED_INT, 
-		   indices.get() );
+   glDrawArrays( GL_QUADS, 0, 4*nfaces );
 
    glDisableClientState( GL_VERTEX_ARRAY );
 //   glDisableClientState( GL_NORMAL_ARRAY );
