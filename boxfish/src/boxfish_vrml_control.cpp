@@ -489,7 +489,7 @@ Control::generate_spheric_arrays(
    vertexes.reset( new Vector[nvertexes] );
    normals.reset( new Vector[nvertexes]);
    texture.reset( new Vector[nvertexes] );
-   indices.reset( new unsigned[ 2 * precision * precision ] );
+   indices.reset( new unsigned[ 4 * nfaces ] );
 
    FT alpha = FT(Math::PI * 2.0 / precision);
    
@@ -807,12 +807,18 @@ Control::generate_extrusion_arrays(
 
    int spine_size = spine.size();
    int cross_section_size = cross_section.size();
+   int xfaces = cross_section_size-1;
+   int yfaces = spine_size-1;
+   int nfaces = xfaces * yfaces;
 
-   int is_closed = (spine.front() - spine.back()).length() < epsilon ? 1 : 0;
+   bool spine_is_closed = 
+      ((spine.front() - spine.back()).length() < epsilon);
+   bool csection_is_closed = 
+      ((cross_section.front() - cross_section.back()).length() < epsilon);
 
    dgd_echo(spine_size);
    dgd_echo(cross_section_size);
-   dgd_echo(is_closed);
+   dgd_echo(spine_is_closed);
 
    typedef std::list<vec3f> vec3f_list_t;
    typedef typename std::list<vec3f>::const_iterator vec3f_list_citer_t;
@@ -830,7 +836,7 @@ Control::generate_extrusion_arrays(
                  << std::endl;
    }
 
-   if( is_closed ) {
+   if( spine_is_closed ) {
       vec3f yaxis_stitch = spine[1] - spine[(spine_size-2) % spine_size];
       yaxis.push_front( yaxis_stitch );
       yaxis.push_back( yaxis_stitch );
@@ -899,10 +905,10 @@ Control::generate_extrusion_arrays(
    ni = fi; ni++;
    while( ni != zaxis.end() ) {
       if( ni->length() < epsilon ) *ni = *fi;
+      if( ni->dot(*fi) < 0 ) 
+         *ni = -*ni;
       fi = ni++;      
    }
-
-   // TBD flip z axis
 
    vertexes.reset ( new Vector[spine_size * cross_section_size] );
    vec3f_list_citer_t yiter = yaxis.begin();
