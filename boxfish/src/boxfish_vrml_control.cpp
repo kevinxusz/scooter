@@ -787,7 +787,7 @@ Control::do_insert_elevation_grid(
    }
 }
 
-void 
+int
 Control::generate_extrusion_arrays( 
    unsigned int mask,
    const std::vector<openvrml::vec3f>&    spine,
@@ -796,8 +796,7 @@ Control::generate_extrusion_arrays(
    const std::vector<openvrml::vec2f>&    scale,
    boost::shared_array<Vector>&        vertexes,
    boost::shared_array<Vector>&        normals,
-   boost::shared_array<Vector>&        texture,
-   boost::shared_array<unsigned>&      indices ) {
+   boost::shared_array<Vector>&        texture ) {
    dgd_scopef(trace_vrml);
    
    using namespace openvrml;
@@ -807,9 +806,9 @@ Control::generate_extrusion_arrays(
 
    int spine_size = spine.size();
    int cross_section_size = cross_section.size();
-   int xfaces = cross_section_size-1;
-   int yfaces = spine_size-1;
-   int nfaces = xfaces * yfaces;
+   int xfacets = cross_section_size-1;
+   int yfacets = spine_size-1;
+   int nfacets = xfacets * yfacets;
 
    bool spine_is_closed = 
       ((spine.front() - spine.back()).length() < epsilon);
@@ -910,7 +909,8 @@ Control::generate_extrusion_arrays(
       fi = ni++;      
    }
 
-   vertexes.reset ( new Vector[spine_size * cross_section_size] );
+   std::vector<vec3f> coord(spine_size * cross_section_size);
+
    vec3f_list_citer_t yiter = yaxis.begin();
    vec3f_list_citer_t ziter = zaxis.begin();
 
@@ -967,9 +967,7 @@ Control::generate_extrusion_arrays(
          vec3f final_point = point * final_transform;
 
          int index = cross_index + cross_section_size * spine_index;
-         vertexes[ index ](
-            final_point.x(), final_point.y(), final_point.z(), 1.0
-         );
+         coord[ index ] = final_point;
 
          dgd_echo(index);
          dgd_echo(point);
@@ -977,31 +975,52 @@ Control::generate_extrusion_arrays(
       }
    }
 
-   int xfacets = cross_section_size - 1;
-   int yfacets = spine_size - 1;
-   indices.reset( new unsigned int[ yfacets*xfacets*4 ] );
+   std::vector<int32> coord_index( yfacets*xfacets*5 );
 
    for( int y = 0; y < yfacets; ++y ) 
    { 
       for(int x = 0; x < xfacets; ++x)
       {
          int index = x + y * xfacets;
-         indices[4 * index + 0] = index + y;
-         indices[4 * index + 1] = index + y + xfacets + 1;
-         indices[4 * index + 2] = index + y + xfacets + 2;
-         indices[4 * index + 3] = index + y + 1;
+         coord_index[5 * index + 0] = index + y;
+         coord_index[5 * index + 1] = index + y + xfacets + 1;
+         coord_index[5 * index + 2] = index + y + xfacets + 2;
+         coord_index[5 * index + 3] = index + y + 1;
+         coord_index[5 * index + 4] = -1;
       }
    }   
    
-   for( int i = 0; i < 4*yfacets * xfacets; i+=4 ) 
+   for( int i = 0; i < 5*yfacets * xfacets; i+=5 ) 
    {
-      dgd_logger << "index " << i << "[" 
-                 << indices[i + 0] << " (" << vertexes[indices[i+0]] << ") "
-                 << indices[i + 1] << " (" << vertexes[indices[i+1]] << ") "
-                 << indices[i + 2] << " (" << vertexes[indices[i+2]] << ") "
-                 << indices[i + 3] << " (" << vertexes[indices[i+3]] << ")"
-                 << "]" << std::endl;
+      dgd_logger 
+         << "index " << i << "[" 
+         << coord_index[i + 0] << " (" << coord[coord_index[i+0]] << ") "
+         << coord_index[i + 1] << " (" << coord[coord_index[i+1]] << ") "
+         << coord_index[i + 2] << " (" << coord[coord_index[i+2]] << ") "
+         << coord_index[i + 3] << " (" << coord[coord_index[i+3]] << ")"
+         << "]" << std::endl;
    }
+
+   std::vector<color> empty_color_vector;
+   std::vector<int32> empty_index;
+   std::vector<vec3f> empty_vec3f_vector;
+   std::vector<vec2f> empty_vec2f_vector;
+   unsigned int ifs_nvertexes = 0, ifs_nfacets = 0;
+   boost::shared_array<Vector> colors;
+   std::vector< std::pair< unsigned, unsigned > > indexes;
+
+   generate_ifs_arrays(mask, 
+                       coord, coord_index,
+                       empty_color_vector, empty_index,
+                       empty_vec3f_vector, empty_index,
+                       empty_vec2f_vector, empty_index,
+                       ifs_nvertexes, ifs_nfacets,
+                       vertexes, 
+                       normals,
+                       colors,
+                       texture,
+                       indexes);
+   return ifs_nfacets;
 }
 
 void
@@ -1028,13 +1047,13 @@ Control::do_insert_extrusion(
    boost::shared_array<Vector> vertexes;
    boost::shared_array<Vector> normals;
    boost::shared_array<Vector> texture;
-   boost::shared_array<unsigned> indices;
 
-   generate_extrusion_arrays( mask, spine, cross_section, orientation, scale,
-                              vertexes, normals, texture, indices );
+   unsigned int nfacets =
+      generate_extrusion_arrays( mask, spine, cross_section, orientation, scale,
+                                 vertexes, normals, texture );
 
    glEnableClientState( GL_VERTEX_ARRAY );
-//   glEnableClientState( GL_NORMAL_ARRAY );
+   glEnableClientState( GL_NORMAL_ARRAY );
 //   glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
    /**
@@ -1043,16 +1062,13 @@ Control::do_insert_extrusion(
     * it wouldn't work if Vector have virtual methods. 
     */
    glVertexPointer( 3, GL_FLOAT, sizeof(Vector), vertexes.get() );
-//   glNormalPointer( GL_FLOAT, sizeof(Vector), normals.get() );
+   glNormalPointer( GL_FLOAT, sizeof(Vector), normals.get() );
 //   glTexCoordPointer( 2, GL_FLOAT, sizeof(Vector), texture.get() );
 
-   glDrawElements( GL_QUADS, 
-		   4*(spine.size()-1)*(cross_section.size()-1),
-		   GL_UNSIGNED_INT, 
-		   indices.get() );
+   glDrawArrays( GL_QUADS, 0, 4 * nfacets );
 
    glDisableClientState( GL_VERTEX_ARRAY );
-//   glDisableClientState( GL_NORMAL_ARRAY );
+   glDisableClientState( GL_NORMAL_ARRAY );
 //   glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 
    if (glid) { 
