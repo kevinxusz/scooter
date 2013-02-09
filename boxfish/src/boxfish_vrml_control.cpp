@@ -910,6 +910,7 @@ Control::generate_extrusion_arrays(
    }
 
    std::vector<vec3f> coord(spine_size * cross_section_size);
+   std::vector<vec2f> texture_coord(spine_size * cross_section_size);
 
    vec3f_list_citer_t yiter = yaxis.begin();
    vec3f_list_citer_t ziter = zaxis.begin();
@@ -969,6 +970,11 @@ Control::generate_extrusion_arrays(
          int index = cross_index + cross_section_size * spine_index;
          coord[ index ] = final_point;
 
+         vec2f texture_point = 
+            make_vec2f( (float)cross_index / (float)cross_section_size,
+                        (float)spine_index / (float)spine_size );
+         texture_coord[ index ] = texture_point;
+
          dgd_echo(index);
          dgd_echo(point);
          dgd_echo(final_point);
@@ -1013,7 +1019,7 @@ Control::generate_extrusion_arrays(
                        coord, coord_index,
                        empty_color_vector, empty_index,
                        empty_vec3f_vector, empty_index,
-                       empty_vec2f_vector, empty_index,
+                       texture_coord, coord_index,
                        ifs_nvertexes, ifs_nfacets,
                        vertexes, 
                        normals,
@@ -1054,7 +1060,7 @@ Control::do_insert_extrusion(
 
    glEnableClientState( GL_VERTEX_ARRAY );
    glEnableClientState( GL_NORMAL_ARRAY );
-//   glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+   glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
    /**
     * @note Passing pointer to array of objects to glVertexPointer() 
@@ -1063,13 +1069,13 @@ Control::do_insert_extrusion(
     */
    glVertexPointer( 3, GL_FLOAT, sizeof(Vector), vertexes.get() );
    glNormalPointer( GL_FLOAT, sizeof(Vector), normals.get() );
-//   glTexCoordPointer( 2, GL_FLOAT, sizeof(Vector), texture.get() );
+   glTexCoordPointer( 2, GL_FLOAT, sizeof(Vector), texture.get() );
 
    glDrawArrays( GL_QUADS, 0, 4 * nfacets );
 
    glDisableClientState( GL_VERTEX_ARRAY );
    glDisableClientState( GL_NORMAL_ARRAY );
-//   glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+   glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 
    if (glid) { 
       glEndList(); 
