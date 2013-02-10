@@ -789,14 +789,15 @@ Control::do_insert_elevation_grid(
 
 int
 Control::generate_extrusion_arrays( 
-   unsigned int mask,
+   unsigned int                           mask,
    const std::vector<openvrml::vec3f>&    spine,
    const std::vector<openvrml::vec2f>&    cross_section,
    const std::vector<openvrml::rotation>& orientation,
    const std::vector<openvrml::vec2f>&    scale,
-   boost::shared_array<Vector>&        vertexes,
-   boost::shared_array<Vector>&        normals,
-   boost::shared_array<Vector>&        texture ) {
+   boost::shared_array<Vector>&           vertexes,
+   boost::shared_array<Vector>&           normals,
+   boost::shared_array<Vector>&           texture ) 
+{
    dgd_scopef(trace_vrml);
    
    using namespace openvrml;
@@ -975,7 +976,6 @@ Control::generate_extrusion_arrays(
                         (float)spine_index / (float)spine_size );
          texture_coord[ index ] = texture_point;
 
-         dgd_echo(index);
          dgd_echo(point);
          dgd_echo(final_point);
       }
