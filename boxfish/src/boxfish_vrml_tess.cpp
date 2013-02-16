@@ -79,7 +79,9 @@ void combine( GLdouble coords[3], void* vdata[4],
 
 }; // end of namespace tess_private
 
-tesselator::tesselator() {
+tesselator::tesselator():
+   m_error(0)
+{
    typedef void (APIENTRY *Callback)();
    m_tess = gluNewTess();
 
@@ -133,6 +135,18 @@ GLdouble tesselator::get_property( GLenum property ) {
 
 GLenum tesselator::get_type() const {
    return m_type;
+}
+
+void tesselator::error(GLenum error) {
+   m_error = error;
+}
+
+GLenum tesselator::error() const {
+   return m_error;
+}
+
+char* tesselator::error_str() const {
+   return (char*)gluErrorString(m_error);
 }
 
 }; // end of namespace vrml

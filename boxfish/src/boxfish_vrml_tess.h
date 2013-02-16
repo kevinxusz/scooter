@@ -36,46 +36,49 @@ void vertex( void* vdata, void* user_data );
 void end( void* user_data );
 void error( GLenum err, void* user_data );
 void combine( GLdouble coords[3], void* vdata[4], 
-                     GLfloat weight[4], void **out_data, void* user_data );
+              GLfloat weight[4], void **out_data, void* user_data );
 }; // end of namespace tess_private
 
 class tesselator {
-   public:
-      tesselator();
-      virtual ~tesselator();
+public:
+   tesselator();
+   virtual ~tesselator();
 
-      void start_polygon();
-      void end_polygon();
-      void start_contour();
-      void end_contour();
-      void set_property( GLenum property, GLdouble val );
-      GLdouble get_property( GLenum property );
-      GLenum get_type() const;
+   void start_polygon();
+   void end_polygon();
+   void start_contour();
+   void end_contour();
+   void set_property( GLenum property, GLdouble val );
+   GLdouble get_property( GLenum property );
+   GLenum get_type() const;
 
-      friend void tess_private::begin( GLenum type, void* user_data );
-      friend void tess_private::edge_flag( GLboolean flag, void* user_data );
-      friend void tess_private::vertex( void* vdata, void* user_data );
-      friend void tess_private::end( void* user_data );
-      friend void tess_private::error( GLenum err, void* user_data );
-      friend void tess_private::combine( GLdouble coords[3], void* vdata[4], 
-					 GLfloat weight[4], void **out_data, 
-					 void* user_data );
+   friend void tess_private::begin( GLenum type, void* user_data );
+   friend void tess_private::edge_flag( GLboolean flag, void* user_data );
+   friend void tess_private::vertex( void* vdata, void* user_data );
+   friend void tess_private::end( void* user_data );
+   friend void tess_private::error( GLenum err, void* user_data );
+   friend void tess_private::combine( GLdouble coords[3], void* vdata[4], 
+                                      GLfloat weight[4], void **out_data, 
+                                      void* user_data );
 
-   protected:
-      virtual void push_vertex( GLdouble coords[3], void* vdata );
+protected:
+   virtual void push_vertex( GLdouble coords[3], void* vdata );
 
-      virtual void begin( GLenum type ) = 0;
-      virtual void edge_flag( GLboolean flag ) = 0;
-      virtual void vertex( void* vdata ) = 0;
-      virtual void end() = 0;
-      virtual void error( GLenum err ) = 0;
-      virtual void combine( GLdouble coords[3], 
-			    void *vdata[4], 
-			    GLfloat weight[4],
-			    void **outData ) = 0;
-   private:
-      GLUtesselator* m_tess;
-      GLenum         m_type;
+   virtual void begin( GLenum type ) = 0;
+   virtual void edge_flag( GLboolean flag ) = 0;
+   virtual void vertex( void* vdata ) = 0;
+   virtual void end() = 0;
+   virtual void error( GLenum err );
+   virtual GLenum error() const;
+   virtual char* error_str() const;
+   virtual void combine( GLdouble coords[3], 
+                         void *vdata[4], 
+                         GLfloat weight[4],
+                         void **outData ) = 0;
+private:
+   GLUtesselator* m_tess;
+   GLenum         m_type;
+   GLenum         m_error;
 };
 
 }; // end of namespace vrml
