@@ -30,18 +30,18 @@ namespace vrml {
 
 class polygon_tesselator: public tesselator {
 public:
-   typedef std::vector<unsigned int> tesselation_index_type;
-   typedef boost::shared_ptr<tesselation_index_type> tesselation_index_ptr;
-   typedef std::vector<openvrml::vec3f> polygon_type;
+   typedef std::vector<openvrml::int32> coord_index_type;
+   typedef std::vector<openvrml::vec3f> coord_type;
+   typedef coord_type::const_iterator coord_type_citer;
 
 public:
-   polygon_tesselator(polygon_type& polygon);
-
+   polygon_tesselator(coord_type& polygon, 
+                      coord_type_citer begin,
+                      coord_type_citer end,
+                      coord_index_type &coord_index);
    bool tesselate();
-   
-   
-   tesselation_index_ptr index() { return m_tess_index; }
-private:
+
+private:   
    void begin( GLenum type );
    void edge_flag( GLboolean flag );
    void vertex( void* vdata );
@@ -50,9 +50,11 @@ private:
                  GLfloat weight[4], void **outData );
 private:
    std::list<void*> m_vertex_stack;
-   tesselation_index_ptr m_tess_index;
    GLenum m_current_type;
-   polygon_type &m_polygon;
+   coord_type &m_polygon;
+   coord_type_citer m_begin;
+   coord_type_citer m_end;
+   coord_index_type &m_coord_index;
 };
 
 }; // end of namespace vrml

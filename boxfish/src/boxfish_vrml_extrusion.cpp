@@ -25,13 +25,6 @@
 #include <map>
 #include <sstream>
 
-#include <QtCore/QObject>
-#include <QtCore/QTime>
-#include <QtCore/QTimer>
-
-#include <QtGui/QColor>
-#include <QtGui/QMouseEvent>
-
 #include <dgd.h>
 
 #include <boost/smart_ptr.hpp>
@@ -49,6 +42,8 @@
 
 #include "boxfish_trace.h"
 #include "boxfish_vrml_control.h"
+#include "boxfish_vrml_tess.h"
+#include "boxfish_vrml_polytess.h"
 
 namespace boxfish {
 
@@ -61,6 +56,10 @@ public:
    typedef std::list<openvrml::vec3f> vec3f_list_t;
    typedef typename vec3f_list_t::iterator vec3f_list_iter_t;
    typedef typename vec3f_list_t::const_iterator vec3f_list_citer_t;
+
+   typedef std::vector<openvrml::vec3f> vec3f_vector_t;
+   typedef typename vec3f_vector_t::iterator vec3f_vector_iter_t;
+   typedef typename vec3f_vector_t::const_iterator vec3f_vector_citer_t;
 
 public:
    extrusion_ifs_generator(    
@@ -107,7 +106,7 @@ public:
       generate_coord();
       generate_index();
    }
-
+   
    const std::vector<openvrml::vec3f>& coord() const { 
       return m_coord; 
    }
@@ -297,6 +296,10 @@ private:
             dgd_echo(final_point);
          }
       }
+
+      generate_cap( m_coord.begin(), m_coord.begin() + m_csection_size );
+      generate_cap( m_coord.begin() + (m_spine_size-1) * m_csection_size, 
+                    m_coord.begin() + m_spine_size * m_csection_size );
    }
 
    void generate_index()
@@ -331,6 +334,17 @@ private:
             << "]" << std::endl;
       }      
    }
+
+   void generate_cap( vec3f_vector_citer_t begin, vec3f_vector_citer_t end )
+   {
+      dgd_scopef(trace_vrml);
+
+      polygon_tesselator tess(m_coord, begin, end, m_coord_index);
+      if( !tess.tesselate() ) {
+         dgd_echo(tess.error_str());
+      }
+   }
+
 private:
    const float m_epsilon;
    const std::vector<openvrml::vec3f>& m_spine;
@@ -351,7 +365,6 @@ private:
    std::vector<openvrml::vec3f> m_coord;
    std::vector<openvrml::vec2f> m_texture_coord;
    std::vector<openvrml::int32> m_coord_index;
-
 }; // end of extrusion_generator
 
 }; // end of namespace private
@@ -365,7 +378,8 @@ Control::generate_extrusion_arrays(
    const std::vector<openvrml::vec2f>&    scale,
    boost::shared_array<Vector>&           vertexes,
    boost::shared_array<Vector>&           normals,
-   boost::shared_array<Vector>&           texture ) 
+   boost::shared_array<Vector>&           texture,
+   index_layout_type&                     indexes ) 
 {
    using namespace openvrml;
    dgd_scopef(trace_vrml);
@@ -383,7 +397,6 @@ Control::generate_extrusion_arrays(
    std::vector<vec2f> empty_vec2f_vector;
    unsigned int ifs_nvertexes = 0, ifs_nfacets = 0;
    boost::shared_array<Vector> colors;
-   std::vector< std::pair< unsigned, unsigned > > indexes;
 
    generate_ifs_arrays(mask, 
                        generator.coord(), generator.coord_index(),

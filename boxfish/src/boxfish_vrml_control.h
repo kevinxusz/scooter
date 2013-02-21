@@ -94,7 +94,7 @@ public:
    typedef boost::shared_array<LightInfo> LightInfoPtr;
 
    typedef rendering_mode RenderMode;
-
+   
    struct Interaction {
       enum UserAction {
          NONE,
@@ -135,6 +135,10 @@ public:
             node_ptr navigation_info, 
             node_ptr viewpoint );      
    virtual ~Control();
+
+protected:
+   typedef std::vector< std::pair<unsigned,unsigned> > index_layout_type;
+   typedef index_layout_type::const_iterator index_layout_const_iterator;
 
 protected: // openvrml::viewer interface
    rendering_mode do_mode();
@@ -444,7 +448,7 @@ protected:
       boost::shared_array<Vector>&        	    normals,	      
       boost::shared_array<Vector>&        	    colors, 
       boost::shared_array<Vector>&                  texture,
-      std::vector< std::pair<unsigned, unsigned> >& indexes );
+      index_layout_type&                            indexes );
 
    int generate_extrusion_arrays( 
       unsigned int                           mask,
@@ -454,8 +458,14 @@ protected:
       const std::vector<openvrml::vec2f>&    scale,
       boost::shared_array<Vector>&           vertexes,
       boost::shared_array<Vector>&           normals,
-      boost::shared_array<Vector>&           texture );
+      boost::shared_array<Vector>&           texture,
+      index_layout_type&                     indexes );
 
+   void draw_arrays(boost::shared_array<Vector> vertexes,
+                    boost::shared_array<Vector> normals,
+                    boost::shared_array<Vector> colors,
+                    boost::shared_array<Vector> texture,
+                    index_layout_type           indexes);
 private:
    bool m_initialized;
    bool m_enable_face_culling;

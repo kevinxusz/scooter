@@ -32,7 +32,7 @@ namespace vrml {
 
 namespace tess_private {
 
-void begin( GLenum type, void* user_data ) {
+WINAPI void begin( GLenum type, void* user_data ) {
    using namespace boxfish::vrml;
    tesselator *tobj = static_cast<tesselator*>(user_data);
    if( tobj != NULL ) {
@@ -41,35 +41,35 @@ void begin( GLenum type, void* user_data ) {
    }
 }
 
-void edge_flag( GLboolean flag, void* user_data ) {
+WINAPI void edge_flag( GLboolean flag, void* user_data ) {
    using namespace boxfish::vrml;
    tesselator *tobj = static_cast<tesselator*>(user_data);
    if( tobj != NULL ) 
       tobj->edge_flag( flag );
 }
 
-void vertex( void* vdata, void* user_data ) {
+WINAPI void vertex( void* vdata, void* user_data ) {
    using namespace boxfish::vrml;
    tesselator *tobj = static_cast<tesselator*>(user_data);
    if( tobj != NULL ) 
       tobj->vertex( vdata );
 }
 
-void end( void* user_data ) {
+WINAPI void end( void* user_data ) {
    using namespace boxfish::vrml;
    tesselator *tobj = static_cast<tesselator*>(user_data);
    if( tobj != NULL ) 
       tobj->end();
 }
 
-void error( GLenum err, void* user_data ) {
+WINAPI void error( GLenum err, void* user_data ) {
    using namespace boxfish::vrml;
    tesselator *tobj = static_cast<tesselator*>(user_data);
    if( tobj != NULL ) 
       tobj->error( err );
 }
 
-void combine( GLdouble coords[3], void* vdata[4], 
+WINAPI void combine( GLdouble coords[3], void* vdata[4], 
 	      GLfloat weight[4], void **out_data, void* user_data ) {
    using namespace boxfish::vrml;
    tesselator *tobj = static_cast<tesselator*>(user_data);

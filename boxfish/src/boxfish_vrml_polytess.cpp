@@ -29,7 +29,6 @@
 
 #include <dgd.h>
 
-#include <boost/smart_ptr.hpp>
 
 #include <openvrml/basetypes.h>
 
@@ -41,35 +40,48 @@ namespace boxfish {
 
 namespace vrml {
 
-polygon_tesselator::polygon_tesselator(polygon_type& polygon):
+
+polygon_tesselator::polygon_tesselator(coord_type& polygon, 
+                                       coord_type_citer begin,
+                                       coord_type_citer end,
+                                       coord_index_type &coord_index):
    tesselator(),
    m_current_type(-1),
-   m_polygon(polygon)
+   m_polygon(polygon),
+   m_begin(begin),
+   m_end(end),
+   m_coord_index(coord_index)
 {
-   m_tess_index.reset( new tesselation_index_type() );
 }
 
 bool polygon_tesselator::tesselate()
 {
    dgd_scopef(trace_vrml);
 
-   typedef std::vector<openvrml::vec3f>::const_iterator mvec3f_citer_type;
+   this->start_polygon();
 
-   unsigned int index = 0;
-   for(mvec3f_citer_type iter = m_polygon.begin(); 
-       iter != m_polygon.end(); 
-       ++iter)
+   coord_type_citer first = m_polygon.begin();
+
+   for(coord_type_citer iter = m_begin; iter != m_end; ++iter)
    {
       GLdouble coord[3] = { iter->x(), iter->y(), iter->z() };
       
-      this->push_vertex( coord, (void*)index++ );
+      int index = std::distance(first, iter);
 
-      if(this->error() != 0) {
-         dgd_echo(m_polygon[index]);
-         dgd_echo(this->error());
-         dgd_echo(this->error_str());
-         return false;
-      }
+      this->push_vertex( coord, (void*)index );
+
+      dgd_echo(coord[0]);
+      dgd_echo(coord[1]);
+      dgd_echo(coord[2]);
+      dgd_echo(index);
+   }
+
+   this->end_polygon();
+
+   if(this->error() != 0) {
+      dgd_echo(this->error());
+      dgd_echo(this->error_str());
+      return false;
    }
 
    return true;
@@ -113,12 +125,12 @@ void polygon_tesselator::end()
 
          for( std::list<void*>::const_iterator iter = m_vertex_stack.begin();
               iter != m_vertex_stack.end(); ) {
-            m_tess_index->push_back( (unsigned int)(*iter++) );
-            m_tess_index->push_back( (unsigned int)(*iter++) );
-            m_tess_index->push_back( (unsigned int)(*iter++) );
-            m_tess_index->push_back( -1 );
+            m_coord_index.push_back( (int)(*iter++) );
+            m_coord_index.push_back( (int)(*iter++) );
+            m_coord_index.push_back( (int)(*iter++) );
+            m_coord_index.push_back( -1 );
          }
-      }
+      } // fall through
       default:
          m_vertex_stack.clear();
          break;
