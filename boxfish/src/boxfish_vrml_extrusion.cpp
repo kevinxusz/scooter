@@ -64,15 +64,15 @@ public:
 public:
    extrusion_ifs_generator(    
       const float epsilon,
-      const bool top_cup,
-      const bool bottom_cup,
+      const bool top_cap,
+      const bool bottom_cap,
       const std::vector<openvrml::vec3f>&    spine,
       const std::vector<openvrml::vec2f>&    cross_section,
       const std::vector<openvrml::rotation>& orientation,
       const std::vector<openvrml::vec2f>&    scale):
       m_epsilon(epsilon),
-      m_top_cup(top_cup),
-      m_bottom_cup(bottom_cup),
+      m_top_cap(top_cap),
+      m_bottom_cap(bottom_cap),
       m_spine(spine),
       m_csection(cross_section),
       m_orientation(orientation),
@@ -301,9 +301,9 @@ private:
          }
       }
 
-      if( m_bottom_cup != 0 )
+      if( m_bottom_cap != 0 )
          generate_cap( m_coord.begin(), m_coord.begin() + m_csection_size );
-      if( m_top_cup != 0 )
+      if( m_top_cap != 0 )
          generate_cap(m_coord.begin() + m_spine_size * m_csection_size - 1,
                       m_coord.begin() + (m_spine_size-1) * m_csection_size - 1);
    }
@@ -353,8 +353,8 @@ private:
 
 private:
    const float m_epsilon;
-   const bool m_top_cup;
-   const bool m_bottom_cup;
+   const bool m_top_cap;
+   const bool m_bottom_cap;
    const std::vector<openvrml::vec3f>& m_spine;
    const std::vector<openvrml::vec2f>& m_csection;
    const std::vector<openvrml::rotation>& m_orientation;
