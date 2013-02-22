@@ -64,11 +64,15 @@ public:
 public:
    extrusion_ifs_generator(    
       const float epsilon,
+      const bool top_cup,
+      const bool bottom_cup,
       const std::vector<openvrml::vec3f>&    spine,
       const std::vector<openvrml::vec2f>&    cross_section,
       const std::vector<openvrml::rotation>& orientation,
       const std::vector<openvrml::vec2f>&    scale):
       m_epsilon(epsilon),
+      m_top_cup(top_cup),
+      m_bottom_cup(bottom_cup),
       m_spine(spine),
       m_csection(cross_section),
       m_orientation(orientation),
@@ -297,9 +301,11 @@ private:
          }
       }
 
-      generate_cap( m_coord.begin(), m_coord.begin() + m_csection_size );
-      generate_cap( m_coord.begin() + (m_spine_size-1) * m_csection_size, 
-                    m_coord.begin() + m_spine_size * m_csection_size );
+      if( m_bottom_cup != 0 )
+         generate_cap( m_coord.begin(), m_coord.begin() + m_csection_size );
+      if( m_top_cup != 0 )
+         generate_cap(m_coord.begin() + m_spine_size * m_csection_size - 1,
+                      m_coord.begin() + (m_spine_size-1) * m_csection_size - 1);
    }
 
    void generate_index()
@@ -347,6 +353,8 @@ private:
 
 private:
    const float m_epsilon;
+   const bool m_top_cup;
+   const bool m_bottom_cup;
    const std::vector<openvrml::vec3f>& m_spine;
    const std::vector<openvrml::vec2f>& m_csection;
    const std::vector<openvrml::rotation>& m_orientation;
@@ -384,7 +392,9 @@ Control::generate_extrusion_arrays(
    using namespace openvrml;
    dgd_scopef(trace_vrml);
 
-   extrusion_ifs_generator generator( 0.000001, 
+   extrusion_ifs_generator generator( 0.000001,
+                                      (mask & mask_top) != 0,
+                                      (mask & mask_bottom) != 0,
                                       spine,
                                       cross_section,
                                       orientation,

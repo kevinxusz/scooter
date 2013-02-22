@@ -61,8 +61,9 @@ bool polygon_tesselator::tesselate()
    this->start_polygon();
 
    coord_type_citer first = m_polygon.begin();
-
-   for(coord_type_citer iter = m_begin; iter != m_end; ++iter)
+   int delta = std::distance(m_begin, m_end) >= 0 ? 1 : -1;
+   
+   for(coord_type_citer iter = m_begin; iter != m_end; iter += delta)
    {
       GLdouble coord[3] = { iter->x(), iter->y(), iter->z() };
       
