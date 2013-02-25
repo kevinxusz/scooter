@@ -195,6 +195,45 @@ void Control::do_end_object() {
 void
 Control::do_insert_background( const openvrml::background_node& n )
 {
+   dgd_scopef(trace_vrml);
+   
+   if (execute_list(&n)) {
+      return;
+   }
+
+   GLuint glid = 0;
+
+   if( this->m_select_mode == draw_mode ) {
+      glid = glGenLists(1);
+      glNewList(glid, GL_COMPILE_AND_EXECUTE);
+   }
+
+   boost::shared_array<Vector> vertexes;
+   boost::shared_array<Vector> normals;
+   boost::shared_array<Vector> texture;
+   boost::shared_array<Vector> colors;
+   index_layout_type           indexes;
+
+   float scene_max_size = 1.0f;
+   openvrml::vec3f scene_center;
+
+   bool rc = get_scene_bounds( scene_center, scene_max_size );
+
+   dgd_echo(rc);
+   dgd_echo(scene_center);
+   dgd_echo(scene_max_size);
+
+   unsigned int nvertexes =
+      generate_sky_arrays( scene_max_size, n.sky_angle(), n.sky_color(),
+                           vertexes, normals, colors, texture,
+                           indexes );
+
+   draw_arrays(vertexes, normals, colors, texture, indexes);
+
+   if (glid) { 
+      glEndList(); 
+      update_list( &n, glid );
+   }
 }
 
 void 
@@ -815,7 +854,7 @@ Control::do_insert_extrusion(
    boost::shared_array<Vector> colors;
    index_layout_type           indexes;
 
-   unsigned int nfacets =
+   unsigned int nvertexes =
       generate_extrusion_arrays( mask, spine, cross_section, orientation, scale,
                                  vertexes, normals, texture, indexes );
 

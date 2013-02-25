@@ -419,7 +419,7 @@ Control::generate_extrusion_arrays(
                        colors,
                        texture,
                        indexes);
-   return ifs_nfacets;
+   return ifs_nvertexes;
 }
 
 }; // end of namespace vrml
