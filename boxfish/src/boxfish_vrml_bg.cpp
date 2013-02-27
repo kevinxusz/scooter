@@ -71,9 +71,9 @@ public:
          double betha = i * Math::PI / precision;
          double gamma = Math::PI / 2;
 
-//         rotation stand_up = make_rotation( 0, 0, 1, gamma );
+         rotation stand_up = make_rotation( 0, 0, 1, gamma );
          rotation rot_by_betha = make_rotation( 1, 0, 0, betha );
-         m_orientation.push_back( rot_by_betha );         
+         m_orientation.push_back( stand_up * rot_by_betha );         
          m_spine.push_back( make_vec3f( 0, 0, 0 ) );
       }
 

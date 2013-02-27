@@ -228,8 +228,42 @@ Control::do_insert_background( const openvrml::background_node& n )
                            vertexes, normals, colors, texture,
                            indexes );
 
+   GLclampf r = 0.0, g = 0.0, b = 0.0, a = 1.0;
+   
+   // Clear to last sky color
+   if (!n.sky_color().empty()) {
+       const openvrml::color & last_sky_color = n.sky_color().back();
+       r = last_sky_color.r();
+       g = last_sky_color.g();
+       b = last_sky_color.b();
+   }
+   
+   glClearColor(r, g, b, a);
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+   glPushMatrix();
+   glMatrixMode(GL_MODELVIEW);
+
+   const openvrml::mat4f& rotation = openvrml::make_transformation_mat4f(
+      openvrml::make_vec3f(),
+      m_rotation,
+      openvrml::make_vec3f(1.0, 1.0, 1.0),
+      openvrml::make_rotation(),
+      openvrml::make_vec3f(0, 0, 0)
+   );
+   glLoadMatrixf( (const GLfloat*)rotation.transpose().mat );
+   
+   glPushAttrib( GL_ENABLE_BIT );
+   glDisable(GL_DEPTH_TEST);
+   glDisable(GL_LIGHTING);
+
    draw_arrays(vertexes, normals, colors, texture, indexes);
 
+   glPopMatrix();
+
+   glEnable(GL_DEPTH_TEST);
+   glPopAttrib();
+   
    if (glid) { 
       glEndList(); 
       update_list( &n, glid );
@@ -1953,7 +1987,7 @@ void Control::paintGL() {
       viewpoint_cor - viewpoint_pos
    );
    
-   m_browser->active_viewpoint().user_view_transform( translation * rotation); 
+   m_browser->active_viewpoint().user_view_transform(translation * rotation); 
 
    glClearColor( m_clear_color.red() / 255.0, 
 		 m_clear_color.green() / 255.0, 
