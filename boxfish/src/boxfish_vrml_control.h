@@ -476,6 +476,9 @@ protected:
                     boost::shared_array<Vector> colors,
                     boost::shared_array<Vector> texture,
                     index_layout_type           indexes);
+
+   void do_load_bg_modelview();
+
 private:
    bool m_initialized;
    bool m_enable_face_culling;

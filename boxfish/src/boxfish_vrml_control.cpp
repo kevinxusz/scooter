@@ -192,12 +192,63 @@ void Control::do_end_object() {
    m_transform_stack.pop_back();
 }
 
+void 
+Control::do_load_bg_modelview()
+{
+   using namespace openvrml;
+   dgd_scopef(trace_vrml);
+
+
+   mat4f opengl_modelview;
+   glGetFloatv( GL_MODELVIEW_MATRIX, (GLfloat*)opengl_modelview.mat );
+   dgd_echo(opengl_modelview);
+      
+   vec3f zero = make_vec3f(0,0,0);
+   std::vector<vec3f> axis;
+   axis.push_back( make_vec3f(1,0,0) );
+   axis.push_back( make_vec3f(0,1,0) );
+   axis.push_back( make_vec3f(0,0,1) );
+
+   vec3f zero_proj = zero * opengl_modelview;
+
+   dgd_echo(zero_proj);
+
+   for( std::vector<vec3f>::iterator iter = axis.begin();
+        iter != axis.end();
+        ++iter ) {
+      dgd_echo(*iter);
+      *iter = (*iter * opengl_modelview - zero_proj).normalize();
+      dgd_echo(*iter);
+   }
+
+   const mat4f& scene_rotation = make_mat4f(
+      axis[0].x(), axis[0].y(), axis[0].z(), 0,
+      axis[1].x(), axis[1].y(), axis[1].z(), 0,
+      axis[2].x(), axis[2].y(), axis[2].z(), 0,
+      0, 0, 0, 1
+   );
+   
+   dgd_echo(scene_rotation);
+   glLoadMatrixf( (const GLfloat*)scene_rotation.mat );
+
+//   const mat4f& scene_rotation = make_rotation_mat4f(m_rotation);
+//   glLoadMatrixf( (const GLfloat*)scene_rotation.transpose().mat );   
+}
+
 void
 Control::do_insert_background( const openvrml::background_node& n )
 {
+   using namespace openvrml;
+
    dgd_scopef(trace_vrml);
-   
+
+   glMatrixMode(GL_MODELVIEW);
+   glPushMatrix();
+
+   do_load_bg_modelview();
+      
    if (execute_list(&n)) {
+      glPopMatrix();
       return;
    }
 
@@ -215,7 +266,7 @@ Control::do_insert_background( const openvrml::background_node& n )
    index_layout_type           indexes;
 
    float scene_max_size = 1.0f;
-   openvrml::vec3f scene_center;
+   vec3f scene_center;
 
    bool rc = get_scene_bounds( scene_center, scene_max_size );
 
@@ -232,7 +283,7 @@ Control::do_insert_background( const openvrml::background_node& n )
    
    // Clear to last sky color
    if (!n.sky_color().empty()) {
-       const openvrml::color & last_sky_color = n.sky_color().back();
+       const color & last_sky_color = n.sky_color().back();
        r = last_sky_color.r();
        g = last_sky_color.g();
        b = last_sky_color.b();
@@ -240,26 +291,12 @@ Control::do_insert_background( const openvrml::background_node& n )
    
    glClearColor(r, g, b, a);
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-   glPushMatrix();
-   glMatrixMode(GL_MODELVIEW);
-
-   const openvrml::mat4f& rotation = openvrml::make_transformation_mat4f(
-      openvrml::make_vec3f(),
-      m_rotation,
-      openvrml::make_vec3f(1.0, 1.0, 1.0),
-      openvrml::make_rotation(),
-      openvrml::make_vec3f(0, 0, 0)
-   );
-   glLoadMatrixf( (const GLfloat*)rotation.transpose().mat );
    
    glPushAttrib( GL_ENABLE_BIT );
    glDisable(GL_DEPTH_TEST);
    glDisable(GL_LIGHTING);
 
    draw_arrays(vertexes, normals, colors, texture, indexes);
-
-   glPopMatrix();
 
    glEnable(GL_DEPTH_TEST);
    glPopAttrib();
@@ -268,6 +305,8 @@ Control::do_insert_background( const openvrml::background_node& n )
       glEndList(); 
       update_list( &n, glid );
    }
+
+   glPopMatrix();
 }
 
 void 
@@ -1727,7 +1766,13 @@ void Control::do_set_viewpoint(const openvrml::vec3f&    position,
 
 void Control::do_transform(const openvrml::mat4f & mat) {
    dgd_scopef(trace_vrml);
+
+   dgd_echo(mat);
    glMultMatrixf(&mat[0][0]);
+
+   openvrml::mat4f opengl_modelview;
+   glGetFloatv( GL_MODELVIEW_MATRIX, (GLfloat*)opengl_modelview.mat );
+   dgd_echo(opengl_modelview);
 }
 
 
@@ -2438,8 +2483,6 @@ void Control::finish_user_action( Interaction::UserAction action,
 	 break;
    }
 }
-
-
 
 QColor Control::bbox_color() const {
    return m_bbox_color;
