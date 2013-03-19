@@ -48,7 +48,7 @@ namespace {
 
 class sky_extrusion_generator {
 public:
-   sky_extrusion_generator( const float& scene_size):
+   sky_extrusion_generator( const float& scene_size ):
       m_scene_size(scene_size)
    {
       dgd_scopef(trace_vrml);
@@ -203,8 +203,23 @@ Control::do_insert_background( const openvrml::background_node& n )
    glPushMatrix();
 
    do_load_bg_modelview();
-      
+
+   GLint polygon_mode[2] = { -1, -1 };
+   glGetIntegerv(GL_POLYGON_MODE, polygon_mode);
+   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+   GLint shade_model = -1;
+   glGetIntegerv(GL_SHADE_MODEL, &shade_model);
+   glShadeModel( GL_SMOOTH );
+
+   dgd_echo(polygon_mode[0]);
+   dgd_echo(polygon_mode[1]);
+   dgd_echo(shade_model);
+
    if (execute_list(&n)) {
+      glShadeModel( shade_model );
+      glPolygonMode(GL_FRONT, polygon_mode[0]);
+      glPolygonMode(GL_BACK, polygon_mode[1]);
       glPopMatrix();
       return;
    }
@@ -263,6 +278,9 @@ Control::do_insert_background( const openvrml::background_node& n )
       update_list( &n, glid );
    }
 
+   glShadeModel( shade_model );
+   glPolygonMode(GL_FRONT, polygon_mode[0]);
+   glPolygonMode(GL_BACK, polygon_mode[1]);
    glPopMatrix();
 }
 
