@@ -46,22 +46,23 @@ namespace vrml {
 
 namespace {
 
-class sky_extrusion_generator {
+class extrusion_generator {
 public:
-   sky_extrusion_generator( const float& scene_size ):
-      m_scene_size(scene_size)
+   extrusion_generator()
    {
       dgd_scopef(trace_vrml);
    }
 
-   void generate_extrusion_arrays()
+   void generate_extrusion_arrays(const int precision, 
+                                  const float scene_size,
+                                  const float opening_angle )
    {
       using namespace openvrml;
       dgd_scopef(trace_vrml);
 
-      const int precision = 8;
       for( int i = 0; i <= precision; ++i) {
-         double alpha = i * Math::PI / precision;
+         double alpha = opening_angle + 
+                        i * (Math::PI - opening_angle) / precision;
          m_cross_section.push_back( 
             make_vec2f( std::cos(alpha), std::sin(alpha) )
          );
@@ -77,7 +78,7 @@ public:
          m_spine.push_back( make_vec3f( 0, 0, 0 ) );
       }
 
-      m_scale.push_back( make_vec2f(m_scene_size * 95, m_scene_size * 95) );
+      m_scale.push_back( make_vec2f(scene_size, scene_size) );
    }
    
    const std::vector<openvrml::vec3f>& spine() const { 
@@ -94,8 +95,6 @@ public:
    }
 
 private:
-   const float m_scene_size;                       
-
    std::vector<openvrml::vec3f>    m_spine;
    std::vector<openvrml::vec2f>    m_cross_section;
    std::vector<openvrml::rotation> m_orientation;
@@ -118,8 +117,8 @@ Control::generate_sky_arrays(
    using namespace openvrml;
    dgd_scopef(trace_vrml);
 
-   sky_extrusion_generator generator( scene_size );
-   generator.generate_extrusion_arrays();
+   extrusion_generator generator;
+   generator.generate_extrusion_arrays(16, scene_size * 95, 0);
 
    int nvertexes = 
       generate_extrusion_arrays( 0,
