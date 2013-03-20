@@ -1800,8 +1800,7 @@ bool Control::get_scene_bounds( openvrml::vec3f& center, float& radius ) {
       if( bounded_volume != NULL ) {
          const openvrml::bounding_volume & ci_bv =
             bounded_volume->bounding_volume();
-         if( !ci_bv.maximized() ) 
-            global_bvol.extend(ci_bv);
+         global_bvol.extend(ci_bv);
       }
    }
 
