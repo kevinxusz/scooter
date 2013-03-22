@@ -461,10 +461,13 @@ protected:
       boost::shared_array<Vector>&           texture,
       index_layout_type&                     indexes );
 
-   int generate_sky_arrays( 
-      const float&                        scene_size,
-      const std::vector<float>&           sky_angle,
-      const std::vector<openvrml::color>& sky_color,
+   int generate_bg_arrays( 
+      const int                           precision,
+      const float                         scene_size,
+      const float                         opening_angle,
+      const int                           zenith,
+      const std::vector<float>&           angle,
+      const std::vector<openvrml::color>& color,
       boost::shared_array<Vector>&        vertexes,
       boost::shared_array<Vector>&        normals,
       boost::shared_array<Vector>&        colors,	

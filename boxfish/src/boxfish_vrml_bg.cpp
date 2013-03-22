@@ -104,10 +104,13 @@ private:
 }; // end of namespace private
 
 int
-Control::generate_sky_arrays( 
-   const float&                        scene_size,
-   const std::vector<float>&           sky_angle,
-   const std::vector<openvrml::color>& sky_color,
+Control::generate_bg_arrays( 
+   const int                           precision,
+   const float                         scene_size,
+   const float                         opening_angle,
+   const int                           zenith, 
+   const std::vector<float>&           angle,
+   const std::vector<openvrml::color>& color,
    boost::shared_array<Vector>&        vertexes,
    boost::shared_array<Vector>&        normals,
    boost::shared_array<Vector>&        colors,	
@@ -118,7 +121,7 @@ Control::generate_sky_arrays(
    dgd_scopef(trace_vrml);
 
    extrusion_generator generator;
-   generator.generate_extrusion_arrays(16, scene_size * 95, 0);
+   generator.generate_extrusion_arrays(precision, scene_size, opening_angle);
 
    int nvertexes = 
       generate_extrusion_arrays( 0,
@@ -134,18 +137,26 @@ Control::generate_sky_arrays(
    colors.reset( new Vector[nvertexes] );
 
    for( int i = 0; i < nvertexes; ++i ) {
+      int zenith_sign = zenith < 0 ? -1 : 1;
       Vector point = vertexes[i];
       point.cartesian();
-      float alpha = std::acos( point.y() / point.length() );
+      float alpha = std::acos( zenith_sign * point.y() / point.length() );
       
+      dgd_echo(alpha);
+
       int j;
-      for( j = sky_angle.size()-1; j >= 0; --j )
-         if( alpha > sky_angle[j] ) 
+      for( j = angle.size()-1; j >= 0; --j ) {
+         dgd_logger << "angle[" << j << "]=" << angle[j] << std::endl;
+         if( alpha >= angle[j] ) 
             break;
-      colors[i]( sky_color[j+1].r(), sky_color[j+1].g(), sky_color[j+1].b() );
+      }
+      int color_index = std::min(j+1, (int)color.size()-1);
+      colors[i]( color[color_index].r(), 
+                 color[color_index].g(), 
+                 color[color_index].b() );
 
       dgd_echo(point);
-      dgd_echo(colors[i]);
+      dgd_logger << "colors[" << i << "]=" << colors[i] << std::endl;
    }
 
    return nvertexes;
@@ -230,11 +241,17 @@ Control::do_insert_background( const openvrml::background_node& n )
       glNewList(glid, GL_COMPILE_AND_EXECUTE);
    }
 
-   boost::shared_array<Vector> vertexes;
-   boost::shared_array<Vector> normals;
-   boost::shared_array<Vector> texture;
-   boost::shared_array<Vector> colors;
-   index_layout_type           indexes;
+   boost::shared_array<Vector> sky_vertexes;
+   boost::shared_array<Vector> sky_normals;
+   boost::shared_array<Vector> sky_texture;
+   boost::shared_array<Vector> sky_colors;
+   index_layout_type           sky_indexes;
+
+   boost::shared_array<Vector> ground_vertexes;
+   boost::shared_array<Vector> ground_normals;
+   boost::shared_array<Vector> ground_texture;
+   boost::shared_array<Vector> ground_colors;
+   index_layout_type           ground_indexes;
 
    float scene_max_size = 1.0f;
    vec3f scene_center;
@@ -245,10 +262,26 @@ Control::do_insert_background( const openvrml::background_node& n )
    dgd_echo(scene_center);
    dgd_echo(scene_max_size);
 
-   unsigned int nvertexes =
-      generate_sky_arrays( scene_max_size, n.sky_angle(), n.sky_color(),
-                           vertexes, normals, colors, texture,
-                           indexes );
+   unsigned int sky_nvertexes = 0, ground_nvertexes = 0;
+
+   sky_nvertexes =
+      generate_bg_arrays( 16, scene_max_size * 95, 0, 1,
+                          n.sky_angle(), n.sky_color(),
+                          sky_vertexes, sky_normals, sky_colors, sky_texture,
+                          sky_indexes );
+
+   if( !n.ground_color().empty() ) {
+      float ground_angle = Math::PI / 2;
+      if( !n.ground_angle().empty() ) 
+         ground_angle = Math::PI - n.ground_angle().back();
+
+      ground_nvertexes =
+         generate_bg_arrays( 16, scene_max_size * 90, ground_angle, -1,
+                             n.ground_angle(), n.ground_color(),
+                             ground_vertexes, ground_normals, 
+                             ground_colors, ground_texture,
+                             ground_indexes );
+   }
 
    GLclampf r = 0.0, g = 0.0, b = 0.0, a = 1.0;
    
@@ -267,7 +300,10 @@ Control::do_insert_background( const openvrml::background_node& n )
    glDisable(GL_DEPTH_TEST);
    glDisable(GL_LIGHTING);
 
-   draw_arrays(vertexes, normals, colors, texture, indexes);
+   draw_arrays(sky_vertexes, sky_normals, sky_colors, sky_texture, sky_indexes);
+   if( ground_nvertexes > 0 )
+      draw_arrays(ground_vertexes, ground_normals, 
+                  ground_colors, ground_texture, ground_indexes);
 
    glEnable(GL_DEPTH_TEST);
    glPopAttrib();
