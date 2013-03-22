@@ -150,10 +150,26 @@ Control::generate_bg_arrays(
          if( alpha >= angle[j] ) 
             break;
       }
-      int color_index = std::min(j+1, (int)color.size()-1);
-      colors[i]( color[color_index].r(), 
-                 color[color_index].g(), 
-                 color[color_index].b() );
+      
+      float start_angle = (j < 0) ? 0 : angle[j];
+      int end_angle_index = std::min(j+1, (int)angle.size()-1);
+      
+      int start_color_index = std::min(j+1, (int)color.size()-1);
+      int end_color_index = std::min(j+2, (int)color.size()-1);
+
+      float factor = 
+         (j < end_angle_index ) ?
+         (alpha - start_angle) / (angle[end_angle_index] - start_angle) :
+         0;
+
+      float r = color[start_color_index].r() * ( 1 - factor ) +
+                color[end_color_index].r() * factor ;
+      float g = color[start_color_index].g() * ( 1 - factor ) +
+                color[end_color_index].g() * factor;
+      float b = color[start_color_index].b() * ( 1 - factor ) +
+                color[end_color_index].b() * factor;
+
+      colors[i]( r, g, b );
 
       dgd_echo(point);
       dgd_logger << "colors[" << i << "]=" << colors[i] << std::endl;
