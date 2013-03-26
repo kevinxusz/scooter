@@ -474,6 +474,8 @@ protected:
       boost::shared_array<Vector>&        texture,
       index_layout_type&                  indexes );
 
+   void do_insert_panorama( const openvrml::background_node& n );
+
    void draw_arrays(boost::shared_array<Vector> vertexes,
                     boost::shared_array<Vector> normals,
                     boost::shared_array<Vector> colors,

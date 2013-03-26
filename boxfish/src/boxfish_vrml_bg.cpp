@@ -219,6 +219,60 @@ Control::do_load_bg_modelview()
 }
 
 void
+Control::do_insert_panorama( const openvrml::background_node& n )
+{
+   using namespace openvrml;
+   dgd_scopef(trace_vrml);
+
+   struct panoramic_sight {
+      texture_node *node;
+      rotation      rot;      
+   };
+
+   panoramic_sight sights[6] = {
+      { n.front(), make_rotation( 0, 1, 0, 0 ) },
+      { n.back(), make_rotation( 0, 1, 0, Math::PI ) },
+      { n.left(), make_rotation( 0, 1, 0, Math::PI/2 ) },
+      { n.right(), make_rotation( 0, 1, 0, -Math::PI/2 ) },
+      { n.top(), make_rotation( 1, 0, 0, Math::PI/2 ) },
+      { n.bottom(), make_rotation( 1, 0, 0, -Math::PI/2 ) }
+   };
+
+   glEnable(GL_TEXTURE_2D);
+   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+   for( int i = 0; i < 6; ++i ) {
+      if( sights[i].node != NULL ) {
+         glPushMatrix();
+
+         sights[i].node->render_texture(*this);
+
+         mat4f transform = make_transformation_mat4f( make_vec3f(0, 0, 0),
+                                                      sights[i].rot,
+                                                      make_vec3f(100, 100, 100),
+                                                      make_rotation(0,1,0,0),
+                                                      make_vec3f(0,0,0) );
+         glMultMatrixf( (const GLfloat*)transform.mat );
+
+         glBegin(GL_QUADS);
+         glTexCoord2f(0, 0);
+         glVertex3f(-0.5, -0.5, -0.5);
+         glTexCoord2f(1, 0);
+         glVertex3f(0.5, -0.5, -0.5);
+         glTexCoord2f(1, 1);
+         glVertex3f(0.5, 0.5, -0.5);
+         glTexCoord2f(0, 1);
+         glVertex3f(-0.5, 0.5, -0.5);
+         glEnd(); // GL_QUADS
+         
+         glPopMatrix();
+      }
+   }
+
+   glDisable(GL_TEXTURE_2D);         
+}
+
+void
 Control::do_insert_background( const openvrml::background_node& n )
 {
    using namespace openvrml;
@@ -320,6 +374,8 @@ Control::do_insert_background( const openvrml::background_node& n )
    if( ground_nvertexes > 0 )
       draw_arrays(ground_vertexes, ground_normals, 
                   ground_colors, ground_texture, ground_indexes);
+
+   do_insert_panorama(n);
 
    glEnable(GL_DEPTH_TEST);
    glPopAttrib();
