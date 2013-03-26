@@ -243,29 +243,41 @@ Control::do_insert_panorama( const openvrml::background_node& n )
 
    for( int i = 0; i < 6; ++i ) {
       if( sights[i].node != NULL ) {
-         glPushMatrix();
+	 // this is kinda ugly - render_texture is required even if the
+	 // image was not loaded because  the image texture has url set
+	 // (even empty) and thus modified. Fixin this requires background
+	 // node to implement texture node creation on demand - upon image
+	 // loading completion.
+	 sights[i].node->render_texture(*this);
 
-         sights[i].node->render_texture(*this);
+	 if( sights[i].node->image().array().size() > 0) {
+	    glPushMatrix();
+	    
+	    mat4f transform = make_transformation_mat4f( 
+	       make_vec3f(0, 0, 0),
+	       sights[i].rot,
+	       make_vec3f(100, 100, 100),
+	       make_rotation(0,1,0,0),
+	       make_vec3f(0,0,0) 
+	    );
 
-         mat4f transform = make_transformation_mat4f( make_vec3f(0, 0, 0),
-                                                      sights[i].rot,
-                                                      make_vec3f(100, 100, 100),
-                                                      make_rotation(0,1,0,0),
-                                                      make_vec3f(0,0,0) );
-         glMultMatrixf( (const GLfloat*)transform.mat );
+	    dgd_echo(transform);
 
-         glBegin(GL_QUADS);
-         glTexCoord2f(0, 0);
-         glVertex3f(-0.5, -0.5, -0.5);
-         glTexCoord2f(1, 0);
-         glVertex3f(0.5, -0.5, -0.5);
-         glTexCoord2f(1, 1);
-         glVertex3f(0.5, 0.5, -0.5);
-         glTexCoord2f(0, 1);
-         glVertex3f(-0.5, 0.5, -0.5);
-         glEnd(); // GL_QUADS
-         
-         glPopMatrix();
+	    glMultMatrixf( (const GLfloat*)transform.mat );
+	    
+	    glBegin(GL_QUADS);
+	    glTexCoord2f(0, 0);
+	    glVertex3f(-0.5, -0.5, -0.5);
+	    glTexCoord2f(1, 0);
+	    glVertex3f(0.5, -0.5, -0.5);
+	    glTexCoord2f(1, 1);
+	    glVertex3f(0.5, 0.5, -0.5);
+	    glTexCoord2f(0, 1);
+	    glVertex3f(-0.5, 0.5, -0.5);
+	    glEnd(); // GL_QUADS
+	    
+	    glPopMatrix();
+	 }
       }
    }
 
