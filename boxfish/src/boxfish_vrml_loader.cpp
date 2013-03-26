@@ -145,8 +145,6 @@ int Loader::report_progress ( double dl_total, double dl_now ) {
 
    emit progress( percent);
 
-   QApplication::processEvents();
-
    int rc = 0;
 
    m_state_guard.lock();
