@@ -130,7 +130,13 @@ void download_source::initialize()
 
    curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, 1L);
 
-   curl_easy_setopt(m_curl, CURLOPT_URL, m_url.c_str());
+   CURLcode rc = curl_easy_setopt(m_curl, CURLOPT_URL, m_url.c_str());
+   if( rc != CURLE_OK ) {
+      dgd_logger << "Bad url. Error: " << curl_easy_strerror(rc) 
+		 << "(" << rc << ")"
+		 << std::endl;
+      throw download_exception("Invalid URL");
+   }
 
    curl_multi_add_handle( m_mcurl, m_curl );
 }
@@ -182,7 +188,7 @@ std::streamsize download_source::read(char* s, std::streamsize n) {
          {
             m_eof = true;
             dgd_logger << "download timed out" << std::endl;
-            return -1;
+	    throw download_exception("Download timed out");
          }
       }
 
