@@ -25,6 +25,9 @@
 #include <map>
 #include <sstream>
 
+#include <GL/gl.h>
+#include <GL/glext.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
@@ -1411,9 +1414,9 @@ Control::do_insert_texture( const openvrml::texture_node & n,
 		 fmt[nc-1], GL_UNSIGNED_BYTE, (GLubyte*) &pixels[0]);
 
    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-		    repeat_s ? GL_REPEAT : GL_CLAMP );
+		    repeat_s ? GL_REPEAT : GL_CLAMP_TO_EDGE );
    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-		    repeat_t ? GL_REPEAT : GL_CLAMP );
+		    repeat_t ? GL_REPEAT : GL_CLAMP_TO_EDGE );
    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 }
