@@ -71,7 +71,6 @@ private slots:
 
    void handle_select( QModelIndex index );
    void handle_focus( QModelIndex index );
-   void handle_edit( QModelIndex index );
 
 private:
    void closeEvent(QCloseEvent *event);
@@ -80,7 +79,6 @@ signals:
    void constructed();
    void load_finished();
    void load_failed();
-   void edit( QModelIndex index );
 
 private:
    QUrl                m_url;

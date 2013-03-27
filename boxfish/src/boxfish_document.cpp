@@ -107,8 +107,6 @@ Document::Document( const QUrl& url ) :
 	    this, SLOT(handle_select(QModelIndex)) );
    connect( m_scene_tree, SIGNAL(focus(QModelIndex)),
 	    this, SLOT(handle_focus(QModelIndex)) );
-   connect( m_scene_tree, SIGNAL(edit(QModelIndex)),
-	    this, SLOT(handle_edit(QModelIndex)) );
 
    emit constructed();
 }
@@ -339,12 +337,6 @@ void Document::handle_focus( QModelIndex index ) {
    }
 
    this->glpad_reset();
-}
-
-void Document::handle_edit( QModelIndex index ) {
-   dgd_scopef(trace_gui);
-   
-   emit edit( index );
 }
 
 }; // end of namespace boxfish

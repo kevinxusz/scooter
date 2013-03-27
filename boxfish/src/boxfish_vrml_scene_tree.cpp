@@ -41,8 +41,7 @@ Tree::Tree( QWidget * parent ) :
    QTreeView( parent ),
    m_item_menu(NULL) ,
    m_select_action(NULL),
-   m_focus_action(NULL),
-   m_edit_action(NULL) {
+   m_focus_action(NULL) {
    this->setAlternatingRowColors( true );
 
    Delegate *delegate = new Delegate;
@@ -57,7 +56,6 @@ Tree::Tree( QWidget * parent ) :
    
    m_select_action = m_item_menu->addAction( tr("(Un)Select")  );
    m_focus_action  = m_item_menu->addAction( tr("(Un)Focus") );
-   m_edit_action   = m_item_menu->addAction( tr("Edit") );
 }
 
 Tree::~Tree() {}
@@ -89,7 +87,6 @@ void Tree::mousePressEvent ( QMouseEvent *event ) {
       m_item_menu->setTitle( title );
       m_select_action->setData( QVariant( index.row() ) );
       m_focus_action->setData( QVariant( index.row() ) );
-      m_edit_action->setData( QVariant( index.row() ) );
 
       if( event != NULL && event->button() == Qt::RightButton ) {
 	 dgd_logger << "right button pressed" << std::endl;      
@@ -137,10 +134,7 @@ void Tree::handle_context_action( QAction *sender, const QModelIndex& index ) {
    } else if( sender == m_focus_action ) {
       dgd_echo(sender->text());
       emit focus( index );
-   } else if( sender == m_edit_action ) {
-      dgd_echo(sender->text());
-      emit edit( index );
-   }
+   } 
 }
 
 }; // end of namespace scene

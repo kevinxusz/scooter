@@ -74,13 +74,11 @@ bool Key::operator < ( const Key& peer ) const {
       
 
 Item::Item( int  row,
-	    bool editable,
 	    bool modified,
 	    Key  node,
 	    Key  parent,
 	    const openvrml::mat4f& transform ) :
    m_row(row),
-   m_editable(editable),
    m_modified(modified),
    m_node(node),
    m_parent(parent),
@@ -88,7 +86,6 @@ Item::Item( int  row,
 }
 
 int  Item::row()       const { return m_row;      }
-bool Item::editable()  const { return m_editable; }
 bool Item::modified()  const { return m_modified; }
 Key Item::node()       const { return m_node;     }
 Key Item::parent()     const { return m_parent;   }
@@ -127,7 +124,6 @@ Builder::Builder( Map *scene_map ) :
    m_scene_map->insert( Key(NULL, QString()), 
 			Item( 0, 
 			      false,
-			      false,
 			      Key(NULL, QString()),
 			      Key(NULL, QString()),
 			      openvrml::mat4f() ) );
@@ -160,7 +156,6 @@ void Builder::on_entering(openvrml::node &node) {
       m_scene_map->insert( Key(&node, QString()), 
 			   Item(
 			      parent_item->children_size(),
-			      (type == QString("IndexedFaceSet")),
 			      false,
 			      Key(&node, QString()),
 			      Key(parent, QString()),
@@ -184,7 +179,6 @@ void Builder::on_entering(openvrml::node &node) {
             Map::iterator field_item = m_scene_map->insert( 
 	       Key( &node, QString::fromStdString(ifc->id) ), 
 	       Item( node_item->children_size(),
-		     false,
 		     false,
 		     Key(&node, 
 			 QString::fromStdString(ifc->id)),

@@ -65,14 +65,12 @@ public:
 
 public:
    Item( int  row,
-         bool editable,
          bool modified,
          Key node,
          Key parent,
          const openvrml::mat4f& transform );
 
    int             row()       const;
-   bool            editable()  const;
    bool            modified()  const;
    Key             node()      const;
    Key             parent()    const;
@@ -89,7 +87,6 @@ public:
       
 private:
    int             m_row;
-   bool            m_editable;
    bool            m_modified;
    Key             m_node;
    Key             m_parent;
