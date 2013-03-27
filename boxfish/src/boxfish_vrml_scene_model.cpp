@@ -290,9 +290,6 @@ QVariant Model::headerData( int section,
       case SM_MODIFIED_COLUMN:
 	 rc = QVariant::fromValue( tr("Modified") );
 	 break;
-      case SM_STATS_COLUMN:
-	 rc = QVariant::fromValue( tr("Statistics") );
-	 break;
       default:
 	 break;
    }
