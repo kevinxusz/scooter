@@ -286,16 +286,12 @@ protected: // openvrml::viewer interface
       const openvrml::bounding_sphere& bs,
       openvrml::bounding_volume::intersection intersection);
 
-   void           do_draw_bbox();
-
 public slots: 
 
    void scene_root_nodes( const Node_list& ptr );
 
-   void bbox( const Point& bbox_min, 
-              const Point& bbox_max,
-              const QColor& color );
-   void bbox( bool val );
+   void bsphere( const openvrml::node *n,
+		 const QColor& color );
 
    void clear_color( const QColor& color );
 
@@ -310,8 +306,6 @@ public slots:
 
 public:
    Node_list                 scene_root_nodes()   const;
-   bool                      bbox()               const;
-   QColor                    bbox_color()         const;
    QColor                    clear_color()        const;
    PolygonMode               polygon_mode()       const;
    ShadingMode               shading_mode()       const;
@@ -324,7 +318,6 @@ private:
    // properties
    Q_PROPERTY( RenderMode rndr_mode READ mode WRITE render_mode );
    Q_PROPERTY( double frame_rate READ frame_rate );
-   Q_PROPERTY( bool bbox READ bbox WRITE bbox );
    Q_PROPERTY( QColor clear_color READ clear_color WRITE clear_color );
    Q_PROPERTY( PolygonMode polygon_mode 
                READ polygon_mode
@@ -521,10 +514,8 @@ private:
    unsigned    m_cylinder_precision;
    unsigned    m_sphere_precision;
 
-   QColor      m_bbox_color;
-   bool        m_show_bbox;
-   Point       m_bbox_min;
-   Point       m_bbox_max;
+   QColor      m_bsphere_color;
+   const openvrml::node *m_bsphere_node;
 
    Node_list   m_root_nodes;
    browser_ptr m_browser;

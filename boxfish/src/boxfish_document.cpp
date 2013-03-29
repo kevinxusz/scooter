@@ -262,39 +262,16 @@ void Document::handle_select( QModelIndex index ) {
        item->node().field().isNull() ) {
       openvrml::node *node = item->node().node();
 
-      // TBD
-      // if( node != m_selection ) {
-      //    m_selection = node;
+      if( node != m_selection ) {
+         m_selection = node;
 
-      //    openvrml::mat4f transform = item->transform();
-	 
-      //    const openvrml::bounding_sphere &bvol = 
-      //       dynamic_cast<const openvrml::bounding_sphere&>(
-      //          node->bounding_volume()
-      //       );
-	 
-      //    // float radius = bvol.radius();
-      //    openvrml::vec3f top = bvol.top();
-      //    openvrml::vec3f bottom = bvol.bottom();
-	 
-      //    top *= transform;
-      //    bottom *= transform;
-	 
-      //    dgd_logger << dgd_expand(top) << std::endl 
-      //               << dgd_expand(bottom) << std::endl;
-	 	 
-      //    m_glpad->bbox( vrml::Control::Point( bottom.x(), 
-      //   				      bottom.y(),
-      //   				      bottom.z() ),
-      //   		vrml::Control::Point( top.x(), 
-      //   				      top.y(),
-      //   				      top.z() ),
-      //   		Qt::white );
-      //    m_glpad->bbox( true );      
-      // } else {
-      //    m_selection = NULL;
-      //    m_glpad->bbox( false );     
-      // }
+	 QColor selection_color( 255, 255, 0, 64 );
+
+         m_glpad->bsphere( node, selection_color );
+      } else {
+         m_selection = NULL;
+         m_glpad->bsphere( NULL, Qt::white );     
+      }
    }
 	
    m_glpad->repaint();

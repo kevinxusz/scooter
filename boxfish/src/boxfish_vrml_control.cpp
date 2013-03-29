@@ -82,8 +82,8 @@ Control::Control( QWidget *parent,
    m_cone_precision(32),
    m_cylinder_precision(32),
    m_sphere_precision(32),
-   m_bbox_color( Qt::white ),
-   m_show_bbox(false),
+   m_bsphere_color( Qt::white ),
+   m_bsphere_node(NULL),
    m_browser(b),
    m_navigation_info(navigation_info),
    m_viewpoint(viewpoint)
@@ -1400,10 +1400,6 @@ Control::do_insert_texture( const openvrml::texture_node & n,
       return;
    }
 
-   // Enable blending if needed
-   if ( nc == 2 || nc == 4 )
-      glEnable(GL_BLEND);
-
    // Texturing is enabled in setMaterialMode
    glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 
@@ -1669,72 +1665,83 @@ void Control::do_transform_points(size_t nPoints,
 void Control::do_draw_bounding_sphere(
    const openvrml::bounding_sphere& bs,
    openvrml::bounding_volume::intersection intersection) {
-
-}
-
-void Control::do_draw_bbox() {
+   using namespace openvrml;
    dgd_scopef(trace_vrml);
-   if( m_show_bbox ) {
-      m_bbox_max.cartesian();
-      m_bbox_min.cartesian();
 
-      glPushAttrib( GL_LIGHTING_BIT | GL_ENABLE_BIT );
-      glShadeModel( GL_FLAT );
-      glDisable(GL_LIGHTING);
-      
-      glBegin( GL_LINES );
-      glColor3f( (float)m_bbox_color.red() / 255.0f,
-		 (float)m_bbox_color.green() / 255.0f,
-		 (float)m_bbox_color.blue() / 255.0f );      
+   dgd_echo(bs.center());
+   dgd_echo(bs.radius());
+   dgd_echo(bs.maximized());
 
-      // top 
-      glNormal3f( 0, 1.0f, 0 );
-      glVertex3f( m_bbox_min.x(), m_bbox_max.y(), m_bbox_max.z() );
-      glVertex3f( m_bbox_max.x(), m_bbox_max.y(), m_bbox_max.z() );
-
-      glVertex3f( m_bbox_max.x(), m_bbox_max.y(), m_bbox_max.z() );
-      glVertex3f( m_bbox_max.x(), m_bbox_max.y(), m_bbox_min.z() );
-
-      glVertex3f( m_bbox_max.x(), m_bbox_max.y(), m_bbox_min.z() );
-      glVertex3f( m_bbox_min.x(), m_bbox_max.y(), m_bbox_min.z() );
-
-      glVertex3f( m_bbox_min.x(), m_bbox_max.y(), m_bbox_min.z() );
-      glVertex3f( m_bbox_min.x(), m_bbox_max.y(), m_bbox_max.z() );
-
-      // bottom
-      glNormal3f( 0, -1.0f, 0 );
-      glVertex3f( m_bbox_min.x(), m_bbox_min.y(), m_bbox_max.z() );
-      glVertex3f( m_bbox_max.x(), m_bbox_min.y(), m_bbox_max.z() );
-
-      glVertex3f( m_bbox_max.x(), m_bbox_min.y(), m_bbox_max.z() );
-      glVertex3f( m_bbox_max.x(), m_bbox_min.y(), m_bbox_min.z() );
-
-      glVertex3f( m_bbox_max.x(), m_bbox_min.y(), m_bbox_min.z() );
-      glVertex3f( m_bbox_min.x(), m_bbox_min.y(), m_bbox_min.z() );
-
-      glVertex3f( m_bbox_min.x(), m_bbox_min.y(), m_bbox_min.z() );
-      glVertex3f( m_bbox_min.x(), m_bbox_min.y(), m_bbox_max.z() );
-
-      // verticals
-      glNormal3f( 0, 0, 1.0f );
-      glVertex3f( m_bbox_min.x(), m_bbox_max.y(), m_bbox_max.z() );
-      glVertex3f( m_bbox_min.x(), m_bbox_min.y(), m_bbox_max.z() );
-
-      glVertex3f( m_bbox_max.x(), m_bbox_max.y(), m_bbox_max.z() );
-      glVertex3f( m_bbox_max.x(), m_bbox_min.y(), m_bbox_max.z() );
-
-      glNormal3f( 0, 0, -1.0f );
-      glVertex3f( m_bbox_max.x(), m_bbox_max.y(), m_bbox_min.z() );
-      glVertex3f( m_bbox_max.x(), m_bbox_min.y(), m_bbox_min.z() );
-
-      glVertex3f( m_bbox_min.x(), m_bbox_max.y(), m_bbox_min.z() );
-      glVertex3f( m_bbox_min.x(), m_bbox_min.y(), m_bbox_min.z() );
-
-      glEnd();
-      glPopAttrib();
+   if( bs.radius() < 0 || bs.maximized()) {
+      return;
    }
-}
 
+   GLint polygon_mode[2] = { -1, -1 };
+   glGetIntegerv(GL_POLYGON_MODE, polygon_mode);
+   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+   GLint shade_model = -1;
+   glGetIntegerv(GL_SHADE_MODEL, &shade_model);
+   glShadeModel( GL_SMOOTH );
+
+   glMatrixMode(GL_MODELVIEW);
+   glPushMatrix();
+
+   mat4f center_transform = make_translation_mat4f( bs.center() );
+   glMultMatrixf((const GLfloat*)center_transform.mat);
+
+   color diffuse = make_color( m_bsphere_color.redF(),
+			       m_bsphere_color.greenF(),
+			       m_bsphere_color.blueF() );
+   color emissive = make_color(0, 0, 0);
+   color specular = make_color(0.3, 0.3, 0.3);
+
+   glPushAttrib(GL_ENABLE_BIT);
+
+   glEnable(GL_LIGHTING);
+
+   do_set_material( 0.5, diffuse, emissive, 0.5, specular,
+		    m_bsphere_color.alphaF());
+
+   boost::shared_array<Vector> vertexes;
+   boost::shared_array<Vector> normals;
+   boost::shared_array<Vector> texture;
+   boost::shared_array<unsigned> indices;
+
+   generate_spheric_arrays( bs.radius(), 
+			    m_sphere_precision, 
+			    vertexes,
+			    normals,
+			    texture,
+			    indices );
+
+   glEnableClientState( GL_VERTEX_ARRAY );
+   glEnableClientState( GL_NORMAL_ARRAY );
+
+   /**
+    * @note Passing pointer to array of objects to glVertexPointer() 
+    * is potentially dangerous and compiler-dependent. More over,
+    * it wouldn't work if Vector have virtual methods. 
+    */
+   glVertexPointer( 3, GL_FLOAT, sizeof(Vector), vertexes.get() );
+   glNormalPointer( GL_FLOAT, sizeof(Vector), normals.get() );
+   glTexCoordPointer( 2, GL_FLOAT, sizeof(Vector), texture.get() );
+
+   glDrawElements( GL_QUADS, 
+		   2 * m_sphere_precision * m_sphere_precision,
+		   GL_UNSIGNED_INT, 
+		   indices.get() );
+
+   glDisableClientState( GL_VERTEX_ARRAY );
+   glDisableClientState( GL_NORMAL_ARRAY );
+
+   glPopAttrib();
+   glPopMatrix();
+
+   glShadeModel( shade_model );
+   glPolygonMode(GL_FRONT, polygon_mode[0]);
+   glPolygonMode(GL_BACK, polygon_mode[1]);
+}
 
 void Control::resizeGL( int width, int height ) {
    dgd_scopef(trace_vrml);
@@ -1861,25 +1868,20 @@ QColor Control::clear_color() const {
    return m_clear_color;
 }
 
-void Control::bbox( const Point& bbox_min, 
-		    const Point& bbox_max,
-		    const QColor& color ) {
-   m_bbox_min = bbox_min;
-   m_bbox_max = bbox_max;
-   m_bbox_color = color;
+void Control::bsphere( const openvrml::node *n,
+		       const QColor& color ) 
+{
+   m_bsphere_node = n;
+   m_bsphere_color = color;
 }
-
-void Control::bbox( bool val ) {
-   m_show_bbox = val;
-}
-
-bool Control::bbox() const { return m_show_bbox; }
 
 void Control::render_mode( rendering_mode val ) {
    m_select_mode = val;
 }
 
 void Control::paintGL() {
+   using namespace openvrml;
+
    dgd_scopef(trace_vrml);
    if( !m_initialized ) 
       initialize();
@@ -1971,8 +1973,12 @@ void Control::paintGL() {
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
 
-   m_browser->render();
-   do_draw_bbox();
+   mat4f identity = make_mat4f();
+   rendering_context context(bounding_volume::partial, identity);
+   context.bounding_sphere_target = m_bsphere_node;
+   context.draw_bounding_spheres = (m_bsphere_node != NULL);
+
+   m_browser->render(context);
 }
 
 
@@ -2367,10 +2373,6 @@ void Control::finish_user_action( Interaction::UserAction action,
       default:
 	 break;
    }
-}
-
-QColor Control::bbox_color() const {
-   return m_bbox_color;
 }
 
 Control::PolygonMode Control::polygon_mode() const {
