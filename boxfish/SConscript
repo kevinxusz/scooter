@@ -118,7 +118,7 @@ boost_libs = map( lambda lib: lib + '$BOOST_LIB_SUFFIX',
                     'boost_system',
                     'boost_thread' ])
 
-qt_libs = [ 'QtCore4', 'QtGui4', 'QtXml4', 'QtSvg4', 'QtOpenGL4' ]
+qt_libs = [ 'QtCored4', 'QtGuid4', 'QtXmld4', 'QtSvgd4', 'QtOpenGLd4' ]
 
 windows_libs = [ 'wsock32', 'opengl32', 'glu32' ]
 
