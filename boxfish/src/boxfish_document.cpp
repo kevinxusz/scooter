@@ -74,7 +74,8 @@ Document::Document( const QUrl& url ) :
    m_scene_model(NULL),
    m_scene_tree(NULL),
    m_glpad(NULL),
-   m_selection(NULL)
+   m_selection(NULL),
+   m_focus(NULL)
 {
 
    dgd_scopef(trace_gui);
@@ -260,7 +261,7 @@ void Document::handle_select( QModelIndex index ) {
    if( item != NULL && 
        item->node().node() != NULL &&
        item->node().field().isNull() ) {
-      openvrml::node *node = item->node().node();
+      const openvrml::node *node = item->node().node();
 
       if( node != m_selection ) {
          m_selection = node;
@@ -305,12 +306,33 @@ void Document::handle_focus( QModelIndex index ) {
    if( item != NULL && 
        item->node().node() != NULL &&
        item->node().field().isNull() ) {
-      openvrml::node *node = item->node().node();
       openvrml::mat4f transform = item->transform();
+      const openvrml::bounded_volume_node *bvol = 
+	 dynamic_cast<const openvrml::bounded_volume_node*>(
+	    item->node().node()
+	 );
 
-      vrml::Control::Node_list list;
-      list.push_back( vrml::Control::Node_list::value_type( node ) );
-      m_glpad->scene_root_nodes( list );
+      if( bvol == NULL ) {
+	 dgd_logger << "bvol == NULL";
+	 return;
+      }
+
+      openvrml::bounding_sphere bsphere;
+      if( bvol != m_focus ) {
+	 m_focus = bvol;
+	 // TBD will need catch for bad_cast ...
+	 bsphere = dynamic_cast<const openvrml::bounding_sphere&>(
+	    bvol->bounding_volume()
+	 );
+	 
+	 dgd_echo(bsphere.center());
+	 dgd_echo(bsphere.radius());
+	 dgd_echo(transform);
+	 
+	 bsphere.transform(transform);
+      } // else reset focus
+
+      m_glpad->set_focus(bsphere);
    }
 
    this->glpad_reset();

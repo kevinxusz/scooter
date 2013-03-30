@@ -287,9 +287,6 @@ protected: // openvrml::viewer interface
       openvrml::bounding_volume::intersection intersection);
 
 public slots: 
-
-   void scene_root_nodes( const Node_list& ptr );
-
    void bsphere( const openvrml::node *n,
 		 const QColor& color );
 
@@ -303,9 +300,10 @@ public slots:
    void permanent_rotation( bool val );
    void stop_permanent_rotation( bool val );
    void render_mode( rendering_mode val );
+   void set_focus(const openvrml::bounding_sphere &focus);
+
 
 public:
-   Node_list                 scene_root_nodes()   const;
    QColor                    clear_color()        const;
    PolygonMode               polygon_mode()       const;
    ShadingMode               shading_mode()       const;
@@ -517,10 +515,10 @@ private:
    QColor      m_bsphere_color;
    const openvrml::node *m_bsphere_node;
 
-   Node_list   m_root_nodes;
    browser_ptr m_browser;
    node_ptr    m_navigation_info;
    node_ptr    m_viewpoint;
+   openvrml::bounding_sphere m_focus;
 
    Node_GLList_map m_gl_list;
 };

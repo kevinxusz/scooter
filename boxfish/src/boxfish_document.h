@@ -90,7 +90,8 @@ private:
    vrml::scene::Model *m_scene_model;
    vrml::scene::Tree  *m_scene_tree;
    vrml::Control      *m_glpad;
-   void               *m_selection;
+   const void         *m_selection;
+   const void         *m_focus;
 };
 
 }; // end of namespace boxfish

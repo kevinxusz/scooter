@@ -41,6 +41,7 @@ class Loader: public QObject, public openvrml::browser_listener {
    Q_OBJECT
    
 public:
+   // TBD shared and/or intrusive?
    typedef boost::shared_ptr<openvrml::browser> browser_ptr;
    typedef boost::intrusive_ptr<openvrml::node> node_ptr;
 

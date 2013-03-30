@@ -1536,6 +1536,14 @@ void Control::set_default_navigation_info()
    
    jump_el.process_event(sf_jump, m_browser->current_time());
    
+   if( m_focus.radius() > 0 ) {
+      scene_center = m_focus.center();
+      viewpoint_origin = m_focus.radius() /  (float)sin( fow / 2.0f );
+
+      dgd_echo(scene_center);
+      dgd_echo(viewpoint_origin);
+   }
+
    openvrml::vec3f position = scene_center;
    position.z(position.z() + viewpoint_origin);
    dgd_echo(viewpoint_origin);  
@@ -1557,6 +1565,14 @@ void Control::set_default_navigation_info()
    center_el.process_event(sf_center, m_browser->current_time());
 }
 
+void Control::set_focus(const openvrml::bounding_sphere &focus) 
+{   
+   dgd_scopef(trace_vrml);
+
+   dgd_echo(focus.center());
+   dgd_echo(focus.radius());
+   m_focus = focus;
+}
 
 void Control::do_set_frustum(float field_of_view,
                              float avatar_size,
@@ -1776,22 +1792,10 @@ void Control::initialize() {
    }
 }
 
-void Control::scene_root_nodes( const Node_list& ptr ) {
-   m_root_nodes.clear();
-   m_root_nodes = ptr;
-}
-
-Control::Node_list  
-Control::scene_root_nodes() const {
-   if( m_root_nodes.size() == 0 ) 
-      return m_browser->root_scene()->nodes();
-   return m_root_nodes;
-}
-
 bool Control::get_scene_bounds( openvrml::vec3f& center, float& radius ) {
    dgd_scopef(trace_vrml);
    
-   Node_list root_nodes = this->scene_root_nodes();
+   Node_list root_nodes = m_browser->root_scene()->nodes();
    openvrml::bounding_sphere global_bvol;
 
    for( Node_list::const_iterator root_node_iter = root_nodes.begin();
