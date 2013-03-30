@@ -54,7 +54,7 @@ Delegate::~Delegate() {}
 
 QSize Delegate::sizeHint( const QStyleOptionViewItem &option, 
 			  const QModelIndex &index ) const {
-   QSize size = QItemDelegate::sizeHint(option,index);
+   QSize size = QStyledItemDelegate::sizeHint(option,index);
    if( size.isValid() ) 
       size.setWidth( size.width() + size.height() );
    return size;
@@ -91,21 +91,24 @@ QRect Delegate::getSensitiveArea( const QRect &rect ) const {
    return QRect(x,y,width,height);
 }
 
-void Delegate::drawDisplay( QPainter *painter, 
-			    const QStyleOptionViewItem &option, 
-			    const QRect &rect, 
-			    const QString &text ) const {
+void Delegate::paint( QPainter * painter, 
+		      const QStyleOptionViewItem & option, 
+		      const QModelIndex & index ) const {
    dgd_scopef(trace_gui);
-
-   QItemDelegate::drawDisplay( painter, option, rect, text );
+   
+   QStyledItemDelegate::paint( painter, option, index );
 
    if( (option.state & QStyle::State_Selected) == 0 ) {
       dgd_echo(option.state);
       return;
    }
 
+   dgd_echo(option.rect.x());
+   dgd_echo(option.rect.y());
+   dgd_echo(option.rect.width());
+   dgd_echo(option.rect.height());
 
-   QRect tagrect = this->getSensitiveArea( rect );
+   QRect tagrect = this->getSensitiveArea( option.rect );
    QPen pen = painter->pen();
 
    painter->save();

@@ -43,9 +43,10 @@ Tree::Tree( QWidget * parent ) :
    m_select_action(NULL),
    m_focus_action(NULL) {
    this->setAlternatingRowColors( true );
+   this->setSelectionBehavior(QAbstractItemView::SelectRows);
 
    Delegate *delegate = new Delegate;
-   this->setItemDelegate( delegate );
+   this->setItemDelegateForColumn( 0, delegate );
 
    connect( this, SIGNAL(expanded(const QModelIndex&)),
 	    this, SLOT(resize_tree_to_content(const QModelIndex&)) );
@@ -104,7 +105,9 @@ void Tree::mousePressEvent ( QMouseEvent *event ) {
                     << dgd_expand(rect.width()) << std::endl 
                     << dgd_expand(rect.height()) << std::endl;
 
-	 Delegate *delegate = dynamic_cast<Delegate*>( this->itemDelegate() );
+	 Delegate *delegate = dynamic_cast<Delegate*>( 
+	    this->itemDelegateForColumn(index.column()) 
+	 );
 	 if( rect.isValid() && delegate != NULL ) {
 	    QRect sensitive_area = delegate->getSensitiveArea( rect );
 

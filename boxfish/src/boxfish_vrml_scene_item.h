@@ -24,7 +24,7 @@
 #ifndef _boxfish_vrml_scene_item_h_
 #define _boxfish_vrml_scene_item_h_
 
-#include <QtGui/QItemDelegate>
+#include <QtGui/QStyledItemDelegate>
 
 class QLabel;
 class QPushButton;
@@ -35,7 +35,7 @@ namespace vrml {
 
 namespace scene {
 
-class Delegate: public QItemDelegate {
+class Delegate: public QStyledItemDelegate {
 public:
    Delegate();
    virtual ~Delegate();
@@ -45,10 +45,9 @@ public:
    QSize sizeHint( const QStyleOptionViewItem &option, 
                    const QModelIndex &index ) const;
 private:
-   void drawDisplay( QPainter *painter, 
-                     const QStyleOptionViewItem &option, 
-                     const QRect &rect, 
-                     const QString &text ) const;
+   void	paint( QPainter * painter, 
+	       const QStyleOptionViewItem & option, 
+	       const QModelIndex & index ) const;
 };
 
 }; // end of namespace scene

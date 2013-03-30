@@ -128,7 +128,7 @@ Builder::Builder( Map *scene_map ) :
 			      Key(NULL, QString()),
 			      openvrml::mat4f() ) );
    m_nstack.push_back( NULL );
-   m_tstack.push_back( openvrml::mat4f() );
+   m_tstack.push_back( openvrml::make_mat4f() );
 }
       
 Builder::~Builder() throw() {

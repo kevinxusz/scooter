@@ -221,7 +221,10 @@ QVariant Model::data( const QModelIndex & index, int role ) const {
 Qt::ItemFlags Model::flags( const QModelIndex & index ) const {
    dgd_scopef(trace_vrml_scene_map);
 
-   Qt::ItemFlags flags = Qt::ItemIsSelectable;
+   if (!index.isValid())
+      return 0;
+
+   Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
    
    return flags;
 }
@@ -385,7 +388,7 @@ QModelIndex Model::parent( const QModelIndex & index ) const {
    dgd_logger << dgd_expand(iter->row()) << std::endl
               << dgd_expand(&*iter) << std::endl;
 
-   return this->createIndex( iter->row(), index.column(), &*iter );
+   return this->createIndex( iter->row(), 0, &*iter );
 }
 
 
