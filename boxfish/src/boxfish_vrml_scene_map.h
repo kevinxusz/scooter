@@ -65,13 +65,11 @@ public:
 
 public:
    Item( int  row,
-         bool modified,
          Key node,
          Key parent,
          const openvrml::mat4f& transform );
 
    int             row()       const;
-   bool            modified()  const;
    Key             node()      const;
    Key             parent()    const;
    openvrml::mat4f transform() const;
@@ -82,12 +80,10 @@ public:
    int  children_size() const;
 
    void add_child( const Key &key );
-   void modified( bool val );
    void transform( const openvrml::mat4f& t );
       
 private:
    int             m_row;
-   bool            m_modified;
    Key             m_node;
    Key             m_parent;
    openvrml::mat4f m_transform;

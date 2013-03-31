@@ -74,19 +74,16 @@ bool Key::operator < ( const Key& peer ) const {
       
 
 Item::Item( int  row,
-	    bool modified,
 	    Key  node,
 	    Key  parent,
 	    const openvrml::mat4f& transform ) :
    m_row(row),
-   m_modified(modified),
    m_node(node),
    m_parent(parent),
    m_transform(transform) {
 }
 
 int  Item::row()       const { return m_row;      }
-bool Item::modified()  const { return m_modified; }
 Key Item::node()       const { return m_node;     }
 Key Item::parent()     const { return m_parent;   }
 openvrml::mat4f Item::transform() const { return m_transform; }
@@ -113,7 +110,6 @@ void Item::add_child( const Key &key ) {
    m_children.push_back( key );
 }
 
-void Item::modified( bool val ) { m_modified = val; }
 void Item::transform( const openvrml::mat4f& t ) { m_transform = t;  }
 
 Builder::Builder( Map *scene_map ) : 
@@ -123,7 +119,6 @@ Builder::Builder( Map *scene_map ) :
 
    m_scene_map->insert( Key(NULL, QString()), 
 			Item( 0, 
-			      false,
 			      Key(NULL, QString()),
 			      Key(NULL, QString()),
 			      openvrml::mat4f() ) );
@@ -156,7 +151,6 @@ void Builder::on_entering(openvrml::node &node) {
       m_scene_map->insert( Key(&node, QString()), 
 			   Item(
 			      parent_item->children_size(),
-			      false,
 			      Key(&node, QString()),
 			      Key(parent, QString()),
 			      transform ) );
@@ -179,7 +173,6 @@ void Builder::on_entering(openvrml::node &node) {
             Map::iterator field_item = m_scene_map->insert( 
 	       Key( &node, QString::fromStdString(ifc->id) ), 
 	       Item( node_item->children_size(),
-		     false,
 		     Key(&node, 
 			 QString::fromStdString(ifc->id)),
 		     Key(&node, QString()),

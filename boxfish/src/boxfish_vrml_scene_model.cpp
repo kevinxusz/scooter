@@ -125,15 +125,8 @@ QVariant Model::data( const QModelIndex & index, int role ) const {
 	    id = type;
 	 }
 
-         // TBD
-	 // const openvrml::vrml97_node::indexed_face_set_node *ifs = 
-	 //    dynamic_cast<openvrml::vrml97_node::indexed_face_set_node*>(
-	 //       item->node().node()->to_geometry()
-	 //    );
-
 	 dgd_logger << dgd_expand(type.toStdString()) << std::endl
                     << dgd_expand(id.toStdString()) << std::endl ;
-//                    << ifs << std::endl;      
 	 
 	 switch( index.column() ) {
 	    case SM_NAME_COLUMN:
@@ -141,13 +134,6 @@ QVariant Model::data( const QModelIndex & index, int role ) const {
 	       break;
 	    case SM_TYPE_COLUMN:
 	       rc = QVariant::fromValue( type );
-	       break;
-	    case SM_PROP_COLUMN:
-               // TBD
-	       // if( ifs != NULL )
-	       //    rc = QVariant::fromValue( tr("Editable") );
-	       // else
-	       //    rc = QVariant::fromValue( tr("Read Only") );
 	       break;
 	    default:
 	       break;
@@ -206,8 +192,6 @@ QVariant Model::data( const QModelIndex & index, int role ) const {
 	    case SM_TYPE_COLUMN:
 	       rc = QVariant::fromValue( type );
 	       break;
-	    case SM_PROP_COLUMN:
-	       rc = QVariant::fromValue( tr("Read Only") );
 	    default:
 	       break;
 	 }
@@ -286,12 +270,6 @@ QVariant Model::headerData( int section,
 	 break;
       case SM_TYPE_COLUMN:
 	 rc = QVariant::fromValue( tr("Type") );
-	 break;
-      case SM_PROP_COLUMN:
-	 rc = QVariant::fromValue( tr("Property") );
-	 break;
-      case SM_MODIFIED_COLUMN:
-	 rc = QVariant::fromValue( tr("Modified") );
 	 break;
       default:
 	 break;

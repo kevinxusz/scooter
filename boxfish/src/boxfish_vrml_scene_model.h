@@ -44,9 +44,7 @@ public:
       SM_NAME_COLUMN     = 0,
       SM_VALUE_COLUMN    = 1,
       SM_TYPE_COLUMN     = 2,
-      SM_PROP_COLUMN     = 3,
-      SM_MODIFIED_COLUMN = 4,
-      SM_LAST_COLUMN     = 5
+      SM_LAST_COLUMN     = 3
    };
 
 public:
