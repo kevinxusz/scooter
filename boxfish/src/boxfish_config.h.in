@@ -32,7 +32,7 @@
 #define BOXFISH_COMMA_VERSION  @version_comma@
 #define BOXFISH_CREATOR_NAME   "Dimitry Kloper <kloper@users.sf.net>"
 #define BOXFISH_DESCRIPTION    "Boxfish -- VRML and X3D viewer"
-#define BOXFISH_COPYRIGHT "Copyright (C) 2002-2012. " \
+#define BOXFISH_COPYRIGHT "Copyright (C) 2002-2013. " \
                           "Dimitry Kloper <kloper@users.sf.net>. "     \
 
 #endif /* _boxfish_config_h_ */
