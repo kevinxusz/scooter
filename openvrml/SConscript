@@ -57,11 +57,6 @@ env.Append(CXXFLAGS = ['-mthreads', '-isystem', '$BOOSTINCDIR' ])
 env.Append(LIBPATH = ['#blib/lib', '$BOOSTLIBDIR'])
 env.Append(LDFLAGS = ['-mthreads', '-mconsole'])
 
-# pnglibconf = env.Substfile(
-#     source = 'src/jconfig.mingw.h',
-#     target = os.path.join(variant, 'jconfig.h') )
-
-
 openvrml_dl_srclist = map( lambda fname: os.path.join(variant,fname), 
                [ 'local/libopenvrml-dl/openvrml/local/dl.cpp' ])
 
