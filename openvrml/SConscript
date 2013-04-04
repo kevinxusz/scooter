@@ -48,7 +48,8 @@ env.Append(CPPDEFINES = { 'OPENVRML_BUILD_DLL': None,
                           'WINVER': '0x0502',
                           'OPENVRML_PKGLIBDIR_': '\\"../openvrml\\"',
                           'OPENVRML_PKGDATADIR_': '\\"../openvrml\\"',
-                          'BOOST_SPIRIT_DEBUG_OUT': 'std::cerr'
+                          'BOOST_SPIRIT_DEBUG_OUT': 'std::cerr',
+                          'DGD_DYN_LINK': None
                           })
 
 env.Append(CXXFLAGS = ['-mthreads', '-isystem', '$BOOSTINCDIR' ])
@@ -307,6 +308,7 @@ libpng_name = env.subst('${CRSHPREFIX}libpng')
 libxml2_name = env.subst('${CRSHPREFIX}libxml2')
 libopenvrml_dl_name = env.subst('${CRSHPREFIX}openvrml-dl')
 libopenvrml_name = env.subst('${CRSHPREFIX}openvrml')
+dgd_name = env.subst('${CRSHPREFIX}dgd')
 
 boost_libs = map( lambda lib: lib + '$BOOST_LIB_SUFFIX',
                               [ 'boost_program_options',
@@ -327,7 +329,8 @@ openvrml = env.SharedLibrary(
              libpng_name, 
              libjpeg_name, 
              libxml2_name, 
-             libopenvrml_dl_name ] + boost_libs
+             libopenvrml_dl_name,
+             dgd_name ] + boost_libs
 )
 
 env.Install('#blib/bin', openvrml_dl[0])

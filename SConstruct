@@ -52,6 +52,7 @@ SConscript( ['zlib/SConscript' ,
              'openvrml/SConscript',
              'libcurl/SConscript',
              'common/SConscript',
+             'dgd/SConscript',
              'boxfish/SConscript',
              'test/SConscript'] )
 
