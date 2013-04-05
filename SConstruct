@@ -25,14 +25,17 @@ import os
 import sys
 import atexit
 
-dgscons_path=os.path.join('..', 'dgscons')
+from SCons.Script import ARGUMENTS
+
+dgscons_path = ARGUMENTS.get('dgsconsdir')
+dgscons_tools_path = os.path.join(dgscons_path, 'tools')
+
 sys.path.append(dgscons_path)
 
 import dgscons
 import dgscons.version
 import dgscons.build_status
 
-dgscons_tools_path = os.path.join(dgscons_path, 'tools')
 boost = Tool('boost', [ dgscons_tools_path ])
 hardlink = Tool('hardlink', [ dgscons_tools_path ])
 
