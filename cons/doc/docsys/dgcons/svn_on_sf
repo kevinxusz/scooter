@@ -1,8 +1,0 @@
-<%attr>
-short => "SVN"
-brief => "Subversion"
-title => "Subversion repository at Sourceforge.net"
-dummy => 1
-</%attr>
-
-https://sourceforge.net/svn/?group_id=174034
