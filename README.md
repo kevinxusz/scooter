@@ -14,8 +14,8 @@ About
 Boxfish3d is a stand-alone VRML97 viewer for Windows.
 It is built on top of OpenVRML framework with heavy use of Qt and C++ boost.
 
-*This is an early release aimed for developers that are willing to participate 
-in creation of fully featured VRML viewer.*
+<b>This is an early release aimed for developers that are willing to participate 
+in creation of fully featured VRML viewer.<b>
 
 This release introduces support for most VRML97 nodes, EXAMINE view mode
 and tree view of the scene.
