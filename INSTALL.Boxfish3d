@@ -1,0 +1,169 @@
+Boxfish3D INSTALL
+======================================
+
+Copyright (c) 2002-2013. Dimitry Kloper <kloper@users.sourceforge.net>
+
+Windows Binaries
+================
+
+Binaries available from http://sourceforge.net/projects/sctr/files/boxfish3d
+Just download latest zip file, unzip and run bin/boxfish3d.exe.
+
+Building from source code
+=========================
+
+Despite of being created on Windows for Windows, Boxfish3d is a free software 
+and it uses only free software for development. 
+
+Thus, it does NOT have Visual Studio project files. It compiles by MinGW with
+gcc 4.6.2 or later.
+
+
+Prerequisites
+-------------
+
+1. Python 2.7 is a must. 
+   Download and install from http://www.python.org/download/
+
+2. Cygwin is recommended, but is not strictly required. 
+
+   If you decide not use cygwin, please review boxfish3d/bldme
+   script. You will need to run inner scons from command line.
+
+   Also, you will need git to fetch boxfish3d source code, and dependencies.
+
+   Cygwin can be installed from http://cygwin.com
+
+3. MinGW. Refer to this page for installation guidelines:
+   http://www.mingw.org/wiki/InstallationHOWTOforMinGW
+   You will need to install MingW with g++ 4.6.2 or later.
+
+4. Qt4. I am working with 4.8 right now. Never tested Qt5. Get it from 
+   http://qt-project.org/downloads#qt-other
+
+5. C++ Boost. I am working with 1.47. Good chances are that newer versions will 
+   work out of the box.
+
+   Download from http://sourceforge.net/projects/boost/files/boost
+
+6. SCons 2.2.0. This is the primary build tool. Download from 
+   http://www.scons.org. I never tested SCons 2.3, but good chances are that
+   it will work out of the box.
+
+7. DGScons. This is a small set of scons extensions used in Boxfish3d build.
+   Install it just by checking out
+   git clone https://github.com/kloper/dgscons.git dgscons
+
+8. DGD. This is a small C++ logging library. It is a template library and 
+   it does not require compilation.
+   Install it by checking out
+   git clone https://github.com/kloper/dgd.git dgd
+
+If you reached this point, I salute you! Seems like you are really 
+serious about building Boxfish3d :). 
+
+Boxfish3d source code
+---------------------
+
+The source code can be obtained by
+git clone https://github.com/kloper/scooter.git boxfish3d
+
+'Scooter' is a name of ancestor project, that I prefer to keep for historic
+reasons.
+
+The repository has a few sub-modules:
+
+>cat .gitmodules
+[submodule "ext/zlib"]
+        path = ext/zlib
+        url = git@github.com:kloper/zlib.git
+[submodule "ext/libjpeg"]
+        path = ext/libjpeg
+        url = git@github.com:kloper/libjpeg.git
+[submodule "ext/libpng"]
+        path = ext/libpng
+        url = git://libpng.git.sourceforge.net/gitroot/libpng/libpng
+[submodule "ext/libxml2"]
+        path = ext/libxml2
+        url = git://git.gnome.org/libxml2
+[submodule "ext/curl"]
+        path = ext/curl
+        url = git://github.com/bagder/curl.git
+[submodule "ext/openvrml"]
+        path = ext/openvrml
+        url = git@github.com:kloper/openvrml.git
+
+Thus, once you cloned Boxfish3d repository, you will need 
+cd to boxfish3d/ and run 
+
+git submodule update --init
+
+If 'git submodules' does not work for you (as it did for me with early versions
+of git) you may just clone the projects into boxfish3d/ext directory.
+
+Building Boxfish3d
+------------------
+
+Open and review boxfish3d/bldme script. It contains path to every prerequisite
+that is needed for the build. 
+
+Edit the script. If you decided to not use cygwin, you will probably want to
+convert bldme to bldme.bat.
+
+Run bldme.
+
+Enjoy.
+
+Finalizing build
+----------------
+
+The resulting binaries are built in boxfish3d/blib/bin and 
+boxfish3d/blib/openvrml/node directories.
+
+1. Build will not place DLLs from boost, Qt, mingw to the bin directory. 
+   Either tweak PATH environment variable or copy (I usually hard link)
+   the following DLLs to boxfish3d/blib/bin:
+   libboost_filesystem-mgw45-mt-d-1_47.dll
+   libboost_program_options-mgw45-mt-d-1_47.dll
+   libboost_system-mgw45-mt-d-1_47.dll
+   libboost_thread-mgw45-mt-d-1_47.dll
+   libgcc_s_dw2-1.dll
+   libstdc++-6.dll
+   QtCored4.dll
+   QtGuid4.dll
+   QtOpenGLd4.dll
+   QtSvgd4.dll
+   QtXmld4.dll
+
+   Note that since this is development release, Boxfish3d is linked with
+   debug versions of Qt DLLs.
+
+2. Copy entire boxfish3d/ext/openvrml/data/component directory to 
+   boxfish3d/blib/openvrml/component
+
+Troubleshooting
+===============
+
+Send bugs to kloper@users.sf.net :) 
+
+Run Boxfish3d with full logging:
+
+cd boxfish3d/blib/bin
+./boxfish3d.exe --trace-log=boxfish.log --trace-max-with=200
+
+This will produce a couple of boxfish*.log and boxfish*.journal files 
+in the bin directory. 
+
+If reviewing log files does not help, please send me those for analysis.
+
+
+
+
+
+
+
+
+
+
+
+

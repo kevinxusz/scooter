@@ -20,6 +20,14 @@ in creation of fully featured VRML viewer.
 This release introduces support for most VRML97 nodes, EXAMINE view mode
 and tree view of the scene.
 
+OpenVRML
+========
+
+Boxfish3d is based on OpenVRML 18.9.
+Since it required multiple bug/feature fixes I have cloned offcial OpenVRML
+repository into a separate one, available at 
+https://github.com/kloper/openvrml.git
+
 Missing features
 ================
 
