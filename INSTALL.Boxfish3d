@@ -36,7 +36,7 @@ Prerequisites
 
 3. MinGW. Refer to this page for installation guidelines:
    http://www.mingw.org/wiki/InstallationHOWTOforMinGW
-   You will need to install MingW with g++ 4.6.2 or later.
+   You will need to install MinGW with g++ 4.6.2 or later.
 
 4. Qt4. I am working with 4.8 right now. Never tested Qt5. Get it from 
    http://qt-project.org/downloads#qt-other
@@ -120,7 +120,7 @@ Finalizing build
 The resulting binaries are built in boxfish3d/blib/bin and 
 boxfish3d/blib/openvrml/node directories.
 
-1. Build will not place DLLs from boost, Qt, mingw to the bin directory. 
+1. Build will not place DLLs from boost, Qt, MinGW to the bin directory. 
    Either tweak PATH environment variable or copy (I usually hard link)
    the following DLLs to boxfish3d/blib/bin:
    libboost_filesystem-mgw45-mt-d-1_47.dll
